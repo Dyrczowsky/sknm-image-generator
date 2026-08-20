@@ -7,18 +7,20 @@ import { colors, fontMono } from './theme'
 // `placeholderStyle` dotyczy tylko wyśrodkowania tekstu placeholdera, kiedy
 // zdjęcie nie zostało jeszcze wgrane (np. dodatkowy padding przy skosach).
 export function PhotoSlot({ photo, label, style, placeholderStyle, labelStyle, children }) {
+  const src = photo?.src
+
   return (
     <div
       style={{
         position: 'relative',
         overflow: 'hidden',
-        background: photo
-          ? `url(${photo}) center / cover no-repeat`
+        background: src
+          ? `url(${src}) ${photo.x ?? 50}% ${photo.y ?? 50}% / cover no-repeat`
           : `repeating-linear-gradient(135deg, ${colors.placeholderBg} 0 10px, ${colors.placeholderBgAlt} 10px 20px)`,
         ...style,
       }}
     >
-      {!photo && (
+      {!src && (
         <div style={{ width: '100%', height: '100%', display: 'grid', placeItems: 'center', boxSizing: 'border-box', ...placeholderStyle }}>
           <div style={{ font: `400 22px ${fontMono}`, color: colors.placeholderText, textAlign: 'center', ...labelStyle }}>{label}</div>
         </div>

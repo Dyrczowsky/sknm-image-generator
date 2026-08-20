@@ -1,22 +1,40 @@
 .app-shell {
   max-width: 720px;
   margin: 0 auto;
-  padding: 24px 16px 64px;
+  padding: 32px 16px 64px;
 }
 
 .app-shell > a {
   display: inline-block;
   margin-bottom: 16px;
-  color: #2563eb;
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.app-shell > a:hover {
+  text-decoration: underline;
+}
+
+.app-shell h1 {
+  font-size: 1.6rem;
 }
 
 .panel {
-  margin-top: 24px;
+  margin-top: 20px;
+  padding: 20px;
+  border-radius: 14px;
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
 }
 
 .panel h2 {
-  font-size: 1.1rem;
-  margin-bottom: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 14px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .template-selector {
@@ -29,48 +47,64 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
-  padding: 4px;
-  border-radius: 8px;
-  border: 3px solid transparent;
+  gap: 8px;
+  padding: 6px;
+  border-radius: 10px;
+  border: 2px solid transparent;
   background: none;
   cursor: pointer;
   font-size: 0.8rem;
+  color: var(--text);
+  transition: border-color 0.15s ease, transform 0.15s ease;
 }
 
 .template-thumb > div {
-  border-radius: 4px;
+  border-radius: 6px;
   overflow: hidden;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+}
+
+.template-thumb:hover {
+  transform: translateY(-2px);
 }
 
 .template-thumb.is-selected {
-  border-color: #2563eb;
+  border-color: var(--accent);
 }
 
 .image-form {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 
 .image-form-field {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
   font-size: 0.9rem;
 }
 
 .image-form-field input {
-  padding: 8px 10px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
+  padding: 9px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--input-border);
+  background: var(--input-bg);
+  color: var(--text);
   font-size: 1rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.image-form-field input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
 .image-upload {
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid #2a3350;
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--surface-border);
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -78,30 +112,33 @@
 
 .image-upload-label {
   font-size: 0.9rem;
+  font-weight: 500;
 }
 
 .image-upload-hint {
   margin: 0;
   font-size: 0.8rem;
-  color: #9aa3b8;
+  color: var(--text-muted);
 }
 
 .image-upload-row {
   display: flex;
   align-items: center;
   gap: 12px;
+  flex-wrap: wrap;
 }
 
 .image-upload-preview {
-  width: 48px;
-  height: 48px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
+  width: 52px;
+  height: 52px;
+  border-radius: 8px;
+  border: 1px solid var(--input-border);
   display: flex;
   align-items: center;
   justify-content: center;
   background: #fff;
   flex: 0 0 auto;
+  overflow: hidden;
 }
 
 .image-upload-preview img {
@@ -112,11 +149,17 @@
 
 .image-upload-button {
   position: relative;
-  padding: 8px 14px;
-  border-radius: 6px;
-  border: 1px solid #4b5673;
+  padding: 9px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--input-border);
   font-size: 0.85rem;
   cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.image-upload-button:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
 }
 
 .image-upload-button input {
@@ -127,13 +170,71 @@
 }
 
 .image-upload-remove {
-  padding: 8px 14px;
-  border-radius: 6px;
-  border: 1px solid #4b5673;
+  padding: 9px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--input-border);
   background: none;
-  color: inherit;
+  color: var(--text-muted);
   font-size: 0.85rem;
   cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.image-upload-remove:hover {
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+.image-upload-position {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: var(--accent-soft);
+}
+
+.image-upload-position-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.image-upload-position-row span {
+  flex: 0 0 auto;
+  width: 108px;
+}
+
+.image-upload-position-row input[type='range'] {
+  flex: 1;
+  accent-color: var(--accent);
+  cursor: pointer;
+  appearance: none;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--input-border);
+}
+
+.image-upload-position-row input[type='range']::-webkit-slider-thumb {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--bg);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.image-upload-position-row input[type='range']::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--bg);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 .actions {
@@ -142,23 +243,30 @@
 }
 
 .actions button {
-  padding: 10px 16px;
-  border-radius: 6px;
+  padding: 11px 18px;
+  border-radius: 8px;
   border: none;
-  background: #2563eb;
+  background: var(--accent);
   color: #fff;
   font-size: 0.95rem;
+  font-weight: 500;
   cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease;
 }
 
 .actions button:hover {
-  background: #1d4ed8;
+  background: var(--accent-hover);
+}
+
+.actions button:active {
+  transform: scale(0.98);
 }
 
 .poster-preview > div {
-  border-radius: 8px;
+  border-radius: 10px;
   overflow: hidden;
-  border: 1px solid #ddd;
+  border: 1px solid var(--surface-border);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
 }
 
 .history-list {
@@ -172,17 +280,18 @@
 .history-item {
   display: flex;
   flex-direction: column;
-  padding: 10px 12px;
-  border: 1px solid #e5e5e5;
-  border-radius: 8px;
+  padding: 12px 14px;
+  border: 1px solid var(--surface-border);
+  border-radius: 10px;
   font-size: 0.9rem;
+  background: var(--bg);
 }
 
 .history-meta {
-  color: #777;
+  color: var(--text-muted);
   font-size: 0.8rem;
 }
 
 .history-empty {
-  color: #777;
+  color: var(--text-muted);
 }

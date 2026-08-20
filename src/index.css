@@ -1,8 +1,18 @@
 :root {
   font: 16px/1.5 system-ui, 'Segoe UI', Roboto, sans-serif;
   color-scheme: light dark;
-  color: #111827;
-  background: #ffffff;
+
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --accent-soft: #2563eb1a;
+
+  --bg: #ffffff;
+  --surface: #f8fafc;
+  --surface-border: #e2e8f0;
+  --text: #111827;
+  --text-muted: #6b7280;
+  --input-bg: #ffffff;
+  --input-border: #cbd5e1;
 }
 
 * {
@@ -11,6 +21,8 @@
 
 body {
   margin: 0;
+  background: var(--bg);
+  color: var(--text);
 }
 
 h1,
@@ -20,17 +32,12 @@ h2 {
 
 @media (prefers-color-scheme: dark) {
   :root {
-    color: #f3f4f6;
-    background: #0f172a;
-  }
-
-  .image-form-field input {
-    background: #1e293b;
-    border-color: #334155;
-    color: inherit;
-  }
-
-  .history-item {
-    border-color: #334155;
+    --bg: #0f172a;
+    --surface: #161d33;
+    --surface-border: #29314d;
+    --text: #f3f4f6;
+    --text-muted: #9aa3b8;
+    --input-bg: #1e293b;
+    --input-border: #334155;
   }
 }

@@ -8,8 +8,11 @@ function readAsDataUrl(file) {
 }
 
 // Ogólne pole do wgrania własnej grafiki (SVG/PNG/JPG) - używane zarówno dla
-// logo, jak i dla zdjęć wymaganych przez niektóre szablony.
-export function ImageUpload({ label, hint, value, onChange }) {
+// logo, jak i dla zdjęć wymaganych przez niektóre szablony. Podaj
+// `position`/`onPositionChange`, żeby dodatkowo pokazać suwaki X/Y do
+// przesuwania kadru zdjęcia (ma sens tylko dla zdjęć wypełniających kadr -
+// nie dla logo, które zawsze mieści się w całości).
+export function ImageUpload({ label, hint, value, onChange, position, onPositionChange }) {
   const handleFile = async (e) => {
     const file = e.target.files?.[0]
     e.target.value = ''
@@ -38,6 +41,31 @@ export function ImageUpload({ label, hint, value, onChange }) {
           </button>
         )}
       </div>
+
+      {value && position && onPositionChange && (
+        <div className="image-upload-position">
+          <label className="image-upload-position-row">
+            <span>Pozycja w poziomie</span>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value={position.x ?? 50}
+              onChange={(e) => onPositionChange('x', Number(e.target.value))}
+            />
+          </label>
+          <label className="image-upload-position-row">
+            <span>Pozycja w pionie</span>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value={position.y ?? 50}
+              onChange={(e) => onPositionChange('y', Number(e.target.value))}
+            />
+          </label>
+        </div>
+      )}
     </div>
   )
 }

@@ -82,9 +82,18 @@ function App() {
     })
   }
 
-  const handlePhotoChange = (slotKey, value) => {
+  const handlePhotoChange = (slotKey, src) => {
     setForm((prev) => {
-      const next = { ...prev, photos: { ...prev.photos, [slotKey]: value } }
+      const next = { ...prev, photos: { ...prev.photos, [slotKey]: src ? { src, x: 50, y: 50 } : undefined } }
+      persistDraft(next, selectedTemplateId)
+      return next
+    })
+  }
+
+  const handlePhotoPositionChange = (slotKey, axis, value) => {
+    setForm((prev) => {
+      const current = prev.photos[slotKey] ?? { src: null, x: 50, y: 50 }
+      const next = { ...prev, photos: { ...prev.photos, [slotKey]: { ...current, [axis]: value } } }
       persistDraft(next, selectedTemplateId)
       return next
     })
@@ -136,15 +145,20 @@ function App() {
           value={form.logo}
           onChange={(logo) => handleFieldChange('logo', logo)}
         />
-        {(selectedPoster?.photoSlots ?? []).map((slot) => (
-          <ImageUpload
-            key={slot.key}
-            label={`${slot.label} (opcjonalnie)`}
-            hint="Ten szablon ma miejsce na zdjęcie - bez wgranego pliku zostanie placeholder."
-            value={form.photos[slot.key] ?? null}
-            onChange={(value) => handlePhotoChange(slot.key, value)}
-          />
-        ))}
+        {(selectedPoster?.photoSlots ?? []).map((slot) => {
+          const photo = form.photos[slot.key]
+          return (
+            <ImageUpload
+              key={slot.key}
+              label={`${slot.label} (opcjonalnie)`}
+              hint="Ten szablon ma miejsce na zdjęcie - bez wgranego pliku zostanie placeholder."
+              value={photo?.src ?? null}
+              onChange={(src) => handlePhotoChange(slot.key, src)}
+              position={photo}
+              onPositionChange={(axis, value) => handlePhotoPositionChange(slot.key, axis, value)}
+            />
+          )
+        })}
       </section>
 
       <section className="panel actions">
