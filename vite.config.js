@@ -10,6 +10,7 @@ export default defineConfig({
     // sposób. Wszystkie obrazy trafiają więc do osobnych, cache'owalnych plików.
     assetsInlineLimit: 0,
   },
+  base: "/sknm-image-generator/",
   plugins: [
     react(),
     VitePWA({
