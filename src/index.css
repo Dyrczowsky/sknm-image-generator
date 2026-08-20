@@ -1,0 +1,36 @@
+:root {
+  font: 16px/1.5 system-ui, 'Segoe UI', Roboto, sans-serif;
+  color-scheme: light dark;
+  color: #111827;
+  background: #ffffff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+h1,
+h2 {
+  margin: 0 0 8px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color: #f3f4f6;
+    background: #0f172a;
+  }
+
+  .image-form-field input {
+    background: #1e293b;
+    border-color: #334155;
+    color: inherit;
+  }
+
+  .history-item {
+    border-color: #334155;
+  }
+}
