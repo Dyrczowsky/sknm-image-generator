@@ -22,6 +22,41 @@ export const colors = {
 export const fontHeading = "Fieldwork, 'Hanken Grotesk', Helvetica, sans-serif"
 export const fontMono = "'Space Mono', monospace"
 
+// Wspólna skala typografii dla powtarzających się elementów (blocks/).
+// Pojedyncza zmiana tutaj propaguje się do wszystkich szablonów, które
+// używają danego bloku.
+export const typography = {
+  tag: {
+    font: `700 22px ${fontMono}`,
+    letterSpacing: '.14em',
+  },
+  branding: {
+    font: `700 22px ${fontMono}`,
+    letterSpacing: '.16em',
+    lineHeight: 1.7,
+  },
+  bigDay: {
+    fontSize: 104,
+    fontWeight: 800,
+    lineHeight: 0.86,
+    letterSpacing: '-.04em',
+  },
+  bigMonth: {
+    fontSize: 44,
+    fontWeight: 600,
+    letterSpacing: 0,
+  },
+  bigTime: {
+    font: `700 26px ${fontMono}`,
+    letterSpacing: '.1em',
+  },
+  body: {
+    fontSize: 30,
+    fontWeight: 500,
+    lineHeight: 1.4,
+  },
+}
+
 export const placeholderBoxStyle = {
   boxSizing: 'border-box',
   border: `2px dashed ${colors.placeholderBorder}`,

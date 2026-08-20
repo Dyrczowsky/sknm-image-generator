@@ -7,7 +7,7 @@ import { posterRegistry } from './posters/registry'
 import { downloadPosterAsPng } from './posters/export'
 import { TemplateSelector } from './components/TemplateSelector'
 import { ImageForm } from './components/ImageForm'
-import { LogoUpload } from './components/LogoUpload'
+import { ImageUpload } from './components/ImageUpload'
 import { PosterPreview } from './components/PosterPreview'
 import { HistoryList } from './components/HistoryList'
 
@@ -19,6 +19,7 @@ const EMPTY_FORM = {
   event_time: '',
   location: '',
   logo: null,
+  photos: {},
 }
 
 function App() {
@@ -50,6 +51,7 @@ function App() {
           event_time: draft.event_time ?? '',
           location: draft.location ?? '',
           logo: null,
+          photos: {},
         })
         setSelectedTemplateId(draft.template_id ?? tpls[0]?.id ?? null)
       } else {
@@ -75,6 +77,14 @@ function App() {
   const handleFieldChange = (name, value) => {
     setForm((prev) => {
       const next = { ...prev, [name]: value }
+      persistDraft(next, selectedTemplateId)
+      return next
+    })
+  }
+
+  const handlePhotoChange = (slotKey, value) => {
+    setForm((prev) => {
+      const next = { ...prev, photos: { ...prev.photos, [slotKey]: value } }
       persistDraft(next, selectedTemplateId)
       return next
     })
@@ -114,14 +124,27 @@ function App() {
           templates={templates}
           selectedId={selectedTemplateId}
           onSelect={handleSelectTemplate}
-          data={form}
         />
       </section>
 
       <section className="panel">
         <h2>2. Uzupełnij dane</h2>
         <ImageForm value={form} onChange={handleFieldChange} />
-        <LogoUpload value={form.logo} onChange={(logo) => handleFieldChange('logo', logo)} />
+        <ImageUpload
+          label="Własne logo (opcjonalnie)"
+          hint="Najlepiej plik SVG (skaluje się bez utraty jakości), PNG lub JPG też zadziałają. Bez wgranego pliku w plakacie pojawi się domyślne logo PK."
+          value={form.logo}
+          onChange={(logo) => handleFieldChange('logo', logo)}
+        />
+        {(selectedPoster?.photoSlots ?? []).map((slot) => (
+          <ImageUpload
+            key={slot.key}
+            label={`${slot.label} (opcjonalnie)`}
+            hint="Ten szablon ma miejsce na zdjęcie - bez wgranego pliku zostanie placeholder."
+            value={form.photos[slot.key] ?? null}
+            onChange={(value) => handlePhotoChange(slot.key, value)}
+          />
+        ))}
       </section>
 
       <section className="panel actions">

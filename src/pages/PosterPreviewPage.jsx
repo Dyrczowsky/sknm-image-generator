@@ -11,7 +11,7 @@ export function PosterPreviewPage({ posterKey }) {
     return (
       <main className="app-shell">
         <p>Nie znaleziono szablonu „{posterKey}”.</p>
-        <a href="/">Wróć do generatora</a>
+        <a href={import.meta.env.BASE_URL}>Wróć do generatora</a>
       </main>
     )
   }
@@ -21,7 +21,7 @@ export function PosterPreviewPage({ posterKey }) {
 
   return (
     <main className="app-shell">
-      <a href="/">← Wróć do generatora</a>
+      <a href={import.meta.env.BASE_URL}>← Wróć do generatora</a>
       <h1>Podgląd szablonu: {name}</h1>
       <div className="poster-preview">
         <PosterScaled size={600}>

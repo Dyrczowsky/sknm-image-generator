@@ -1,19 +1,22 @@
-import { colors, fontMono, posterBaseStyle } from './theme'
+import { colors, fontMono } from './theme'
 import { sygnetGranat } from './logos'
 import { LogoSlot } from './LogoSlot'
+import { PhotoSlot } from './PhotoSlot'
 import { withPlaceholders } from './fallback'
 import { getDay, getMonthShort } from '../utils/formatDate'
+import { PosterFrame } from './blocks/PosterFrame'
+import { BrandingText } from './blocks/BrandingText'
+import { InfoLine } from './blocks/InfoLine'
+import { LogoRow } from './blocks/LogoRow'
 
 // 1d · DATA — liczba jako grafika
 export function Poster1d({ data }) {
-  const { title, subtitle, event_date, event_time, location, logo } = withPlaceholders(data)
+  const { title, subtitle, event_date, event_time, location, logo, photos } = withPlaceholders(data)
 
   return (
-    <div style={{ ...posterBaseStyle, background: colors.cream, color: colors.navy, padding: 72, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+    <PosterFrame background={colors.cream} color={colors.navy} padding={72}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-        <div style={{ font: `700 22px ${fontMono}`, letterSpacing: '.16em', lineHeight: 1.7 }}>
-          WYDARZENIE<br />SKNM · PK
-        </div>
+        <BrandingText lines={['WYDARZENIE', 'SKNM · PK']} style={{ textAlign: 'left' }} />
         <img src={sygnetGranat} alt="SKNM" style={{ width: 120, display: 'block' }} />
       </div>
 
@@ -30,24 +33,17 @@ export function Poster1d({ data }) {
       </div>
 
       <div style={{ display: 'flex', gap: 36, alignItems: 'flex-end' }}>
-        <div
-          style={{
-            width: 230, height: 230, flex: '0 0 auto', borderRadius: 999,
-            background: `repeating-linear-gradient(135deg, ${colors.placeholderBg} 0 10px, ${colors.placeholderBgAlt} 10px 20px)`,
-            display: 'grid', placeItems: 'center', font: `400 18px ${fontMono}`, color: colors.placeholderText, textAlign: 'center',
-          }}
-        >
-          zdjęcie<br />z wydarzenia
-        </div>
+        <PhotoSlot
+          photo={photos.photo}
+          label={<>zdjęcie<br />z wydarzenia</>}
+          style={{ width: 230, height: 230, flex: '0 0 auto', borderRadius: 999 }}
+          labelStyle={{ font: `400 18px ${fontMono}` }}
+        />
         <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
           <div style={{ fontSize: 60, fontWeight: 800, lineHeight: 1, letterSpacing: '-.02em', color: colors.ink }}>
             {title}
           </div>
-          <div style={{ fontSize: 30, fontWeight: 500, lineHeight: 1.4, color: colors.textMuted, maxWidth: '24ch' }}>
-            {subtitle}
-            {subtitle && location && <br />}
-            {location}
-          </div>
+          <InfoLine parts={[subtitle]} secondLine={location} style={{ color: colors.textMuted, maxWidth: '24ch' }} />
         </div>
       </div>
 
@@ -57,11 +53,11 @@ export function Poster1d({ data }) {
           <div style={{ width: 56, height: 44, background: colors.lime, clipPath: 'polygon(0 0,100% 0,50% 100%)' }} />
           <div style={{ width: 56, height: 44, background: colors.coral, clipPath: 'polygon(0 0,100% 0,50% 100%)' }} />
         </div>
-        <div style={{ display: 'flex', gap: 14 }}>
+        <LogoRow gap={14}>
           <LogoSlot logo={logo} variant="light" width={180} height={68} />
           <LogoSlot logo={logo} variant="light" width={180} height={68} />
-        </div>
+        </LogoRow>
       </div>
-    </div>
+    </PosterFrame>
   )
 }

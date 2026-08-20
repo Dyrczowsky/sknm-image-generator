@@ -1,18 +1,21 @@
-import { colors, fontMono, posterBaseStyle } from './theme'
+import { colors, fontMono } from './theme'
 import { sygnetGranat } from './logos'
 import { PlaceholderBox } from './PlaceholderBox'
 import { LogoSlot } from './LogoSlot'
 import { withPlaceholders } from './fallback'
 import { getDay, getMonthShort } from '../utils/formatDate'
+import { PosterFrame } from './blocks/PosterFrame'
+import { Badge } from './blocks/Badge'
+import { InfoLine } from './blocks/InfoLine'
+import { BrandingText } from './blocks/BrandingText'
+import { LogoRow } from './blocks/LogoRow'
 
 // 1f · REKRUTACJA — wzór z sygnetu
 export function Poster1f({ data }) {
   const { title, subtitle, event_date, event_time, location, logo } = withPlaceholders(data)
 
-  const infoLine = [`${getDay(event_date)} ${getMonthShort(event_date)}`, event_time, location].join(' · ')
-
   return (
-    <div style={{ ...posterBaseStyle, background: colors.lime, color: colors.limeText, padding: 72, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+    <PosterFrame background={colors.lime} color={colors.limeText} padding={72}>
       <div
         style={{
           position: 'absolute', bottom: 0, left: 0, right: 0, height: 340, background: colors.navy,
@@ -22,9 +25,7 @@ export function Poster1f({ data }) {
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', position: 'relative' }}>
         <img src={sygnetGranat} alt="SKNM" style={{ width: 140, display: 'block' }} />
-        <div style={{ font: `700 22px ${fontMono}`, letterSpacing: '.16em', textAlign: 'right', lineHeight: 1.7 }}>
-          STUDENCKIE KOŁO<br />NAUKOWE MATEMATYKÓW<br />POLITECHNIKI KRAKOWSKIEJ
-        </div>
+        <BrandingText lines={['STUDENCKIE KOŁO', 'NAUKOWE MATEMATYKÓW', 'POLITECHNIKI KRAKOWSKIEJ']} />
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 26, position: 'relative', maxWidth: 900 }}>
@@ -38,15 +39,15 @@ export function Poster1f({ data }) {
 
       <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 32, position: 'relative', color: colors.cream }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12, paddingBottom: 8 }}>
-          <div style={{ font: `700 26px ${fontMono}`, letterSpacing: '.1em', color: colors.lime }}>SPOTKANIE ORGANIZACYJNE</div>
-          <div style={{ fontSize: 44, fontWeight: 800, lineHeight: 1.05 }}>{infoLine}</div>
+          <Badge color={colors.lime} style={{ font: `700 26px ${fontMono}`, letterSpacing: '.1em' }}>SPOTKANIE ORGANIZACYJNE</Badge>
+          <InfoLine parts={[`${getDay(event_date)} ${getMonthShort(event_date)}`, event_time, location]} style={{ fontSize: 44, fontWeight: 800, lineHeight: 1.05 }} />
           <div style={{ fontSize: 26, fontWeight: 500, opacity: 0.85 }}>sknm.pk.edu.pl · @sknm.pk</div>
         </div>
-        <div style={{ display: 'flex', gap: 16, alignItems: 'flex-end' }}>
+        <LogoRow alignItems="flex-end">
           <PlaceholderBox label="kod QR" width={170} height={170} style={{ borderColor: 'rgba(244,242,237,.55)', color: 'rgba(244,242,237,.75)' }} />
           <LogoSlot logo={logo} variant="dark" width={180} height={68} />
-        </div>
+        </LogoRow>
       </div>
-    </div>
+    </PosterFrame>
   )
 }

@@ -1,9 +1,13 @@
-import { colors, fontMono, posterBaseStyle } from './theme'
+import { colors } from './theme'
 import { sygnetGranat } from './logos'
 import { PlaceholderBox } from './PlaceholderBox'
 import { LogoSlot } from './LogoSlot'
+import { PhotoSlot } from './PhotoSlot'
 import { withPlaceholders } from './fallback'
 import { getDay, getMonthShort } from '../utils/formatDate'
+import { PosterFrame } from './blocks/PosterFrame'
+import { Badge } from './blocks/Badge'
+import { LogoRow } from './blocks/LogoRow'
 
 function Pill({ children }) {
   return (
@@ -15,32 +19,24 @@ function Pill({ children }) {
 
 // 1c · WARSZTAT — skos
 export function Poster1c({ data }) {
-  const { title, subtitle, event_date, event_time, location, logo } = withPlaceholders(data)
+  const { title, subtitle, event_date, event_time, location, logo, photos } = withPlaceholders(data)
 
   const pills = [event_time, `${getDay(event_date)} ${getMonthShort(event_date)}`, location]
 
   return (
-    <div style={{ ...posterBaseStyle, background: colors.cream, color: colors.ink }}>
-      <div
-        style={{
-          position: 'absolute', top: 0, right: 0, width: 660, height: 1080,
-          background: `repeating-linear-gradient(135deg, ${colors.placeholderBg} 0 10px, ${colors.placeholderBgAlt} 10px 20px)`,
-          clipPath: 'polygon(38% 0,100% 0,100% 100%,0 100%)',
-          display: 'grid', placeItems: 'center', paddingLeft: 180, boxSizing: 'border-box',
-        }}
-      >
-        <div style={{ font: `400 22px ${fontMono}`, color: colors.placeholderText, textAlign: 'center' }}>
-          zdjęcie<br />z warsztatów
-        </div>
-      </div>
+    <PosterFrame background={colors.cream} color={colors.ink}>
+      <PhotoSlot
+        photo={photos.photo}
+        label={<>zdjęcie<br />z warsztatów</>}
+        style={{ position: 'absolute', top: 0, right: 0, width: 660, height: 1080, clipPath: 'polygon(38% 0,100% 0,100% 100%,0 100%)' }}
+        placeholderStyle={{ paddingLeft: 180 }}
+      />
 
       <div style={{ position: 'absolute', inset: 72, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
         <img src={sygnetGranat} alt="SKNM" style={{ width: 120, display: 'block' }} />
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 22, maxWidth: 600 }}>
-          <div style={{ alignSelf: 'flex-start', background: colors.navy, color: colors.lime, font: `700 22px ${fontMono}`, letterSpacing: '.14em', padding: '10px 16px' }}>
-            WARSZTATY
-          </div>
+          <Badge background={colors.navy} color={colors.lime} style={{ padding: '10px 16px' }}>WARSZTATY</Badge>
           <div style={{ fontSize: 104, fontWeight: 800, lineHeight: 0.94, letterSpacing: '-.035em', color: colors.navy }}>
             {title}
           </div>
@@ -55,13 +51,13 @@ export function Poster1c({ data }) {
           </div>
           <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24 }}>
             <PlaceholderBox label={<>kod QR<br />zapisy</>} width={150} height={150} style={{ background: colors.cream }} />
-            <div style={{ display: 'flex', gap: 14 }}>
+            <LogoRow gap={14}>
               <LogoSlot logo={logo} variant="light" width={170} height={66} style={{ background: colors.cream }} />
               <LogoSlot logo={logo} variant="light" width={170} height={66} style={{ background: colors.cream }} />
-            </div>
+            </LogoRow>
           </div>
         </div>
       </div>
-    </div>
+    </PosterFrame>
   )
 }

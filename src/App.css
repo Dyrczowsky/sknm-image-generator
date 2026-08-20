@@ -67,7 +67,7 @@
   font-size: 1rem;
 }
 
-.logo-upload {
+.image-upload {
   margin-top: 16px;
   padding-top: 16px;
   border-top: 1px solid #2a3350;
@@ -76,23 +76,23 @@
   gap: 8px;
 }
 
-.logo-upload-label {
+.image-upload-label {
   font-size: 0.9rem;
 }
 
-.logo-upload-hint {
+.image-upload-hint {
   margin: 0;
   font-size: 0.8rem;
   color: #9aa3b8;
 }
 
-.logo-upload-row {
+.image-upload-row {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.logo-upload-preview {
+.image-upload-preview {
   width: 48px;
   height: 48px;
   border-radius: 6px;
@@ -104,13 +104,13 @@
   flex: 0 0 auto;
 }
 
-.logo-upload-preview img {
+.image-upload-preview img {
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
 }
 
-.logo-upload-button {
+.image-upload-button {
   position: relative;
   padding: 8px 14px;
   border-radius: 6px;
@@ -119,14 +119,14 @@
   cursor: pointer;
 }
 
-.logo-upload-button input {
+.image-upload-button input {
   position: absolute;
   inset: 0;
   opacity: 0;
   cursor: pointer;
 }
 
-.logo-upload-remove {
+.image-upload-remove {
   padding: 8px 14px;
   border-radius: 6px;
   border: 1px solid #4b5673;

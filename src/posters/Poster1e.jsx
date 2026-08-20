@@ -1,9 +1,12 @@
-import { colors, fontMono, posterBaseStyle } from './theme'
+import { colors, fontMono } from './theme'
 import { sygnetNegatywny } from './logos'
 import { PlaceholderBox } from './PlaceholderBox'
 import { LogoSlot } from './LogoSlot'
 import { withPlaceholders } from './fallback'
 import { formatFullDate } from '../utils/formatDate'
+import { PosterFrame } from './blocks/PosterFrame'
+import { Badge } from './blocks/Badge'
+import { LogoRow } from './blocks/LogoRow'
 
 // 1e · KONFERENCJA — nagłówek + pojedynczy punkt programu
 export function Poster1e({ data }) {
@@ -12,10 +15,10 @@ export function Poster1e({ data }) {
   const dateLine = `${formatFullDate(event_date)} · ${location}`
 
   return (
-    <div style={{ ...posterBaseStyle, background: colors.cream, color: colors.ink, display: 'flex', flexDirection: 'column' }}>
+    <PosterFrame background={colors.cream} color={colors.ink}>
       <div style={{ background: colors.navy, color: colors.cream, padding: '56px 72px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: 32 }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          <div style={{ font: `700 22px ${fontMono}`, letterSpacing: '.14em', color: colors.lime }}>SEMINARIUM SKNM</div>
+          <Badge color={colors.lime}>SEMINARIUM SKNM</Badge>
           <div style={{ fontSize: 76, fontWeight: 800, lineHeight: 0.96, letterSpacing: '-.03em' }}>
             {title}
           </div>
@@ -35,15 +38,15 @@ export function Poster1e({ data }) {
 
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24 }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <div style={{ font: `700 20px ${fontMono}`, letterSpacing: '.12em', color: colors.navy }}>WIĘCEJ INFORMACJI</div>
+            <Badge color={colors.navy} style={{ font: `700 20px ${fontMono}`, letterSpacing: '.12em' }}>WIĘCEJ INFORMACJI</Badge>
             <div style={{ fontSize: 24, fontWeight: 600, color: colors.textMuted }}>sknm.pk.edu.pl</div>
           </div>
-          <div style={{ display: 'flex', gap: 14 }}>
+          <LogoRow gap={14}>
             <LogoSlot logo={logo} variant="light" width={180} height={68} />
             <PlaceholderBox label="patronat" width={180} height={68} />
-          </div>
+          </LogoRow>
         </div>
       </div>
-    </div>
+    </PosterFrame>
   )
 }

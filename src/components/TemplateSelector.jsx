@@ -3,7 +3,11 @@ import { PosterScaled } from './PosterScaled'
 
 const THUMB_SIZE = 130
 
-export function TemplateSelector({ templates, selectedId, onSelect, data }) {
+// Miniatury zawsze pokazują dane przykładowe (placeholder) - nie muszą się
+// aktualizować na żywo wraz z formularzem, to robi tylko duży podgląd.
+const THUMB_DATA = {}
+
+export function TemplateSelector({ templates, selectedId, onSelect }) {
   return (
     <div className="template-selector">
       {templates.map((tpl) => {
@@ -18,7 +22,7 @@ export function TemplateSelector({ templates, selectedId, onSelect, data }) {
             onClick={() => onSelect(tpl.id)}
           >
             <PosterScaled size={THUMB_SIZE}>
-              <Component data={data} />
+              <Component data={THUMB_DATA} />
             </PosterScaled>
             <span>{tpl.name}</span>
           </button>
