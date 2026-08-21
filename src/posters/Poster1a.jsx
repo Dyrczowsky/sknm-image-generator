@@ -11,7 +11,7 @@ import { LogoRow } from './blocks/LogoRow'
 
 // 1a · WYKŁAD — typografia
 export function Poster1a({ data }) {
-  const { title, subtitle, speaker, event_date, event_time, location, logo } = withPlaceholders(data)
+  const { title, subtitle, speaker, event_date, event_time, location, logos } = withPlaceholders(data)
 
   return (
     <PosterFrame background={colors.navy} color={colors.cream} padding={72}>
@@ -34,8 +34,8 @@ export function Poster1a({ data }) {
           <InfoLine parts={[event_time, location]} secondLine={subtitle} style={{ paddingBottom: 10 }} />
         </div>
         <LogoRow alignItems="center">
-          <LogoSlot logo={logo} variant="dark" width={200} height={76} />
-          <LogoSlot logo={logo} variant="dark" width={200} height={76} />
+          <LogoSlot logo={logos.pk} variant="dark" width={200} height={76} />
+          <LogoSlot logo={logos.faculty} variant="dark" width={200} height={76} />
         </LogoRow>
       </div>
 

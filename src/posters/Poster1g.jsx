@@ -12,7 +12,7 @@ import { LogoRow } from './blocks/LogoRow'
 
 // 1g · GALA — złoto na grafitowym
 export function Poster1g({ data }) {
-  const { title, subtitle, event_date, event_time, location, logo } = withPlaceholders(data)
+  const { title, subtitle, event_date, event_time, location, logos } = withPlaceholders(data)
 
   return (
     <PosterFrame background={colors.ink} color={colors.goldPanelText} padding={72}>
@@ -40,7 +40,7 @@ export function Poster1g({ data }) {
           <InfoLine parts={[event_time, location]} style={{ paddingBottom: 10 }} />
         </div>
         <LogoRow>
-          <LogoSlot logo={logo} variant="dark" width={190} height={72} />
+          <LogoSlot logo={logos.pk} variant="dark" width={190} height={72} />
           <PlaceholderBox label="patronat" width={190} height={72} style={{ borderColor: 'rgba(184,148,58,.5)', color: 'rgba(240,237,228,.7)' }} />
         </LogoRow>
       </div>

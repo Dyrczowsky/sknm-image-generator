@@ -115,6 +115,53 @@
   font-weight: 500;
 }
 
+.image-upload-toggle {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  cursor: pointer;
+  width: fit-content;
+}
+
+.image-upload-toggle input[type='checkbox'] {
+  width: 17px;
+  height: 17px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.image-upload-crop {
+  position: relative;
+  width: 100%;
+  height: 140px;
+  border-radius: 10px;
+  border: 1px solid var(--input-border);
+  background-size: cover;
+  background-repeat: no-repeat;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  overflow: hidden;
+}
+
+.image-upload-crop:active {
+  cursor: grabbing;
+}
+
+.image-upload-crop-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 8px;
+  transform: translateX(-50%);
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.65);
+  color: #fff;
+  font-size: 0.7rem;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
 .image-upload-hint {
   margin: 0;
   font-size: 0.8rem;

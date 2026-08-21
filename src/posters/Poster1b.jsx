@@ -11,7 +11,7 @@ import { LogoRow } from './blocks/LogoRow'
 
 // 1b · GOŚĆ — zdjęcie + pas
 export function Poster1b({ data }) {
-  const { title, speaker, event_date, event_time, location, logo, photos } = withPlaceholders(data)
+  const { title, speaker, event_date, event_time, location, logos, photos } = withPlaceholders(data)
 
   return (
     <PosterFrame background={colors.cream} color={colors.ink}>
@@ -40,8 +40,8 @@ export function Poster1b({ data }) {
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24 }}>
           <div style={{ fontSize: 22, fontWeight: 600, color: colors.navy }}>Wstęp wolny · sknm.pk.edu.pl</div>
           <LogoRow>
-            <LogoSlot logo={logo} variant="light" width={190} height={72} />
-            <LogoSlot logo={logo} variant="light" width={190} height={72} />
+            <LogoSlot logo={logos.pk} variant="light" width={190} height={72} />
+            <LogoSlot logo={logos.faculty} variant="light" width={190} height={72} />
           </LogoRow>
         </div>
       </div>

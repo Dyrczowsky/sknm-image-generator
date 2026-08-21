@@ -11,7 +11,7 @@ import { LogoRow } from './blocks/LogoRow'
 
 // 1d · DATA — liczba jako grafika
 export function Poster1d({ data }) {
-  const { title, subtitle, event_date, event_time, location, logo, photos } = withPlaceholders(data)
+  const { title, subtitle, event_date, event_time, location, logos, photos } = withPlaceholders(data)
 
   return (
     <PosterFrame background={colors.cream} color={colors.navy} padding={72}>
@@ -54,8 +54,8 @@ export function Poster1d({ data }) {
           <div style={{ width: 56, height: 44, background: colors.coral, clipPath: 'polygon(0 0,100% 0,50% 100%)' }} />
         </div>
         <LogoRow gap={14}>
-          <LogoSlot logo={logo} variant="light" width={180} height={68} />
-          <LogoSlot logo={logo} variant="light" width={180} height={68} />
+          <LogoSlot logo={logos.pk} variant="light" width={180} height={68} />
+          <LogoSlot logo={logos.faculty} variant="light" width={180} height={68} />
         </LogoRow>
       </div>
     </PosterFrame>

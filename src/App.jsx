@@ -18,7 +18,7 @@ const EMPTY_FORM = {
   event_date: '',
   event_time: '',
   location: '',
-  logo: null,
+  logos: {},
   photos: {},
 }
 
@@ -50,7 +50,7 @@ function App() {
           event_date: draft.event_date ?? '',
           event_time: draft.event_time ?? '',
           location: draft.location ?? '',
-          logo: null,
+          logos: {},
           photos: {},
         })
         setSelectedTemplateId(draft.template_id ?? tpls[0]?.id ?? null)
@@ -82,18 +82,49 @@ function App() {
     })
   }
 
-  const handlePhotoChange = (slotKey, src) => {
+  const handleLogoChange = (slotKey, src) => {
     setForm((prev) => {
-      const next = { ...prev, photos: { ...prev.photos, [slotKey]: src ? { src, x: 50, y: 50 } : undefined } }
+      const current = prev.logos[slotKey] ?? { enabled: true, src: null }
+      const next = { ...prev, logos: { ...prev.logos, [slotKey]: { ...current, src, enabled: true } } }
       persistDraft(next, selectedTemplateId)
       return next
     })
   }
 
-  const handlePhotoPositionChange = (slotKey, axis, value) => {
+  const handleLogoEnabledChange = (slotKey, checked) => {
     setForm((prev) => {
-      const current = prev.photos[slotKey] ?? { src: null, x: 50, y: 50 }
-      const next = { ...prev, photos: { ...prev.photos, [slotKey]: { ...current, [axis]: value } } }
+      const current = prev.logos[slotKey] ?? { enabled: true, src: null }
+      const next = { ...prev, logos: { ...prev.logos, [slotKey]: { ...current, enabled: checked } } }
+      persistDraft(next, selectedTemplateId)
+      return next
+    })
+  }
+
+  const handlePhotoChange = (slotKey, src) => {
+    setForm((prev) => {
+      const current = prev.photos[slotKey] ?? { enabled: true, src: null, x: 50, y: 50 }
+      const next = {
+        ...prev,
+        photos: { ...prev.photos, [slotKey]: src ? { enabled: true, src, x: 50, y: 50 } : { ...current, src: null } },
+      }
+      persistDraft(next, selectedTemplateId)
+      return next
+    })
+  }
+
+  const handlePhotoPositionChange = (slotKey, partial) => {
+    setForm((prev) => {
+      const current = prev.photos[slotKey] ?? { enabled: true, src: null, x: 50, y: 50 }
+      const next = { ...prev, photos: { ...prev.photos, [slotKey]: { ...current, ...partial } } }
+      persistDraft(next, selectedTemplateId)
+      return next
+    })
+  }
+
+  const handlePhotoEnabledChange = (slotKey, checked) => {
+    setForm((prev) => {
+      const current = prev.photos[slotKey] ?? { enabled: true, src: null, x: 50, y: 50 }
+      const next = { ...prev, photos: { ...prev.photos, [slotKey]: { ...current, enabled: checked } } }
       persistDraft(next, selectedTemplateId)
       return next
     })
@@ -139,23 +170,35 @@ function App() {
       <section className="panel">
         <h2>2. Uzupełnij dane</h2>
         <ImageForm value={form} onChange={handleFieldChange} />
-        <ImageUpload
-          label="Własne logo (opcjonalnie)"
-          hint="Najlepiej plik SVG (skaluje się bez utraty jakości), PNG lub JPG też zadziałają. Bez wgranego pliku w plakacie pojawi się domyślne logo PK."
-          value={form.logo}
-          onChange={(logo) => handleFieldChange('logo', logo)}
-        />
+
+        {(selectedPoster?.logoSlots ?? []).map((slot) => {
+          const logo = form.logos[slot.key]
+          return (
+            <ImageUpload
+              key={slot.key}
+              label={slot.label}
+              hint="Najlepiej plik SVG (skaluje się bez utraty jakości), PNG lub JPG też zadziałają. Bez wgranego pliku pojawi się domyślne logo PK."
+              value={logo?.src ?? null}
+              onChange={(src) => handleLogoChange(slot.key, src)}
+              enabled={logo?.enabled ?? true}
+              onEnabledChange={(checked) => handleLogoEnabledChange(slot.key, checked)}
+            />
+          )
+        })}
+
         {(selectedPoster?.photoSlots ?? []).map((slot) => {
           const photo = form.photos[slot.key]
           return (
             <ImageUpload
               key={slot.key}
-              label={`${slot.label} (opcjonalnie)`}
+              label={slot.label}
               hint="Ten szablon ma miejsce na zdjęcie - bez wgranego pliku zostanie placeholder."
               value={photo?.src ?? null}
               onChange={(src) => handlePhotoChange(slot.key, src)}
-              position={photo}
-              onPositionChange={(axis, value) => handlePhotoPositionChange(slot.key, axis, value)}
+              enabled={photo?.enabled ?? true}
+              onEnabledChange={(checked) => handlePhotoEnabledChange(slot.key, checked)}
+              position={{ x: photo?.x ?? 50, y: photo?.y ?? 50 }}
+              onPositionChange={(partial) => handlePhotoPositionChange(slot.key, partial)}
             />
           )
         })}

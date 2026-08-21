@@ -12,7 +12,7 @@ import { LogoRow } from './blocks/LogoRow'
 
 // 1f · REKRUTACJA — wzór z sygnetu
 export function Poster1f({ data }) {
-  const { title, subtitle, event_date, event_time, location, logo } = withPlaceholders(data)
+  const { title, subtitle, event_date, event_time, location, logos } = withPlaceholders(data)
 
   return (
     <PosterFrame background={colors.lime} color={colors.limeText} padding={72}>
@@ -45,7 +45,7 @@ export function Poster1f({ data }) {
         </div>
         <LogoRow alignItems="flex-end">
           <PlaceholderBox label="kod QR" width={170} height={170} style={{ borderColor: 'rgba(244,242,237,.55)', color: 'rgba(244,242,237,.75)' }} />
-          <LogoSlot logo={logo} variant="dark" width={180} height={68} />
+          <LogoSlot logo={logos.pk} variant="dark" width={180} height={68} />
         </LogoRow>
       </div>
     </PosterFrame>

@@ -19,7 +19,7 @@ function Pill({ children }) {
 
 // 1c · WARSZTAT — skos
 export function Poster1c({ data }) {
-  const { title, subtitle, event_date, event_time, location, logo, photos } = withPlaceholders(data)
+  const { title, subtitle, event_date, event_time, location, logos, photos } = withPlaceholders(data)
 
   const pills = [event_time, `${getDay(event_date)} ${getMonthShort(event_date)}`, location]
 
@@ -52,8 +52,8 @@ export function Poster1c({ data }) {
           <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24 }}>
             <PlaceholderBox label={<>kod QR<br />zapisy</>} width={150} height={150} style={{ background: colors.cream }} />
             <LogoRow gap={14}>
-              <LogoSlot logo={logo} variant="light" width={170} height={66} style={{ background: colors.cream }} />
-              <LogoSlot logo={logo} variant="light" width={170} height={66} style={{ background: colors.cream }} />
+              <LogoSlot logo={logos.pk} variant="light" width={170} height={66} style={{ background: colors.cream }} />
+              <LogoSlot logo={logos.faculty} variant="light" width={170} height={66} style={{ background: colors.cream }} />
             </LogoRow>
           </div>
         </div>

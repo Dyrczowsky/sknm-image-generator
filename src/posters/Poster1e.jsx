@@ -10,7 +10,7 @@ import { LogoRow } from './blocks/LogoRow'
 
 // 1e · KONFERENCJA — nagłówek + pojedynczy punkt programu
 export function Poster1e({ data }) {
-  const { title, subtitle, speaker, event_date, event_time, location, logo } = withPlaceholders(data)
+  const { title, subtitle, speaker, event_date, event_time, location, logos } = withPlaceholders(data)
 
   const dateLine = `${formatFullDate(event_date)} · ${location}`
 
@@ -42,7 +42,7 @@ export function Poster1e({ data }) {
             <div style={{ fontSize: 24, fontWeight: 600, color: colors.textMuted }}>sknm.pk.edu.pl</div>
           </div>
           <LogoRow gap={14}>
-            <LogoSlot logo={logo} variant="light" width={180} height={68} />
+            <LogoSlot logo={logos.pk} variant="light" width={180} height={68} />
             <PlaceholderBox label="patronat" width={180} height={68} />
           </LogoRow>
         </div>

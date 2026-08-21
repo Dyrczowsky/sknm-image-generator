@@ -32,7 +32,7 @@ export function withPlaceholders(data) {
     event_date: data.event_date || PLACEHOLDERS.event_date,
     event_time: data.event_time || PLACEHOLDERS.event_time,
     location: data.location || PLACEHOLDERS.location,
-    logo: data.logo || null,
+    logos: data.logos || {},
     photos: data.photos || {},
   }
 }
