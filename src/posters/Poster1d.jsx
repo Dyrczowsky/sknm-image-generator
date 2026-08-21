@@ -1,7 +1,7 @@
 import { colors, fontMono } from './theme'
 import { sygnetGranat } from './logos'
 import { LogoSlot } from './LogoSlot'
-import { PhotoSlot } from './PhotoSlot'
+import { PhotoGallery } from './PhotoGallery'
 import { withPlaceholders } from './fallback'
 import { getDay, getMonthShort } from '../utils/formatDate'
 import { PosterFrame } from './blocks/PosterFrame'
@@ -33,8 +33,8 @@ export function Poster1d({ data }) {
       </div>
 
       <div style={{ display: 'flex', gap: 36, alignItems: 'flex-end' }}>
-        <PhotoSlot
-          photo={photos.photo}
+        <PhotoGallery
+          photos={photos.photo}
           label={<>zdjęcie<br />z wydarzenia</>}
           style={{ width: 230, height: 230, flex: '0 0 auto', borderRadius: 999 }}
           labelStyle={{ font: `400 18px ${fontMono}` }}

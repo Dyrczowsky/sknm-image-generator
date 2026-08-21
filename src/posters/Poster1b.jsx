@@ -1,7 +1,7 @@
 import { colors, fontMono } from './theme'
 import { sygnetNegatywny } from './logos'
 import { LogoSlot } from './LogoSlot'
-import { PhotoSlot } from './PhotoSlot'
+import { PhotoGallery } from './PhotoGallery'
 import { withPlaceholders } from './fallback'
 import { getDay, getMonthShort } from '../utils/formatDate'
 import { PosterFrame } from './blocks/PosterFrame'
@@ -15,11 +15,11 @@ export function Poster1b({ data }) {
 
   return (
     <PosterFrame background={colors.cream} color={colors.ink}>
-      <PhotoSlot photo={photos.photo} label={<>zdjęcie prelegenta<br />1080 × 600</>} style={{ height: 600 }}>
+      <PhotoGallery photos={photos.photo} label={<>zdjęcie prelegenta<br />1080 × 600</>} style={{ height: 600 }}>
         <div style={{ position: 'absolute', top: 0, left: 0, width: 230, height: 230, background: colors.navy, clipPath: 'polygon(0 0,100% 0,0 100%)', display: 'flex', padding: '40px 0 0 40px', boxSizing: 'border-box' }}>
           <img src={sygnetNegatywny} alt="SKNM" style={{ width: 104, height: 104, objectFit: 'contain' }} />
         </div>
-      </PhotoSlot>
+      </PhotoGallery>
 
       <div style={{ flex: 1, padding: '56px 72px 72px', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', position: 'relative' }}>
         <div style={{ position: 'absolute', top: -56, right: 72, background: colors.coral, color: colors.cream, padding: '18px 26px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>

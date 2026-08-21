@@ -2,7 +2,7 @@ import { colors } from './theme'
 import { sygnetGranat } from './logos'
 import { PlaceholderBox } from './PlaceholderBox'
 import { LogoSlot } from './LogoSlot'
-import { PhotoSlot } from './PhotoSlot'
+import { PhotoGallery } from './PhotoGallery'
 import { withPlaceholders } from './fallback'
 import { getDay, getMonthShort } from '../utils/formatDate'
 import { PosterFrame } from './blocks/PosterFrame'
@@ -25,8 +25,8 @@ export function Poster1c({ data }) {
 
   return (
     <PosterFrame background={colors.cream} color={colors.ink}>
-      <PhotoSlot
-        photo={photos.photo}
+      <PhotoGallery
+        photos={photos.photo}
         label={<>zdjęcie<br />z warsztatów</>}
         style={{ position: 'absolute', top: 0, right: 0, width: 660, height: 1080, clipPath: 'polygon(38% 0,100% 0,100% 100%,0 100%)' }}
         placeholderStyle={{ paddingLeft: 180 }}

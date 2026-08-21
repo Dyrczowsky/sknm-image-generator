@@ -34,5 +34,6 @@ export function withPlaceholders(data) {
     location: data.location || PLACEHOLDERS.location,
     logos: data.logos || {},
     photos: data.photos || {},
+    lists: data.lists || {},
   }
 }

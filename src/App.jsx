@@ -19,6 +19,7 @@ const EMPTY_FORM = {
   location: '',
   logos: {},
   photos: {},
+  lists: {},
 }
 
 function App() {
@@ -51,6 +52,7 @@ function App() {
           location: draft.location ?? '',
           logos: {},
           photos: {},
+          lists: {},
         })
         setSelectedTemplateId(draft.template_id ?? tpls[0]?.id ?? null)
       } else {
@@ -99,31 +101,63 @@ function App() {
     })
   }
 
-  const handlePhotoChange = (slotKey, src) => {
+  // Galeria zdjęć: dodanie nowego pliku zawsze dokłada kolejny wpis do listy.
+  const handlePhotoAdd = (fieldKey, src) => {
+    if (!src) return
     setForm((prev) => {
-      const current = prev.photos[slotKey] ?? { enabled: true, src: null, x: 50, y: 50 }
-      const next = {
-        ...prev,
-        photos: { ...prev.photos, [slotKey]: src ? { enabled: true, src, x: 50, y: 50 } : { ...current, src: null } },
-      }
+      const list = prev.photos[fieldKey] ?? []
+      const next = { ...prev, photos: { ...prev.photos, [fieldKey]: [...list, { src, x: 50, y: 50 }] } }
       persistDraft(next, selectedTemplateId)
       return next
     })
   }
 
-  const handlePhotoPositionChange = (slotKey, partial) => {
+  // Zmiana pliku pod istniejącym wpisem galerii; `null` usuwa ten wpis.
+  const handlePhotoChangeAt = (fieldKey, index, src) => {
     setForm((prev) => {
-      const current = prev.photos[slotKey] ?? { enabled: true, src: null, x: 50, y: 50 }
-      const next = { ...prev, photos: { ...prev.photos, [slotKey]: { ...current, ...partial } } }
+      const list = prev.photos[fieldKey] ?? []
+      const nextList = src
+        ? list.map((p, i) => (i === index ? { ...p, src } : p))
+        : list.filter((_, i) => i !== index)
+      const next = { ...prev, photos: { ...prev.photos, [fieldKey]: nextList } }
       persistDraft(next, selectedTemplateId)
       return next
     })
   }
 
-  const handlePhotoEnabledChange = (slotKey, checked) => {
+  const handlePhotoPositionChangeAt = (fieldKey, index, partial) => {
     setForm((prev) => {
-      const current = prev.photos[slotKey] ?? { enabled: true, src: null, x: 50, y: 50 }
-      const next = { ...prev, photos: { ...prev.photos, [slotKey]: { ...current, enabled: checked } } }
+      const list = prev.photos[fieldKey] ?? []
+      const nextList = list.map((p, i) => (i === index ? { ...p, ...partial } : p))
+      const next = { ...prev, photos: { ...prev.photos, [fieldKey]: nextList } }
+      persistDraft(next, selectedTemplateId)
+      return next
+    })
+  }
+
+  const handleListItemAdd = (fieldKey) => {
+    setForm((prev) => {
+      const list = prev.lists[fieldKey] ?? []
+      const next = { ...prev, lists: { ...prev.lists, [fieldKey]: [...list, {}] } }
+      persistDraft(next, selectedTemplateId)
+      return next
+    })
+  }
+
+  const handleListItemChange = (fieldKey, index, subKey, val) => {
+    setForm((prev) => {
+      const list = prev.lists[fieldKey] ?? []
+      const nextList = list.map((item, i) => (i === index ? { ...item, [subKey]: val } : item))
+      const next = { ...prev, lists: { ...prev.lists, [fieldKey]: nextList } }
+      persistDraft(next, selectedTemplateId)
+      return next
+    })
+  }
+
+  const handleListItemRemove = (fieldKey, index) => {
+    setForm((prev) => {
+      const list = prev.lists[fieldKey] ?? []
+      const next = { ...prev, lists: { ...prev.lists, [fieldKey]: list.filter((_, i) => i !== index) } }
       persistDraft(next, selectedTemplateId)
       return next
     })
@@ -174,9 +208,12 @@ function App() {
           onFieldChange={handleFieldChange}
           onLogoChange={handleLogoChange}
           onLogoEnabledChange={handleLogoEnabledChange}
-          onPhotoChange={handlePhotoChange}
-          onPhotoEnabledChange={handlePhotoEnabledChange}
-          onPhotoPositionChange={handlePhotoPositionChange}
+          onPhotoAdd={handlePhotoAdd}
+          onPhotoChangeAt={handlePhotoChangeAt}
+          onPhotoPositionChangeAt={handlePhotoPositionChangeAt}
+          onListItemAdd={handleListItemAdd}
+          onListItemChange={handleListItemChange}
+          onListItemRemove={handleListItemRemove}
         />
       </section>
 

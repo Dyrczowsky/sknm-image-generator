@@ -101,6 +101,21 @@
   box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
+.field-group {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--surface-border);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.field-group .image-upload {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+}
+
 .image-upload {
   margin-top: 18px;
   padding-top: 18px;
@@ -282,6 +297,75 @@
   background: var(--accent);
   border: 2px solid var(--bg);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.field-list {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--surface-border);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.field-list-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.field-list-input,
+.field-list-input-small {
+  padding: 9px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--input-border);
+  background: var(--input-bg);
+  color: var(--text);
+  font-size: 0.9rem;
+}
+
+.field-list-input {
+  flex: 1;
+  min-width: 0;
+}
+
+.field-list-input-small {
+  flex: 0 0 auto;
+  width: 100px;
+}
+
+.field-list-remove {
+  flex: 0 0 auto;
+  padding: 9px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--input-border);
+  background: none;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.field-list-remove:hover {
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+.field-list-add {
+  align-self: flex-start;
+  padding: 9px 16px;
+  border-radius: 8px;
+  border: 1px dashed var(--input-border);
+  background: none;
+  color: var(--accent);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.field-list-add:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
 }
 
 .actions {

@@ -8,9 +8,16 @@ import { PosterFrame } from './blocks/PosterFrame'
 import { Badge } from './blocks/Badge'
 import { LogoRow } from './blocks/LogoRow'
 
-// 1e · KONFERENCJA — nagłówek + pojedynczy punkt programu
+const DEFAULT_AGENDA = [
+  { time: '09:30', title: 'Otwarcie i wykład plenarny' },
+  { time: '11:00', title: 'Sesja studencka I' },
+  { time: '13:00', title: 'Sesja studencka II' },
+]
+
+// 1e · KONFERENCJA — nagłówek + lista programu
 export function Poster1e({ data }) {
-  const { title, subtitle, speaker, event_date, event_time, location, logos } = withPlaceholders(data)
+  const { title, event_date, location, logos, lists } = withPlaceholders(data)
+  const agenda = lists.agenda?.length ? lists.agenda : DEFAULT_AGENDA
 
   const dateLine = `${formatFullDate(event_date)} · ${location}`
 
@@ -28,12 +35,24 @@ export function Poster1e({ data }) {
       </div>
 
       <div style={{ flex: 1, padding: '48px 72px 72px', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '140px 1fr', gap: 24, padding: '22px 0', borderTop: `2px solid ${colors.navy}`, borderBottom: `2px solid ${colors.creamMuted}`, alignItems: 'baseline' }}>
-          <div style={{ font: `700 28px ${fontMono}`, color: colors.coral }}>{event_time}</div>
-          <div>
-            <div style={{ fontSize: 36, fontWeight: 700, lineHeight: 1.15 }}>{subtitle || 'Program spotkania'}</div>
-            <div style={{ fontSize: 26, fontWeight: 500, color: colors.textMuted }}>{speaker}</div>
-          </div>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          {agenda.map((item, i) => (
+            <div
+              key={i}
+              style={{
+                display: 'grid',
+                gridTemplateColumns: '140px 1fr',
+                gap: 24,
+                padding: '18px 0',
+                borderTop: `2px solid ${i === 0 ? colors.navy : colors.creamMuted}`,
+                alignItems: 'baseline',
+              }}
+            >
+              <div style={{ font: `700 26px ${fontMono}`, color: colors.coral }}>{item.time}</div>
+              <div style={{ fontSize: 30, fontWeight: 700, lineHeight: 1.15 }}>{item.title}</div>
+            </div>
+          ))}
+          <div style={{ borderTop: `2px solid ${colors.creamMuted}` }} />
         </div>
 
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24 }}>
