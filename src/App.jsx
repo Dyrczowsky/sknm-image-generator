@@ -6,8 +6,7 @@ import { addHistoryEntry, listHistory } from './db/history'
 import { posterRegistry } from './posters/registry'
 import { downloadPosterAsPng } from './posters/export'
 import { TemplateSelector } from './components/TemplateSelector'
-import { ImageForm } from './components/ImageForm'
-import { ImageUpload } from './components/ImageUpload'
+import { PosterForm } from './components/PosterForm'
 import { PosterPreview } from './components/PosterPreview'
 import { HistoryList } from './components/HistoryList'
 
@@ -169,39 +168,16 @@ function App() {
 
       <section className="panel">
         <h2>2. Uzupełnij dane</h2>
-        <ImageForm value={form} onChange={handleFieldChange} />
-
-        {(selectedPoster?.logoSlots ?? []).map((slot) => {
-          const logo = form.logos[slot.key]
-          return (
-            <ImageUpload
-              key={slot.key}
-              label={slot.label}
-              hint="Najlepiej plik SVG (skaluje się bez utraty jakości), PNG lub JPG też zadziałają. Bez wgranego pliku pojawi się domyślne logo PK."
-              value={logo?.src ?? null}
-              onChange={(src) => handleLogoChange(slot.key, src)}
-              enabled={logo?.enabled ?? true}
-              onEnabledChange={(checked) => handleLogoEnabledChange(slot.key, checked)}
-            />
-          )
-        })}
-
-        {(selectedPoster?.photoSlots ?? []).map((slot) => {
-          const photo = form.photos[slot.key]
-          return (
-            <ImageUpload
-              key={slot.key}
-              label={slot.label}
-              hint="Ten szablon ma miejsce na zdjęcie - bez wgranego pliku zostanie placeholder."
-              value={photo?.src ?? null}
-              onChange={(src) => handlePhotoChange(slot.key, src)}
-              enabled={photo?.enabled ?? true}
-              onEnabledChange={(checked) => handlePhotoEnabledChange(slot.key, checked)}
-              position={{ x: photo?.x ?? 50, y: photo?.y ?? 50 }}
-              onPositionChange={(partial) => handlePhotoPositionChange(slot.key, partial)}
-            />
-          )
-        })}
+        <PosterForm
+          fields={selectedPoster?.fields ?? []}
+          value={form}
+          onFieldChange={handleFieldChange}
+          onLogoChange={handleLogoChange}
+          onLogoEnabledChange={handleLogoEnabledChange}
+          onPhotoChange={handlePhotoChange}
+          onPhotoEnabledChange={handlePhotoEnabledChange}
+          onPhotoPositionChange={handlePhotoPositionChange}
+        />
       </section>
 
       <section className="panel actions">

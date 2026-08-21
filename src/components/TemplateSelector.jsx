@@ -1,7 +1,7 @@
 import { posterRegistry } from '../posters/registry'
 import { PosterScaled } from './PosterScaled'
 
-const THUMB_SIZE = 130
+const THUMB_SIZE = 180
 
 // Miniatury zawsze pokazują dane przykładowe (placeholder) - nie muszą się
 // aktualizować na żywo wraz z formularzem, to robi tylko duży podgląd.
