@@ -1,5 +1,7 @@
-// Lista domyślnych szablonów wgrywana do bazy przy pierwszym uruchomieniu.
-// `poster_key` odpowiada kluczowi w src/posters/registry.js.
+import { rowsFromExec } from './utils'
+
+// Lista domyślnych szablonów synchronizowana do bazy przy każdym uruchomieniu
+// (patrz syncTemplates). `poster_key` odpowiada kluczowi w src/posters/registry.js.
 export const DEFAULT_TEMPLATES = [
   { name: 'Wykład', poster_key: '1a' },
   { name: 'Gość', poster_key: '1b' },
@@ -8,6 +10,11 @@ export const DEFAULT_TEMPLATES = [
   { name: 'Konferencja', poster_key: '1e' },
   { name: 'Rekrutacja', poster_key: '1f' },
   { name: 'Gala', poster_key: '1g' },
+  { name: 'Wykład — złoto', poster_key: '1h' },
+  { name: 'Wykład — czerń', poster_key: '1i' },
+  { name: 'Wykład — jasny', poster_key: '1j' },
+  { name: 'Wykład — szary', poster_key: '1k' },
+  { name: 'Ogłoszenie', poster_key: '1l' },
 ]
 
 export function createSchema(db) {
@@ -45,12 +52,25 @@ export function createSchema(db) {
   `)
 }
 
-export function seedTemplates(db) {
+// Dogrywa do bazy szablony z DEFAULT_TEMPLATES, których tam jeszcze nie ma
+// (dopasowanie po poster_key) - działa zarówno przy pierwszym uruchomieniu
+// (pusta tabela), jak i przy każdym kolejnym, żeby nowo dodane szablony
+// pojawiły się automatycznie w bazach zapisanych wcześniej w IndexedDB.
+// Nie dotyka wierszy już istniejących, więc ręczne zmiany (np. nazwy) nie
+// są nadpisywane.
+export function syncTemplates(db) {
+  const existingKeys = new Set(
+    rowsFromExec(db.exec('SELECT poster_key FROM templates')).map((row) => row.poster_key)
+  )
+  const missing = DEFAULT_TEMPLATES.filter((t) => !existingKeys.has(t.poster_key))
+  if (missing.length === 0) return false
+
   const stmt = db.prepare(
     'INSERT INTO templates (name, poster_key) VALUES (:name, :poster_key)'
   )
-  for (const t of DEFAULT_TEMPLATES) {
+  for (const t of missing) {
     stmt.run({ ':name': t.name, ':poster_key': t.poster_key })
   }
   stmt.free()
+  return true
 }

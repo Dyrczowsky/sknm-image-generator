@@ -1,7 +1,7 @@
 import initSqlJs from 'sql.js'
 import sqlWasmUrl from 'sql.js/dist/sql-wasm.wasm?url'
 import { get, set } from 'idb-keyval'
-import { createSchema, seedTemplates } from './schema'
+import { createSchema, syncTemplates } from './schema'
 
 const DB_STORAGE_KEY = 'sknm-image-generator-db'
 
@@ -11,14 +11,10 @@ async function initDb() {
   const SQL = await initSqlJs({ locateFile: () => sqlWasmUrl })
   const saved = await get(DB_STORAGE_KEY)
 
-  if (saved) {
-    return new SQL.Database(new Uint8Array(saved))
-  }
-
-  const db = new SQL.Database()
+  const db = saved ? new SQL.Database(new Uint8Array(saved)) : new SQL.Database()
   createSchema(db)
-  seedTemplates(db)
-  persist(db)
+  const templatesChanged = syncTemplates(db)
+  if (!saved || templatesChanged) persist(db)
   return db
 }
 
