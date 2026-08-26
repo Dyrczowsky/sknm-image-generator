@@ -24,7 +24,7 @@ export function Poster1f({ data }) {
       />
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', position: 'relative' }}>
-        <img src={sygnetGranat} alt="SKNM" style={{ width: 140, display: 'block' }} />
+        <img src={sygnetGranat} alt="SKNM" style={{ width: 132, display: 'block' }} />
         <BrandingText lines={['STUDENCKIE KOŁO', 'NAUKOWE MATEMATYKÓW', 'POLITECHNIKI KRAKOWSKIEJ']} />
       </div>
 
@@ -44,7 +44,7 @@ export function Poster1f({ data }) {
           <div style={{ fontSize: 26, fontWeight: 500, opacity: 0.85 }}>sknm.pk.edu.pl · @sknm.pk</div>
         </div>
         <LogoRow alignItems="flex-end">
-          <PlaceholderBox label="kod QR" width={170} height={170} style={{ borderColor: 'rgba(244,242,237,.55)', color: 'rgba(244,242,237,.75)' }} />
+          <PlaceholderBox label="kod QR" width={130} height={130} style={{ borderColor: 'rgba(244,242,237,.55)', color: 'rgba(244,242,237,.75)' }} />
           <LogoSlot logo={logos.pk} variant="dark" width={180} height={68} />
         </LogoRow>
       </div>

@@ -33,7 +33,7 @@ export function Poster1c({ data }) {
       />
 
       <div style={{ position: 'absolute', inset: 72, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-        <img src={sygnetGranat} alt="SKNM" style={{ width: 120, display: 'block' }} />
+        <img src={sygnetGranat} alt="SKNM" style={{ width: 132, display: 'block' }} />
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 22, maxWidth: 600 }}>
           <Badge background={colors.navy} color={colors.lime} style={{ padding: '10px 16px' }}>WARSZTATY</Badge>

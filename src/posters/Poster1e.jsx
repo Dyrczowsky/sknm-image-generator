@@ -9,9 +9,9 @@ import { Badge } from './blocks/Badge'
 import { LogoRow } from './blocks/LogoRow'
 
 const DEFAULT_AGENDA = [
-  { time: '09:30', title: 'Otwarcie i wykład plenarny' },
-  { time: '11:00', title: 'Sesja studencka I' },
-  { time: '13:00', title: 'Sesja studencka II' },
+  { time: '09:30', title: 'Otwarcie i wykład plenarny', subtitle: 'prof. dr hab. Jan Nowak' },
+  { time: '11:00', title: 'Sesja studencka I', subtitle: 'analiza numeryczna, optymalizacja' },
+  { time: '13:00', title: 'Sesja studencka II', subtitle: 'statystyka, uczenie maszynowe' },
 ]
 
 // 1e · KONFERENCJA — nagłówek + lista programu
@@ -31,7 +31,7 @@ export function Poster1e({ data }) {
           </div>
           <div style={{ fontSize: 28, fontWeight: 600 }}>{dateLine}</div>
         </div>
-        <img src={sygnetNegatywny} alt="SKNM" style={{ width: 128, display: 'block', flex: '0 0 auto' }} />
+        <img src={sygnetNegatywny} alt="SKNM" style={{ width: 132, display: 'block', flex: '0 0 auto' }} />
       </div>
 
       <div style={{ flex: 1, padding: '48px 72px 72px', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
@@ -43,13 +43,18 @@ export function Poster1e({ data }) {
                 display: 'grid',
                 gridTemplateColumns: '140px 1fr',
                 gap: 24,
-                padding: '18px 0',
+                padding: '22px 0',
                 borderTop: `2px solid ${i === 0 ? colors.navy : colors.creamMuted}`,
                 alignItems: 'baseline',
               }}
             >
               <div style={{ font: `700 26px ${fontMono}`, color: colors.coral }}>{item.time}</div>
-              <div style={{ fontSize: 30, fontWeight: 700, lineHeight: 1.15 }}>{item.title}</div>
+              <div>
+                <div style={{ fontSize: 36, fontWeight: 700, lineHeight: 1.15 }}>{item.title}</div>
+                {item.subtitle && (
+                  <div style={{ fontSize: 26, fontWeight: 500, color: colors.textMuted }}>{item.subtitle}</div>
+                )}
+              </div>
             </div>
           ))}
           <div style={{ borderTop: `2px solid ${colors.creamMuted}` }} />

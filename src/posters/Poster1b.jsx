@@ -16,8 +16,8 @@ export function Poster1b({ data }) {
   return (
     <PosterFrame background={colors.cream} color={colors.ink}>
       <PhotoGallery photos={photos.photo} label={<>zdjęcie prelegenta<br />1080 × 600</>} style={{ height: 600 }}>
-        <div style={{ position: 'absolute', top: 0, left: 0, width: 230, height: 230, background: colors.navy, clipPath: 'polygon(0 0,100% 0,0 100%)', display: 'flex', padding: '40px 0 0 40px', boxSizing: 'border-box' }}>
-          <img src={sygnetNegatywny} alt="SKNM" style={{ width: 104, height: 104, objectFit: 'contain' }} />
+        <div style={{ position: 'absolute', top: 0, left: 0, width: 420, height: 420, background: colors.navy, clipPath: 'polygon(0 0,100% 0,0 100%)', display: 'flex', padding: '44px 0 0 44px', boxSizing: 'border-box' }}>
+          <img src={sygnetNegatywny} alt="SKNM" style={{ width: 132, height: 132, objectFit: 'contain' }} />
         </div>
       </PhotoGallery>
 

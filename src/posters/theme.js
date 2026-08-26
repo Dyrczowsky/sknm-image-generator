@@ -15,8 +15,13 @@ export const colors = {
   lime: 'oklch(0.88 0.17 106)',
   limeText: '#232A66',
   coral: 'oklch(0.68 0.17 30)',
-  gold: '#B8943A',
+  gold: '#84754E',
   goldPanelText: '#F0EDE4',
+  black: '#121212',
+  gray: '#8A8D8F',
+  grayDark: '#4A4D4F',
+  paper: '#E7E4DC',
+  slate: '#2A2C2E',
 }
 
 export const fontHeading = "Fieldwork, 'Hanken Grotesk', Helvetica, sans-serif"

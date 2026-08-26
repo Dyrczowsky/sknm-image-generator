@@ -2,6 +2,8 @@
 export { default as sygnetNegatywny } from '../assets/brand/sknm/sygnet_negatywny.svg'
 export { default as sygnetGranat } from '../assets/brand/sknm/sygnet_granat.svg'
 export { default as sygnetZloty } from '../assets/brand/sknm/sygnet_zloty.svg'
+export { default as sygnetSzary } from '../assets/brand/sknm/sygnet_szary.svg'
+export { default as sygnetCzarny } from '../assets/brand/sknm/sygnet_czarny.svg'
 
 // Logo Politechniki Krakowskiej - domyślne logo w miejscach na logo PK/wydziału,
 // dopóki użytkownik nie wgra własnego pliku w formularzu.

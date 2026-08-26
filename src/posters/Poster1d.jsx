@@ -17,7 +17,7 @@ export function Poster1d({ data }) {
     <PosterFrame background={colors.cream} color={colors.navy} padding={72}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <BrandingText lines={['WYDARZENIE', 'SKNM · PK']} style={{ textAlign: 'left' }} />
-        <img src={sygnetGranat} alt="SKNM" style={{ width: 120, display: 'block' }} />
+        <img src={sygnetGranat} alt="SKNM" style={{ width: 132, display: 'block' }} />
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', margin: '-40px 0' }}>
