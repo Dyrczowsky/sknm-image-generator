@@ -42,7 +42,7 @@ export function Poster1a({ data }) {
       <div style={{ position: 'absolute', top: 0, right: 0, width: 700, height: 600, background: 'rgba(255,255,255,.055)', clipPath: 'polygon(0 0,100% 0,100% 100%)' }} />
       <div style={{ position: 'absolute', bottom: 0, right: 0, width: 920, height: 780, background: colors.navyLight, opacity: 0.42, clipPath: 'polygon(100% 0,100% 100%,0 100%)' }} />
       <div style={{ position: 'absolute', bottom: 0, left: 0, width: 520, height: 300, background: colors.navyDark, clipPath: 'polygon(0 100%,0 0,100% 100%)' }} />
-      <div style={{ position: 'absolute', left: 18, top: 392, display: 'flex', flexDirection: 'column', gap: 12 }}>
+      <div style={{ position: 'absolute', left: 18, bottom: 72, display: 'flex', flexDirection: 'column', gap: 12 }}>
         <div style={{ width: 38, height: 32, background: colors.lime, clipPath: 'polygon(0 0,100% 0,50% 100%)' }} />
         <div style={{ width: 38, height: 32, background: colors.lime, clipPath: 'polygon(0 0,100% 0,50% 100%)', opacity: 0.66 }} />
         <div style={{ width: 38, height: 32, background: colors.lime, clipPath: 'polygon(0 0,100% 0,50% 100%)', opacity: 0.33 }} />
