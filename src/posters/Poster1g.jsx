@@ -26,7 +26,7 @@ export function Poster1g({ data }) {
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 30, position: 'relative', zIndex: 1 }}>
         <Badge color={colors.gold} style={{ font: `700 24px ${fontMono}`, letterSpacing: '.2em' }}>GALA SKNM</Badge>
-        <div style={{ fontSize: 126, fontWeight: 800, lineHeight: 0.94, letterSpacing: '-.035em' }}>
+        <div style={{ fontSize: 126, fontWeight: 800, lineHeight: 0.94, letterSpacing: '-.035em', fontKerning: 'none' }}>
           {title}
         </div>
         {subtitle && (

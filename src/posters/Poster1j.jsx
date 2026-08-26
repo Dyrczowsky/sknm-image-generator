@@ -22,7 +22,7 @@ export function Poster1j({ data }) {
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 28, position: 'relative', zIndex: 1 }}>
         <Badge background={colors.navy} color={colors.cream} style={{ fontSize: 24 }}>WYKŁAD OTWARTY</Badge>
-        <div style={{ fontSize: 120, fontWeight: 800, lineHeight: 0.94, letterSpacing: '-.035em' }}>
+        <div style={{ fontSize: 120, fontWeight: 800, lineHeight: 0.94, letterSpacing: '-.035em', fontKerning: 'none' }}>
           {title}
         </div>
         <div style={{ fontSize: 36, fontWeight: 600, color: colors.navy }}>{speaker}</div>

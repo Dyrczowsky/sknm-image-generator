@@ -24,7 +24,7 @@ export function Poster1l({ data }) {
           <div style={{ width: 46, height: 40, background: colors.lime, clipPath: 'polygon(0 0,100% 0,50% 100%)' }} />
           <div style={{ width: 46, height: 40, background: colors.lime, clipPath: 'polygon(0 0,100% 0,50% 100%)' }} />
         </div>
-        <div style={{ fontSize: 72, fontWeight: 800, lineHeight: 1.08, letterSpacing: '-.02em', maxWidth: '18ch', textWrap: 'balance' }}>
+        <div style={{ fontSize: 72, fontWeight: 800, lineHeight: 1.08, letterSpacing: '-.02em', maxWidth: '18ch', textWrap: 'balance', fontKerning: 'none' }}>
           {title}
         </div>
         {subtitle && (

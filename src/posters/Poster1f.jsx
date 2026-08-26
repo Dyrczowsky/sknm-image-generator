@@ -29,7 +29,7 @@ export function Poster1f({ data }) {
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 26, position: 'relative', maxWidth: 900 }}>
-        <div style={{ fontSize: 150, fontWeight: 800, lineHeight: 0.88, letterSpacing: '-.045em' }}>
+        <div style={{ fontSize: 150, fontWeight: 800, lineHeight: 0.88, letterSpacing: '-.045em', fontKerning: 'none' }}>
           {title}
         </div>
         <div style={{ fontSize: 38, fontWeight: 600, lineHeight: 1.3, color: colors.navyDark }}>
@@ -40,7 +40,7 @@ export function Poster1f({ data }) {
       <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 32, position: 'relative', color: colors.cream }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12, paddingBottom: 8 }}>
           <Badge color={colors.lime} style={{ font: `700 26px ${fontMono}`, letterSpacing: '.1em' }}>SPOTKANIE ORGANIZACYJNE</Badge>
-          <InfoLine parts={[`${getDay(event_date)} ${getMonthShort(event_date)}`, event_time, location]} style={{ fontSize: 44, fontWeight: 800, lineHeight: 1.05 }} />
+          <InfoLine parts={[`${getDay(event_date)} ${getMonthShort(event_date)}`, event_time, location]} style={{ fontSize: 44, fontWeight: 800, lineHeight: 1.05, fontKerning: 'none' }} />
           <div style={{ fontSize: 26, fontWeight: 500, opacity: 0.85 }}>sknm.pk.edu.pl · @sknm.pk</div>
         </div>
         <LogoRow alignItems="flex-end">

@@ -37,7 +37,7 @@ export function Poster1c({ data }) {
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 22, maxWidth: 600 }}>
           <Badge background={colors.navy} color={colors.lime} style={{ padding: '10px 16px' }}>WARSZTATY</Badge>
-          <div style={{ fontSize: 104, fontWeight: 800, lineHeight: 0.94, letterSpacing: '-.035em', color: colors.navy }}>
+          <div style={{ fontSize: 104, fontWeight: 800, lineHeight: 0.94, letterSpacing: '-.035em', color: colors.navy, fontKerning: 'none' }}>
             {title}
           </div>
           {subtitle && (

@@ -26,7 +26,7 @@ export function Poster1e({ data }) {
       <div style={{ background: colors.navy, color: colors.cream, padding: '56px 72px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: 32 }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <Badge color={colors.lime}>SEMINARIUM SKNM</Badge>
-          <div style={{ fontSize: 76, fontWeight: 800, lineHeight: 0.96, letterSpacing: '-.03em' }}>
+          <div style={{ fontSize: 76, fontWeight: 800, lineHeight: 0.96, letterSpacing: '-.03em', fontKerning: 'none' }}>
             {title}
           </div>
           <div style={{ fontSize: 28, fontWeight: 600 }}>{dateLine}</div>
@@ -50,7 +50,7 @@ export function Poster1e({ data }) {
             >
               <div style={{ font: `700 26px ${fontMono}`, color: colors.coral }}>{item.time}</div>
               <div>
-                <div style={{ fontSize: 36, fontWeight: 700, lineHeight: 1.15 }}>{item.title}</div>
+                <div style={{ fontSize: 36, fontWeight: 700, lineHeight: 1.15, fontKerning: 'none' }}>{item.title}</div>
                 {item.subtitle && (
                   <div style={{ fontSize: 26, fontWeight: 500, color: colors.textMuted }}>{item.subtitle}</div>
                 )}

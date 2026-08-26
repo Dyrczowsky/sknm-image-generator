@@ -31,7 +31,7 @@ export function Poster1b({ data }) {
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 820 }}>
           <Badge color={colors.navy}>SEMINARIUM SKNM</Badge>
-          <div style={{ fontSize: 82, fontWeight: 800, lineHeight: 0.98, letterSpacing: '-.03em' }}>
+          <div style={{ fontSize: 82, fontWeight: 800, lineHeight: 0.98, letterSpacing: '-.03em', fontKerning: 'none' }}>
             {title}
           </div>
           <InfoLine parts={[speaker]} secondLine={location} style={{ fontSize: 32, color: colors.textMuted, lineHeight: 1.35 }} />

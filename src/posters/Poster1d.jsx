@@ -40,7 +40,7 @@ export function Poster1d({ data }) {
           labelStyle={{ font: `400 18px ${fontMono}` }}
         />
         <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-          <div style={{ fontSize: 60, fontWeight: 800, lineHeight: 1, letterSpacing: '-.02em', color: colors.ink }}>
+          <div style={{ fontSize: 60, fontWeight: 800, lineHeight: 1, letterSpacing: '-.02em', color: colors.ink, fontKerning: 'none' }}>
             {title}
           </div>
           <InfoLine parts={[subtitle]} secondLine={location} style={{ color: colors.textMuted, maxWidth: '24ch' }} />
