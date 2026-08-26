@@ -4,7 +4,7 @@ import { persist } from './client'
 export function listHistory(db) {
   const result = db.exec(`
     SELECT g.id, g.title, g.subtitle, g.speaker, g.event_date, g.event_time, g.location,
-           g.created_at, t.name AS template_name
+           g.created_at, g.template_id, t.name AS template_name, t.poster_key AS template_poster_key
     FROM generated_images g
     LEFT JOIN templates t ON t.id = g.template_id
     ORDER BY g.created_at DESC, g.id DESC
@@ -27,5 +27,10 @@ export async function addHistoryEntry(db, entry) {
       ':location': entry.location ?? '',
     }
   )
+  await persist(db)
+}
+
+export async function deleteHistoryEntry(db, id) {
+  db.run('DELETE FROM generated_images WHERE id = :id', { ':id': id })
   await persist(db)
 }

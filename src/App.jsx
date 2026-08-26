@@ -2,11 +2,10 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { getDb } from './db/client'
 import { listTemplates } from './db/templates'
 import { getDraft, saveDraft } from './db/drafts'
-import { addHistoryEntry, listHistory } from './db/history'
+import { addHistoryEntry, deleteHistoryEntry, listHistory } from './db/history'
 import { posterRegistry } from './posters/registry'
-import { downloadPosterAsPng } from './posters/export'
+import { downloadPosterAsPng, EXPORT_FORMATS } from './posters/export'
 import { TemplateSelector } from './components/TemplateSelector'
-import { PosterForm } from './components/PosterForm'
 import { PosterPreview } from './components/PosterPreview'
 import { HistoryList } from './components/HistoryList'
 
@@ -32,6 +31,7 @@ function App() {
   const [selectedTemplateId, setSelectedTemplateId] = useState(null)
   const [form, setForm] = useState(EMPTY_FORM)
   const [history, setHistory] = useState([])
+  const [exportFormat, setExportFormat] = useState('square')
 
   useEffect(() => {
     let cancelled = false
@@ -168,13 +168,40 @@ function App() {
     persistDraft(form, id)
   }
 
+  // Przywraca pola tekstowe zapisanego wpisu historii do formularza. Zdjęcia
+  // i logo nie są zapisywane w historii, więc wracają do stanu domyślnego.
+  const handleRestoreHistoryEntry = (entry) => {
+    const next = {
+      title: entry.title ?? '',
+      subtitle: entry.subtitle ?? '',
+      speaker: entry.speaker ?? '',
+      event_date: entry.event_date ?? '',
+      event_time: entry.event_time ?? '',
+      location: entry.location ?? '',
+      logos: {},
+      photos: {},
+      lists: {},
+    }
+    setForm(next)
+    const templateId = entry.template_id ?? selectedTemplateId
+    setSelectedTemplateId(templateId)
+    persistDraft(next, templateId)
+  }
+
+  const handleDeleteHistoryEntry = async (id) => {
+    if (!dbRef.current) return
+    await deleteHistoryEntry(dbRef.current, id)
+    setHistory(listHistory(dbRef.current))
+  }
+
   const selectedTemplate = templates.find((t) => t.id === selectedTemplateId)
   const selectedPoster = selectedTemplate ? posterRegistry[selectedTemplate.poster_key] : null
+  const SelectedForm = selectedPoster?.Form
 
   const handleDownload = async () => {
     if (!selectedTemplate || !posterRef.current || !dbRef.current) return
     const filename = `${form.title || 'plakat'}.png`.trim().replace(/\s+/g, '_')
-    await downloadPosterAsPng(posterRef.current, filename)
+    await downloadPosterAsPng(posterRef.current, filename, exportFormat)
     await addHistoryEntry(dbRef.current, { ...form, template_id: selectedTemplateId })
     setHistory(listHistory(dbRef.current))
   }
@@ -202,22 +229,35 @@ function App() {
 
       <section className="panel">
         <h2>2. Uzupełnij dane</h2>
-        <PosterForm
-          fields={selectedPoster?.fields ?? []}
-          value={form}
-          onFieldChange={handleFieldChange}
-          onLogoChange={handleLogoChange}
-          onLogoEnabledChange={handleLogoEnabledChange}
-          onPhotoAdd={handlePhotoAdd}
-          onPhotoChangeAt={handlePhotoChangeAt}
-          onPhotoPositionChangeAt={handlePhotoPositionChangeAt}
-          onListItemAdd={handleListItemAdd}
-          onListItemChange={handleListItemChange}
-          onListItemRemove={handleListItemRemove}
-        />
+        {SelectedForm && (
+          <SelectedForm
+            value={form}
+            onFieldChange={handleFieldChange}
+            onLogoChange={handleLogoChange}
+            onLogoEnabledChange={handleLogoEnabledChange}
+            onPhotoAdd={handlePhotoAdd}
+            onPhotoChangeAt={handlePhotoChangeAt}
+            onPhotoPositionChangeAt={handlePhotoPositionChangeAt}
+            onListItemAdd={handleListItemAdd}
+            onListItemChange={handleListItemChange}
+            onListItemRemove={handleListItemRemove}
+          />
+        )}
       </section>
 
       <section className="panel actions">
+        <select
+          className="export-format-select"
+          value={exportFormat}
+          onChange={(e) => setExportFormat(e.target.value)}
+          aria-label="Format eksportu"
+        >
+          {Object.entries(EXPORT_FORMATS).map(([key, format]) => (
+            <option key={key} value={key}>
+              {format.label}
+            </option>
+          ))}
+        </select>
         <button type="button" onClick={handleDownload}>
           Pobierz PNG
         </button>
@@ -230,7 +270,7 @@ function App() {
 
       <section className="panel">
         <h2>Historia</h2>
-        <HistoryList entries={history} />
+        <HistoryList entries={history} onRestore={handleRestoreHistoryEntry} onDelete={handleDeleteHistoryEntry} />
       </section>
     </main>
   )
