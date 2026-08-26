@@ -12,6 +12,7 @@ export function Badge({ children, color, background, style }) {
         background,
         padding: background ? '10px 18px' : undefined,
         alignSelf: background ? 'flex-start' : undefined,
+        textTransform: 'uppercase',
         ...style,
       }}
     >

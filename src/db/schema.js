@@ -46,10 +46,24 @@ export function createSchema(db) {
       event_date TEXT,
       event_time TEXT,
       location TEXT,
+      badge TEXT,
       template_id INTEGER,
       updated_at TEXT
     );
   `)
+}
+
+// Dogrywa do tabeli `draft` kolumny dodane po pierwszym wydaniu (np. `badge`),
+// które CREATE TABLE IF NOT EXISTS pomija w bazach zapisanych wcześniej
+// w IndexedDB. Bezpieczne do wołania przy każdym uruchomieniu.
+export function migrateDraftColumns(db) {
+  const columns = new Set(
+    rowsFromExec(db.exec('PRAGMA table_info(draft)')).map((row) => row.name)
+  )
+  if (columns.has('badge')) return false
+
+  db.run('ALTER TABLE draft ADD COLUMN badge TEXT')
+  return true
 }
 
 // Dogrywa do bazy szablony z DEFAULT_TEMPLATES, których tam jeszcze nie ma

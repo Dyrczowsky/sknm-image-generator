@@ -11,7 +11,7 @@ import { LogoRow } from './blocks/LogoRow'
 
 // 1a · WYKŁAD — typografia
 export function Poster1a({ data }) {
-  const { title, subtitle, speaker, event_date, event_time, location, logos } = withPlaceholders(data)
+  const { title, subtitle, speaker, event_date, event_time, location, badge, logos } = withPlaceholders(data)
 
   return (
     <PosterFrame background={colors.navy} color={colors.cream} padding={72}>
@@ -21,7 +21,7 @@ export function Poster1a({ data }) {
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 28, position: 'relative', zIndex: 1 }}>
-        <Badge background={colors.lime} color={colors.limeText} style={{ fontSize: 24 }}>WYKŁAD OTWARTY</Badge>
+        <Badge background={colors.lime} color={colors.limeText} style={{ fontSize: 24 }}>{badge || 'WYKŁAD OTWARTY'}</Badge>
         <div style={{ fontSize: 120, fontWeight: 800, lineHeight: 0.94, letterSpacing: '-.035em', fontKerning: 'none' }}>
           {title}
         </div>

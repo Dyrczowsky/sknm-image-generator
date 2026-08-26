@@ -9,8 +9,8 @@ export function getDraft(db) {
 
 export async function saveDraft(db, draft) {
   db.run(
-    `INSERT INTO draft (id, title, subtitle, speaker, event_date, event_time, location, template_id, updated_at)
-     VALUES (1, :title, :subtitle, :speaker, :event_date, :event_time, :location, :template_id, datetime('now'))
+    `INSERT INTO draft (id, title, subtitle, speaker, event_date, event_time, location, badge, template_id, updated_at)
+     VALUES (1, :title, :subtitle, :speaker, :event_date, :event_time, :location, :badge, :template_id, datetime('now'))
      ON CONFLICT(id) DO UPDATE SET
        title = excluded.title,
        subtitle = excluded.subtitle,
@@ -18,6 +18,7 @@ export async function saveDraft(db, draft) {
        event_date = excluded.event_date,
        event_time = excluded.event_time,
        location = excluded.location,
+       badge = excluded.badge,
        template_id = excluded.template_id,
        updated_at = excluded.updated_at`,
     {
@@ -27,6 +28,7 @@ export async function saveDraft(db, draft) {
       ':event_date': draft.event_date ?? '',
       ':event_time': draft.event_time ?? '',
       ':location': draft.location ?? '',
+      ':badge': draft.badge ?? '',
       ':template_id': draft.template_id ?? null,
     }
   )
