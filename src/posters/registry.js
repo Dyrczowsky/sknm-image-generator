@@ -5,86 +5,90 @@ import { Poster1d } from './Poster1d'
 import { Poster1e } from './Poster1e'
 import { Poster1f } from './Poster1f'
 import { Poster1g } from './Poster1g'
+import { Poster1h } from './Poster1h'
+import { Poster1i } from './Poster1i'
+import { Poster1j } from './Poster1j'
+import { Poster1k } from './Poster1k'
+import { Poster1l } from './Poster1l'
+import { Form1a } from '../forms/Form1a'
+import { Form1b } from '../forms/Form1b'
+import { Form1c } from '../forms/Form1c'
+import { Form1d } from '../forms/Form1d'
+import { Form1e } from '../forms/Form1e'
+import { Form1f } from '../forms/Form1f'
+import { Form1g } from '../forms/Form1g'
+import { Form1h } from '../forms/Form1h'
+import { Form1i } from '../forms/Form1i'
+import { Form1j } from '../forms/Form1j'
+import { Form1k } from '../forms/Form1k'
+import { Form1l } from '../forms/Form1l'
 
-// Formularz (PosterForm) jest generowany wyłącznie na podstawie `fields`
-// poniżej - jeśli szablon czegoś nie deklaruje, w formularzu tego nie ma.
-// Dzięki temu formularz zawsze dokładnie odpowiada temu, czego dany plakat
-// faktycznie potrzebuje.
+// Każdy szablon plakatu ma własny, jawnie napisany komponent formularza (patrz
+// src/forms/) - `Form` poniżej wskazuje, który z nich się renderuje po
+// wybraniu danego szablonu. Dane formularza (App.jsx) są globalne i
+// przeżywają zmianę szablonu - zmienia się tylko to, który komponent je
+// edytuje.
 //
-// Typy pól: 'text' | 'date' | 'time' - zwykły input.
-//           'logo' - jeden upload z checkboxem włącz/wyłącz (LogoSlot).
-//           'photo' - galeria (0..N zdjęć), każde z pozycją X/Y (PhotoGallery).
-//           'list' - powtarzalne wiersze złożone z `itemFields`.
-const BASE_FIELDS = [
-  { type: 'text', key: 'title', label: 'Tytuł' },
-  { type: 'text', key: 'subtitle', label: 'Opis / podtytuł' },
-  { type: 'text', key: 'speaker', label: 'Prelegent / organizator' },
-  { type: 'date', key: 'event_date', label: 'Data' },
-  { type: 'time', key: 'event_time', label: 'Godzina' },
-  { type: 'text', key: 'location', label: 'Lokalizacja' },
-]
-
-function logoField(key, label) {
-  return { type: 'logo', key, label }
-}
-
-function photoField(key, label) {
-  return { type: 'photo', key, label, max: 4 }
-}
-
-const LOGO_PK_ONLY = [logoField('pk', 'Logo PK')]
-const LOGO_PK_AND_FACULTY = [logoField('pk', 'Logo PK'), logoField('faculty', 'Logo wydziału')]
-
 // Klucz (poster_key) jest zapisywany w tabeli `templates` w SQLite.
 export const posterRegistry = {
   '1a': {
     name: 'Wykład',
     Component: Poster1a,
-    fields: [...BASE_FIELDS, ...LOGO_PK_AND_FACULTY],
+    Form: Form1a,
   },
   '1b': {
     name: 'Gość',
     Component: Poster1b,
-    fields: [...BASE_FIELDS, ...LOGO_PK_AND_FACULTY, photoField('photo', 'Zdjęcie prelegenta')],
+    Form: Form1b,
   },
   '1c': {
     name: 'Warsztat',
     Component: Poster1c,
-    fields: [...BASE_FIELDS, ...LOGO_PK_AND_FACULTY, photoField('photo', 'Zdjęcie z warsztatów')],
+    Form: Form1c,
   },
   '1d': {
     name: 'Data',
     Component: Poster1d,
-    fields: [...BASE_FIELDS, ...LOGO_PK_AND_FACULTY, photoField('photo', 'Zdjęcie z wydarzenia')],
+    Form: Form1d,
   },
   '1e': {
     name: 'Konferencja',
     Component: Poster1e,
-    fields: [
-      { type: 'text', key: 'title', label: 'Tytuł' },
-      { type: 'date', key: 'event_date', label: 'Data' },
-      { type: 'text', key: 'location', label: 'Lokalizacja' },
-      {
-        type: 'list',
-        key: 'agenda',
-        label: 'Program konferencji',
-        addLabel: '+ Dodaj punkt programu',
-        itemFields: [
-          { key: 'time', type: 'time', label: 'Godzina', width: 'small' },
-          { key: 'title', type: 'text', label: 'Nazwa punktu programu' },
-        ],
-      },
-      ...LOGO_PK_ONLY,
-    ],
+    Form: Form1e,
   },
   '1f': {
     name: 'Rekrutacja',
     Component: Poster1f,
-    fields: [...BASE_FIELDS, ...LOGO_PK_ONLY],
+    Form: Form1f,
   },
   '1g': {
     name: 'Gala',
     Component: Poster1g,
-    fields: [...BASE_FIELDS, ...LOGO_PK_ONLY],
+    Form: Form1g,
+  },
+  '1h': {
+    name: 'Wykład — złoto',
+    Component: Poster1h,
+    Form: Form1h,
+  },
+  '1i': {
+    name: 'Wykład — czerń',
+    Component: Poster1i,
+    Form: Form1i,
+  },
+  '1j': {
+    name: 'Wykład — jasny',
+    Component: Poster1j,
+    Form: Form1j,
+  },
+  '1k': {
+    name: 'Wykład — szary',
+    Component: Poster1k,
+    Form: Form1k,
+  },
+  '1l': {
+    name: 'Ogłoszenie',
+    Component: Poster1l,
+    Form: Form1l,
   },
 }
