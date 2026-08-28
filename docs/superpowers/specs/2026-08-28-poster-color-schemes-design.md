@@ -12,76 +12,66 @@ plików wariantów + 4 zbędne kopie formularza Wykładu. Dodanie koloru = przep
 całego layoutu. Klucze szablonów to nic nie mówiące `1a`, `1b-czern`, `1h`.
 
 Cel: **jeden plik na layout**, kolorystyka wyciągnięta do jednego, łatwego do
-edycji zestawu schematów. Wybór koloru = przekazanie nazwy schematu; brakujące
-role spadają na schemat `default`.
+edycji pliku. Wybór koloru = przekazanie nazwy schematu; brakujące role spadają
+na schemat `default` **tego layoutu**.
 
 ## Model
 
 ### Schematy kolorów — `src/posters/schemes.js` (nowy)
 
-Czysty obiekt danych + resolver. Nazwany schemat wpisuje **tylko to, co się różni**
-od `base`; reszta ról spada na `base`.
+Kolory są **zależne od layoutu** (patrz „Ryzyka" — „Granat" Wykładu to biały
+tekst na granacie, „Granat" Warsztatu to granatowy tekst na kremie). Dlatego
+`schemes.js` jest **zagnieżdżony per layout**: każdy layout ma komplet swoich
+ról w bloku `default` + nazwane schematy nadpisujące tylko to, co się różni.
+Kolory dekoracji (trójkąty, kliny, tła `rgba`) wpisane **wprost** przy każdym
+schemacie — pełna wierność, bez `color-mix`.
 
 ```js
 import { colors } from './theme'
 
-const base = {
-  pageBg: colors.cream,
-  pageText: colors.ink,
-  mutedText: colors.textMuted,
-  accent: colors.navy,          // podstawowy akcent (tytuł/badge/narożnik wg layoutu)
-  accentText: colors.cream,     // tekst/wypełnienie NA akcencie
-  accent2: colors.lime,         // wtórny akcent (pills, trójkąty deko, drugi badge)
-  accent2Text: colors.limeText,
-  panel: colors.navy,           // kontrastowy pas/płyta (nagłówek Konferencji, płyta Gali)
-  panelText: colors.cream,
-  line: colors.creamMuted,      // włoskowate linie / obramowania listy (agenda)
-  sygnet: 'negatywny',          // nazwa assetu: negatywny|granat|zloty|szary|czarny
-  logoVariant: 'light',         // 'light' | 'dark'
+// Każdy layout: `default` = pełny zestaw ról tego layoutu; nazwane schematy
+// nadpisują tylko różnice. Role są dowolne per layout — patrz plan implementacji
+// po dokładne tabele ról i wartości wyciągnięte z dzisiejszych wariantów.
+const wyklad = {
+  default: {
+    pageBg: colors.navy, pageText: colors.cream, mutedText: colors.cream,
+    badgeFill: colors.lime, badgeText: colors.limeText,
+    speaker: colors.lime, chips: colors.lime,
+    washTop: 'rgba(255,255,255,.055)', wedgeBr: colors.navyLight, wedgeBl: colors.navyDark,
+    sygnet: 'negatywny', logoVariant: 'dark',
+  },
+  zloto: { badgeFill: colors.gold, badgeText: colors.cream, speaker: colors.cream,
+           chips: colors.gold, sygnet: 'zloty' },
+  czern: { pageBg: colors.black, badgeFill: colors.gold, badgeText: colors.cream,
+           speaker: colors.gold, chips: colors.gold,
+           washTop: 'rgba(255,255,255,.04)', wedgeBr: '#1E1E1E', wedgeBl: '#0A0A0A',
+           sygnet: 'zloty' },
+  jasny: { pageBg: colors.cream, pageText: colors.limeText, mutedText: colors.textMuted,
+           badgeFill: colors.navy, badgeText: colors.cream, speaker: colors.navy,
+           chips: colors.navy, washTop: 'rgba(60,69,155,.05)',
+           wedgeBr: '#E2DED3', wedgeBl: '#DAD5C8', sygnet: 'granat', logoVariant: 'light' },
+  szary: { pageBg: colors.paper, pageText: colors.slate, mutedText: colors.textMuted,
+           badgeFill: colors.grayDark, badgeText: colors.cream, speaker: colors.grayDark,
+           chips: colors.gray, washTop: 'rgba(138,141,143,.08)',
+           wedgeBr: '#D8D4CA', wedgeBl: '#CFCAC0', sygnet: 'szary', logoVariant: 'light' },
 }
 
-export const schemes = {
-  default: {},                                    // = base; etykieta „Granat"
-  czern: {
-    pageBg: colors.black, pageText: colors.cream, mutedText: colors.creamMuted,
-    accent: colors.gold, accentText: colors.cream,
-    accent2: colors.gold, accent2Text: colors.black,
-    panel: colors.slate,
-    line: 'color-mix(in srgb, var(--page-text) 20%, transparent)',
-    sygnet: 'zloty', logoVariant: 'dark',
-  },
-  zloto: {
-    pageBg: colors.navy, pageText: colors.cream, mutedText: colors.creamMuted,
-    accent: colors.gold, accentText: colors.cream,
-    accent2: colors.gold, accent2Text: colors.navy,
-    panel: colors.inkPanel,
-    sygnet: 'zloty', logoVariant: 'dark',
-  },
-  jasny: { pageBg: colors.paper },
-  szary: {
-    pageBg: colors.paper, pageText: colors.slate, mutedText: colors.textMuted,
-    accent: colors.grayDark, accent2: colors.gray, accent2Text: colors.cream,
-    panel: colors.grayDark, sygnet: 'szary',
-  },
-  limonka: {                                       // domyślny dla Rekrutacji
-    pageBg: colors.lime, pageText: colors.limeText,
-    accent: colors.navy, accentText: colors.cream,
-    accent2: colors.navy, accent2Text: colors.cream,
-    panel: colors.navy,
-  },
-}
+const gosc = { /* … */ }
+// warsztat, data, konferencja, rekrutacja, gala, ogloszenie — analogicznie
 
-const CSS_VAR = {
-  pageBg: '--page-bg', pageText: '--page-text', mutedText: '--muted-text',
-  accent: '--accent', accentText: '--accent-text',
-  accent2: '--accent-2', accent2Text: '--accent-2-text',
-  panel: '--panel', panelText: '--panel-text', line: '--line',
-}
+export const schemes = { wyklad, gosc, warsztat, data, konferencja, rekrutacja, gala, ogloszenie }
 
-export function resolveScheme(name) {
-  const merged = { ...base, ...(schemes[name] ?? {}) }
+// camelCase → --kebab, żeby layout mógł dodać dowolną rolę bez zmiany resolvera.
+const roleToVar = (k) => '--' + k.replace(/[A-Z]/g, (m) => '-' + m.toLowerCase())
+const NON_CSS = new Set(['sygnet', 'logoVariant'])
+
+export function resolveScheme(layoutKey, name) {
+  const layout = schemes[layoutKey] ?? {}
+  const merged = { ...(layout.default ?? {}), ...(layout[name] ?? {}) }
   const cssVars = {}
-  for (const [k, cssName] of Object.entries(CSS_VAR)) cssVars[cssName] = merged[k]
+  for (const [k, v] of Object.entries(merged)) {
+    if (!NON_CSS.has(k)) cssVars[roleToVar(k)] = v
+  }
   return { cssVars, sygnet: merged.sygnet, logoVariant: merged.logoVariant }
 }
 
@@ -91,10 +81,12 @@ export const SCHEME_LABELS = {
 }
 ```
 
-Dokładna lista ról i ich wartości per schemat są **domknięte w trakcie
-implementacji** przez czytanie każdej pary wariantów (bazowy vs `*Czern` itd.).
-Powyższe to punkt wyjścia. Role nie muszą pasować 1:1 do wszystkich layoutów —
-każdy layout sam decyduje, który element bierze którą rolę (patrz „Ryzyka").
+Dokładne tabele ról i wartości per layout (wyciągnięte z dzisiejszych par
+wariantów: bazowy vs `*Czern` / `*Zloto` / `*Jasny` / `*Szary` oraz `1h`–`1k`
+dla Wykładu) są w planie implementacji — po jednej tabeli na task layoutu.
+Powyższy `wyklad` to gotowy wzór.
+
+Poster zna swój klucz layoutu, więc woła `resolveScheme('wyklad', scheme)`.
 
 ### Ścieżka renderowania — CSS custom properties
 
@@ -116,25 +108,27 @@ export function PosterFrame({ vars, padding = 0, style, children }) {
 }
 ```
 
-Każdy `Poster*` na górze:
+Każdy `Poster*` na górze (przykład Wykład):
 
 ```jsx
-export function PosterGosc({ data, scheme }) {
+export function PosterWyklad({ data, scheme }) {
   const { title, /* … */ } = withPlaceholders(data)
-  const s = resolveScheme(scheme)
+  const s = resolveScheme('wyklad', scheme)
   return (
     <PosterFrame vars={s.cssVars} padding={72}>
-      {/* colors.navy → 'var(--accent)', colors.textMuted → 'var(--muted-text)' itd. */}
+      {/* colors.navy → 'var(--page-bg)', colors.lime → 'var(--badge-fill)' / 'var(--speaker)' / 'var(--chips)' wg roli */}
       <img src={sygnetByName[s.sygnet]} alt="SKNM" />
-      <Badge color="var(--accent)">{badge || 'SEMINARIUM SKNM'}</Badge>
+      <Badge background="var(--badge-fill)" color="var(--badge-text)">{badge || 'WYKŁAD OTWARTY'}</Badge>
+      <div style={{ color: 'var(--speaker)' }}>{speaker}</div>
       <LogoSlot logo={logos.pk} variant={s.logoVariant} />
+      <div style={{ background: 'var(--wedge-bl)', /* clip-path */ }} />
     </PosterFrame>
   )
 }
 ```
 
 - **Bloki (`Badge`, `InfoLine`, `BigDateNumber`, `BrandingText`, `LogoRow`,
-  `LogoSlot`, `PlaceholderBox`) — bez zmian.** Dostają string `"var(--accent)"`
+  `LogoSlot`, `PlaceholderBox`) — bez zmian.** Dostają string `"var(--badge-fill)"`
   zamiast hexa. `getComputedStyle` rozwiązuje go przy renderze i przy eksporcie
   (`html-to-image` inline'uje już rozwiązany kolor RGB).
 - `src/posters/logos.js` — nowa mapa `sygnetByName = { negatywny, granat, zloty,
@@ -142,11 +136,9 @@ export function PosterGosc({ data, scheme }) {
 - Wartości stałe między schematami (np. koralowa plakietka z datą w Gość/Data:
   `colors.coral` / `colors.cream`) zostają literałami z `theme.js`. Promocja do
   roli w `schemes.js` dopiero gdy jakiś schemat naprawdę chce je zmienić (YAGNI).
-- Dekoracje wpisane dziś na sztywno per-wariant (trójkąty Wykładu `#1E1E1E` /
-  `#0A0A0A`, kliny stopki, tła `rgba(...)`): domyślnie **wyliczane** przez
-  `color-mix(in srgb, var(--page-bg) 88%, #000)` itp. Gdy któryś schemat wygląda
-  źle → dopisuje własny override w `schemes.js` (np. `deco1`, `deco2`). To jest
-  „wierność na życzenie".
+- Dekoracje (trójkąty Wykładu `#1E1E1E`/`#0A0A0A`, kliny stopki, tła `rgba(...)`)
+  dostają **własne role** w schemacie danego layoutu z konkretną wartością per
+  schemat (`wedgeBl`, `washTop`, …). Bez `color-mix` — pełna wierność 1:1.
 
 ### Registry — `src/posters/registry.js`
 
@@ -173,8 +165,9 @@ export const posterRegistry = {
 }
 ```
 
-Layout bez `schemes` (Gala) renderuje się z `resolveScheme(undefined)` → `base`
-i nie pokazuje paska kolorów.
+Layout bez `schemes` (Gala) renderuje się z `resolveScheme('gala', undefined)` →
+`schemes.gala.default` i nie pokazuje paska kolorów. `schemes.gala` ma tylko
+blok `default`.
 
 ### Nazewnictwo — klucze i pliki
 
@@ -247,8 +240,8 @@ Bez zmian (`SELECT id, name, poster_key`).
 ### `src/components/TemplateSelector.jsx`
 
 - Znika `groupByFamily`. Jedna kafelka na wiersz `templates`, miniatura w
-  domyślnym schemacie: `<Component data={{}} scheme={registry[key].schemes?.[0]} />`.
-- Pod kafelkami, jeśli wybrany layout ma `schemes.length > 1` — pasek swatchy:
+  domyślnym schemacie: `<Component data={{}} scheme={registry[poster_key].schemes?.[0]} />`.
+- Pod kafelkami, jeśli wybrany layout ma `schemes` z >1 pozycją — pasek swatchy:
   każdy swatch renderuje `<Component data={{}} scheme={name} />` w skali +
   podpis z `SCHEME_LABELS[name]`. Klik → `onSelectScheme(name)`.
 - Nowe propsy: `selectedScheme`, `onSelectScheme`.
@@ -275,21 +268,23 @@ nazwami plików, `/poster/gosc/czern` zamiast `/poster/1h`.
 
 ## Ryzyka i obszary otwarte
 
-- **Niejednorodne mapowanie akcentów.** Layouty różnie interpretują „akcent" —
-  Gość: `accent` = navy (tekst badge, narożnik); Warsztat: tytuł + wypełnienie
-  badge to `accent`, a pills to `accent2`; Wykład: wypełniony badge + nazwa
-  prelegenta to `accent2`. Dlatego schemat oferuje **paletę ról**, a nie sztywny
-  szablon — każdy `Poster*` sam podpina `var(--accent)` / `var(--accent-2)` /
-  `var(--panel)` pod swoje elementy. Gdzie rola nie pasuje → override w
-  `schemes.js` lub literał w komponencie.
-- **`color-mix` w `html-to-image`.** Eksport polega na tym, że `getComputedStyle`
-  zwraca rozwiązany kolor RGB. Do zweryfikowania w kroku eksportu; fallback =
-  wpisanie konkretnych wartości deko do schematów zamiast `color-mix`.
-- **Miniatury z pustymi danymi.** `resolveScheme(undefined)` musi zwracać `base`
-  (już zwraca — `schemes[undefined] ?? {}`).
-- **Drobny drift.** Np. nazwa prelegenta w Wykład-zloto: dziś `cream`, po zmianie
-  `accent2` (złoto). Akceptowalne wg ustalonej „hybrydy"; korekta przez override
-  gdyby raziło.
+- **Kolory zależne od layoutu.** „Granat" Wykładu = biały tekst na granacie;
+  „Granat" Warsztatu = granat na kremie. „Jasny" = `cream` dla Wykładu/Ogłoszenia,
+  `paper` dla reszty. Wypełniona plakietka „czerń": tekst `cream` (Wykład) vs
+  `czarny` (Warsztat), oba na złocie. Dlatego `schemes.js` jest zagnieżdżony per
+  layout — każdy layout ma pełny `default` + własne role. Zero prób uwspólnienia
+  na siłę. Cena: powtórzenia w `schemes.js` (ta sama czerń tła w 8 blokach
+  `czern`), ale każda zmiana ma jedno oczywiste miejsce.
+- **Nazwy ról per layout.** Każdy layout deklaruje swoje role (`badgeFill`,
+  `speaker`, `wedgeBl`, `panel`, `line`, `pillFill`…). Plan implementacji ma
+  tabelę ról dla każdego z 8 layoutów, wyciągniętą z par wariantów. Wspólny rdzeń:
+  `pageBg`, `pageText`, `mutedText`.
+- **`resolveScheme` w `html-to-image`.** Eksport polega na tym, że
+  `getComputedStyle` zwraca rozwiązany kolor RGB dla `var(--x)`. Do sprawdzenia
+  w kroku eksportu (Task „PNG"); wartości ról są konkretnymi hexami/rgba, więc
+  ryzyko małe.
+- **Miniatury z pustymi danymi / Gala.** `resolveScheme('gala', undefined)` musi
+  zwracać `schemes.gala.default` (zwraca — `layout[undefined] ?? {}`).
 
 ## Weryfikacja
 
