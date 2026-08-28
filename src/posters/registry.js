@@ -30,11 +30,20 @@ import { Form1l } from '../forms/Form1l'
 // edytuje.
 //
 // Klucz (poster_key) jest zapisywany w tabeli `templates` w SQLite.
+//
+// `family` grupuje warianty kolorystyczne tego samego layoutu (patrz Wykład
+// 1a/1h/1i/1j/1k) - TemplateSelector pokazuje jedną kafelkę na `family`
+// (z podpisem `familyLabel`) zamiast osobnej dla każdego koloru, a warianty
+// wybiera się osobnym paskiem swatchy (`colorLabel`). Szablony bez `family`
+// są traktowane jako jednoelementowa grupa (bez paska kolorystyki).
 export const posterRegistry = {
   '1a': {
     name: 'Wykład',
     Component: Poster1a,
     Form: Form1a,
+    family: 'wyklad',
+    familyLabel: 'Wykład',
+    colorLabel: 'Granat',
   },
   '1b': {
     name: 'Gość',
@@ -70,21 +79,33 @@ export const posterRegistry = {
     name: 'Wykład — złoto',
     Component: Poster1h,
     Form: Form1h,
+    family: 'wyklad',
+    familyLabel: 'Wykład',
+    colorLabel: 'Złoto',
   },
   '1i': {
     name: 'Wykład — czerń',
     Component: Poster1i,
     Form: Form1i,
+    family: 'wyklad',
+    familyLabel: 'Wykład',
+    colorLabel: 'Czerń',
   },
   '1j': {
     name: 'Wykład — jasny',
     Component: Poster1j,
     Form: Form1j,
+    family: 'wyklad',
+    familyLabel: 'Wykład',
+    colorLabel: 'Jasny',
   },
   '1k': {
     name: 'Wykład — szary',
     Component: Poster1k,
     Form: Form1k,
+    family: 'wyklad',
+    familyLabel: 'Wykład',
+    colorLabel: 'Szary',
   },
   '1l': {
     name: 'Ogłoszenie',
