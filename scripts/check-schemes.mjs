@@ -52,4 +52,22 @@ assert.equal(SCHEME_LABELS.czern, 'Czerń')
   assert.equal(d.sygnet, 'zloty')
 }
 
+// Gość
+{
+  const d = resolveScheme('gosc', undefined)
+  assert.equal(d.cssVars['--accent'], colors.navy)
+  assert.equal(d.sygnet, 'negatywny')
+  const cz = resolveScheme('gosc', 'czern')
+  assert.equal(cz.cssVars['--accent'], colors.gold)
+  assert.equal(cz.sygnet, 'negatywny')   // Gość: czerń zostaje przy negatywnym
+  assert.equal(cz.cssVars['--muted-text'], colors.creamMuted)
+  const ja = resolveScheme('gosc', 'jasny')
+  assert.equal(ja.cssVars['--page-bg'], colors.paper)
+  assert.equal(ja.cssVars['--accent'], colors.navy)         // z default
+  assert.equal(ja.cssVars['--muted-text'], colors.textMuted) // z default
+  const sz = resolveScheme('gosc', 'szary')
+  assert.equal(sz.cssVars['--page-text'], colors.slate)
+  assert.equal(sz.cssVars['--muted-text'], colors.textMuted) // szary NIE nadpisuje
+}
+
 console.log('check-schemes: OK')

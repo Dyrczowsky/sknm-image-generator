@@ -1,9 +1,4 @@
 import { Poster1a } from './Poster1a'
-import { Poster1b } from './Poster1b'
-import { Poster1bCzern } from './Poster1bCzern'
-import { Poster1bZloto } from './Poster1bZloto'
-import { Poster1bJasny } from './Poster1bJasny'
-import { Poster1bSzary } from './Poster1bSzary'
 import { Poster1c } from './Poster1c'
 import { Poster1cCzern } from './Poster1cCzern'
 import { Poster1cZloto } from './Poster1cZloto'
@@ -29,9 +24,9 @@ import { Poster1i } from './Poster1i'
 import { Poster1j } from './Poster1j'
 import { Poster1k } from './Poster1k'
 import { PosterGala } from './PosterGala'
+import { PosterGosc } from './PosterGosc'
 import { PosterOgloszenie } from './PosterOgloszenie'
 import { Form1a } from '../forms/Form1a'
-import { Form1b } from '../forms/Form1b'
 import { Form1c } from '../forms/Form1c'
 import { Form1d } from '../forms/Form1d'
 import { Form1e } from '../forms/Form1e'
@@ -41,6 +36,7 @@ import { Form1i } from '../forms/Form1i'
 import { Form1j } from '../forms/Form1j'
 import { Form1k } from '../forms/Form1k'
 import { FormGala } from '../forms/FormGala'
+import { FormGosc } from '../forms/FormGosc'
 import { FormOgloszenie } from '../forms/FormOgloszenie'
 
 // Każdy szablon plakatu ma własny, jawnie napisany komponent formularza (patrz
@@ -96,47 +92,6 @@ export const posterRegistry = {
     Form: Form1k,
     family: 'wyklad',
     familyLabel: 'Wykład',
-    colorLabel: 'Szary',
-  },
-
-  '1b': {
-    name: 'Gość',
-    Component: Poster1b,
-    Form: Form1b,
-    family: 'gosc',
-    familyLabel: 'Gość',
-    colorLabel: 'Granat',
-  },
-  '1b-czern': {
-    name: 'Gość — czerń',
-    Component: Poster1bCzern,
-    Form: Form1b,
-    family: 'gosc',
-    familyLabel: 'Gość',
-    colorLabel: 'Czerń',
-  },
-  '1b-zloto': {
-    name: 'Gość — złoto',
-    Component: Poster1bZloto,
-    Form: Form1b,
-    family: 'gosc',
-    familyLabel: 'Gość',
-    colorLabel: 'Złoto',
-  },
-  '1b-jasny': {
-    name: 'Gość — jasny',
-    Component: Poster1bJasny,
-    Form: Form1b,
-    family: 'gosc',
-    familyLabel: 'Gość',
-    colorLabel: 'Jasny',
-  },
-  '1b-szary': {
-    name: 'Gość — szary',
-    Component: Poster1bSzary,
-    Form: Form1b,
-    family: 'gosc',
-    familyLabel: 'Gość',
     colorLabel: 'Szary',
   },
 
@@ -302,6 +257,13 @@ export const posterRegistry = {
     family: 'rekrutacja',
     familyLabel: 'Rekrutacja',
     colorLabel: 'Szary',
+  },
+
+  gosc: {
+    name: 'Gość',
+    Component: PosterGosc,
+    Form: FormGosc,
+    schemes: ['default', 'czern', 'zloto', 'jasny', 'szary'],
   },
 
   gala: { name: 'Gala', Component: PosterGala, Form: FormGala },

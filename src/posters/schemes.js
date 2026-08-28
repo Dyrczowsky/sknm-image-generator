@@ -25,7 +25,21 @@ const gala = {
   },
 }
 
-export const schemes = { ogloszenie, gala }
+// Gość — `accent` obsługuje naraz tło narożnego trójkąta, kolor tekstu Badge
+// i kolor linku „Wstęp wolny". Pudełko z datą (coral/cream) jest identyczne we
+// wszystkich schematach, więc zostaje literałem w komponencie (nie rolą).
+const gosc = {
+  default: { pageBg: colors.cream, pageText: colors.ink, mutedText: colors.textMuted,
+             accent: colors.navy, sygnet: 'negatywny', logoVariant: 'light' },
+  czern: { pageBg: colors.black, pageText: colors.cream, mutedText: colors.creamMuted,
+           accent: colors.gold, sygnet: 'negatywny', logoVariant: 'dark' },
+  zloto: { pageBg: colors.navy, pageText: colors.cream, mutedText: colors.creamMuted,
+           accent: colors.gold, sygnet: 'zloty', logoVariant: 'dark' },
+  jasny: { pageBg: colors.paper },
+  szary: { pageBg: colors.paper, pageText: colors.slate, accent: colors.grayDark },
+}
+
+export const schemes = { ogloszenie, gala, gosc }
 
 // camelCase → --kebab; layout może dodać dowolną rolę bez zmiany resolvera.
 const roleToVar = (k) => '--' + k.replace(/[A-Z]/g, (m) => '-' + m.toLowerCase())

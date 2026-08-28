@@ -3,8 +3,8 @@ import { FormField } from './FormField'
 import { LogoField } from './LogoField'
 import { PhotoGalleryField } from './PhotoGalleryField'
 
-// Formularz dla 1b · Gość - logo PK + logo wydziału + zdjęcie prelegenta.
-export function Form1b({
+// Formularz dla Gość - logo PK + logo wydziału + zdjęcie prelegenta.
+export function FormGosc({
   value,
   onFieldChange,
   onLogoChange,

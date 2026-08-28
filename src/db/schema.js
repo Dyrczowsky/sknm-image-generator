@@ -4,7 +4,7 @@ import { rowsFromExec } from './utils'
 // (patrz syncTemplates). `poster_key` odpowiada kluczowi w src/posters/registry.js.
 export const DEFAULT_TEMPLATES = [
   { name: 'Wykład', poster_key: '1a' },
-  { name: 'Gość', poster_key: '1b' },
+  { name: 'Gość', poster_key: 'gosc' },
   { name: 'Warsztat', poster_key: '1c' },
   { name: 'Data', poster_key: '1d' },
   { name: 'Konferencja', poster_key: '1e' },
@@ -15,11 +15,6 @@ export const DEFAULT_TEMPLATES = [
   { name: 'Wykład — jasny', poster_key: '1j' },
   { name: 'Wykład — szary', poster_key: '1k' },
   { name: 'Ogłoszenie', poster_key: 'ogloszenie' },
-
-  { name: 'Gość — czerń', poster_key: '1b-czern' },
-  { name: 'Gość — złoto', poster_key: '1b-zloto' },
-  { name: 'Gość — jasny', poster_key: '1b-jasny' },
-  { name: 'Gość — szary', poster_key: '1b-szary' },
 
   { name: 'Warsztat — czerń', poster_key: '1c-czern' },
   { name: 'Warsztat — złoto', poster_key: '1c-zloto' },
