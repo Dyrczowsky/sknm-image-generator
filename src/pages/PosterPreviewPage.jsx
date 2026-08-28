@@ -4,7 +4,7 @@ import { PosterScaled } from '../components/PosterScaled'
 
 // Podgląd pojedynczego szablonu pod /poster/:id, wypełniony danymi
 // przykładowymi - przydatne do szybkiego sprawdzenia wyglądu szablonu.
-export function PosterPreviewPage({ posterKey }) {
+export function PosterPreviewPage({ posterKey, scheme }) {
   const poster = posterRegistry[posterKey]
 
   if (!poster) {
@@ -22,10 +22,10 @@ export function PosterPreviewPage({ posterKey }) {
   return (
     <main className="app-shell">
       <a href={import.meta.env.BASE_URL}>← Wróć do generatora</a>
-      <h1>Podgląd szablonu: {name}</h1>
+      <h1>Podgląd szablonu: {name}{scheme ? ` · ${scheme}` : ''}</h1>
       <div className="poster-preview">
         <PosterScaled size={600}>
-          <Component data={data} />
+          <Component data={data} scheme={scheme} />
         </PosterScaled>
       </div>
     </main>

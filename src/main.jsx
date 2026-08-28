@@ -10,10 +10,10 @@ const base = import.meta.env.BASE_URL
 const path = window.location.pathname.startsWith(base)
   ? window.location.pathname.slice(base.length - 1)
   : window.location.pathname
-const posterMatch = path.match(/^\/poster\/([^/]+)\/?$/)
+const posterMatch = path.match(/^\/poster\/([^/]+)(?:\/([^/]+))?\/?$/)
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    {posterMatch ? <PosterPreviewPage posterKey={posterMatch[1]} /> : <App />}
+    {posterMatch ? <PosterPreviewPage posterKey={posterMatch[1]} scheme={posterMatch[2]} /> : <App />}
   </StrictMode>,
 )
