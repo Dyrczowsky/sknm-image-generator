@@ -1,6 +1,6 @@
 import { PosterScaled } from './PosterScaled'
 
-const PREVIEW_SIZE = 400
+const PREVIEW_SIZE = 420
 
 // Podgląd na żywo - aktualizuje się automatycznie przy każdej zmianie
 // formularza lub szablonu (bez przycisku "Generuj").

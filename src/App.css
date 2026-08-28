@@ -4,6 +4,63 @@
   padding: 32px 16px 64px;
 }
 
+/* Domyślnie (wąskie ekrany) sekcje płyną jedna pod drugą w kolejności DOM:
+   szablon, formularz, akcje, podgląd, historia. */
+.app-grid {
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 900px) {
+  .app-shell {
+    max-width: 1240px;
+  }
+
+  /* Od 900px wzwyż: dwie kolumny przez grid-template-areas - lewa mieści
+     formularz i historię, prawa to przypięty (sticky) podgląd, który
+     zostaje widoczny na ekranie podczas przewijania długiego formularza. */
+  .app-grid {
+    display: grid;
+    grid-template-columns: 1fr 460px;
+    grid-template-areas:
+      'template preview'
+      'form     preview'
+      'actions  preview'
+      'history  preview';
+    gap: 24px;
+    align-items: start;
+    margin-top: 20px;
+  }
+
+  .panel-template {
+    grid-area: template;
+  }
+
+  .panel-form {
+    grid-area: form;
+  }
+
+  .panel-actions {
+    grid-area: actions;
+  }
+
+  .panel-history {
+    grid-area: history;
+  }
+
+  .panel-preview {
+    grid-area: preview;
+    position: sticky;
+    top: 20px;
+  }
+
+  /* Odstęp między panelami zapewnia już `gap` na gridzie, więc tu resetujemy
+     margin-top używany w układzie jednokolumnowym (żeby się nie sumował). */
+  .app-grid .panel {
+    margin-top: 0;
+  }
+}
+
 .app-shell > a {
   display: inline-block;
   margin-bottom: 16px;

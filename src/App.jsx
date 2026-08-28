@@ -224,60 +224,62 @@ function App() {
     <main className="app-shell">
       <h1>Generator plakatów SKNM</h1>
 
-      <section className="panel">
-        <h2>1. Wybierz szablon</h2>
-        <TemplateSelector
-          templates={templates}
-          selectedId={selectedTemplateId}
-          onSelect={handleSelectTemplate}
-        />
-      </section>
-
-      <section className="panel">
-        <h2>2. Uzupełnij dane</h2>
-        {SelectedForm && (
-          <SelectedForm
-            value={form}
-            onFieldChange={handleFieldChange}
-            onLogoChange={handleLogoChange}
-            onLogoEnabledChange={handleLogoEnabledChange}
-            onPhotoAdd={handlePhotoAdd}
-            onPhotoChangeAt={handlePhotoChangeAt}
-            onPhotoPositionChangeAt={handlePhotoPositionChangeAt}
-            onListItemAdd={handleListItemAdd}
-            onListItemChange={handleListItemChange}
-            onListItemRemove={handleListItemRemove}
+      <div className="app-grid">
+        <section className="panel panel-template">
+          <h2>1. Wybierz szablon</h2>
+          <TemplateSelector
+            templates={templates}
+            selectedId={selectedTemplateId}
+            onSelect={handleSelectTemplate}
           />
-        )}
-      </section>
+        </section>
 
-      <section className="panel actions">
-        <select
-          className="export-format-select"
-          value={exportFormat}
-          onChange={(e) => setExportFormat(e.target.value)}
-          aria-label="Format eksportu"
-        >
-          {Object.entries(EXPORT_FORMATS).map(([key, format]) => (
-            <option key={key} value={key}>
-              {format.label}
-            </option>
-          ))}
-        </select>
-        <button type="button" onClick={handleDownload}>
-          Pobierz PNG
-        </button>
-      </section>
+        <section className="panel panel-form">
+          <h2>2. Uzupełnij dane</h2>
+          {SelectedForm && (
+            <SelectedForm
+              value={form}
+              onFieldChange={handleFieldChange}
+              onLogoChange={handleLogoChange}
+              onLogoEnabledChange={handleLogoEnabledChange}
+              onPhotoAdd={handlePhotoAdd}
+              onPhotoChangeAt={handlePhotoChangeAt}
+              onPhotoPositionChangeAt={handlePhotoPositionChangeAt}
+              onListItemAdd={handleListItemAdd}
+              onListItemChange={handleListItemChange}
+              onListItemRemove={handleListItemRemove}
+            />
+          )}
+        </section>
 
-      <section className="panel">
-        <h2>Podgląd</h2>
-        <PosterPreview posterRef={posterRef} Component={selectedPoster?.Component} data={form} />
-      </section>
+        <section className="panel panel-actions actions">
+          <select
+            className="export-format-select"
+            value={exportFormat}
+            onChange={(e) => setExportFormat(e.target.value)}
+            aria-label="Format eksportu"
+          >
+            {Object.entries(EXPORT_FORMATS).map(([key, format]) => (
+              <option key={key} value={key}>
+                {format.label}
+              </option>
+            ))}
+          </select>
+          <button type="button" onClick={handleDownload}>
+            Pobierz PNG
+          </button>
+        </section>
 
-      <section className="panel">
-        <h2>Historia</h2>
-        <HistoryList entries={history} onRestore={handleRestoreHistoryEntry} onDelete={handleDeleteHistoryEntry} />
-      </section>
+        <section className="panel panel-preview">
+          <h2>Podgląd</h2>
+          <PosterPreview posterRef={posterRef} Component={selectedPoster?.Component} data={form} />
+        </section>
+
+        <section className="panel panel-history">
+          <h2>Historia</h2>
+          <HistoryList entries={history} onRestore={handleRestoreHistoryEntry} onDelete={handleDeleteHistoryEntry} />
+        </section>
+      </div>
     </main>
   )
 }
