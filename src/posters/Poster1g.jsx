@@ -12,7 +12,7 @@ import { LogoRow } from './blocks/LogoRow'
 
 // 1g · GALA — złoto na grafitowym
 export function Poster1g({ data }) {
-  const { title, subtitle, event_date, event_time, location, logos } = withPlaceholders(data)
+  const { title, subtitle, event_date, event_time, location, badge, logos } = withPlaceholders(data)
 
   return (
     <PosterFrame background={colors.ink} color={colors.goldPanelText} padding={72}>
@@ -25,7 +25,7 @@ export function Poster1g({ data }) {
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 30, position: 'relative', zIndex: 1 }}>
-        <Badge color={colors.gold} style={{ font: `700 24px ${fontMono}`, letterSpacing: '.2em' }}>GALA SKNM</Badge>
+        <Badge color={colors.gold} style={{ font: `700 24px ${fontMono}`, letterSpacing: '.2em' }}>{badge || 'GALA SKNM'}</Badge>
         <div style={{ fontSize: 126, fontWeight: 800, lineHeight: 0.94, letterSpacing: '-.035em', fontKerning: 'none' }}>
           {title}
         </div>

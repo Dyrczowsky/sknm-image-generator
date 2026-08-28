@@ -9,9 +9,11 @@ export function Form1e({ value, onFieldChange, onLogoChange, onLogoEnabledChange
 
   return (
     <form className="image-form" onSubmit={(e) => e.preventDefault()}>
+      <FormField type="text" label="Etykieta nagłówka" placeholder="SEMINARIUM SKNM" value={value.badge} onChange={(v) => onFieldChange('badge', v)} />
       <FormField type="text" label="Tytuł" placeholder={PLACEHOLDERS.title} value={value.title} onChange={(v) => onFieldChange('title', v)} />
       <FormField type="date" label="Data" placeholder={PLACEHOLDERS.event_date} value={value.event_date} onChange={(v) => onFieldChange('event_date', v)} />
       <FormField type="text" label="Lokalizacja" placeholder={PLACEHOLDERS.location} value={value.location} onChange={(v) => onFieldChange('location', v)} />
+      <FormField type="text" label="Etykieta stopki" placeholder="WIĘCEJ INFORMACJI" value={value.badge2} onChange={(v) => onFieldChange('badge2', v)} />
 
       <div className="field-list">
         <span className="image-upload-label">Program konferencji</span>

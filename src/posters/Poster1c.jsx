@@ -19,7 +19,7 @@ function Pill({ children }) {
 
 // 1c · WARSZTAT — skos
 export function Poster1c({ data }) {
-  const { title, subtitle, event_date, event_time, location, logos, photos } = withPlaceholders(data)
+  const { title, subtitle, event_date, event_time, location, badge, logos, photos } = withPlaceholders(data)
 
   const pills = [event_time, `${getDay(event_date)} ${getMonthShort(event_date)}`, location]
 
@@ -36,7 +36,7 @@ export function Poster1c({ data }) {
         <img src={sygnetGranat} alt="SKNM" style={{ width: 132, display: 'block' }} />
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 22, maxWidth: 600 }}>
-          <Badge background={colors.navy} color={colors.lime} style={{ padding: '10px 16px' }}>WARSZTATY</Badge>
+          <Badge background={colors.navy} color={colors.lime} style={{ padding: '10px 16px' }}>{badge || 'WARSZTATY'}</Badge>
           <div style={{ fontSize: 104, fontWeight: 800, lineHeight: 0.94, letterSpacing: '-.035em', color: colors.navy, fontKerning: 'none' }}>
             {title}
           </div>

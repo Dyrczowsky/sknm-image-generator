@@ -6,6 +6,7 @@ import { LogoField } from './LogoField'
 export function Form1f({ value, onFieldChange, onLogoChange, onLogoEnabledChange }) {
   return (
     <form className="image-form" onSubmit={(e) => e.preventDefault()}>
+      <FormField type="text" label="Etykieta" placeholder="SPOTKANIE ORGANIZACYJNE" value={value.badge} onChange={(v) => onFieldChange('badge', v)} />
       <FormField type="text" label="Tytuł" placeholder={PLACEHOLDERS.title} value={value.title} onChange={(v) => onFieldChange('title', v)} />
       <FormField type="text" label="Opis / podtytuł" value={value.subtitle} onChange={(v) => onFieldChange('subtitle', v)} />
       <FormField type="text" label="Prelegent / organizator" placeholder={PLACEHOLDERS.speaker} value={value.speaker} onChange={(v) => onFieldChange('speaker', v)} />

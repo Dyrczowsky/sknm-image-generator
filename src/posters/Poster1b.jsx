@@ -11,7 +11,7 @@ import { LogoRow } from './blocks/LogoRow'
 
 // 1b · GOŚĆ — zdjęcie + pas
 export function Poster1b({ data }) {
-  const { title, speaker, event_date, event_time, location, logos, photos } = withPlaceholders(data)
+  const { title, speaker, event_date, event_time, location, badge, logos, photos } = withPlaceholders(data)
 
   return (
     <PosterFrame background={colors.cream} color={colors.ink}>
@@ -30,7 +30,7 @@ export function Poster1b({ data }) {
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 820 }}>
-          <Badge color={colors.navy}>SEMINARIUM SKNM</Badge>
+          <Badge color={colors.navy}>{badge || 'SEMINARIUM SKNM'}</Badge>
           <div style={{ fontSize: 82, fontWeight: 800, lineHeight: 0.98, letterSpacing: '-.03em', fontKerning: 'none' }}>
             {title}
           </div>

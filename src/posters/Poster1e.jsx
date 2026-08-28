@@ -16,7 +16,7 @@ const DEFAULT_AGENDA = [
 
 // 1e · KONFERENCJA — nagłówek + lista programu
 export function Poster1e({ data }) {
-  const { title, event_date, location, logos, lists } = withPlaceholders(data)
+  const { title, event_date, location, badge, badge2, logos, lists } = withPlaceholders(data)
   const agenda = lists.agenda?.length ? lists.agenda : DEFAULT_AGENDA
 
   const dateLine = `${formatFullDate(event_date)} · ${location}`
@@ -25,7 +25,7 @@ export function Poster1e({ data }) {
     <PosterFrame background={colors.cream} color={colors.ink}>
       <div style={{ background: colors.navy, color: colors.cream, padding: '56px 72px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: 32 }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          <Badge color={colors.lime}>SEMINARIUM SKNM</Badge>
+          <Badge color={colors.lime}>{badge || 'SEMINARIUM SKNM'}</Badge>
           <div style={{ fontSize: 76, fontWeight: 800, lineHeight: 0.96, letterSpacing: '-.03em', fontKerning: 'none' }}>
             {title}
           </div>
@@ -62,7 +62,7 @@ export function Poster1e({ data }) {
 
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24 }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <Badge color={colors.navy} style={{ font: `700 20px ${fontMono}`, letterSpacing: '.12em' }}>WIĘCEJ INFORMACJI</Badge>
+            <Badge color={colors.navy} style={{ font: `700 20px ${fontMono}`, letterSpacing: '.12em' }}>{badge2 || 'WIĘCEJ INFORMACJI'}</Badge>
             <div style={{ fontSize: 24, fontWeight: 600, color: colors.textMuted }}>sknm.pk.edu.pl</div>
           </div>
           <LogoRow gap={14}>

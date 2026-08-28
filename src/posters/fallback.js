@@ -33,6 +33,7 @@ export function withPlaceholders(data) {
     event_time: data.event_time || PLACEHOLDERS.event_time,
     location: data.location || PLACEHOLDERS.location,
     badge: data.badge,
+    badge2: data.badge2,
     logos: data.logos || {},
     photos: data.photos || {},
     lists: data.lists || {},

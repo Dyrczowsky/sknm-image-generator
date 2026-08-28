@@ -47,22 +47,28 @@ export function createSchema(db) {
       event_time TEXT,
       location TEXT,
       badge TEXT,
+      badge2 TEXT,
       template_id INTEGER,
       updated_at TEXT
     );
   `)
 }
 
-// Dogrywa do tabeli `draft` kolumny dodane po pierwszym wydaniu (np. `badge`),
-// które CREATE TABLE IF NOT EXISTS pomija w bazach zapisanych wcześniej
-// w IndexedDB. Bezpieczne do wołania przy każdym uruchomieniu.
+// Kolumny tabeli `draft` dodane po pierwszym wydaniu. CREATE TABLE IF NOT
+// EXISTS pomija je w bazach zapisanych wcześniej w IndexedDB, więc
+// migrateDraftColumns dogrywa brakujące przy każdym uruchomieniu.
+const DRAFT_EXTRA_COLUMNS = ['badge', 'badge2']
+
 export function migrateDraftColumns(db) {
   const columns = new Set(
     rowsFromExec(db.exec('PRAGMA table_info(draft)')).map((row) => row.name)
   )
-  if (columns.has('badge')) return false
+  const missing = DRAFT_EXTRA_COLUMNS.filter((col) => !columns.has(col))
+  if (missing.length === 0) return false
 
-  db.run('ALTER TABLE draft ADD COLUMN badge TEXT')
+  for (const col of missing) {
+    db.run(`ALTER TABLE draft ADD COLUMN ${col} TEXT`)
+  }
   return true
 }
 
