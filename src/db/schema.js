@@ -14,7 +14,7 @@ export const DEFAULT_TEMPLATES = [
   { name: 'Wykład — czerń', poster_key: '1i' },
   { name: 'Wykład — jasny', poster_key: '1j' },
   { name: 'Wykład — szary', poster_key: '1k' },
-  { name: 'Ogłoszenie', poster_key: '1l' },
+  { name: 'Ogłoszenie', poster_key: 'ogloszenie' },
 
   { name: 'Gość — czerń', poster_key: '1b-czern' },
   { name: 'Gość — złoto', poster_key: '1b-zloto' },
@@ -40,11 +40,6 @@ export const DEFAULT_TEMPLATES = [
   { name: 'Rekrutacja — złoto', poster_key: '1f-zloto' },
   { name: 'Rekrutacja — jasny', poster_key: '1f-jasny' },
   { name: 'Rekrutacja — szary', poster_key: '1f-szary' },
-
-  { name: 'Ogłoszenie — czerń', poster_key: '1l-czern' },
-  { name: 'Ogłoszenie — złoto', poster_key: '1l-zloto' },
-  { name: 'Ogłoszenie — jasny', poster_key: '1l-jasny' },
-  { name: 'Ogłoszenie — szary', poster_key: '1l-szary' },
 ]
 
 export function createSchema(db) {

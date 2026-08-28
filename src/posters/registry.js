@@ -29,11 +29,7 @@ import { Poster1h } from './Poster1h'
 import { Poster1i } from './Poster1i'
 import { Poster1j } from './Poster1j'
 import { Poster1k } from './Poster1k'
-import { Poster1l } from './Poster1l'
-import { Poster1lCzern } from './Poster1lCzern'
-import { Poster1lZloto } from './Poster1lZloto'
-import { Poster1lJasny } from './Poster1lJasny'
-import { Poster1lSzary } from './Poster1lSzary'
+import { PosterOgloszenie } from './PosterOgloszenie'
 import { Form1a } from '../forms/Form1a'
 import { Form1b } from '../forms/Form1b'
 import { Form1c } from '../forms/Form1c'
@@ -45,7 +41,7 @@ import { Form1h } from '../forms/Form1h'
 import { Form1i } from '../forms/Form1i'
 import { Form1j } from '../forms/Form1j'
 import { Form1k } from '../forms/Form1k'
-import { Form1l } from '../forms/Form1l'
+import { FormOgloszenie } from '../forms/FormOgloszenie'
 
 // Każdy szablon plakatu ma własny, jawnie napisany komponent formularza (patrz
 // src/forms/) - `Form` poniżej wskazuje, który z nich się renderuje po
@@ -314,44 +310,10 @@ export const posterRegistry = {
     Form: Form1g,
   },
 
-  '1l': {
+  ogloszenie: {
     name: 'Ogłoszenie',
-    Component: Poster1l,
-    Form: Form1l,
-    family: 'ogloszenie',
-    familyLabel: 'Ogłoszenie',
-    colorLabel: 'Granat',
-  },
-  '1l-czern': {
-    name: 'Ogłoszenie — czerń',
-    Component: Poster1lCzern,
-    Form: Form1l,
-    family: 'ogloszenie',
-    familyLabel: 'Ogłoszenie',
-    colorLabel: 'Czerń',
-  },
-  '1l-zloto': {
-    name: 'Ogłoszenie — złoto',
-    Component: Poster1lZloto,
-    Form: Form1l,
-    family: 'ogloszenie',
-    familyLabel: 'Ogłoszenie',
-    colorLabel: 'Złoto',
-  },
-  '1l-jasny': {
-    name: 'Ogłoszenie — jasny',
-    Component: Poster1lJasny,
-    Form: Form1l,
-    family: 'ogloszenie',
-    familyLabel: 'Ogłoszenie',
-    colorLabel: 'Jasny',
-  },
-  '1l-szary': {
-    name: 'Ogłoszenie — szary',
-    Component: Poster1lSzary,
-    Form: Form1l,
-    family: 'ogloszenie',
-    familyLabel: 'Ogłoszenie',
-    colorLabel: 'Szary',
+    Component: PosterOgloszenie,
+    Form: FormOgloszenie,
+    schemes: ['default', 'czern', 'zloto', 'jasny', 'szary'],
   },
 }

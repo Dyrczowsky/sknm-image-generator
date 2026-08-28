@@ -1,39 +1,43 @@
-import { colors, fontMono } from './theme'
-import { sygnetNegatywny } from './logos'
+import { fontMono } from './theme'
+import { sygnetByName } from './logos'
 import { LogoSlot } from './LogoSlot'
 import { withPlaceholders } from './fallback'
+import { resolveScheme } from './schemes'
 import { PosterFrame } from './blocks/PosterFrame'
 import { BrandingText } from './blocks/BrandingText'
 import { LogoRow } from './blocks/LogoRow'
 
-// 1l · OGŁOSZENIE — wariant czerń (negatyw na czerni, złote akcenty)
-export function Poster1lCzern({ data }) {
+// OGŁOSZENIE — wyśrodkowany cytat/komunikat, bez zdjęcia i bez daty.
+// Jedyny szablon bez narożnikowego stosu informacji — do krótkich ogłoszeń,
+// cytatów i podziękowań.
+export function PosterOgloszenie({ data, scheme }) {
   const { title, subtitle, logos } = withPlaceholders(data)
+  const s = resolveScheme('ogloszenie', scheme)
 
   return (
-    <PosterFrame background={colors.black} color={colors.cream} padding={96}>
+    <PosterFrame vars={s.cssVars} padding={96}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-        <img src={sygnetNegatywny} alt="SKNM" style={{ width: 132, display: 'block' }} />
+        <img src={sygnetByName[s.sygnet]} alt="SKNM" style={{ width: 132, display: 'block' }} />
         <BrandingText lines={['SKNM', 'POLITECHNIKA', 'KRAKOWSKA']} opacity={0.85} />
       </div>
 
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center', gap: 32 }}>
         <div style={{ display: 'flex', gap: 10 }}>
-          <div style={{ width: 46, height: 40, background: colors.gold, clipPath: 'polygon(0 0,100% 0,50% 100%)' }} />
-          <div style={{ width: 46, height: 40, background: colors.gold, clipPath: 'polygon(0 0,100% 0,50% 100%)' }} />
+          <div style={{ width: 46, height: 40, background: 'var(--accent)', clipPath: 'polygon(0 0,100% 0,50% 100%)' }} />
+          <div style={{ width: 46, height: 40, background: 'var(--accent)', clipPath: 'polygon(0 0,100% 0,50% 100%)' }} />
         </div>
         <div style={{ fontSize: 72, fontWeight: 800, lineHeight: 1.08, letterSpacing: '-.02em', maxWidth: '18ch', textWrap: 'balance', fontKerning: 'none' }}>
           {title}
         </div>
         {subtitle && (
-          <div style={{ font: `700 24px ${fontMono}`, letterSpacing: '.1em', color: colors.gold }}>— {subtitle.toUpperCase()}</div>
+          <div style={{ font: `700 24px ${fontMono}`, letterSpacing: '.1em', color: 'var(--accent)' }}>— {subtitle.toUpperCase()}</div>
         )}
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 24 }}>
         <div style={{ font: `700 20px ${fontMono}`, letterSpacing: '.12em', opacity: 0.85 }}>sknm.pk.edu.pl</div>
         <LogoRow>
-          <LogoSlot logo={logos.pk} variant="dark" width={190} height={72} />
+          <LogoSlot logo={logos.pk} variant={s.logoVariant} width={190} height={72} />
         </LogoRow>
       </div>
     </PosterFrame>

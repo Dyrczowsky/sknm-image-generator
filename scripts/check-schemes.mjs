@@ -2,6 +2,7 @@
 // Uruchom: node scripts/check-schemes.mjs
 import assert from 'node:assert/strict'
 import { resolveScheme, schemes, SCHEME_LABELS } from '../src/posters/schemes.js'
+import { colors } from '../src/posters/theme.js'
 
 // Task 1: pusty rejestr — resolver nie wybucha.
 {
@@ -25,5 +26,21 @@ import { resolveScheme, schemes, SCHEME_LABELS } from '../src/posters/schemes.js
 }
 
 assert.equal(SCHEME_LABELS.czern, 'Czerń')
+
+// Ogłoszenie
+{
+  const d = resolveScheme('ogloszenie', undefined)
+  assert.equal(d.cssVars['--page-bg'], colors.navy)
+  assert.equal(d.cssVars['--accent'], colors.lime)
+  assert.equal(d.sygnet, 'negatywny')
+  const cz = resolveScheme('ogloszenie', 'czern')
+  assert.equal(cz.cssVars['--page-bg'], colors.black)
+  assert.equal(cz.cssVars['--accent'], colors.gold)
+  assert.equal(cz.cssVars['--page-text'], colors.cream) // z default
+  assert.equal(cz.logoVariant, 'dark')                  // z default
+  const zl = resolveScheme('ogloszenie', 'zloto')
+  assert.equal(zl.cssVars['--page-bg'], colors.navy)    // z default
+  assert.equal(zl.sygnet, 'zloty')
+}
 
 console.log('check-schemes: OK')
