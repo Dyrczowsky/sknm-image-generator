@@ -1,8 +1,4 @@
-import { Poster1c } from './Poster1c'
-import { Poster1cCzern } from './Poster1cCzern'
-import { Poster1cZloto } from './Poster1cZloto'
-import { Poster1cJasny } from './Poster1cJasny'
-import { Poster1cSzary } from './Poster1cSzary'
+import { PosterWarsztat } from './PosterWarsztat'
 import { PosterRekrutacja } from './PosterRekrutacja'
 import { PosterData } from './PosterData'
 import { PosterGala } from './PosterGala'
@@ -10,7 +6,7 @@ import { PosterGosc } from './PosterGosc'
 import { PosterOgloszenie } from './PosterOgloszenie'
 import { PosterWyklad } from './PosterWyklad'
 import { PosterKonferencja } from './PosterKonferencja'
-import { Form1c } from '../forms/Form1c'
+import { FormWarsztat } from '../forms/FormWarsztat'
 import { FormRekrutacja } from '../forms/FormRekrutacja'
 import { FormData } from '../forms/FormData'
 import { FormGala } from '../forms/FormGala'
@@ -41,45 +37,11 @@ export const posterRegistry = {
     schemes: ['default', 'zloto', 'czern', 'jasny', 'szary'],
   },
 
-  '1c': {
+  warsztat: {
     name: 'Warsztat',
-    Component: Poster1c,
-    Form: Form1c,
-    family: 'warsztat',
-    familyLabel: 'Warsztat',
-    colorLabel: 'Granat',
-  },
-  '1c-czern': {
-    name: 'Warsztat — czerń',
-    Component: Poster1cCzern,
-    Form: Form1c,
-    family: 'warsztat',
-    familyLabel: 'Warsztat',
-    colorLabel: 'Czerń',
-  },
-  '1c-zloto': {
-    name: 'Warsztat — złoto',
-    Component: Poster1cZloto,
-    Form: Form1c,
-    family: 'warsztat',
-    familyLabel: 'Warsztat',
-    colorLabel: 'Złoto',
-  },
-  '1c-jasny': {
-    name: 'Warsztat — jasny',
-    Component: Poster1cJasny,
-    Form: Form1c,
-    family: 'warsztat',
-    familyLabel: 'Warsztat',
-    colorLabel: 'Jasny',
-  },
-  '1c-szary': {
-    name: 'Warsztat — szary',
-    Component: Poster1cSzary,
-    Form: Form1c,
-    family: 'warsztat',
-    familyLabel: 'Warsztat',
-    colorLabel: 'Szary',
+    Component: PosterWarsztat,
+    Form: FormWarsztat,
+    schemes: ['default', 'czern', 'zloto', 'jasny', 'szary'],
   },
 
   konferencja: {

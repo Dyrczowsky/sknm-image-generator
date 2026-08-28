@@ -5,17 +5,12 @@ import { rowsFromExec } from './utils'
 export const DEFAULT_TEMPLATES = [
   { name: 'Wykład', poster_key: 'wyklad' },
   { name: 'Gość', poster_key: 'gosc' },
-  { name: 'Warsztat', poster_key: '1c' },
+  { name: 'Warsztat', poster_key: 'warsztat' },
   { name: 'Data', poster_key: 'data' },
   { name: 'Konferencja', poster_key: 'konferencja' },
   { name: 'Rekrutacja', poster_key: 'rekrutacja' },
   { name: 'Gala', poster_key: 'gala' },
   { name: 'Ogłoszenie', poster_key: 'ogloszenie' },
-
-  { name: 'Warsztat — czerń', poster_key: '1c-czern' },
-  { name: 'Warsztat — złoto', poster_key: '1c-zloto' },
-  { name: 'Warsztat — jasny', poster_key: '1c-jasny' },
-  { name: 'Warsztat — szary', poster_key: '1c-szary' },
 ]
 
 export function createSchema(db) {

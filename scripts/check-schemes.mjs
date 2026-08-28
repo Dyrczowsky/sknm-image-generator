@@ -127,4 +127,20 @@ assert.equal(SCHEME_LABELS.czern, 'Czerń')
   assert.equal(cz.logoVariant, 'light')
 }
 
+// Warsztat
+{
+  const d = resolveScheme('warsztat', undefined)
+  assert.equal(d.cssVars['--pill-fill'], colors.lime)
+  assert.equal(d.cssVars['--qr-border'], colors.placeholderBorder)
+  const ja = resolveScheme('warsztat', 'jasny')
+  assert.equal(ja.cssVars['--page-bg'], colors.paper)
+  assert.equal(ja.cssVars['--slot-bg'], colors.paper)
+  assert.equal(ja.cssVars['--badge-fill'], colors.navy)     // z default
+  assert.equal(ja.cssVars['--pill-text'], colors.limeText)  // z default
+  assert.equal(ja.sygnet, 'granat')                         // z default
+  const cz = resolveScheme('warsztat', 'czern')
+  assert.equal(cz.cssVars['--slot-bg'], colors.black)
+  assert.equal(cz.cssVars['--qr-border'], 'rgba(244,242,237,.3)')
+}
+
 console.log('check-schemes: OK')

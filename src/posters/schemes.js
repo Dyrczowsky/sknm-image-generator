@@ -3,7 +3,7 @@ import { colors } from './theme.js'
 // Schematy kolorów są ZAGNIEŻDŻONE per layout, bo „granat" Wykładu (biały na
 // granacie) to nie to samo co „granat" Warsztatu (granat na kremie). Każdy
 // layout ma pełny blok `default` + nazwane schematy nadpisujące tylko różnice.
-// Bloki layoutów dokłada się w kolejnych taskach (Task 4–11).
+// Bloki layoutów są poniżej, jeden na layout.
 
 const ogloszenie = {
   default: { pageBg: colors.navy, pageText: colors.cream, accent: colors.lime,
@@ -163,7 +163,46 @@ const rekrutacja = {
 }
 rekrutacja.default = rekrutacja.limonka
 
-export const schemes = { ogloszenie, gala, gosc, data, wyklad, konferencja, rekrutacja }
+// Warsztat — najbogatszy zestaw ról. Lokalny komponent `Pill` bierze
+// `pillFill`/`pillText`, wypełniona plakietka `badgeFill`/`badgeText`, wielki
+// tytuł `title`. `slotBg` obsługuje naraz tło pudełka QR i podkładki obu logo.
+// `qrBorder`/`qrText` to obwódka/etykieta pudełka QR — w `default`/`jasny`/
+// `szary` równe własnym domyślnym `PlaceholderBox` (placeholderBorder/Text),
+// w czerni i złocie jawna rgba. `jasny` nadpisuje tylko tło strony i podkładek.
+const warsztat = {
+  default: {
+    pageBg: colors.cream, pageText: colors.ink, mutedText: colors.textMuted,
+    title: colors.navy, badgeFill: colors.navy, badgeText: colors.lime,
+    pillFill: colors.lime, pillText: colors.limeText, slotBg: colors.cream,
+    qrBorder: colors.placeholderBorder, qrText: colors.placeholderText,
+    sygnet: 'granat', logoVariant: 'light',
+  },
+  czern: {
+    pageBg: colors.black, pageText: colors.cream, mutedText: colors.creamMuted,
+    title: colors.cream, badgeFill: colors.gold, badgeText: colors.black,
+    pillFill: colors.gold, pillText: colors.black, slotBg: colors.black,
+    qrBorder: 'rgba(244,242,237,.3)', qrText: 'rgba(244,242,237,.7)',
+    sygnet: 'negatywny', logoVariant: 'dark',
+  },
+  zloto: {
+    pageBg: colors.navy, pageText: colors.cream, mutedText: colors.creamMuted,
+    title: colors.cream, badgeFill: colors.gold, badgeText: colors.ink,
+    pillFill: colors.gold, pillText: colors.ink, slotBg: colors.navy,
+    qrBorder: 'rgba(244,242,237,.3)', qrText: 'rgba(244,242,237,.7)',
+    sygnet: 'zloty', logoVariant: 'dark',
+  },
+  jasny: {
+    pageBg: colors.paper, slotBg: colors.paper,
+  },
+  szary: {
+    pageBg: colors.paper, pageText: colors.slate,
+    title: colors.slate, badgeFill: colors.grayDark, badgeText: colors.cream,
+    pillFill: colors.gray, pillText: colors.slate, slotBg: colors.paper,
+    sygnet: 'szary',
+  },
+}
+
+export const schemes = { ogloszenie, gala, gosc, data, wyklad, konferencja, rekrutacja, warsztat }
 
 // camelCase → --kebab; layout może dodać dowolną rolę bez zmiany resolvera.
 const roleToVar = (k) => '--' + k.replace(/[A-Z]/g, (m) => '-' + m.toLowerCase())

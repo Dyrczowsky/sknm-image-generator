@@ -1,9 +1,9 @@
-import { colors } from './theme'
-import { sygnetNegatywny } from './logos'
+import { sygnetByName } from './logos'
 import { PlaceholderBox } from './PlaceholderBox'
 import { LogoSlot } from './LogoSlot'
 import { PhotoGallery } from './PhotoGallery'
 import { withPlaceholders } from './fallback'
+import { resolveScheme } from './schemes'
 import { getDay, getMonthShort } from '../utils/formatDate'
 import { PosterFrame } from './blocks/PosterFrame'
 import { Badge } from './blocks/Badge'
@@ -11,20 +11,21 @@ import { LogoRow } from './blocks/LogoRow'
 
 function Pill({ children }) {
   return (
-    <div style={{ background: colors.gold, color: colors.black, fontSize: 28, fontWeight: 700, padding: '12px 20px' }}>
+    <div style={{ background: 'var(--pill-fill)', color: 'var(--pill-text)', fontSize: 28, fontWeight: 700, padding: '12px 20px' }}>
       {children}
     </div>
   )
 }
 
-// 1c · WARSZTAT — wariant czerń (negatyw na czerni, złote akcenty)
-export function Poster1cCzern({ data }) {
+// WARSZTAT — skos
+export function PosterWarsztat({ data, scheme }) {
   const { title, subtitle, event_date, event_time, location, badge, logos, photos } = withPlaceholders(data)
 
   const pills = [event_time, `${getDay(event_date)} ${getMonthShort(event_date)}`, location]
+  const s = resolveScheme('warsztat', scheme)
 
   return (
-    <PosterFrame background={colors.black} color={colors.cream}>
+    <PosterFrame vars={s.cssVars}>
       <PhotoGallery
         photos={photos.photo}
         label={<>zdjęcie<br />z warsztatów</>}
@@ -33,15 +34,15 @@ export function Poster1cCzern({ data }) {
       />
 
       <div style={{ position: 'absolute', inset: 72, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-        <img src={sygnetNegatywny} alt="SKNM" style={{ width: 132, display: 'block' }} />
+        <img src={sygnetByName[s.sygnet]} alt="SKNM" style={{ width: 132, display: 'block' }} />
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 22, maxWidth: 600 }}>
-          <Badge background={colors.gold} color={colors.black} style={{ padding: '10px 16px' }}>{badge || 'WARSZTATY'}</Badge>
-          <div style={{ fontSize: 104, fontWeight: 800, lineHeight: 0.94, letterSpacing: '-.035em', fontKerning: 'none' }}>
+          <Badge background="var(--badge-fill)" color="var(--badge-text)" style={{ padding: '10px 16px' }}>{badge || 'WARSZTATY'}</Badge>
+          <div style={{ fontSize: 104, fontWeight: 800, lineHeight: 0.94, letterSpacing: '-.035em', color: 'var(--title)', fontKerning: 'none' }}>
             {title}
           </div>
           {subtitle && (
-            <div style={{ fontSize: 32, fontWeight: 500, lineHeight: 1.4, color: colors.creamMuted }}>{subtitle}</div>
+            <div style={{ fontSize: 32, fontWeight: 500, lineHeight: 1.4, color: 'var(--muted-text)' }}>{subtitle}</div>
           )}
         </div>
 
@@ -50,10 +51,10 @@ export function Poster1cCzern({ data }) {
             {pills.map((p, i) => <Pill key={i}>{p}</Pill>)}
           </div>
           <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24 }}>
-            <PlaceholderBox label={<>kod QR<br />zapisy</>} width={150} height={150} style={{ background: colors.black, borderColor: 'rgba(244,242,237,.3)', color: 'rgba(244,242,237,.7)' }} />
+            <PlaceholderBox label={<>kod QR<br />zapisy</>} width={150} height={150} style={{ background: 'var(--slot-bg)', borderColor: 'var(--qr-border)', color: 'var(--qr-text)' }} />
             <LogoRow gap={14}>
-              <LogoSlot logo={logos.pk} variant="dark" width={170} height={66} style={{ background: colors.black }} />
-              <LogoSlot logo={logos.faculty} variant="dark" width={170} height={66} style={{ background: colors.black }} />
+              <LogoSlot logo={logos.pk} variant={s.logoVariant} width={170} height={66} style={{ background: 'var(--slot-bg)' }} />
+              <LogoSlot logo={logos.faculty} variant={s.logoVariant} width={170} height={66} style={{ background: 'var(--slot-bg)' }} />
             </LogoRow>
           </div>
         </div>

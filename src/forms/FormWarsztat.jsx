@@ -3,8 +3,8 @@ import { FormField } from './FormField'
 import { LogoField } from './LogoField'
 import { PhotoGalleryField } from './PhotoGalleryField'
 
-// Formularz dla 1c · Warsztat - logo PK + logo wydziału + zdjęcie z warsztatów.
-export function Form1c({
+// Formularz dla Warsztatu - logo PK + logo wydziału + zdjęcie z warsztatów.
+export function FormWarsztat({
   value,
   onFieldChange,
   onLogoChange,
