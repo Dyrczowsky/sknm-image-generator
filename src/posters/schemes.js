@@ -39,7 +39,25 @@ const gosc = {
   szary: { pageBg: colors.paper, pageText: colors.slate, accent: colors.grayDark },
 }
 
-export const schemes = { ogloszenie, gala, gosc }
+// Data — liczba jako grafika. Etykieta miesiąca jest koralowa we wszystkich
+// pięciu wariantach, więc zostaje literałem w komponencie (nie rolą). Trzy
+// dekoracyjne trójkąty na dole to role `tri1`/`tri2`/`tri3`.
+const data = {
+  default: { pageBg: colors.cream, pageText: colors.navy, mutedText: colors.textMuted,
+             title: colors.ink, tri1: colors.navy, tri2: colors.lime, tri3: colors.coral,
+             sygnet: 'granat', logoVariant: 'light' },
+  czern: { pageBg: colors.black, pageText: colors.cream, mutedText: colors.creamMuted,
+           title: colors.cream, tri1: colors.gold, tri2: colors.coral, tri3: colors.cream,
+           sygnet: 'negatywny', logoVariant: 'dark' },
+  zloto: { pageBg: colors.navy, pageText: colors.cream, mutedText: colors.creamMuted,
+           title: colors.cream, tri1: colors.gold, tri2: colors.coral, tri3: colors.cream,
+           sygnet: 'zloty', logoVariant: 'dark' },
+  jasny: { pageBg: colors.paper },
+  szary: { pageBg: colors.paper, pageText: colors.slate, title: colors.slate,
+           tri1: colors.grayDark, tri2: colors.gray, sygnet: 'szary' },
+}
+
+export const schemes = { ogloszenie, gala, gosc, data }
 
 // camelCase → --kebab; layout może dodać dowolną rolę bez zmiany resolvera.
 const roleToVar = (k) => '--' + k.replace(/[A-Z]/g, (m) => '-' + m.toLowerCase())

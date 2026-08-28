@@ -4,11 +4,6 @@ import { Poster1cCzern } from './Poster1cCzern'
 import { Poster1cZloto } from './Poster1cZloto'
 import { Poster1cJasny } from './Poster1cJasny'
 import { Poster1cSzary } from './Poster1cSzary'
-import { Poster1d } from './Poster1d'
-import { Poster1dCzern } from './Poster1dCzern'
-import { Poster1dZloto } from './Poster1dZloto'
-import { Poster1dJasny } from './Poster1dJasny'
-import { Poster1dSzary } from './Poster1dSzary'
 import { Poster1e } from './Poster1e'
 import { Poster1eCzern } from './Poster1eCzern'
 import { Poster1eZloto } from './Poster1eZloto'
@@ -23,18 +18,19 @@ import { Poster1h } from './Poster1h'
 import { Poster1i } from './Poster1i'
 import { Poster1j } from './Poster1j'
 import { Poster1k } from './Poster1k'
+import { PosterData } from './PosterData'
 import { PosterGala } from './PosterGala'
 import { PosterGosc } from './PosterGosc'
 import { PosterOgloszenie } from './PosterOgloszenie'
 import { Form1a } from '../forms/Form1a'
 import { Form1c } from '../forms/Form1c'
-import { Form1d } from '../forms/Form1d'
 import { Form1e } from '../forms/Form1e'
 import { Form1f } from '../forms/Form1f'
 import { Form1h } from '../forms/Form1h'
 import { Form1i } from '../forms/Form1i'
 import { Form1j } from '../forms/Form1j'
 import { Form1k } from '../forms/Form1k'
+import { FormData } from '../forms/FormData'
 import { FormGala } from '../forms/FormGala'
 import { FormGosc } from '../forms/FormGosc'
 import { FormOgloszenie } from '../forms/FormOgloszenie'
@@ -136,47 +132,6 @@ export const posterRegistry = {
     colorLabel: 'Szary',
   },
 
-  '1d': {
-    name: 'Data',
-    Component: Poster1d,
-    Form: Form1d,
-    family: 'data',
-    familyLabel: 'Data',
-    colorLabel: 'Granat',
-  },
-  '1d-czern': {
-    name: 'Data — czerń',
-    Component: Poster1dCzern,
-    Form: Form1d,
-    family: 'data',
-    familyLabel: 'Data',
-    colorLabel: 'Czerń',
-  },
-  '1d-zloto': {
-    name: 'Data — złoto',
-    Component: Poster1dZloto,
-    Form: Form1d,
-    family: 'data',
-    familyLabel: 'Data',
-    colorLabel: 'Złoto',
-  },
-  '1d-jasny': {
-    name: 'Data — jasny',
-    Component: Poster1dJasny,
-    Form: Form1d,
-    family: 'data',
-    familyLabel: 'Data',
-    colorLabel: 'Jasny',
-  },
-  '1d-szary': {
-    name: 'Data — szary',
-    Component: Poster1dSzary,
-    Form: Form1d,
-    family: 'data',
-    familyLabel: 'Data',
-    colorLabel: 'Szary',
-  },
-
   '1e': {
     name: 'Konferencja',
     Component: Poster1e,
@@ -257,6 +212,13 @@ export const posterRegistry = {
     family: 'rekrutacja',
     familyLabel: 'Rekrutacja',
     colorLabel: 'Szary',
+  },
+
+  data: {
+    name: 'Data',
+    Component: PosterData,
+    Form: FormData,
+    schemes: ['default', 'czern', 'zloto', 'jasny', 'szary'],
   },
 
   gosc: {

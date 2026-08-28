@@ -70,4 +70,16 @@ assert.equal(SCHEME_LABELS.czern, 'Czerń')
   assert.equal(sz.cssVars['--muted-text'], colors.textMuted) // szary NIE nadpisuje
 }
 
+// Data
+{
+  const d = resolveScheme('data', undefined)
+  assert.equal(d.cssVars['--page-text'], colors.navy)   // Data default: tekst granatowy
+  assert.equal(d.cssVars['--tri2'], colors.lime)
+  const sz = resolveScheme('data', 'szary')
+  assert.equal(sz.cssVars['--tri3'], colors.coral)      // szary nie nadpisuje tri3
+  assert.equal(sz.cssVars['--tri1'], colors.grayDark)
+  const ja = resolveScheme('data', 'jasny')
+  assert.equal(ja.cssVars['--title'], colors.ink)       // z default
+}
+
 console.log('check-schemes: OK')

@@ -3,8 +3,8 @@ import { FormField } from './FormField'
 import { LogoField } from './LogoField'
 import { PhotoGalleryField } from './PhotoGalleryField'
 
-// Formularz dla 1d · Data - logo PK + logo wydziału + zdjęcie z wydarzenia.
-export function Form1d({
+// Formularz Data - logo PK + logo wydziału + zdjęcie z wydarzenia.
+export function FormData({
   value,
   onFieldChange,
   onLogoChange,
