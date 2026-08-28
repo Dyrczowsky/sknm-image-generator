@@ -24,11 +24,11 @@ import { Poster1fCzern } from './Poster1fCzern'
 import { Poster1fZloto } from './Poster1fZloto'
 import { Poster1fJasny } from './Poster1fJasny'
 import { Poster1fSzary } from './Poster1fSzary'
-import { Poster1g } from './Poster1g'
 import { Poster1h } from './Poster1h'
 import { Poster1i } from './Poster1i'
 import { Poster1j } from './Poster1j'
 import { Poster1k } from './Poster1k'
+import { PosterGala } from './PosterGala'
 import { PosterOgloszenie } from './PosterOgloszenie'
 import { Form1a } from '../forms/Form1a'
 import { Form1b } from '../forms/Form1b'
@@ -36,11 +36,11 @@ import { Form1c } from '../forms/Form1c'
 import { Form1d } from '../forms/Form1d'
 import { Form1e } from '../forms/Form1e'
 import { Form1f } from '../forms/Form1f'
-import { Form1g } from '../forms/Form1g'
 import { Form1h } from '../forms/Form1h'
 import { Form1i } from '../forms/Form1i'
 import { Form1j } from '../forms/Form1j'
 import { Form1k } from '../forms/Form1k'
+import { FormGala } from '../forms/FormGala'
 import { FormOgloszenie } from '../forms/FormOgloszenie'
 
 // Każdy szablon plakatu ma własny, jawnie napisany komponent formularza (patrz
@@ -304,11 +304,7 @@ export const posterRegistry = {
     colorLabel: 'Szary',
   },
 
-  '1g': {
-    name: 'Gala',
-    Component: Poster1g,
-    Form: Form1g,
-  },
+  gala: { name: 'Gala', Component: PosterGala, Form: FormGala },
 
   ogloszenie: {
     name: 'Ogłoszenie',

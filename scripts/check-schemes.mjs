@@ -43,4 +43,13 @@ assert.equal(SCHEME_LABELS.czern, 'Czerń')
   assert.equal(zl.sygnet, 'zloty')
 }
 
+// Gala (jeden schemat)
+{
+  const d = resolveScheme('gala', undefined)
+  assert.equal(d.cssVars['--page-bg'], colors.ink)
+  assert.equal(d.cssVars['--gold'], colors.gold)
+  assert.equal(d.cssVars['--panel-br'], colors.inkPanel)
+  assert.equal(d.sygnet, 'zloty')
+}
+
 console.log('check-schemes: OK')

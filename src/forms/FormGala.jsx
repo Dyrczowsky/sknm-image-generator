@@ -2,8 +2,8 @@ import { PLACEHOLDERS } from '../posters/fallback'
 import { FormField } from './FormField'
 import { LogoField } from './LogoField'
 
-// Formularz dla 1g · Gala - tylko logo PK, bez logo wydziału i bez zdjęć.
-export function Form1g({ value, onFieldChange, onLogoChange, onLogoEnabledChange }) {
+// Formularz dla Gala - tylko logo PK, bez logo wydziału i bez zdjęć.
+export function FormGala({ value, onFieldChange, onLogoChange, onLogoEnabledChange }) {
   return (
     <form className="image-form" onSubmit={(e) => e.preventDefault()}>
       <FormField type="text" label="Etykieta" placeholder="GALA SKNM" value={value.badge} onChange={(v) => onFieldChange('badge', v)} />

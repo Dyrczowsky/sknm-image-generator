@@ -16,7 +16,16 @@ const ogloszenie = {
            sygnet: 'szary', logoVariant: 'light' },
 }
 
-export const schemes = { ogloszenie }
+const gala = {
+  default: {
+    pageBg: colors.ink, pageText: colors.goldPanelText, mutedText: colors.creamMuted,
+    gold: colors.gold, panelBr: colors.inkPanel,
+    patronBorder: 'rgba(184,148,58,.5)', patronText: 'rgba(240,237,228,.7)',
+    sygnet: 'zloty', logoVariant: 'dark',
+  },
+}
+
+export const schemes = { ogloszenie, gala }
 
 // camelCase → --kebab; layout może dodać dowolną rolę bez zmiany resolvera.
 const roleToVar = (k) => '--' + k.replace(/[A-Z]/g, (m) => '-' + m.toLowerCase())

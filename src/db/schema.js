@@ -9,7 +9,7 @@ export const DEFAULT_TEMPLATES = [
   { name: 'Data', poster_key: '1d' },
   { name: 'Konferencja', poster_key: '1e' },
   { name: 'Rekrutacja', poster_key: '1f' },
-  { name: 'Gala', poster_key: '1g' },
+  { name: 'Gala', poster_key: 'gala' },
   { name: 'Wykład — złoto', poster_key: '1h' },
   { name: 'Wykład — czerń', poster_key: '1i' },
   { name: 'Wykład — jasny', poster_key: '1j' },
