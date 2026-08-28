@@ -7,15 +7,15 @@ bespoke divy — to jest ta część designu, której świadomie nie uogólniamy
 
 ## Kroki
 
-1. Skopiuj najbliższy stylistycznie istniejący `Poster1x.jsx` jako punkt
-   wyjścia (np. `Poster1a.jsx` dla layoutu z paddingiem i flex-column).
+1. Skopiuj najbliższy stylistycznie istniejący `Poster*.jsx` jako punkt
+   wyjścia (np. `PosterWyklad.jsx` dla layoutu z paddingiem i flex-column).
 2. Zamień typowe elementy na bloki (patrz tabela niżej) zamiast pisać je od
    zera.
 3. Zdecoruj resztę (trójkąty, clip-pathy, gradienty) bezpośrednio w JSX —
    to jest unikalna część projektu, zwykle skopiowana 1:1 z mockupu.
 4. Dodaj plik do `src/posters/registry.js` (klucz `poster_key`, nazwa,
    komponent) oraz do `DEFAULT_TEMPLATES` w `src/db/schema.js`.
-5. Sprawdź pod `/poster/:id` (np. `/poster/1h`), że dane placeholder
+5. Sprawdź pod `/poster/:id` (np. `/poster/wyklad`), że dane placeholder
    (`withPlaceholders` w `../fallback.js`) wyglądają sensownie.
 
 ## Dostępne bloki

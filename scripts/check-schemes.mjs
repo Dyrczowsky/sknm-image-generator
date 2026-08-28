@@ -82,4 +82,19 @@ assert.equal(SCHEME_LABELS.czern, 'Czerń')
   assert.equal(ja.cssVars['--title'], colors.ink)       // z default
 }
 
+// Wykład
+{
+  const d = resolveScheme('wyklad', undefined)
+  assert.equal(d.cssVars['--badge-fill'], colors.lime)
+  assert.equal(d.cssVars['--badge-text'], colors.limeText)
+  assert.equal(d.cssVars['--wedge-bl'], colors.navyDark)
+  const zl = resolveScheme('wyklad', 'zloto')
+  assert.equal(zl.cssVars['--page-bg'], colors.navy)          // z default (zloto = navy)
+  assert.equal(zl.cssVars['--wedge-br'], colors.navyLight)    // z default
+  assert.equal(zl.cssVars['--speaker'], colors.cream)
+  const cz = resolveScheme('wyklad', 'czern')
+  assert.equal(cz.cssVars['--wedge-bl'], '#0A0A0A')
+  assert.equal(cz.sygnet, 'negatywny')                        // Wykład czerń: negatyw, nie złoto
+}
+
 console.log('check-schemes: OK')

@@ -3,17 +3,13 @@ import { rowsFromExec } from './utils'
 // Lista domyślnych szablonów synchronizowana do bazy przy każdym uruchomieniu
 // (patrz syncTemplates). `poster_key` odpowiada kluczowi w src/posters/registry.js.
 export const DEFAULT_TEMPLATES = [
-  { name: 'Wykład', poster_key: '1a' },
+  { name: 'Wykład', poster_key: 'wyklad' },
   { name: 'Gość', poster_key: 'gosc' },
   { name: 'Warsztat', poster_key: '1c' },
   { name: 'Data', poster_key: 'data' },
   { name: 'Konferencja', poster_key: '1e' },
   { name: 'Rekrutacja', poster_key: '1f' },
   { name: 'Gala', poster_key: 'gala' },
-  { name: 'Wykład — złoto', poster_key: '1h' },
-  { name: 'Wykład — czerń', poster_key: '1i' },
-  { name: 'Wykład — jasny', poster_key: '1j' },
-  { name: 'Wykład — szary', poster_key: '1k' },
   { name: 'Ogłoszenie', poster_key: 'ogloszenie' },
 
   { name: 'Warsztat — czerń', poster_key: '1c-czern' },

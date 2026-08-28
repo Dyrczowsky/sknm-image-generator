@@ -2,8 +2,8 @@ import { PLACEHOLDERS } from '../posters/fallback'
 import { FormField } from './FormField'
 import { LogoField } from './LogoField'
 
-// Formularz dla 1i · Wykład (negatyw na czerni) - te same pola co 1a, inna kolorystyka.
-export function Form1i({ value, onFieldChange, onLogoChange, onLogoEnabledChange }) {
+// Formularz dla Wykładu - logo PK + logo wydziału, bez zdjęć.
+export function FormWyklad({ value, onFieldChange, onLogoChange, onLogoEnabledChange }) {
   return (
     <form className="image-form" onSubmit={(e) => e.preventDefault()}>
       <FormField type="text" label="Etykieta" placeholder="WYKŁAD OTWARTY" value={value.badge} onChange={(v) => onFieldChange('badge', v)} />

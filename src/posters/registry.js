@@ -1,4 +1,3 @@
-import { Poster1a } from './Poster1a'
 import { Poster1c } from './Poster1c'
 import { Poster1cCzern } from './Poster1cCzern'
 import { Poster1cZloto } from './Poster1cZloto'
@@ -14,26 +13,19 @@ import { Poster1fCzern } from './Poster1fCzern'
 import { Poster1fZloto } from './Poster1fZloto'
 import { Poster1fJasny } from './Poster1fJasny'
 import { Poster1fSzary } from './Poster1fSzary'
-import { Poster1h } from './Poster1h'
-import { Poster1i } from './Poster1i'
-import { Poster1j } from './Poster1j'
-import { Poster1k } from './Poster1k'
 import { PosterData } from './PosterData'
 import { PosterGala } from './PosterGala'
 import { PosterGosc } from './PosterGosc'
 import { PosterOgloszenie } from './PosterOgloszenie'
-import { Form1a } from '../forms/Form1a'
+import { PosterWyklad } from './PosterWyklad'
 import { Form1c } from '../forms/Form1c'
 import { Form1e } from '../forms/Form1e'
 import { Form1f } from '../forms/Form1f'
-import { Form1h } from '../forms/Form1h'
-import { Form1i } from '../forms/Form1i'
-import { Form1j } from '../forms/Form1j'
-import { Form1k } from '../forms/Form1k'
 import { FormData } from '../forms/FormData'
 import { FormGala } from '../forms/FormGala'
 import { FormGosc } from '../forms/FormGosc'
 import { FormOgloszenie } from '../forms/FormOgloszenie'
+import { FormWyklad } from '../forms/FormWyklad'
 
 // Każdy szablon plakatu ma własny, jawnie napisany komponent formularza (patrz
 // src/forms/) - `Form` poniżej wskazuje, który z nich się renderuje po
@@ -50,45 +42,11 @@ import { FormOgloszenie } from '../forms/FormOgloszenie'
 // swatchy (`colorLabel`). Szablony bez `family` są jednoelementową grupą
 // (bez paska kolorystyki).
 export const posterRegistry = {
-  '1a': {
+  wyklad: {
     name: 'Wykład',
-    Component: Poster1a,
-    Form: Form1a,
-    family: 'wyklad',
-    familyLabel: 'Wykład',
-    colorLabel: 'Granat',
-  },
-  '1h': {
-    name: 'Wykład — złoto',
-    Component: Poster1h,
-    Form: Form1h,
-    family: 'wyklad',
-    familyLabel: 'Wykład',
-    colorLabel: 'Złoto',
-  },
-  '1i': {
-    name: 'Wykład — czerń',
-    Component: Poster1i,
-    Form: Form1i,
-    family: 'wyklad',
-    familyLabel: 'Wykład',
-    colorLabel: 'Czerń',
-  },
-  '1j': {
-    name: 'Wykład — jasny',
-    Component: Poster1j,
-    Form: Form1j,
-    family: 'wyklad',
-    familyLabel: 'Wykład',
-    colorLabel: 'Jasny',
-  },
-  '1k': {
-    name: 'Wykład — szary',
-    Component: Poster1k,
-    Form: Form1k,
-    family: 'wyklad',
-    familyLabel: 'Wykład',
-    colorLabel: 'Szary',
+    Component: PosterWyklad,
+    Form: FormWyklad,
+    schemes: ['default', 'zloto', 'czern', 'jasny', 'szary'],
   },
 
   '1c': {

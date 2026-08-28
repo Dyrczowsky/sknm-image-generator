@@ -57,7 +57,37 @@ const data = {
            tri1: colors.grayDark, tri2: colors.gray, sygnet: 'szary' },
 }
 
-export const schemes = { ogloszenie, gala, gosc, data }
+// Wykład — typografia. `badgeFill`/`badgeText` to wypełniona plakietka,
+// `speaker` kolor nazwiska prelegenta, `chips` stos trzech trójkątów w lewym
+// dolnym rogu. Dekoracyjne kliny (`washTop`, `wedgeBr`, `wedgeBl`) mają jawne
+// hex/rgba per schemat — bez color-mix. `wedgeBr` niesie tylko kolor; jego
+// `opacity: 0.42` zostaje w JSX. Wariant czerń bierze sygnet negatywny (nie
+// złoty), a złoto NIE nadpisuje `pageBg` (zostaje granat).
+const wyklad = {
+  default: {
+    pageBg: colors.navy, pageText: colors.cream,
+    badgeFill: colors.lime, badgeText: colors.limeText,
+    speaker: colors.lime, chips: colors.lime,
+    washTop: 'rgba(255,255,255,.055)', wedgeBr: colors.navyLight, wedgeBl: colors.navyDark,
+    sygnet: 'negatywny', logoVariant: 'dark',
+  },
+  zloto: { badgeFill: colors.gold, badgeText: colors.cream, speaker: colors.cream,
+           chips: colors.gold, sygnet: 'zloty' },
+  czern: { pageBg: colors.black, badgeFill: colors.gold, badgeText: colors.cream,
+           speaker: colors.gold, chips: colors.gold,
+           washTop: 'rgba(255,255,255,.04)', wedgeBr: '#1E1E1E', wedgeBl: '#0A0A0A',
+           sygnet: 'negatywny' },
+  jasny: { pageBg: colors.cream, pageText: colors.limeText,
+           badgeFill: colors.navy, badgeText: colors.cream, speaker: colors.navy, chips: colors.navy,
+           washTop: 'rgba(60,69,155,.05)', wedgeBr: '#E2DED3', wedgeBl: '#DAD5C8',
+           sygnet: 'granat', logoVariant: 'light' },
+  szary: { pageBg: colors.paper, pageText: colors.slate,
+           badgeFill: colors.grayDark, badgeText: colors.cream, speaker: colors.grayDark, chips: colors.gray,
+           washTop: 'rgba(138,141,143,.08)', wedgeBr: '#D8D4CA', wedgeBl: '#CFCAC0',
+           sygnet: 'szary', logoVariant: 'light' },
+}
+
+export const schemes = { ogloszenie, gala, gosc, data, wyklad }
 
 // camelCase → --kebab; layout może dodać dowolną rolę bez zmiany resolvera.
 const roleToVar = (k) => '--' + k.replace(/[A-Z]/g, (m) => '-' + m.toLowerCase())
