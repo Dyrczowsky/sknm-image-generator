@@ -1,9 +1,20 @@
 // Sygnet SKNM (herb koła) - warianty kolorystyczne pod różne tła.
-export { default as sygnetNegatywny } from '../assets/brand/sknm/sygnet_negatywny.svg'
-export { default as sygnetGranat } from '../assets/brand/sknm/sygnet_granat.svg'
-export { default as sygnetZloty } from '../assets/brand/sknm/sygnet_zloty.svg'
-export { default as sygnetSzary } from '../assets/brand/sknm/sygnet_szary.svg'
-export { default as sygnetCzarny } from '../assets/brand/sknm/sygnet_czarny.svg'
+import sygnetNegatywny from '../assets/brand/sknm/sygnet_negatywny.svg'
+import sygnetGranat from '../assets/brand/sknm/sygnet_granat.svg'
+import sygnetZloty from '../assets/brand/sknm/sygnet_zloty.svg'
+import sygnetSzary from '../assets/brand/sknm/sygnet_szary.svg'
+import sygnetCzarny from '../assets/brand/sknm/sygnet_czarny.svg'
+
+export { sygnetNegatywny, sygnetGranat, sygnetZloty, sygnetSzary, sygnetCzarny }
+
+// Wybór sygnetu po nazwie roli ze schematu (patrz schemes.js).
+export const sygnetByName = {
+  negatywny: sygnetNegatywny,
+  granat: sygnetGranat,
+  zloty: sygnetZloty,
+  szary: sygnetSzary,
+  czarny: sygnetCzarny,
+}
 
 // Logo Politechniki Krakowskiej - domyślne logo w miejscach na logo PK/wydziału,
 // dopóki użytkownik nie wgra własnego pliku w formularzu.
