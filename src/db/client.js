@@ -1,7 +1,7 @@
 import initSqlJs from 'sql.js'
 import sqlWasmUrl from 'sql.js/dist/sql-wasm.wasm?url'
 import { get, set } from 'idb-keyval'
-import { createSchema, syncTemplates, migrateDraftColumns } from './schema'
+import { createSchema, syncTemplates, resetIfStale } from './schema'
 
 const DB_STORAGE_KEY = 'sknm-image-generator-db'
 
@@ -12,10 +12,10 @@ async function initDb() {
   const saved = await get(DB_STORAGE_KEY)
 
   const db = saved ? new SQL.Database(new Uint8Array(saved)) : new SQL.Database()
+  const wiped = resetIfStale(db)
   createSchema(db)
   const templatesChanged = syncTemplates(db)
-  const draftMigrated = migrateDraftColumns(db)
-  if (!saved || templatesChanged || draftMigrated) persist(db)
+  if (!saved || wiped || templatesChanged) persist(db)
   return db
 }
 

@@ -13,6 +13,21 @@ export const DEFAULT_TEMPLATES = [
   { name: 'Ogłoszenie', poster_key: 'ogloszenie' },
 ]
 
+// Bump przy każdej zmianie kształtu tabel wymagającej świeżego startu.
+export const SCHEMA_VERSION = 2
+
+// Zgoda właściciela: dane lokalne (IndexedDB) można wyczyścić. Zamiast
+// ostrożnej migracji kluczy `1b-czern` → layout+scheme po prostu zrzucamy
+// tabele, gdy zapisana wersja jest starsza.
+export function resetIfStale(db) {
+  const [row] = rowsFromExec(db.exec('PRAGMA user_version'))
+  const current = row ? Number(Object.values(row)[0]) : 0
+  if (current >= SCHEMA_VERSION) return false
+  db.run('DROP TABLE IF EXISTS templates; DROP TABLE IF EXISTS draft; DROP TABLE IF EXISTS generated_images;')
+  db.run(`PRAGMA user_version = ${SCHEMA_VERSION}`)
+  return true
+}
+
 export function createSchema(db) {
   db.run(`
     CREATE TABLE IF NOT EXISTS templates (
@@ -31,6 +46,7 @@ export function createSchema(db) {
       event_date TEXT,
       event_time TEXT,
       location TEXT,
+      color_scheme TEXT,
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
 
@@ -44,28 +60,11 @@ export function createSchema(db) {
       location TEXT,
       badge TEXT,
       badge2 TEXT,
+      color_scheme TEXT,
       template_id INTEGER,
       updated_at TEXT
     );
   `)
-}
-
-// Kolumny tabeli `draft` dodane po pierwszym wydaniu. CREATE TABLE IF NOT
-// EXISTS pomija je w bazach zapisanych wcześniej w IndexedDB, więc
-// migrateDraftColumns dogrywa brakujące przy każdym uruchomieniu.
-const DRAFT_EXTRA_COLUMNS = ['badge', 'badge2']
-
-export function migrateDraftColumns(db) {
-  const columns = new Set(
-    rowsFromExec(db.exec('PRAGMA table_info(draft)')).map((row) => row.name)
-  )
-  const missing = DRAFT_EXTRA_COLUMNS.filter((col) => !columns.has(col))
-  if (missing.length === 0) return false
-
-  for (const col of missing) {
-    db.run(`ALTER TABLE draft ADD COLUMN ${col} TEXT`)
-  }
-  return true
 }
 
 // Dogrywa do bazy szablony z DEFAULT_TEMPLATES, których tam jeszcze nie ma

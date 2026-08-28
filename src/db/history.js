@@ -4,7 +4,7 @@ import { persist } from './client'
 export function listHistory(db) {
   const result = db.exec(`
     SELECT g.id, g.title, g.subtitle, g.speaker, g.event_date, g.event_time, g.location,
-           g.created_at, g.template_id, t.name AS template_name, t.poster_key AS template_poster_key
+           g.color_scheme, g.created_at, g.template_id, t.name AS template_name, t.poster_key AS template_poster_key
     FROM generated_images g
     LEFT JOIN templates t ON t.id = g.template_id
     ORDER BY g.created_at DESC, g.id DESC
@@ -15,8 +15,8 @@ export function listHistory(db) {
 export async function addHistoryEntry(db, entry) {
   db.run(
     `INSERT INTO generated_images
-       (template_id, title, subtitle, speaker, event_date, event_time, location)
-     VALUES (:template_id, :title, :subtitle, :speaker, :event_date, :event_time, :location)`,
+       (template_id, title, subtitle, speaker, event_date, event_time, location, color_scheme)
+     VALUES (:template_id, :title, :subtitle, :speaker, :event_date, :event_time, :location, :color_scheme)`,
     {
       ':template_id': entry.template_id ?? null,
       ':title': entry.title ?? '',
@@ -25,6 +25,7 @@ export async function addHistoryEntry(db, entry) {
       ':event_date': entry.event_date ?? '',
       ':event_time': entry.event_time ?? '',
       ':location': entry.location ?? '',
+      ':color_scheme': entry.color_scheme ?? null,
     }
   )
   await persist(db)
