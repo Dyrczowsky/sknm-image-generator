@@ -2,9 +2,9 @@ import { PLACEHOLDERS } from '../posters/fallback'
 import { FormField } from './FormField'
 import { LogoField } from './LogoField'
 
-// Formularz dla 1e · Konferencja - krótszy zestaw pól (bez podtytułu,
+// Formularz dla Konferencji - krótszy zestaw pól (bez podtytułu,
 // prelegenta i godziny) + powtarzalna lista punktów programu + logo PK.
-export function Form1e({ value, onFieldChange, onLogoChange, onLogoEnabledChange, onListItemAdd, onListItemChange, onListItemRemove }) {
+export function FormKonferencja({ value, onFieldChange, onLogoChange, onLogoEnabledChange, onListItemAdd, onListItemChange, onListItemRemove }) {
   const agenda = value.lists.agenda ?? []
 
   return (

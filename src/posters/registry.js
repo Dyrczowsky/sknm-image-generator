@@ -3,11 +3,6 @@ import { Poster1cCzern } from './Poster1cCzern'
 import { Poster1cZloto } from './Poster1cZloto'
 import { Poster1cJasny } from './Poster1cJasny'
 import { Poster1cSzary } from './Poster1cSzary'
-import { Poster1e } from './Poster1e'
-import { Poster1eCzern } from './Poster1eCzern'
-import { Poster1eZloto } from './Poster1eZloto'
-import { Poster1eJasny } from './Poster1eJasny'
-import { Poster1eSzary } from './Poster1eSzary'
 import { Poster1f } from './Poster1f'
 import { Poster1fCzern } from './Poster1fCzern'
 import { Poster1fZloto } from './Poster1fZloto'
@@ -18,14 +13,15 @@ import { PosterGala } from './PosterGala'
 import { PosterGosc } from './PosterGosc'
 import { PosterOgloszenie } from './PosterOgloszenie'
 import { PosterWyklad } from './PosterWyklad'
+import { PosterKonferencja } from './PosterKonferencja'
 import { Form1c } from '../forms/Form1c'
-import { Form1e } from '../forms/Form1e'
 import { Form1f } from '../forms/Form1f'
 import { FormData } from '../forms/FormData'
 import { FormGala } from '../forms/FormGala'
 import { FormGosc } from '../forms/FormGosc'
 import { FormOgloszenie } from '../forms/FormOgloszenie'
 import { FormWyklad } from '../forms/FormWyklad'
+import { FormKonferencja } from '../forms/FormKonferencja'
 
 // Każdy szablon plakatu ma własny, jawnie napisany komponent formularza (patrz
 // src/forms/) - `Form` poniżej wskazuje, który z nich się renderuje po
@@ -90,45 +86,11 @@ export const posterRegistry = {
     colorLabel: 'Szary',
   },
 
-  '1e': {
+  konferencja: {
     name: 'Konferencja',
-    Component: Poster1e,
-    Form: Form1e,
-    family: 'konferencja',
-    familyLabel: 'Konferencja',
-    colorLabel: 'Granat',
-  },
-  '1e-czern': {
-    name: 'Konferencja — czerń',
-    Component: Poster1eCzern,
-    Form: Form1e,
-    family: 'konferencja',
-    familyLabel: 'Konferencja',
-    colorLabel: 'Czerń',
-  },
-  '1e-zloto': {
-    name: 'Konferencja — złoto',
-    Component: Poster1eZloto,
-    Form: Form1e,
-    family: 'konferencja',
-    familyLabel: 'Konferencja',
-    colorLabel: 'Złoto',
-  },
-  '1e-jasny': {
-    name: 'Konferencja — jasny',
-    Component: Poster1eJasny,
-    Form: Form1e,
-    family: 'konferencja',
-    familyLabel: 'Konferencja',
-    colorLabel: 'Jasny',
-  },
-  '1e-szary': {
-    name: 'Konferencja — szary',
-    Component: Poster1eSzary,
-    Form: Form1e,
-    family: 'konferencja',
-    familyLabel: 'Konferencja',
-    colorLabel: 'Szary',
+    Component: PosterKonferencja,
+    Form: FormKonferencja,
+    schemes: ['default', 'czern', 'zloto', 'jasny', 'szary'],
   },
 
   '1f': {

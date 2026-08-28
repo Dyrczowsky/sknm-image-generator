@@ -1,5 +1,6 @@
 import { colors, fontMono } from './theme'
-import { sygnetZloty } from './logos'
+import { sygnetByName } from './logos'
+import { resolveScheme } from './schemes'
 import { PlaceholderBox } from './PlaceholderBox'
 import { LogoSlot } from './LogoSlot'
 import { withPlaceholders } from './fallback'
@@ -14,24 +15,25 @@ const DEFAULT_AGENDA = [
   { time: '13:00', title: 'Sesja studencka II', subtitle: 'statystyka, uczenie maszynowe' },
 ]
 
-// 1e · KONFERENCJA — wariant złoto (złoto na granacie)
-export function Poster1eZloto({ data }) {
+// KONFERENCJA — nagłówek + lista programu
+export function PosterKonferencja({ data, scheme }) {
   const { title, event_date, location, badge, badge2, logos, lists } = withPlaceholders(data)
   const agenda = lists.agenda?.length ? lists.agenda : DEFAULT_AGENDA
+  const s = resolveScheme('konferencja', scheme)
 
   const dateLine = `${formatFullDate(event_date)} · ${location}`
 
   return (
-    <PosterFrame background={colors.navy} color={colors.cream}>
-      <div style={{ background: colors.inkPanel, color: colors.cream, padding: '56px 72px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: 32 }}>
+    <PosterFrame vars={s.cssVars}>
+      <div style={{ background: 'var(--panel)', color: 'var(--panel-text)', padding: '56px 72px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: 32 }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          <Badge color={colors.gold}>{badge || 'SEMINARIUM SKNM'}</Badge>
+          <Badge color="var(--header-badge)">{badge || 'SEMINARIUM SKNM'}</Badge>
           <div style={{ fontSize: 76, fontWeight: 800, lineHeight: 0.96, letterSpacing: '-.03em', fontKerning: 'none' }}>
             {title}
           </div>
           <div style={{ fontSize: 28, fontWeight: 600 }}>{dateLine}</div>
         </div>
-        <img src={sygnetZloty} alt="SKNM" style={{ width: 132, display: 'block', flex: '0 0 auto' }} />
+        <img src={sygnetByName[s.sygnet]} alt="SKNM" style={{ width: 132, display: 'block', flex: '0 0 auto' }} />
       </div>
 
       <div style={{ flex: 1, padding: '48px 72px 72px', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
@@ -44,7 +46,7 @@ export function Poster1eZloto({ data }) {
                 gridTemplateColumns: '140px 1fr',
                 gap: 24,
                 padding: '22px 0',
-                borderTop: `2px solid ${i === 0 ? colors.gold : 'rgba(244,242,237,.2)'}`,
+                borderTop: `2px solid ${i === 0 ? 'var(--line-first)' : 'var(--line-rest)'}`,
                 alignItems: 'baseline',
               }}
             >
@@ -52,21 +54,21 @@ export function Poster1eZloto({ data }) {
               <div>
                 <div style={{ fontSize: 36, fontWeight: 700, lineHeight: 1.15, fontKerning: 'none' }}>{item.title}</div>
                 {item.subtitle && (
-                  <div style={{ fontSize: 26, fontWeight: 500, color: colors.creamMuted }}>{item.subtitle}</div>
+                  <div style={{ fontSize: 26, fontWeight: 500, color: 'var(--muted-text)' }}>{item.subtitle}</div>
                 )}
               </div>
             </div>
           ))}
-          <div style={{ borderTop: '2px solid rgba(244,242,237,.2)' }} />
+          <div style={{ borderTop: `2px solid var(--line-rest)` }} />
         </div>
 
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24 }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <Badge color={colors.gold} style={{ font: `700 20px ${fontMono}`, letterSpacing: '.12em' }}>{badge2 || 'WIĘCEJ INFORMACJI'}</Badge>
-            <div style={{ fontSize: 24, fontWeight: 600, color: colors.creamMuted }}>sknm.pk.edu.pl</div>
+            <Badge color="var(--footer-badge)" style={{ font: `700 20px ${fontMono}`, letterSpacing: '.12em' }}>{badge2 || 'WIĘCEJ INFORMACJI'}</Badge>
+            <div style={{ fontSize: 24, fontWeight: 600, color: 'var(--muted-text)' }}>sknm.pk.edu.pl</div>
           </div>
           <LogoRow gap={14}>
-            <LogoSlot logo={logos.pk} variant="dark" width={180} height={68} />
+            <LogoSlot logo={logos.pk} variant={s.logoVariant} width={180} height={68} />
             <PlaceholderBox label="patronat" width={180} height={68} />
           </LogoRow>
         </div>

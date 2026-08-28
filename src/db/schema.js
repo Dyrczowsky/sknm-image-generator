@@ -7,7 +7,7 @@ export const DEFAULT_TEMPLATES = [
   { name: 'Gość', poster_key: 'gosc' },
   { name: 'Warsztat', poster_key: '1c' },
   { name: 'Data', poster_key: 'data' },
-  { name: 'Konferencja', poster_key: '1e' },
+  { name: 'Konferencja', poster_key: 'konferencja' },
   { name: 'Rekrutacja', poster_key: '1f' },
   { name: 'Gala', poster_key: 'gala' },
   { name: 'Ogłoszenie', poster_key: 'ogloszenie' },
@@ -16,11 +16,6 @@ export const DEFAULT_TEMPLATES = [
   { name: 'Warsztat — złoto', poster_key: '1c-zloto' },
   { name: 'Warsztat — jasny', poster_key: '1c-jasny' },
   { name: 'Warsztat — szary', poster_key: '1c-szary' },
-
-  { name: 'Konferencja — czerń', poster_key: '1e-czern' },
-  { name: 'Konferencja — złoto', poster_key: '1e-zloto' },
-  { name: 'Konferencja — jasny', poster_key: '1e-jasny' },
-  { name: 'Konferencja — szary', poster_key: '1e-szary' },
 
   { name: 'Rekrutacja — czerń', poster_key: '1f-czern' },
   { name: 'Rekrutacja — złoto', poster_key: '1f-zloto' },

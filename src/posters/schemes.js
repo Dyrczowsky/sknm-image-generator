@@ -87,7 +87,41 @@ const wyklad = {
            sygnet: 'szary', logoVariant: 'light' },
 }
 
-export const schemes = { ogloszenie, gala, gosc, data, wyklad }
+// Konferencja — nagłówkowa banda + lista programu. `panel`/`panelText` to pas
+// nagłówka (tło/tekst), `headerBadge` plakietka w nagłówku, `footerBadge`
+// plakietka w stopce. `lineFirst` to `borderTop` pierwszego wiersza programu,
+// `lineRest` wszystkie pozostałe + końcowa kreska — w czerni i złocie to jawna
+// rgba, nie token. Etykiety godzin w programie są koralowe we wszystkich
+// pięciu wariantach, więc zostają literałem w komponencie (nie rolą).
+const konferencja = {
+  default: {
+    pageBg: colors.cream, pageText: colors.ink, mutedText: colors.textMuted,
+    panel: colors.navy, panelText: colors.cream, headerBadge: colors.lime,
+    lineFirst: colors.navy, lineRest: colors.creamMuted, footerBadge: colors.navy,
+    sygnet: 'negatywny', logoVariant: 'light',
+  },
+  czern: {
+    pageBg: colors.black, pageText: colors.cream, mutedText: colors.creamMuted,
+    panel: colors.inkPanel, headerBadge: colors.gold,
+    lineFirst: colors.gold, lineRest: 'rgba(244,242,237,.2)', footerBadge: colors.gold,
+    sygnet: 'negatywny', logoVariant: 'dark',
+  },
+  zloto: {
+    pageBg: colors.navy, pageText: colors.cream, mutedText: colors.creamMuted,
+    panel: colors.inkPanel, headerBadge: colors.gold,
+    lineFirst: colors.gold, lineRest: 'rgba(244,242,237,.2)', footerBadge: colors.gold,
+    sygnet: 'zloty', logoVariant: 'dark',
+  },
+  jasny: { pageBg: colors.paper },
+  szary: {
+    pageBg: colors.paper, pageText: colors.slate,
+    panel: colors.grayDark, headerBadge: colors.cream,
+    lineFirst: colors.grayDark, footerBadge: colors.grayDark,
+    sygnet: 'szary',
+  },
+}
+
+export const schemes = { ogloszenie, gala, gosc, data, wyklad, konferencja }
 
 // camelCase → --kebab; layout może dodać dowolną rolę bez zmiany resolvera.
 const roleToVar = (k) => '--' + k.replace(/[A-Z]/g, (m) => '-' + m.toLowerCase())

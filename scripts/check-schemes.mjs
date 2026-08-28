@@ -97,4 +97,19 @@ assert.equal(SCHEME_LABELS.czern, 'Czerń')
   assert.equal(cz.sygnet, 'negatywny')                        // Wykład czerń: negatyw, nie złoto
 }
 
+// Konferencja
+{
+  const d = resolveScheme('konferencja', undefined)
+  assert.equal(d.cssVars['--panel'], colors.navy)
+  assert.equal(d.cssVars['--line-rest'], colors.creamMuted)
+  const cz = resolveScheme('konferencja', 'czern')
+  assert.equal(cz.cssVars['--panel'], colors.inkPanel)
+  assert.equal(cz.cssVars['--line-rest'], 'rgba(244,242,237,.2)')
+  assert.equal(cz.cssVars['--panel-text'], colors.cream)   // z default
+  const ja = resolveScheme('konferencja', 'jasny')
+  assert.equal(ja.cssVars['--panel'], colors.navy)         // z default
+  const sz = resolveScheme('konferencja', 'szary')
+  assert.equal(sz.cssVars['--line-rest'], colors.creamMuted) // szary nie nadpisuje
+}
+
 console.log('check-schemes: OK')
