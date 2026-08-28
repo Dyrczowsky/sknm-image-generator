@@ -1,15 +1,39 @@
 import { Poster1a } from './Poster1a'
 import { Poster1b } from './Poster1b'
+import { Poster1bCzern } from './Poster1bCzern'
+import { Poster1bZloto } from './Poster1bZloto'
+import { Poster1bJasny } from './Poster1bJasny'
+import { Poster1bSzary } from './Poster1bSzary'
 import { Poster1c } from './Poster1c'
+import { Poster1cCzern } from './Poster1cCzern'
+import { Poster1cZloto } from './Poster1cZloto'
+import { Poster1cJasny } from './Poster1cJasny'
+import { Poster1cSzary } from './Poster1cSzary'
 import { Poster1d } from './Poster1d'
+import { Poster1dCzern } from './Poster1dCzern'
+import { Poster1dZloto } from './Poster1dZloto'
+import { Poster1dJasny } from './Poster1dJasny'
+import { Poster1dSzary } from './Poster1dSzary'
 import { Poster1e } from './Poster1e'
+import { Poster1eCzern } from './Poster1eCzern'
+import { Poster1eZloto } from './Poster1eZloto'
+import { Poster1eJasny } from './Poster1eJasny'
+import { Poster1eSzary } from './Poster1eSzary'
 import { Poster1f } from './Poster1f'
+import { Poster1fCzern } from './Poster1fCzern'
+import { Poster1fZloto } from './Poster1fZloto'
+import { Poster1fJasny } from './Poster1fJasny'
+import { Poster1fSzary } from './Poster1fSzary'
 import { Poster1g } from './Poster1g'
 import { Poster1h } from './Poster1h'
 import { Poster1i } from './Poster1i'
 import { Poster1j } from './Poster1j'
 import { Poster1k } from './Poster1k'
 import { Poster1l } from './Poster1l'
+import { Poster1lCzern } from './Poster1lCzern'
+import { Poster1lZloto } from './Poster1lZloto'
+import { Poster1lJasny } from './Poster1lJasny'
+import { Poster1lSzary } from './Poster1lSzary'
 import { Form1a } from '../forms/Form1a'
 import { Form1b } from '../forms/Form1b'
 import { Form1c } from '../forms/Form1c'
@@ -27,15 +51,16 @@ import { Form1l } from '../forms/Form1l'
 // src/forms/) - `Form` poniżej wskazuje, który z nich się renderuje po
 // wybraniu danego szablonu. Dane formularza (App.jsx) są globalne i
 // przeżywają zmianę szablonu - zmienia się tylko to, który komponent je
-// edytuje.
+// edytuje. Warianty kolorystyczne tego samego layoutu mają identyczny
+// zestaw pól, więc reużywają Form bazowego wariantu zamiast duplikować go.
 //
 // Klucz (poster_key) jest zapisywany w tabeli `templates` w SQLite.
 //
-// `family` grupuje warianty kolorystyczne tego samego layoutu (patrz Wykład
-// 1a/1h/1i/1j/1k) - TemplateSelector pokazuje jedną kafelkę na `family`
-// (z podpisem `familyLabel`) zamiast osobnej dla każdego koloru, a warianty
-// wybiera się osobnym paskiem swatchy (`colorLabel`). Szablony bez `family`
-// są traktowane jako jednoelementowa grupa (bez paska kolorystyki).
+// `family` grupuje warianty kolorystyczne tego samego layoutu - TemplateSelector
+// pokazuje jedną kafelkę na `family` (z podpisem `familyLabel`) zamiast
+// osobnej dla każdego koloru, a warianty wybiera się osobnym paskiem
+// swatchy (`colorLabel`). Szablony bez `family` są jednoelementową grupą
+// (bez paska kolorystyki).
 export const posterRegistry = {
   '1a': {
     name: 'Wykład',
@@ -44,36 +69,6 @@ export const posterRegistry = {
     family: 'wyklad',
     familyLabel: 'Wykład',
     colorLabel: 'Granat',
-  },
-  '1b': {
-    name: 'Gość',
-    Component: Poster1b,
-    Form: Form1b,
-  },
-  '1c': {
-    name: 'Warsztat',
-    Component: Poster1c,
-    Form: Form1c,
-  },
-  '1d': {
-    name: 'Data',
-    Component: Poster1d,
-    Form: Form1d,
-  },
-  '1e': {
-    name: 'Konferencja',
-    Component: Poster1e,
-    Form: Form1e,
-  },
-  '1f': {
-    name: 'Rekrutacja',
-    Component: Poster1f,
-    Form: Form1f,
-  },
-  '1g': {
-    name: 'Gala',
-    Component: Poster1g,
-    Form: Form1g,
   },
   '1h': {
     name: 'Wykład — złoto',
@@ -107,9 +102,256 @@ export const posterRegistry = {
     familyLabel: 'Wykład',
     colorLabel: 'Szary',
   },
+
+  '1b': {
+    name: 'Gość',
+    Component: Poster1b,
+    Form: Form1b,
+    family: 'gosc',
+    familyLabel: 'Gość',
+    colorLabel: 'Granat',
+  },
+  '1b-czern': {
+    name: 'Gość — czerń',
+    Component: Poster1bCzern,
+    Form: Form1b,
+    family: 'gosc',
+    familyLabel: 'Gość',
+    colorLabel: 'Czerń',
+  },
+  '1b-zloto': {
+    name: 'Gość — złoto',
+    Component: Poster1bZloto,
+    Form: Form1b,
+    family: 'gosc',
+    familyLabel: 'Gość',
+    colorLabel: 'Złoto',
+  },
+  '1b-jasny': {
+    name: 'Gość — jasny',
+    Component: Poster1bJasny,
+    Form: Form1b,
+    family: 'gosc',
+    familyLabel: 'Gość',
+    colorLabel: 'Jasny',
+  },
+  '1b-szary': {
+    name: 'Gość — szary',
+    Component: Poster1bSzary,
+    Form: Form1b,
+    family: 'gosc',
+    familyLabel: 'Gość',
+    colorLabel: 'Szary',
+  },
+
+  '1c': {
+    name: 'Warsztat',
+    Component: Poster1c,
+    Form: Form1c,
+    family: 'warsztat',
+    familyLabel: 'Warsztat',
+    colorLabel: 'Granat',
+  },
+  '1c-czern': {
+    name: 'Warsztat — czerń',
+    Component: Poster1cCzern,
+    Form: Form1c,
+    family: 'warsztat',
+    familyLabel: 'Warsztat',
+    colorLabel: 'Czerń',
+  },
+  '1c-zloto': {
+    name: 'Warsztat — złoto',
+    Component: Poster1cZloto,
+    Form: Form1c,
+    family: 'warsztat',
+    familyLabel: 'Warsztat',
+    colorLabel: 'Złoto',
+  },
+  '1c-jasny': {
+    name: 'Warsztat — jasny',
+    Component: Poster1cJasny,
+    Form: Form1c,
+    family: 'warsztat',
+    familyLabel: 'Warsztat',
+    colorLabel: 'Jasny',
+  },
+  '1c-szary': {
+    name: 'Warsztat — szary',
+    Component: Poster1cSzary,
+    Form: Form1c,
+    family: 'warsztat',
+    familyLabel: 'Warsztat',
+    colorLabel: 'Szary',
+  },
+
+  '1d': {
+    name: 'Data',
+    Component: Poster1d,
+    Form: Form1d,
+    family: 'data',
+    familyLabel: 'Data',
+    colorLabel: 'Granat',
+  },
+  '1d-czern': {
+    name: 'Data — czerń',
+    Component: Poster1dCzern,
+    Form: Form1d,
+    family: 'data',
+    familyLabel: 'Data',
+    colorLabel: 'Czerń',
+  },
+  '1d-zloto': {
+    name: 'Data — złoto',
+    Component: Poster1dZloto,
+    Form: Form1d,
+    family: 'data',
+    familyLabel: 'Data',
+    colorLabel: 'Złoto',
+  },
+  '1d-jasny': {
+    name: 'Data — jasny',
+    Component: Poster1dJasny,
+    Form: Form1d,
+    family: 'data',
+    familyLabel: 'Data',
+    colorLabel: 'Jasny',
+  },
+  '1d-szary': {
+    name: 'Data — szary',
+    Component: Poster1dSzary,
+    Form: Form1d,
+    family: 'data',
+    familyLabel: 'Data',
+    colorLabel: 'Szary',
+  },
+
+  '1e': {
+    name: 'Konferencja',
+    Component: Poster1e,
+    Form: Form1e,
+    family: 'konferencja',
+    familyLabel: 'Konferencja',
+    colorLabel: 'Granat',
+  },
+  '1e-czern': {
+    name: 'Konferencja — czerń',
+    Component: Poster1eCzern,
+    Form: Form1e,
+    family: 'konferencja',
+    familyLabel: 'Konferencja',
+    colorLabel: 'Czerń',
+  },
+  '1e-zloto': {
+    name: 'Konferencja — złoto',
+    Component: Poster1eZloto,
+    Form: Form1e,
+    family: 'konferencja',
+    familyLabel: 'Konferencja',
+    colorLabel: 'Złoto',
+  },
+  '1e-jasny': {
+    name: 'Konferencja — jasny',
+    Component: Poster1eJasny,
+    Form: Form1e,
+    family: 'konferencja',
+    familyLabel: 'Konferencja',
+    colorLabel: 'Jasny',
+  },
+  '1e-szary': {
+    name: 'Konferencja — szary',
+    Component: Poster1eSzary,
+    Form: Form1e,
+    family: 'konferencja',
+    familyLabel: 'Konferencja',
+    colorLabel: 'Szary',
+  },
+
+  '1f': {
+    name: 'Rekrutacja',
+    Component: Poster1f,
+    Form: Form1f,
+    family: 'rekrutacja',
+    familyLabel: 'Rekrutacja',
+    colorLabel: 'Limonka',
+  },
+  '1f-czern': {
+    name: 'Rekrutacja — czerń',
+    Component: Poster1fCzern,
+    Form: Form1f,
+    family: 'rekrutacja',
+    familyLabel: 'Rekrutacja',
+    colorLabel: 'Czerń',
+  },
+  '1f-zloto': {
+    name: 'Rekrutacja — złoto',
+    Component: Poster1fZloto,
+    Form: Form1f,
+    family: 'rekrutacja',
+    familyLabel: 'Rekrutacja',
+    colorLabel: 'Złoto',
+  },
+  '1f-jasny': {
+    name: 'Rekrutacja — jasny',
+    Component: Poster1fJasny,
+    Form: Form1f,
+    family: 'rekrutacja',
+    familyLabel: 'Rekrutacja',
+    colorLabel: 'Jasny',
+  },
+  '1f-szary': {
+    name: 'Rekrutacja — szary',
+    Component: Poster1fSzary,
+    Form: Form1f,
+    family: 'rekrutacja',
+    familyLabel: 'Rekrutacja',
+    colorLabel: 'Szary',
+  },
+
+  '1g': {
+    name: 'Gala',
+    Component: Poster1g,
+    Form: Form1g,
+  },
+
   '1l': {
     name: 'Ogłoszenie',
     Component: Poster1l,
     Form: Form1l,
+    family: 'ogloszenie',
+    familyLabel: 'Ogłoszenie',
+    colorLabel: 'Granat',
+  },
+  '1l-czern': {
+    name: 'Ogłoszenie — czerń',
+    Component: Poster1lCzern,
+    Form: Form1l,
+    family: 'ogloszenie',
+    familyLabel: 'Ogłoszenie',
+    colorLabel: 'Czerń',
+  },
+  '1l-zloto': {
+    name: 'Ogłoszenie — złoto',
+    Component: Poster1lZloto,
+    Form: Form1l,
+    family: 'ogloszenie',
+    familyLabel: 'Ogłoszenie',
+    colorLabel: 'Złoto',
+  },
+  '1l-jasny': {
+    name: 'Ogłoszenie — jasny',
+    Component: Poster1lJasny,
+    Form: Form1l,
+    family: 'ogloszenie',
+    familyLabel: 'Ogłoszenie',
+    colorLabel: 'Jasny',
+  },
+  '1l-szary': {
+    name: 'Ogłoszenie — szary',
+    Component: Poster1lSzary,
+    Form: Form1l,
+    family: 'ogloszenie',
+    familyLabel: 'Ogłoszenie',
+    colorLabel: 'Szary',
   },
 }
