@@ -3,11 +3,7 @@ import { Poster1cCzern } from './Poster1cCzern'
 import { Poster1cZloto } from './Poster1cZloto'
 import { Poster1cJasny } from './Poster1cJasny'
 import { Poster1cSzary } from './Poster1cSzary'
-import { Poster1f } from './Poster1f'
-import { Poster1fCzern } from './Poster1fCzern'
-import { Poster1fZloto } from './Poster1fZloto'
-import { Poster1fJasny } from './Poster1fJasny'
-import { Poster1fSzary } from './Poster1fSzary'
+import { PosterRekrutacja } from './PosterRekrutacja'
 import { PosterData } from './PosterData'
 import { PosterGala } from './PosterGala'
 import { PosterGosc } from './PosterGosc'
@@ -15,7 +11,7 @@ import { PosterOgloszenie } from './PosterOgloszenie'
 import { PosterWyklad } from './PosterWyklad'
 import { PosterKonferencja } from './PosterKonferencja'
 import { Form1c } from '../forms/Form1c'
-import { Form1f } from '../forms/Form1f'
+import { FormRekrutacja } from '../forms/FormRekrutacja'
 import { FormData } from '../forms/FormData'
 import { FormGala } from '../forms/FormGala'
 import { FormGosc } from '../forms/FormGosc'
@@ -93,45 +89,11 @@ export const posterRegistry = {
     schemes: ['default', 'czern', 'zloto', 'jasny', 'szary'],
   },
 
-  '1f': {
+  rekrutacja: {
     name: 'Rekrutacja',
-    Component: Poster1f,
-    Form: Form1f,
-    family: 'rekrutacja',
-    familyLabel: 'Rekrutacja',
-    colorLabel: 'Limonka',
-  },
-  '1f-czern': {
-    name: 'Rekrutacja — czerń',
-    Component: Poster1fCzern,
-    Form: Form1f,
-    family: 'rekrutacja',
-    familyLabel: 'Rekrutacja',
-    colorLabel: 'Czerń',
-  },
-  '1f-zloto': {
-    name: 'Rekrutacja — złoto',
-    Component: Poster1fZloto,
-    Form: Form1f,
-    family: 'rekrutacja',
-    familyLabel: 'Rekrutacja',
-    colorLabel: 'Złoto',
-  },
-  '1f-jasny': {
-    name: 'Rekrutacja — jasny',
-    Component: Poster1fJasny,
-    Form: Form1f,
-    family: 'rekrutacja',
-    familyLabel: 'Rekrutacja',
-    colorLabel: 'Jasny',
-  },
-  '1f-szary': {
-    name: 'Rekrutacja — szary',
-    Component: Poster1fSzary,
-    Form: Form1f,
-    family: 'rekrutacja',
-    familyLabel: 'Rekrutacja',
-    colorLabel: 'Szary',
+    Component: PosterRekrutacja,
+    Form: FormRekrutacja,
+    schemes: ['limonka', 'czern', 'zloto', 'jasny', 'szary'],
   },
 
   data: {

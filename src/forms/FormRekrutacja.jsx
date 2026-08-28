@@ -2,8 +2,8 @@ import { PLACEHOLDERS } from '../posters/fallback'
 import { FormField } from './FormField'
 import { LogoField } from './LogoField'
 
-// Formularz dla 1f · Rekrutacja - tylko logo PK, bez logo wydziału i bez zdjęć.
-export function Form1f({ value, onFieldChange, onLogoChange, onLogoEnabledChange }) {
+// Formularz dla Rekrutacji - tylko logo PK, bez logo wydziału i bez zdjęć.
+export function FormRekrutacja({ value, onFieldChange, onLogoChange, onLogoEnabledChange }) {
   return (
     <form className="image-form" onSubmit={(e) => e.preventDefault()}>
       <FormField type="text" label="Etykieta" placeholder="SPOTKANIE ORGANIZACYJNE" value={value.badge} onChange={(v) => onFieldChange('badge', v)} />

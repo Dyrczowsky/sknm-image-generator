@@ -121,7 +121,49 @@ const konferencja = {
   },
 }
 
-export const schemes = { ogloszenie, gala, gosc, data, wyklad, konferencja }
+// Rekrutacja — wzór z sygnetu. DOMYŚLNY schemat to `limonka` (limonkowa strona),
+// nie `default`. `band` to tło dolnej bandy-zygzaka, `subColor` kolor podtytułu
+// (gra też rolę mutedText — Rekrutacja NIE ma osobnej roli `mutedText`),
+// `footerText` kolor wrappera dolnego bloku info, `badgeColor` tekst plakietki
+// `Badge`, `qrBorder`/`qrText` obwódka/etykieta pudełka QR. Długi `clipPath`
+// bandy jest identyczny we wszystkich wariantach — rolą jest tylko `background`.
+// Alias `rekrutacja.default = rekrutacja.limonka` niżej: resolver scala nazwany
+// schemat nad `default`, więc bez aliasu `zloto`/`jasny`/`szary` nie
+// odziedziczyłyby wspólnych ról (`footerText`, `qrBorder`, `qrText`, `logoVariant`).
+const rekrutacja = {
+  limonka: {
+    pageBg: colors.lime, pageText: colors.limeText,
+    band: colors.navy, subColor: colors.navyDark, footerText: colors.cream,
+    badgeColor: colors.lime,
+    qrBorder: 'rgba(244,242,237,.55)', qrText: 'rgba(244,242,237,.75)',
+    sygnet: 'granat', logoVariant: 'dark',
+  },
+  czern: {
+    pageBg: colors.black, pageText: colors.cream,
+    band: colors.gold, subColor: colors.creamMuted, footerText: colors.ink,
+    badgeColor: colors.black,
+    qrBorder: 'rgba(18,18,18,.4)', qrText: 'rgba(18,18,18,.6)',
+    sygnet: 'negatywny', logoVariant: 'light',
+  },
+  zloto: {
+    pageBg: colors.gold, pageText: colors.ink,
+    band: colors.navy, subColor: colors.navyDark, badgeColor: colors.gold,
+    sygnet: 'zloty',
+  },
+  jasny: {
+    pageBg: colors.paper, pageText: colors.navy,
+    subColor: colors.textMuted, badgeColor: colors.lime,
+    sygnet: 'granat',
+  },
+  szary: {
+    pageBg: colors.paper, pageText: colors.slate,
+    band: colors.grayDark, subColor: colors.textMuted, badgeColor: colors.cream,
+    sygnet: 'szary',
+  },
+}
+rekrutacja.default = rekrutacja.limonka
+
+export const schemes = { ogloszenie, gala, gosc, data, wyklad, konferencja, rekrutacja }
 
 // camelCase → --kebab; layout może dodać dowolną rolę bez zmiany resolvera.
 const roleToVar = (k) => '--' + k.replace(/[A-Z]/g, (m) => '-' + m.toLowerCase())

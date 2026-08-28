@@ -112,4 +112,19 @@ assert.equal(SCHEME_LABELS.czern, 'Czerń')
   assert.equal(sz.cssVars['--line-rest'], colors.creamMuted) // szary nie nadpisuje
 }
 
+// Rekrutacja (default = limonka)
+{
+  const li = resolveScheme('rekrutacja', 'limonka')
+  assert.equal(li.cssVars['--page-bg'], colors.lime)
+  assert.equal(li.cssVars['--band'], colors.navy)
+  const zl = resolveScheme('rekrutacja', 'zloto')
+  assert.equal(zl.cssVars['--page-bg'], colors.gold)
+  assert.equal(zl.cssVars['--footer-text'], colors.cream)   // z limonka
+  assert.equal(zl.cssVars['--qr-border'], 'rgba(244,242,237,.55)') // z limonka
+  assert.equal(zl.logoVariant, 'dark')                      // z limonka
+  const cz = resolveScheme('rekrutacja', 'czern')
+  assert.equal(cz.cssVars['--qr-border'], 'rgba(18,18,18,.4)')
+  assert.equal(cz.logoVariant, 'light')
+}
+
 console.log('check-schemes: OK')
