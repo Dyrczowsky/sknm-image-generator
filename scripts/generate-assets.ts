@@ -4,7 +4,7 @@ import { deflateSync } from "node:zlib";
 import { writeFileSync } from "node:fs";
 import { crc32 } from "node:zlib";
 
-function chunk(type, data) {
+function chunk(type: string, data: Buffer): Buffer {
   const typeBuf = Buffer.from(type, "ascii");
   const body = Buffer.concat([typeBuf, data]);
   const len = Buffer.alloc(4);
@@ -14,7 +14,7 @@ function chunk(type, data) {
   return Buffer.concat([len, body, crcBuf]);
 }
 
-function encodePng(width, height, pixelFn) {
+function encodePng(width: number, height: number, pixelFn: (x: number, y: number) => [number, number, number]): Buffer {
   const raw = Buffer.alloc((width * 3 + 1) * height);
   let offset = 0;
   for (let y = 0; y < height; y++) {
@@ -45,7 +45,7 @@ function encodePng(width, height, pixelFn) {
 }
 
 // Ikony PWA - proste jednolite tło w kolorze marki
-const brand = [37, 99, 235]; // #2563eb
+const brand: [number, number, number] = [37, 99, 235]; // #2563eb
 for (const size of [192, 512]) {
   const png = encodePng(size, size, () => brand);
   writeFileSync(`public/icons/icon-${size}.png`, png);
