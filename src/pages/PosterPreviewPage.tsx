@@ -4,7 +4,12 @@ import { PosterScaled } from '../components/PosterScaled'
 
 // Podgląd pojedynczego szablonu pod /poster/:id, wypełniony danymi
 // przykładowymi - przydatne do szybkiego sprawdzenia wyglądu szablonu.
-export function PosterPreviewPage({ posterKey, scheme }) {
+interface PosterPreviewPageProps {
+  posterKey: string
+  scheme?: string
+}
+
+export function PosterPreviewPage({ posterKey, scheme }: PosterPreviewPageProps) {
   const poster = posterRegistry[posterKey]
 
   if (!poster) {

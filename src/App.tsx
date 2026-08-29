@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import type { Database } from 'sql.js'
+import type { FormValues, FormTextField, HistoryRow, TemplateRow } from './types'
 import { getDb } from './db/client'
 import { listTemplates } from './db/templates'
 import { getDraft, saveDraft } from './db/drafts'
@@ -9,7 +11,7 @@ import { TemplateSelector } from './components/TemplateSelector'
 import { PosterPreview } from './components/PosterPreview'
 import { HistoryList } from './components/HistoryList'
 
-const EMPTY_FORM = {
+const EMPTY_FORM: FormValues = {
   title: '',
   subtitle: '',
   speaker: '',
@@ -26,22 +28,22 @@ const EMPTY_FORM = {
 // Domyślny schemat kolorów danego layoutu = pierwszy element `schemes`
 // (`undefined` dla Gali, która nie ma wariantów - resolveScheme użyje wtedy
 // bloku `default`).
-function defaultSchemeFor(templateId, templates) {
+function defaultSchemeFor(templateId: number | null, templates: TemplateRow[]): string | undefined {
   const tpl = templates.find((t) => t.id === templateId)
   return tpl ? posterRegistry[tpl.poster_key]?.schemes?.[0] : undefined
 }
 
 function App() {
-  const dbRef = useRef(null)
-  const posterRef = useRef(null)
-  const saveTimeoutRef = useRef(null)
+  const dbRef = useRef<Database | null>(null)
+  const posterRef = useRef<HTMLDivElement | null>(null)
+  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const [ready, setReady] = useState(false)
-  const [templates, setTemplates] = useState([])
-  const [selectedTemplateId, setSelectedTemplateId] = useState(null)
-  const [selectedScheme, setSelectedScheme] = useState(undefined)
-  const [form, setForm] = useState(EMPTY_FORM)
-  const [history, setHistory] = useState([])
+  const [templates, setTemplates] = useState<TemplateRow[]>([])
+  const [selectedTemplateId, setSelectedTemplateId] = useState<number | null>(null)
+  const [selectedScheme, setSelectedScheme] = useState<string | undefined>(undefined)
+  const [form, setForm] = useState<FormValues>(EMPTY_FORM)
+  const [history, setHistory] = useState<HistoryRow[]>([])
   const [exportFormat, setExportFormat] = useState('square')
 
   useEffect(() => {
@@ -80,15 +82,16 @@ function App() {
     }
   }, [])
 
-  const persistDraft = useCallback((nextForm, templateId, schemeName) => {
-    if (!dbRef.current) return
+  const persistDraft = useCallback((nextForm: FormValues, templateId: number | null, schemeName: string | undefined) => {
+    const db = dbRef.current
+    if (!db) return
     if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current)
     saveTimeoutRef.current = setTimeout(() => {
-      saveDraft(dbRef.current, { ...nextForm, template_id: templateId, color_scheme: schemeName ?? null })
+      saveDraft(db, { ...nextForm, template_id: templateId, color_scheme: schemeName ?? null })
     }, 400)
   }, [])
 
-  const handleFieldChange = (name, value) => {
+  const handleFieldChange = (name: FormTextField, value: string) => {
     setForm((prev) => {
       const next = { ...prev, [name]: value }
       persistDraft(next, selectedTemplateId, selectedScheme)
@@ -96,7 +99,7 @@ function App() {
     })
   }
 
-  const handleLogoChange = (slotKey, src) => {
+  const handleLogoChange = (slotKey: string, src: string | null) => {
     setForm((prev) => {
       const current = prev.logos[slotKey] ?? { enabled: true, src: null }
       const next = { ...prev, logos: { ...prev.logos, [slotKey]: { ...current, src, enabled: true } } }
@@ -105,7 +108,7 @@ function App() {
     })
   }
 
-  const handleLogoEnabledChange = (slotKey, checked) => {
+  const handleLogoEnabledChange = (slotKey: string, checked: boolean) => {
     setForm((prev) => {
       const current = prev.logos[slotKey] ?? { enabled: true, src: null }
       const next = { ...prev, logos: { ...prev.logos, [slotKey]: { ...current, enabled: checked } } }
@@ -115,7 +118,7 @@ function App() {
   }
 
   // Galeria zdjęć: dodanie nowego pliku zawsze dokłada kolejny wpis do listy.
-  const handlePhotoAdd = (fieldKey, src) => {
+  const handlePhotoAdd = (fieldKey: string, src: string | null) => {
     if (!src) return
     setForm((prev) => {
       const list = prev.photos[fieldKey] ?? []
@@ -126,7 +129,7 @@ function App() {
   }
 
   // Zmiana pliku pod istniejącym wpisem galerii; `null` usuwa ten wpis.
-  const handlePhotoChangeAt = (fieldKey, index, src) => {
+  const handlePhotoChangeAt = (fieldKey: string, index: number, src: string | null) => {
     setForm((prev) => {
       const list = prev.photos[fieldKey] ?? []
       const nextList = src
@@ -138,7 +141,7 @@ function App() {
     })
   }
 
-  const handlePhotoPositionChangeAt = (fieldKey, index, partial) => {
+  const handlePhotoPositionChangeAt = (fieldKey: string, index: number, partial: { x?: number; y?: number }) => {
     setForm((prev) => {
       const list = prev.photos[fieldKey] ?? []
       const nextList = list.map((p, i) => (i === index ? { ...p, ...partial } : p))
@@ -148,7 +151,7 @@ function App() {
     })
   }
 
-  const handleListItemAdd = (fieldKey) => {
+  const handleListItemAdd = (fieldKey: string) => {
     setForm((prev) => {
       const list = prev.lists[fieldKey] ?? []
       const next = { ...prev, lists: { ...prev.lists, [fieldKey]: [...list, {}] } }
@@ -157,7 +160,7 @@ function App() {
     })
   }
 
-  const handleListItemChange = (fieldKey, index, subKey, val) => {
+  const handleListItemChange = (fieldKey: string, index: number, subKey: string, val: string) => {
     setForm((prev) => {
       const list = prev.lists[fieldKey] ?? []
       const nextList = list.map((item, i) => (i === index ? { ...item, [subKey]: val } : item))
@@ -167,7 +170,7 @@ function App() {
     })
   }
 
-  const handleListItemRemove = (fieldKey, index) => {
+  const handleListItemRemove = (fieldKey: string, index: number) => {
     setForm((prev) => {
       const list = prev.lists[fieldKey] ?? []
       const next = { ...prev, lists: { ...prev.lists, [fieldKey]: list.filter((_, i) => i !== index) } }
@@ -176,7 +179,7 @@ function App() {
     })
   }
 
-  const handleSelectTemplate = (id) => {
+  const handleSelectTemplate = (id: number) => {
     if (id === selectedTemplateId) return
     setSelectedTemplateId(id)
     const nextScheme = defaultSchemeFor(id, templates)
@@ -184,14 +187,14 @@ function App() {
     persistDraft(form, id, nextScheme)
   }
 
-  const handleSelectScheme = (name) => {
+  const handleSelectScheme = (name: string) => {
     setSelectedScheme(name)
     persistDraft(form, selectedTemplateId, name)
   }
 
   // Przywraca pola tekstowe zapisanego wpisu historii do formularza. Zdjęcia
   // i logo nie są zapisywane w historii, więc wracają do stanu domyślnego.
-  const handleRestoreHistoryEntry = (entry) => {
+  const handleRestoreHistoryEntry = (entry: HistoryRow) => {
     const next = {
       title: entry.title ?? '',
       subtitle: entry.subtitle ?? '',
@@ -213,7 +216,7 @@ function App() {
     persistDraft(next, templateId, nextScheme)
   }
 
-  const handleDeleteHistoryEntry = async (id) => {
+  const handleDeleteHistoryEntry = async (id: number) => {
     if (!dbRef.current) return
     await deleteHistoryEntry(dbRef.current, id)
     setHistory(listHistory(dbRef.current))
