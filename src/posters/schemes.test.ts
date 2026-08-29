@@ -11,7 +11,7 @@ describe('resolveScheme', () => {
   })
 
   it('roleToVar: camelCase → --kebab, NON_CSS pomijane', () => {
-    ;(schemes as Record<string, unknown>).__probe = {
+    schemes.__probe = {
       default: { pageBg: '#000', badgeFill: '#111', wedgeBr: '#222', tri1: '#333', logoVariant: 'dark' },
     }
     const s = resolveScheme('__probe', undefined)
@@ -21,7 +21,7 @@ describe('resolveScheme', () => {
     expect(s.cssVars['--tri1']).toBe('#333')
     expect(s.cssVars['--logo-variant']).toBeUndefined() // NON_CSS
     expect(s.logoVariant).toBe('dark')
-    delete (schemes as Record<string, unknown>).__probe
+    delete schemes.__probe
   })
 
   it('Ogłoszenie: nadpisania + dziedziczenie z default', () => {

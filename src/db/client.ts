@@ -11,7 +11,7 @@ async function initDb(): Promise<Database> {
   const SQL = await initSqlJs({ locateFile: () => sqlWasmUrl })
   const saved = await get<Uint8Array | ArrayBuffer>(DB_STORAGE_KEY)
 
-  const db = saved ? new SQL.Database(new Uint8Array(saved as ArrayBufferLike)) : new SQL.Database()
+  const db = saved ? new SQL.Database(new Uint8Array(saved)) : new SQL.Database()
   const wiped = resetIfStale(db)
   createSchema(db)
   const templatesChanged = syncTemplates(db)

@@ -232,8 +232,8 @@ export function resolveScheme(layoutKey: string, name: string | undefined): Reso
   }
   return {
     cssVars,
-    sygnet: merged.sygnet as SygnetName | undefined,
-    logoVariant: merged.logoVariant as LogoVariant | undefined,
+    sygnet: merged.sygnet,
+    logoVariant: merged.logoVariant,
   }
 }
 
