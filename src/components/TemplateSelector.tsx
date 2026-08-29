@@ -27,7 +27,7 @@ export function TemplateSelector({ templates, selectedId, selectedScheme, onSele
 
   return (
     <div>
-      <div className="template-selector">
+      <div className="flex flex-wrap gap-3.5">
         {templates.map((tpl) => {
           const entry = posterRegistry[tpl.poster_key]
           if (!entry) return null
@@ -37,12 +37,16 @@ export function TemplateSelector({ templates, selectedId, selectedScheme, onSele
             <button
               key={tpl.id}
               type="button"
-              className={`template-thumb${isActive ? ' is-selected' : ''}`}
+              className={`flex cursor-pointer flex-col items-center gap-2 rounded-[10px] border-2 bg-transparent p-1.5 text-[0.8rem] text-fg transition-[border-color,transform] hover:-translate-y-0.5 ${
+                isActive ? 'border-accent' : 'border-transparent'
+              }`}
               onClick={() => onSelect(tpl.id)}
             >
-              <PosterScaled size={THUMB_SIZE}>
-                <Component data={THUMB_DATA} scheme={entry.schemes?.[0]} />
-              </PosterScaled>
+              <div className="overflow-hidden rounded-md shadow-[0_1px_2px_rgba(0,0,0,0.12)]">
+                <PosterScaled size={THUMB_SIZE}>
+                  <Component data={THUMB_DATA} scheme={entry.schemes?.[0]} />
+                </PosterScaled>
+              </div>
               <span>{entry.name}</span>
             </button>
           )
@@ -50,19 +54,23 @@ export function TemplateSelector({ templates, selectedId, selectedScheme, onSele
       </div>
 
       {schemeList.length > 1 && SwatchComponent && (
-        <div className="color-variant-selector">
-          <span className="color-variant-label">Kolorystyka</span>
-          <div className="color-variant-row">
+        <div className="mt-[18px] flex flex-col gap-2.5 border-t border-border pt-[18px]">
+          <span className="text-[0.8rem] font-semibold uppercase tracking-[0.04em] text-muted">Kolorystyka</span>
+          <div className="flex flex-wrap gap-2.5">
             {schemeList.map((name) => (
               <button
                 key={name}
                 type="button"
-                className={`color-variant-thumb${name === selectedScheme ? ' is-selected' : ''}`}
+                className={`flex cursor-pointer flex-col items-center gap-1.5 rounded-lg border-2 bg-transparent p-1 text-[0.72rem] transition-[border-color,transform] hover:-translate-y-0.5 ${
+                  name === selectedScheme ? 'border-accent text-fg' : 'border-transparent text-muted'
+                }`}
                 onClick={() => onSelectScheme(name)}
               >
-                <PosterScaled size={SWATCH_SIZE}>
-                  <SwatchComponent data={THUMB_DATA} scheme={name} />
-                </PosterScaled>
+                <div className="overflow-hidden rounded-[5px] shadow-[0_1px_2px_rgba(0,0,0,0.12)]">
+                  <PosterScaled size={SWATCH_SIZE}>
+                    <SwatchComponent data={THUMB_DATA} scheme={name} />
+                  </PosterScaled>
+                </div>
                 <span>{SCHEME_LABELS[name] ?? name}</span>
               </button>
             ))}

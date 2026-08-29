@@ -234,21 +234,30 @@ function App() {
     setHistory(listHistory(dbRef.current))
   }
 
+  const shell = 'mx-auto max-w-[720px] px-4 pt-8 pb-16 min-[900px]:max-w-[1240px]'
+  // Panel: karta sekcji. W jednej kolumnie (mobile) rozdzielona odstępem
+  // `mt-5`; od 900px grid ustawia odstępy przez `gap`, więc `mt` znika.
+  const panel = 'mt-5 rounded-[14px] border border-border bg-surface p-5 min-[900px]:mt-0'
+  const panelHeading = 'mb-3.5 text-base font-semibold uppercase tracking-[0.04em] text-muted'
+
   if (!ready) {
     return (
-      <main className="app-shell">
+      <main className={shell}>
         <p>Ładowanie...</p>
       </main>
     )
   }
 
   return (
-    <main className="app-shell">
-      <h1>Generator plakatów SKNM</h1>
+    <main className={shell}>
+      <h1 className="mb-2 text-[1.6rem] font-bold">Generator plakatów SKNM</h1>
 
-      <div className="app-grid">
-        <section className="panel panel-template">
-          <h2>1. Wybierz szablon</h2>
+      {/* Do 900px sekcje płyną jedna pod drugą w kolejności DOM. Od 900px
+          grid-template-areas robi dwie kolumny: lewa to szablon/formularz/
+          akcje/historia, prawa to przypięty (sticky) podgląd. */}
+      <div className="flex flex-col min-[900px]:mt-5 min-[900px]:grid min-[900px]:grid-cols-[1fr_460px] min-[900px]:items-start min-[900px]:gap-6 min-[900px]:[grid-template-areas:'template_preview''form_preview''actions_preview''history_preview']">
+        <section className={`${panel} min-[900px]:[grid-area:template]`}>
+          <h2 className={panelHeading}>1. Wybierz szablon</h2>
           <TemplateSelector
             templates={templates}
             selectedId={selectedTemplateId}
@@ -258,8 +267,8 @@ function App() {
           />
         </section>
 
-        <section className="panel panel-form">
-          <h2>2. Uzupełnij dane</h2>
+        <section className={`${panel} min-[900px]:[grid-area:form]`}>
+          <h2 className={panelHeading}>2. Uzupełnij dane</h2>
           {SelectedForm && (
             <SelectedForm
               value={form}
@@ -276,9 +285,9 @@ function App() {
           )}
         </section>
 
-        <section className="panel panel-actions actions">
+        <section className={`${panel} flex gap-3 min-[900px]:[grid-area:actions]`}>
           <select
-            className="export-format-select"
+            className="rounded-lg border border-field-border bg-field px-3.5 py-[11px] text-[0.9rem] text-fg"
             value={exportFormat}
             onChange={(e) => setExportFormat(e.target.value)}
             aria-label="Format eksportu"
@@ -289,18 +298,22 @@ function App() {
               </option>
             ))}
           </select>
-          <button type="button" onClick={handleDownload}>
+          <button
+            type="button"
+            className="cursor-pointer rounded-lg bg-accent px-[18px] py-[11px] text-[0.95rem] font-medium text-white transition-[background-color,transform] hover:bg-accent-hover active:scale-[0.98]"
+            onClick={handleDownload}
+          >
             Pobierz PNG
           </button>
         </section>
 
-        <section className="panel panel-preview">
-          <h2>Podgląd</h2>
+        <section className={`${panel} min-[900px]:sticky min-[900px]:top-5 min-[900px]:[grid-area:preview]`}>
+          <h2 className={panelHeading}>Podgląd</h2>
           <PosterPreview posterRef={posterRef} Component={selectedPoster?.Component} data={form} scheme={selectedScheme} />
         </section>
 
-        <section className="panel panel-history">
-          <h2>Historia</h2>
+        <section className={`${panel} min-[900px]:[grid-area:history]`}>
+          <h2 className={panelHeading}>Historia</h2>
           <HistoryList entries={history} onRestore={handleRestoreHistoryEntry} onDelete={handleDeleteHistoryEntry} />
         </section>
       </div>

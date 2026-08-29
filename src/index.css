@@ -1,3 +1,27 @@
+@import 'tailwindcss';
+
+/* Semantyczne tokeny kolorów aplikacji wystawione jako utilities Tailwinda
+   (`bg-surface`, `text-muted`, `border-border`, `bg-accent`, ...).
+   `inline` sprawia, że utilities odwołują się do zmiennych `var(--...)`
+   z bloku `:root` poniżej - dzięki temu przełączanie na ciemny motyw robi
+   samo `@media (prefers-color-scheme: dark)`, bez wariantów `dark:`. */
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-border: var(--surface-border);
+  --color-fg: var(--text);
+  --color-muted: var(--text-muted);
+  --color-field: var(--input-bg);
+  --color-field-border: var(--input-border);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-soft: var(--accent-soft);
+  --color-danger: #ef4444;
+}
+
+/* UWAGA: te zmienne są też fallbackiem dla plakatów - `schemes.ts` polega na
+   tym, że nieprzypisana rola (`var(--accent)` itp.) spada tu, do `:root`.
+   Nie zmieniaj nazw bez sprawdzenia src/posters/schemes.ts. */
 :root {
   font: 16px/1.5 system-ui, 'Segoe UI', Roboto, sans-serif;
   color-scheme: light dark;
@@ -15,21 +39,6 @@
   --input-border: #cbd5e1;
 }
 
-* {
-  box-sizing: border-box;
-}
-
-body {
-  margin: 0;
-  background: var(--bg);
-  color: var(--text);
-}
-
-h1,
-h2 {
-  margin: 0 0 8px;
-}
-
 @media (prefers-color-scheme: dark) {
   :root {
     --bg: #0f172a;
@@ -39,5 +48,45 @@ h2 {
     --text-muted: #9aa3b8;
     --input-bg: #1e293b;
     --input-border: #334155;
+  }
+}
+
+@layer base {
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+  }
+
+  /* Suwaki kadrowania zdjęcia (ImageUpload) - stylowania thumba nie da się
+     wyrazić utilities, więc zostaje jako reguła globalna. */
+  input[type='range'] {
+    accent-color: var(--accent);
+  }
+
+  input[type='range'].crop-slider {
+    appearance: none;
+    height: 4px;
+    border-radius: 999px;
+    background: var(--input-border);
+  }
+
+  input[type='range'].crop-slider::-webkit-slider-thumb {
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 2px solid var(--bg);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  }
+
+  input[type='range'].crop-slider::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 2px solid var(--bg);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
   }
 }

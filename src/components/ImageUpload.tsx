@@ -10,6 +10,9 @@ interface ImageUploadProps {
   onEnabledChange?: (checked: boolean) => void
   position?: { x: number; y: number }
   onPositionChange?: (partial: { x?: number; y?: number }) => void
+  // `false` gdy widget jest już zagnieżdżony w sekcji z własną kreską u góry
+  // (np. galeria zdjęć) - wtedy nie dokłada drugiego odstępu i separatora.
+  divider?: boolean
 }
 
 interface DragState {
@@ -42,7 +45,7 @@ function clamp(value: number, min: number, max: number) {
 // kadr, który można przeciągnąć myszką (albo ustawić suwakami), żeby
 // przesunąć wycinek zdjęcia w osi X/Y. Ma sens tylko dla zdjęć wypełniających
 // kadr (cover) - nie dla logo, które zawsze mieści się w całości.
-export function ImageUpload({ label, hint, value, onChange, enabled = true, onEnabledChange, position, onPositionChange }: ImageUploadProps) {
+export function ImageUpload({ label, hint, value, onChange, enabled = true, onEnabledChange, position, onPositionChange, divider = true }: ImageUploadProps) {
   const dragState = useRef<DragState | null>(null)
 
   const handleFile = async (e: ChangeEvent<HTMLInputElement>) => {
@@ -78,54 +81,71 @@ export function ImageUpload({ label, hint, value, onChange, enabled = true, onEn
   }
 
   return (
-    <div className="image-upload">
+    <div className={`flex flex-col gap-2${divider ? ' mt-[18px] border-t border-border pt-[18px]' : ''}`}>
       {onEnabledChange ? (
-        <label className="image-upload-toggle">
-          <input type="checkbox" checked={enabled} onChange={(e) => onEnabledChange(e.target.checked)} />
-          <span className="image-upload-label">{label}</span>
+        <label className="flex w-fit cursor-pointer items-center gap-[9px]">
+          <input
+            className="h-[17px] w-[17px] cursor-pointer accent-accent"
+            type="checkbox"
+            checked={enabled}
+            onChange={(e) => onEnabledChange(e.target.checked)}
+          />
+          <span className="text-[0.9rem] font-medium">{label}</span>
         </label>
       ) : (
-        <span className="image-upload-label">{label}</span>
+        <span className="text-[0.9rem] font-medium">{label}</span>
       )}
 
       {enabled && (
         <>
-          {hint && <p className="image-upload-hint">{hint}</p>}
+          {hint && <p className="m-0 text-[0.8rem] text-muted">{hint}</p>}
 
           {value && position && (
             <div
-              className="image-upload-crop"
+              className="relative h-[140px] w-full cursor-grab touch-none select-none overflow-hidden rounded-[10px] border border-field-border bg-cover bg-no-repeat active:cursor-grabbing"
               style={{ backgroundImage: `url(${value})`, backgroundPosition: `${position.x ?? 50}% ${position.y ?? 50}%` }}
               onPointerDown={handlePointerDown}
               onPointerMove={handlePointerMove}
               onPointerUp={handlePointerUp}
             >
-              <span className="image-upload-crop-hint">przeciągnij, aby ustawić kadr</span>
+              <span className="pointer-events-none absolute bottom-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-[rgba(15,23,42,0.65)] px-2.5 py-1 text-[0.7rem] text-white">
+                przeciągnij, aby ustawić kadr
+              </span>
             </div>
           )}
 
-          <div className="image-upload-row">
+          <div className="flex flex-wrap items-center gap-3">
             {value && !position && (
-              <div className="image-upload-preview">
-                <img src={value} alt={`Podgląd: ${label}`} />
+              <div className="flex h-[52px] w-[52px] flex-none items-center justify-center overflow-hidden rounded-lg border border-field-border bg-white">
+                <img className="max-h-full max-w-full object-contain" src={value} alt={`Podgląd: ${label}`} />
               </div>
             )}
-            <label className="image-upload-button">
+            <label className="relative cursor-pointer rounded-lg border border-field-border px-4 py-[9px] text-[0.85rem] transition-[border-color,background-color] hover:border-accent hover:bg-accent-soft">
               {value ? 'Zmień plik' : 'Wybierz plik'}
-              <input type="file" accept=".svg,.png,.jpg,.jpeg,image/svg+xml,image/png,image/jpeg" onChange={handleFile} />
+              <input
+                className="absolute inset-0 cursor-pointer opacity-0"
+                type="file"
+                accept=".svg,.png,.jpg,.jpeg,image/svg+xml,image/png,image/jpeg"
+                onChange={handleFile}
+              />
             </label>
             {value && (
-              <button type="button" className="image-upload-remove" onClick={() => onChange(null)}>
+              <button
+                type="button"
+                className="cursor-pointer rounded-lg border border-field-border bg-transparent px-4 py-[9px] text-[0.85rem] text-muted transition-[border-color,color] hover:border-danger hover:text-danger"
+                onClick={() => onChange(null)}
+              >
                 Usuń
               </button>
             )}
           </div>
 
           {value && position && onPositionChange && (
-            <div className="image-upload-position">
-              <label className="image-upload-position-row">
-                <span>Pozycja w poziomie</span>
+            <div className="mt-1 flex flex-col gap-2.5 rounded-[10px] bg-accent-soft px-3.5 py-3">
+              <label className="flex items-center gap-3 text-[0.8rem] text-muted">
+                <span className="w-[108px] flex-none">Pozycja w poziomie</span>
                 <input
+                  className="crop-slider flex-1 cursor-pointer"
                   type="range"
                   min="0"
                   max="100"
@@ -133,9 +153,10 @@ export function ImageUpload({ label, hint, value, onChange, enabled = true, onEn
                   onChange={(e) => onPositionChange({ x: Number(e.target.value) })}
                 />
               </label>
-              <label className="image-upload-position-row">
-                <span>Pozycja w pionie</span>
+              <label className="flex items-center gap-3 text-[0.8rem] text-muted">
+                <span className="w-[108px] flex-none">Pozycja w pionie</span>
                 <input
+                  className="crop-slider flex-1 cursor-pointer"
                   type="range"
                   min="0"
                   max="100"

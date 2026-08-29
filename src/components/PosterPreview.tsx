@@ -16,7 +16,7 @@ interface PosterPreviewProps {
 export function PosterPreview({ posterRef, Component, data, scheme }: PosterPreviewProps) {
   if (!Component) return null
   return (
-    <div className="poster-preview">
+    <div className="w-fit overflow-hidden rounded-[10px] border border-border shadow-[0_4px_16px_rgba(0,0,0,0.12)]">
       <PosterScaled ref={posterRef} size={PREVIEW_SIZE}>
         <Component data={data} scheme={scheme} />
       </PosterScaled>

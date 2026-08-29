@@ -19,11 +19,12 @@ export function PhotoGalleryField({ fieldKey, label, max = 4, value, onAdd, onCh
   const items = value.photos[fieldKey] ?? []
 
   return (
-    <div className="field-group">
-      {items.length > 0 && <span className="image-upload-label">{label}</span>}
+    <div className="mt-[18px] flex flex-col gap-2.5 border-t border-border pt-[18px]">
+      {items.length > 0 && <span className="text-[0.9rem] font-medium">{label}</span>}
       {items.map((photo, i) => (
         <ImageUpload
           key={i}
+          divider={false}
           label={`${label} ${i + 1}`}
           value={photo.src}
           onChange={(src) => onChangeAt(fieldKey, i, src)}
@@ -33,6 +34,7 @@ export function PhotoGalleryField({ fieldKey, label, max = 4, value, onAdd, onCh
       ))}
       {items.length < max && (
         <ImageUpload
+          divider={false}
           label={items.length === 0 ? label : `Dodaj kolejne zdjęcie (${items.length}/${max})`}
           hint={items.length === 0 ? 'Ten szablon ma miejsce na zdjęcia - bez wgranego pliku zostanie placeholder.' : undefined}
           value={null}
