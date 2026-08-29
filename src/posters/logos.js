@@ -5,8 +5,6 @@ import sygnetZloty from '../assets/brand/sknm/sygnet_zloty.svg'
 import sygnetSzary from '../assets/brand/sknm/sygnet_szary.svg'
 import sygnetCzarny from '../assets/brand/sknm/sygnet_czarny.svg'
 
-export { sygnetNegatywny, sygnetGranat, sygnetZloty, sygnetSzary, sygnetCzarny }
-
 // Wybór sygnetu po nazwie roli ze schematu (patrz schemes.js).
 export const sygnetByName = {
   negatywny: sygnetNegatywny,
