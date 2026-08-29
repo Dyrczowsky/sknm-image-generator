@@ -239,7 +239,7 @@ export function resolveScheme(layoutKey: string, name: string | undefined): Reso
 
 // Podpisy swatchy kolorystyki w UI. `default` bywa „Granat" albo (Rekrutacja)
 // pierwszym elementem jest `limonka`.
-export const SCHEME_LABELS = {
+export const SCHEME_LABELS: Record<string, string> = {
   default: 'Granat',
   limonka: 'Limonka',
   czern: 'Czerń',
