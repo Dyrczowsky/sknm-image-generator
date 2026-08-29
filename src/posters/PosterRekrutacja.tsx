@@ -14,7 +14,7 @@ import type { PosterProps } from '../types'
 
 // REKRUTACJA — wzór z sygnetu
 export function PosterRekrutacja({ data, scheme }: PosterProps) {
-  const { title, subtitle, event_date, event_time, location, badge, logos } = withPlaceholders(data)
+  const { title, subtitle, event_date, event_time, location, badge, logos, hidden, fx } = withPlaceholders(data)
   const s = resolveScheme('rekrutacja', scheme)
 
   return (
@@ -32,18 +32,25 @@ export function PosterRekrutacja({ data, scheme }: PosterProps) {
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 26, position: 'relative', maxWidth: 900 }}>
-        <div style={{ fontSize: 150, fontWeight: 800, lineHeight: 0.88, letterSpacing: '-.045em', fontKerning: 'none' }}>
+        <div style={{ fontSize: 150, fontWeight: 800, lineHeight: 0.88, letterSpacing: '-.045em', fontKerning: 'none', ...fx('title') }}>
           {title}
         </div>
-        <div style={{ fontSize: 38, fontWeight: 600, lineHeight: 1.3, color: 'var(--sub-color)' }}>
+        <div style={{ fontSize: 38, fontWeight: 600, lineHeight: 1.3, color: 'var(--sub-color)', ...fx('subtitle') }}>
           {subtitle || 'Seminaria, konkursy, wyjazdy i własne projekty badawcze. Każdy rok studiów, każdy wydział.'}
         </div>
       </div>
 
       <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 32, position: 'relative', color: 'var(--footer-text)' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12, paddingBottom: 8 }}>
-          <Badge color="var(--badge-color)" style={{ font: `700 26px ${fontMono}`, letterSpacing: '.1em' }}>{badge || 'SPOTKANIE ORGANIZACYJNE'}</Badge>
-          <InfoLine parts={[`${getDay(event_date)} ${getMonthShort(event_date)}`, event_time, location]} style={{ fontSize: 44, fontWeight: 800, lineHeight: 1.05, fontKerning: 'none' }} />
+          <Badge color="var(--badge-color)" style={{ font: `700 26px ${fontMono}`, letterSpacing: '.1em', ...fx('badge') }}>{badge || 'SPOTKANIE ORGANIZACYJNE'}</Badge>
+          <InfoLine
+            parts={[
+              { text: `${getDay(event_date)} ${getMonthShort(event_date)}`, hidden: hidden('event_date') },
+              { text: event_time, hidden: hidden('event_time') },
+              { text: location, hidden: hidden('location') },
+            ]}
+            style={{ fontSize: 44, fontWeight: 800, lineHeight: 1.05, fontKerning: 'none' }}
+          />
           <div style={{ fontSize: 26, fontWeight: 500, opacity: 0.85 }}>sknm.pk.edu.pl · @sknm.pk</div>
         </div>
         <LogoRow alignItems="flex-end">

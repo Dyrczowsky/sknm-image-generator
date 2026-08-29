@@ -3,11 +3,12 @@ import type { Database } from 'sql.js'
 import type { FormValues, FormTextField, HistoryRow, TemplateRow } from './types'
 import { getDb } from './db/client'
 import { listTemplates } from './db/templates'
-import { getDraft, saveDraft } from './db/drafts'
+import { getDraft, saveDraft, parseVisibility } from './db/drafts'
 import { addHistoryEntry, deleteHistoryEntry, listHistory } from './db/history'
 import { posterRegistry } from './posters/registry'
 import { downloadPosterAsPng, EXPORT_FORMATS } from './posters/export'
 import { TemplateSelector } from './components/TemplateSelector'
+import { SchemeSelector } from './components/SchemeSelector'
 import { PosterPreview } from './components/PosterPreview'
 import { HistoryList } from './components/HistoryList'
 
@@ -20,6 +21,7 @@ const EMPTY_FORM: FormValues = {
   location: '',
   badge: '',
   badge2: '',
+  visibility: {},
   logos: {},
   photos: {},
   lists: {},
@@ -66,6 +68,7 @@ function App() {
           location: draft.location ?? '',
           badge: draft.badge ?? '',
           badge2: draft.badge2 ?? '',
+          visibility: parseVisibility(draft.visibility),
           logos: {},
           photos: {},
           lists: {},
@@ -94,6 +97,19 @@ function App() {
   const handleFieldChange = (name: FormTextField, value: string) => {
     setForm((prev) => {
       const next = { ...prev, [name]: value }
+      persistDraft(next, selectedTemplateId, selectedScheme)
+      return next
+    })
+  }
+
+  // Odznaczenie ukrywa pole na plakacie (opacity: 0). `true` chowamy jako brak
+  // klucza, żeby draft trzymał tylko rzeczywiste wyjątki.
+  const handleVisibilityChange = (name: FormTextField, visible: boolean) => {
+    setForm((prev) => {
+      const nextVisibility = { ...prev.visibility }
+      if (visible) delete nextVisibility[name]
+      else nextVisibility[name] = false
+      const next = { ...prev, visibility: nextVisibility }
       persistDraft(next, selectedTemplateId, selectedScheme)
       return next
     })
@@ -204,6 +220,7 @@ function App() {
       location: entry.location ?? '',
       badge: '',
       badge2: '',
+      visibility: {},
       logos: {},
       photos: {},
       lists: {},
@@ -258,13 +275,7 @@ function App() {
       <div className="flex flex-col min-[900px]:mt-5 min-[900px]:grid min-[900px]:grid-cols-[1fr_460px] min-[900px]:items-start min-[900px]:gap-6 min-[900px]:[grid-template-areas:'template_preview''form_preview''actions_preview''history_preview']">
         <section className={`${panel} min-[900px]:[grid-area:template]`}>
           <h2 className={panelHeading}>1. Wybierz szablon</h2>
-          <TemplateSelector
-            templates={templates}
-            selectedId={selectedTemplateId}
-            selectedScheme={selectedScheme}
-            onSelect={handleSelectTemplate}
-            onSelectScheme={handleSelectScheme}
-          />
+          <TemplateSelector templates={templates} selectedId={selectedTemplateId} onSelect={handleSelectTemplate} />
         </section>
 
         <section className={`${panel} min-[900px]:[grid-area:form]`}>
@@ -273,6 +284,7 @@ function App() {
             <SelectedForm
               value={form}
               onFieldChange={handleFieldChange}
+              onVisibilityChange={handleVisibilityChange}
               onLogoChange={handleLogoChange}
               onLogoEnabledChange={handleLogoEnabledChange}
               onPhotoAdd={handlePhotoAdd}
@@ -310,6 +322,7 @@ function App() {
         <section className={`${panel} min-[900px]:sticky min-[900px]:top-5 min-[900px]:[grid-area:preview]`}>
           <h2 className={panelHeading}>Podgląd</h2>
           <PosterPreview posterRef={posterRef} Component={selectedPoster?.Component} data={form} scheme={selectedScheme} />
+          <SchemeSelector poster={selectedPoster} selectedScheme={selectedScheme} onSelectScheme={handleSelectScheme} />
         </section>
 
         <section className={`${panel} min-[900px]:[grid-area:history]`}>

@@ -51,6 +51,11 @@ Reguły:
 - Powtarzalne fragmenty (plakietka, rząd logo, linia info, wielka liczba dnia) bierz
   z `src/posters/blocks/` zamiast pisać od zera.
 - Wymiary i typografię trzymaj w skali z `src/posters/theme.ts`, gdzie pasuje.
+- **Widoczność pól:** dołóż `fx` (i `hidden`) z `withPlaceholders(data)` i rozlej
+  `...fx('<pole>')` na element każdego pola tekstowego, np.
+  `<div style={{ fontSize: 96, ...fx('title') }}>{title}</div>`. Pola przekazywane
+  do `InfoLine` podajesz jako `{ text, hidden: hidden('<pole>') }`. Ukryte pole
+  dostaje `opacity: 0` i **zostaje** w layoucie - nie usuwaj go warunkowo z DOM.
 
 ## 2. Formularz — `src/forms/FormPiknik.tsx`
 
@@ -63,16 +68,18 @@ import { PLACEHOLDERS } from '../posters/fallback'
 import { FormField } from './FormField'
 import { LogoField } from './LogoField'
 
-export function FormPiknik({ value, onFieldChange, onLogoChange, onLogoEnabledChange }: FormProps) {
+export function FormPiknik({ value, onFieldChange, onVisibilityChange, onLogoChange, onLogoEnabledChange }: FormProps) {
+  // `name` + `{...vis}` włączają checkbox widoczności przy etykiecie pola.
+  const vis = { visibility: value.visibility, onVisibilityChange }
   return (
     <form className="flex flex-col gap-3.5" onSubmit={(e) => e.preventDefault()}>
-      <FormField type="text" label="Tytuł" placeholder={PLACEHOLDERS.title}
+      <FormField name="title" {...vis} type="text" label="Tytuł" placeholder={PLACEHOLDERS.title}
         value={value.title} onChange={(v) => onFieldChange('title', v)} />
-      <FormField type="text" label="Podtytuł"
+      <FormField name="subtitle" {...vis} type="text" label="Podtytuł"
         value={value.subtitle} onChange={(v) => onFieldChange('subtitle', v)} />
-      <FormField type="date" label="Data"
+      <FormField name="event_date" {...vis} type="date" label="Data"
         value={value.event_date} onChange={(v) => onFieldChange('event_date', v)} />
-      <FormField type="text" label="Lokalizacja" placeholder={PLACEHOLDERS.location}
+      <FormField name="location" {...vis} type="text" label="Lokalizacja" placeholder={PLACEHOLDERS.location}
         value={value.location} onChange={(v) => onFieldChange('location', v)} />
 
       <LogoField fieldKey="pk" label="Logo PK" value={value}

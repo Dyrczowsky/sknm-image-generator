@@ -12,7 +12,7 @@ import type { PosterProps } from '../types'
 
 // WYKŁAD — typografia
 export function PosterWyklad({ data, scheme }: PosterProps) {
-  const { title, subtitle, speaker, event_date, event_time, location, badge, logos } = withPlaceholders(data)
+  const { title, subtitle, speaker, event_date, event_time, location, badge, logos, hidden, fx } = withPlaceholders(data)
   const s = resolveScheme('wyklad', scheme)
 
   return (
@@ -23,17 +23,25 @@ export function PosterWyklad({ data, scheme }: PosterProps) {
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 28, position: 'relative', zIndex: 1 }}>
-        <Badge background="var(--badge-fill)" color="var(--badge-text)" style={{ fontSize: 24 }}>{badge || 'WYKŁAD OTWARTY'}</Badge>
-        <div style={{ fontSize: 120, fontWeight: 800, lineHeight: 0.94, letterSpacing: '-.035em', fontKerning: 'none' }}>
+        <Badge background="var(--badge-fill)" color="var(--badge-text)" style={{ fontSize: 24, ...fx('badge') }}>{badge || 'WYKŁAD OTWARTY'}</Badge>
+        <div style={{ fontSize: 120, fontWeight: 800, lineHeight: 0.94, letterSpacing: '-.035em', fontKerning: 'none', ...fx('title') }}>
           {title}
         </div>
-        <div style={{ fontSize: 36, fontWeight: 600, color: 'var(--speaker)' }}>{speaker}</div>
+        <div style={{ fontSize: 36, fontWeight: 600, color: 'var(--speaker)', ...fx('speaker') }}>{speaker}</div>
       </div>
 
       <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 32, position: 'relative', zIndex: 1 }}>
         <div style={{ display: 'flex', gap: 36, alignItems: 'flex-end' }}>
-          <BigDateNumber event_date={event_date} />
-          <InfoLine parts={[event_time, location]} secondLine={subtitle} style={{ paddingBottom: 10 }} />
+          <BigDateNumber event_date={event_date} style={fx('event_date')} />
+          <InfoLine
+            parts={[
+              { text: event_time, hidden: hidden('event_time') },
+              { text: location, hidden: hidden('location') },
+            ]}
+            secondLine={subtitle}
+            secondLineHidden={hidden('subtitle')}
+            style={{ paddingBottom: 10 }}
+          />
         </div>
         <LogoRow alignItems="center">
           <LogoSlot logo={logos.pk} variant={s.logoVariant} width={200} height={76} />
