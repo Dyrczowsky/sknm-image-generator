@@ -1,8 +1,9 @@
+import type { Database } from 'sql.js'
 import { rowsFromExec } from './utils'
 
 // Lista domyślnych szablonów synchronizowana do bazy przy każdym uruchomieniu
 // (patrz syncTemplates). `poster_key` odpowiada kluczowi w src/posters/registry.js.
-export const DEFAULT_TEMPLATES = [
+export const DEFAULT_TEMPLATES: ReadonlyArray<{ name: string; poster_key: string }> = [
   { name: 'Wykład', poster_key: 'wyklad' },
   { name: 'Gość', poster_key: 'gosc' },
   { name: 'Warsztat', poster_key: 'warsztat' },
@@ -19,16 +20,16 @@ export const SCHEMA_VERSION = 2
 // Zgoda właściciela: dane lokalne (IndexedDB) można wyczyścić. Zamiast
 // ostrożnej migracji kluczy `1b-czern` → layout+scheme po prostu zrzucamy
 // tabele, gdy zapisana wersja jest starsza.
-export function resetIfStale(db) {
-  const [row] = rowsFromExec(db.exec('PRAGMA user_version'))
-  const current = row ? Number(Object.values(row)[0]) : 0
+export function resetIfStale(db: Database): boolean {
+  const [row] = rowsFromExec<Record<string, number>>(db.exec('PRAGMA user_version'))
+  const current = row ? Number(Object.values(row)[0] ?? 0) : 0
   if (current >= SCHEMA_VERSION) return false
   db.run('DROP TABLE IF EXISTS generated_images; DROP TABLE IF EXISTS draft; DROP TABLE IF EXISTS templates;')
   db.run(`PRAGMA user_version = ${SCHEMA_VERSION}`)
   return true
 }
 
-export function createSchema(db) {
+export function createSchema(db: Database): void {
   db.run(`
     CREATE TABLE IF NOT EXISTS templates (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -73,9 +74,9 @@ export function createSchema(db) {
 // pojawiły się automatycznie w bazach zapisanych wcześniej w IndexedDB.
 // Nie dotyka wierszy już istniejących, więc ręczne zmiany (np. nazwy) nie
 // są nadpisywane.
-export function syncTemplates(db) {
+export function syncTemplates(db: Database): boolean {
   const existingKeys = new Set(
-    rowsFromExec(db.exec('SELECT poster_key FROM templates')).map((row) => row.poster_key)
+    rowsFromExec<{ poster_key: string }>(db.exec('SELECT poster_key FROM templates')).map((row) => row.poster_key)
   )
   const missing = DEFAULT_TEMPLATES.filter((t) => !existingKeys.has(t.poster_key))
   if (missing.length === 0) return false

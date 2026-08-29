@@ -1,13 +1,15 @@
+import type { Database } from 'sql.js'
+import type { DraftRow } from '../types'
 import { rowsFromExec } from './utils'
 import { persist } from './client'
 
-export function getDraft(db) {
+export function getDraft(db: Database): DraftRow | null {
   const result = db.exec('SELECT * FROM draft WHERE id = 1')
-  const rows = rowsFromExec(result)
+  const rows = rowsFromExec<DraftRow>(result)
   return rows[0] ?? null
 }
 
-export async function saveDraft(db, draft) {
+export async function saveDraft(db: Database, draft: Partial<DraftRow>): Promise<void> {
   db.run(
     `INSERT INTO draft (id, title, subtitle, speaker, event_date, event_time, location, badge, badge2, color_scheme, template_id, updated_at)
      VALUES (1, :title, :subtitle, :speaker, :event_date, :event_time, :location, :badge, :badge2, :color_scheme, :template_id, datetime('now'))
