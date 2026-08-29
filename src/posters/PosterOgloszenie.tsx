@@ -6,18 +6,19 @@ import { resolveScheme } from './schemes'
 import { PosterFrame } from './blocks/PosterFrame'
 import { BrandingText } from './blocks/BrandingText'
 import { LogoRow } from './blocks/LogoRow'
+import type { PosterProps } from '../types'
 
 // OGŁOSZENIE — wyśrodkowany cytat/komunikat, bez zdjęcia i bez daty.
 // Jedyny szablon bez narożnikowego stosu informacji — do krótkich ogłoszeń,
 // cytatów i podziękowań.
-export function PosterOgloszenie({ data, scheme }) {
+export function PosterOgloszenie({ data, scheme }: PosterProps) {
   const { title, subtitle, logos } = withPlaceholders(data)
   const s = resolveScheme('ogloszenie', scheme)
 
   return (
     <PosterFrame vars={s.cssVars} padding={96}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-        <img src={sygnetByName[s.sygnet]} alt="SKNM" style={{ width: 132, display: 'block' }} />
+        <img src={sygnetByName[s.sygnet ?? 'negatywny']} alt="SKNM" style={{ width: 132, display: 'block' }} />
         <BrandingText lines={['SKNM', 'POLITECHNIKA', 'KRAKOWSKA']} opacity={0.85} />
       </div>
 

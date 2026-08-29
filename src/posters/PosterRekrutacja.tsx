@@ -10,9 +10,10 @@ import { Badge } from './blocks/Badge'
 import { InfoLine } from './blocks/InfoLine'
 import { BrandingText } from './blocks/BrandingText'
 import { LogoRow } from './blocks/LogoRow'
+import type { PosterProps } from '../types'
 
 // REKRUTACJA — wzór z sygnetu
-export function PosterRekrutacja({ data, scheme }) {
+export function PosterRekrutacja({ data, scheme }: PosterProps) {
   const { title, subtitle, event_date, event_time, location, badge, logos } = withPlaceholders(data)
   const s = resolveScheme('rekrutacja', scheme)
 
@@ -26,7 +27,7 @@ export function PosterRekrutacja({ data, scheme }) {
       />
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', position: 'relative' }}>
-        <img src={sygnetByName[s.sygnet]} alt="SKNM" style={{ width: 132, display: 'block' }} />
+        <img src={sygnetByName[s.sygnet ?? 'negatywny']} alt="SKNM" style={{ width: 132, display: 'block' }} />
         <BrandingText lines={['STUDENCKIE KOŁO', 'NAUKOWE MATEMATYKÓW', 'POLITECHNIKI KRAKOWSKIEJ']} />
       </div>
 

@@ -9,9 +9,10 @@ import { PosterFrame } from './blocks/PosterFrame'
 import { BrandingText } from './blocks/BrandingText'
 import { InfoLine } from './blocks/InfoLine'
 import { LogoRow } from './blocks/LogoRow'
+import type { PosterProps } from '../types'
 
 // DATA — liczba jako grafika
-export function PosterData({ data, scheme }) {
+export function PosterData({ data, scheme }: PosterProps) {
   const { title, subtitle, event_date, event_time, location, logos, photos } = withPlaceholders(data)
   const s = resolveScheme('data', scheme)
 
@@ -19,7 +20,7 @@ export function PosterData({ data, scheme }) {
     <PosterFrame vars={s.cssVars} padding={72}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <BrandingText lines={['WYDARZENIE', 'SKNM · PK']} style={{ textAlign: 'left' }} />
-        <img src={sygnetByName[s.sygnet]} alt="SKNM" style={{ width: 132, display: 'block' }} />
+        <img src={sygnetByName[s.sygnet ?? 'negatywny']} alt="SKNM" style={{ width: 132, display: 'block' }} />
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', margin: '-40px 0' }}>

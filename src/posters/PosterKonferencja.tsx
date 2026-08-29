@@ -8,15 +8,16 @@ import { formatFullDate } from '../utils/formatDate'
 import { PosterFrame } from './blocks/PosterFrame'
 import { Badge } from './blocks/Badge'
 import { LogoRow } from './blocks/LogoRow'
+import type { ListItem, PosterProps } from '../types'
 
-const DEFAULT_AGENDA = [
+const DEFAULT_AGENDA: ListItem[] = [
   { time: '09:30', title: 'Otwarcie i wykład plenarny', subtitle: 'prof. dr hab. Jan Nowak' },
   { time: '11:00', title: 'Sesja studencka I', subtitle: 'analiza numeryczna, optymalizacja' },
   { time: '13:00', title: 'Sesja studencka II', subtitle: 'statystyka, uczenie maszynowe' },
 ]
 
 // KONFERENCJA — nagłówek + lista programu
-export function PosterKonferencja({ data, scheme }) {
+export function PosterKonferencja({ data, scheme }: PosterProps) {
   const { title, event_date, location, badge, badge2, logos, lists } = withPlaceholders(data)
   const agenda = lists.agenda?.length ? lists.agenda : DEFAULT_AGENDA
   const s = resolveScheme('konferencja', scheme)
@@ -33,7 +34,7 @@ export function PosterKonferencja({ data, scheme }) {
           </div>
           <div style={{ fontSize: 28, fontWeight: 600 }}>{dateLine}</div>
         </div>
-        <img src={sygnetByName[s.sygnet]} alt="SKNM" style={{ width: 132, display: 'block', flex: '0 0 auto' }} />
+        <img src={sygnetByName[s.sygnet ?? 'negatywny']} alt="SKNM" style={{ width: 132, display: 'block', flex: '0 0 auto' }} />
       </div>
 
       <div style={{ flex: 1, padding: '48px 72px 72px', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>

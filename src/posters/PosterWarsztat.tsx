@@ -8,8 +8,10 @@ import { getDay, getMonthShort } from '../utils/formatDate'
 import { PosterFrame } from './blocks/PosterFrame'
 import { Badge } from './blocks/Badge'
 import { LogoRow } from './blocks/LogoRow'
+import type { ReactNode } from 'react'
+import type { PosterProps } from '../types'
 
-function Pill({ children }) {
+function Pill({ children }: { children: ReactNode }) {
   return (
     <div style={{ background: 'var(--pill-fill)', color: 'var(--pill-text)', fontSize: 28, fontWeight: 700, padding: '12px 20px' }}>
       {children}
@@ -18,7 +20,7 @@ function Pill({ children }) {
 }
 
 // WARSZTAT — skos
-export function PosterWarsztat({ data, scheme }) {
+export function PosterWarsztat({ data, scheme }: PosterProps) {
   const { title, subtitle, event_date, event_time, location, badge, logos, photos } = withPlaceholders(data)
 
   const pills = [event_time, `${getDay(event_date)} ${getMonthShort(event_date)}`, location]
@@ -34,7 +36,7 @@ export function PosterWarsztat({ data, scheme }) {
       />
 
       <div style={{ position: 'absolute', inset: 72, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-        <img src={sygnetByName[s.sygnet]} alt="SKNM" style={{ width: 132, display: 'block' }} />
+        <img src={sygnetByName[s.sygnet ?? 'negatywny']} alt="SKNM" style={{ width: 132, display: 'block' }} />
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 22, maxWidth: 600 }}>
           <Badge background="var(--badge-fill)" color="var(--badge-text)" style={{ padding: '10px 16px' }}>{badge || 'WARSZTATY'}</Badge>

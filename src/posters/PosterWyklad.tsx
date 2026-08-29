@@ -8,16 +8,17 @@ import { BigDateNumber } from './blocks/BigDateNumber'
 import { InfoLine } from './blocks/InfoLine'
 import { BrandingText } from './blocks/BrandingText'
 import { LogoRow } from './blocks/LogoRow'
+import type { PosterProps } from '../types'
 
 // WYKŁAD — typografia
-export function PosterWyklad({ data, scheme }) {
+export function PosterWyklad({ data, scheme }: PosterProps) {
   const { title, subtitle, speaker, event_date, event_time, location, badge, logos } = withPlaceholders(data)
   const s = resolveScheme('wyklad', scheme)
 
   return (
     <PosterFrame vars={s.cssVars} padding={72}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', position: 'relative', zIndex: 1 }}>
-        <img src={sygnetByName[s.sygnet]} alt="SKNM" style={{ width: 132, display: 'block' }} />
+        <img src={sygnetByName[s.sygnet ?? 'negatywny']} alt="SKNM" style={{ width: 132, display: 'block' }} />
         <BrandingText lines={['SKNM', 'POLITECHNIKA', 'KRAKOWSKA']} opacity={0.85} />
       </div>
 

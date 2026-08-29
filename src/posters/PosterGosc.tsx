@@ -9,9 +9,10 @@ import { PosterFrame } from './blocks/PosterFrame'
 import { Badge } from './blocks/Badge'
 import { InfoLine } from './blocks/InfoLine'
 import { LogoRow } from './blocks/LogoRow'
+import type { PosterProps } from '../types'
 
 // GOŚĆ — zdjęcie + pas
-export function PosterGosc({ data, scheme }) {
+export function PosterGosc({ data, scheme }: PosterProps) {
   const { title, speaker, event_date, event_time, location, badge, logos, photos } = withPlaceholders(data)
   const s = resolveScheme('gosc', scheme)
 
@@ -19,7 +20,7 @@ export function PosterGosc({ data, scheme }) {
     <PosterFrame vars={s.cssVars}>
       <PhotoGallery photos={photos.photo} label={<>zdjęcie prelegenta<br />1080 × 600</>} style={{ height: 600 }}>
         <div style={{ position: 'absolute', top: 0, left: 0, width: 420, height: 420, background: 'var(--accent)', clipPath: 'polygon(0 0,100% 0,0 100%)', display: 'flex', padding: '44px 0 0 44px', boxSizing: 'border-box' }}>
-          <img src={sygnetByName[s.sygnet]} alt="SKNM" style={{ width: 132, height: 132, objectFit: 'contain' }} />
+          <img src={sygnetByName[s.sygnet ?? 'negatywny']} alt="SKNM" style={{ width: 132, height: 132, objectFit: 'contain' }} />
         </div>
       </PhotoGallery>
 
