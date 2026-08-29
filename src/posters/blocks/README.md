@@ -13,18 +13,16 @@ bespoke divy — to jest ta część designu, której świadomie nie uogólniamy
    zera.
 3. Zdecoruj resztę (trójkąty, clip-pathy, gradienty) bezpośrednio w JSX —
    to jest unikalna część projektu, zwykle skopiowana 1:1 z mockupu.
-4. Dodaj plik do `src/posters/registry.js` (klucz `poster_key`, nazwa,
-   komponent) oraz do `DEFAULT_TEMPLATES` w `src/db/schema.js`.
-5. Sprawdź pod `/poster/:id` (np. `/poster/wyklad`), że dane placeholder
-   (`withPlaceholders` w `../fallback.js`) wyglądają sensownie.
+4. Dodaj plik do `src/posters/registry.js` (klucz `poster_key` = nazwa layoutu, komponent, formularz, `schemes: [...]`), do `DEFAULT_TEMPLATES` w `src/db/schema.js`, oraz blok `<layout>` do `src/posters/schemes.js` (kolory).
+5. Sprawdź pod `/poster/<layout>` lub `/poster/<layout>/<scheme>` (np. `/poster/gosc/czern`), że dane placeholder (`withPlaceholders` w `../fallback.js`) wyglądają sensownie.
 
 ## Dostępne bloki
 
 | Blok | Do czego | Przykład |
 |---|---|---|
-| `PosterFrame` | Kontener 1080×1080 z tłem/kolorem/paddingiem, domyślnie flex-column + space-between | `<PosterFrame background={colors.navy} color={colors.cream} padding={72}>` |
-| `Badge` | Plakietka mono z letter-spacingiem — z `background` to wypełniona pigułka, bez niego sam kolorowy napis | `<Badge background={colors.lime} color={colors.limeText}>WYKŁAD OTWARTY</Badge>` |
-| `BigDateNumber` | Duży "dzień + miesiąc" w jednej linii (np. "12 LIS") | `<BigDateNumber event_date={event_date} color={colors.gold} />` |
+| `PosterFrame` | Kontener 1080×1080 z tłem/kolorem/paddingiem, domyślnie flex-column + space-between | `<PosterFrame vars={s.cssVars} padding={72}>` |
+| `Badge` | Plakietka mono z letter-spacingiem — z `background` to wypełniona pigułka, bez niego sam kolorowy napis | `<Badge background="var(--badge-fill)" color="var(--badge-text)">WYKŁAD OTWARTY</Badge>` |
+| `BigDateNumber` | Duży "dzień + miesiąc" w jednej linii (np. "12 LIS") | `<BigDateNumber event_date={event_date} color="var(--gold)" />` |
 | `InfoLine` | Łączy części (godzina/lokalizacja/cokolwiek) separatorem, opcjonalna druga linia | `<InfoLine parts={[event_time, location]} secondLine={subtitle} />` |
 | `BrandingText` | Pionowy blok tekstu mono w rogu (np. nazwa koła/uczelni), domyślnie wyrównany do prawej | `<BrandingText lines={['SKNM', 'POLITECHNIKA', 'KRAKOWSKA']} />` |
 | `LogoRow` | Rząd `LogoSlot`/`PlaceholderBox` ze spójnym odstępem | `<LogoRow><LogoSlot .../><LogoSlot .../></LogoRow>` |
@@ -38,3 +36,20 @@ szablonów, które korzystają z danego bloku.
 Każdy blok przyjmuje `style`, który nadpisuje domyślne wartości — użyj tego,
 gdy dany szablon potrzebuje np. innego rozmiaru fontu w plakietce, zamiast
 kopiować cały styl od zera.
+
+## Kolory i schematy
+
+Plakat nie trzyma kolorów na sztywno. Na górze woła
+`const s = resolveScheme('<layout>', scheme)` i przekazuje w dół stringi
+`var(--rola)` (nie hexy). `PosterFrame vars={s.cssVars}` rozlewa zmienne CSS na
+korzeń 1080×1080, więc każdy potomek (również bloki) widzi `var(--page-bg)`,
+`var(--accent)`, `var(--badge-fill)` itd.
+
+Wszystkie wartości kolorów są w `src/posters/schemes.js`, zagnieżdżone po
+layoucie: `schemes.<layout>.default` to pełny zestaw ról, nazwane schematy
+(`czern`, `zloto`, `jasny`, `szary`, dla Rekrutacji `limonka`) nadpisują tylko
+różnice. Dekoracje (trójkąty, kliny) mają własne role z konkretną wartością per
+schemat — bez `color-mix`.
+
+`s.sygnet` (nazwa assetu, przez `sygnetByName`) i `s.logoVariant`
+(`'light'|'dark'`) też pochodzą ze schematu.
