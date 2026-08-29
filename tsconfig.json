@@ -19,11 +19,7 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true,
-
-    // MOST na czas migracji — task 11 przestawia na false i usuwa checkJs.
-    "allowJs": true,
-    "checkJs": false
+    "noUncheckedSideEffectImports": true
   },
   "include": ["src"]
 }
