@@ -1,4 +1,15 @@
+import type { CSSProperties, ReactNode } from 'react'
 import { colors, fontMono } from './theme'
+import type { PhotoValue } from '../types'
+
+interface PhotoGalleryProps {
+  photos?: PhotoValue[]
+  label?: ReactNode
+  style?: CSSProperties
+  placeholderStyle?: CSSProperties
+  labelStyle?: CSSProperties
+  children?: ReactNode
+}
 
 // Miejsce na zdjęcia w plakacie - jedno zdjęcie wypełnia cały kadr (jak
 // dotychczas), a więcej niż jedno układa się w prostą siatkę wewnątrz tego
@@ -6,7 +17,7 @@ import { colors, fontMono } from './theme'
 // jak przycinał pojedyncze zdjęcie). Bez zdjęć - dotychczasowy placeholder.
 // `children` (np. odznaka z logo nałożona na to miejsce) renderuje się
 // zawsze, niezależnie od liczby zdjęć.
-export function PhotoGallery({ photos, label, style, placeholderStyle, labelStyle, children }) {
+export function PhotoGallery({ photos, label, style, placeholderStyle, labelStyle, children }: PhotoGalleryProps) {
   const items = (photos ?? []).filter((p) => p?.src)
 
   return (
