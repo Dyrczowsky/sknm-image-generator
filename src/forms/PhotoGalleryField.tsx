@@ -1,10 +1,21 @@
+import type { FormValues } from '../types'
 import { ImageUpload } from '../components/ImageUpload'
+
+interface PhotoGalleryFieldProps {
+  fieldKey: string
+  label: string
+  max?: number
+  value: FormValues
+  onAdd: (fieldKey: string, src: string | null) => void
+  onChangeAt: (fieldKey: string, index: number, src: string | null) => void
+  onPositionChangeAt: (fieldKey: string, index: number, partial: { x?: number; y?: number }) => void
+}
 
 // Galeria zdjęć (0..max) dla jednego klucza w `value.photos`, każde zdjęcie
 // z możliwością ustawienia kadru (pozycja X/Y). Dodanie pliku zawsze dokłada
 // kolejny wpis; zmiana pliku pod istniejącym wpisem albo go zastępuje, albo
 // (gdy `null`) usuwa.
-export function PhotoGalleryField({ fieldKey, label, max = 4, value, onAdd, onChangeAt, onPositionChangeAt }) {
+export function PhotoGalleryField({ fieldKey, label, max = 4, value, onAdd, onChangeAt, onPositionChangeAt }: PhotoGalleryFieldProps) {
   const items = value.photos[fieldKey] ?? []
 
   return (

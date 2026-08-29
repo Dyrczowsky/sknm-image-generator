@@ -1,8 +1,17 @@
+import type { FormValues } from '../types'
 import { ImageUpload } from '../components/ImageUpload'
+
+interface LogoFieldProps {
+  fieldKey: string
+  label: string
+  value: FormValues
+  onChange: (fieldKey: string, src: string | null) => void
+  onEnabledChange: (fieldKey: string, checked: boolean) => void
+}
 
 // Slot na logo (checkbox włącz/wyłącz + upload) dla jednego klucza w
 // `value.logos`, np. "pk" albo "faculty".
-export function LogoField({ fieldKey, label, value, onChange, onEnabledChange }) {
+export function LogoField({ fieldKey, label, value, onChange, onEnabledChange }: LogoFieldProps) {
   const logo = value.logos[fieldKey]
   return (
     <ImageUpload

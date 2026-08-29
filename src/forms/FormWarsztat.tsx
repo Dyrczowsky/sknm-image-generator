@@ -1,12 +1,22 @@
+import type { FormProps } from '../types'
 import { PLACEHOLDERS } from '../posters/fallback'
 import { FormField } from './FormField'
 import { LogoField } from './LogoField'
+import { PhotoGalleryField } from './PhotoGalleryField'
 
-// Formularz dla Gala - tylko logo PK, bez logo wydziału i bez zdjęć.
-export function FormGala({ value, onFieldChange, onLogoChange, onLogoEnabledChange }) {
+// Formularz dla Warsztatu - logo PK + logo wydziału + zdjęcie z warsztatów.
+export function FormWarsztat({
+  value,
+  onFieldChange,
+  onLogoChange,
+  onLogoEnabledChange,
+  onPhotoAdd,
+  onPhotoChangeAt,
+  onPhotoPositionChangeAt,
+}: FormProps) {
   return (
     <form className="image-form" onSubmit={(e) => e.preventDefault()}>
-      <FormField type="text" label="Etykieta" placeholder="GALA SKNM" value={value.badge} onChange={(v) => onFieldChange('badge', v)} />
+      <FormField type="text" label="Etykieta" placeholder="WARSZTATY" value={value.badge} onChange={(v) => onFieldChange('badge', v)} />
       <FormField type="text" label="Tytuł" placeholder={PLACEHOLDERS.title} value={value.title} onChange={(v) => onFieldChange('title', v)} />
       <FormField type="text" label="Opis / podtytuł" value={value.subtitle} onChange={(v) => onFieldChange('subtitle', v)} />
       <FormField type="text" label="Prelegent / organizator" placeholder={PLACEHOLDERS.speaker} value={value.speaker} onChange={(v) => onFieldChange('speaker', v)} />
@@ -15,6 +25,17 @@ export function FormGala({ value, onFieldChange, onLogoChange, onLogoEnabledChan
       <FormField type="text" label="Lokalizacja" placeholder={PLACEHOLDERS.location} value={value.location} onChange={(v) => onFieldChange('location', v)} />
 
       <LogoField fieldKey="pk" label="Logo PK" value={value} onChange={onLogoChange} onEnabledChange={onLogoEnabledChange} />
+      <LogoField fieldKey="faculty" label="Logo wydziału" value={value} onChange={onLogoChange} onEnabledChange={onLogoEnabledChange} />
+
+      <PhotoGalleryField
+        fieldKey="photo"
+        label="Zdjęcie z warsztatów"
+        max={4}
+        value={value}
+        onAdd={onPhotoAdd}
+        onChangeAt={onPhotoChangeAt}
+        onPositionChangeAt={onPhotoPositionChangeAt}
+      />
     </form>
   )
 }

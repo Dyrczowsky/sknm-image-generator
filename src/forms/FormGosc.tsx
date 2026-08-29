@@ -1,10 +1,11 @@
+import type { FormProps } from '../types'
 import { PLACEHOLDERS } from '../posters/fallback'
 import { FormField } from './FormField'
 import { LogoField } from './LogoField'
 import { PhotoGalleryField } from './PhotoGalleryField'
 
-// Formularz Data - logo PK + logo wydziału + zdjęcie z wydarzenia.
-export function FormData({
+// Formularz dla Gość - logo PK + logo wydziału + zdjęcie prelegenta.
+export function FormGosc({
   value,
   onFieldChange,
   onLogoChange,
@@ -12,9 +13,10 @@ export function FormData({
   onPhotoAdd,
   onPhotoChangeAt,
   onPhotoPositionChangeAt,
-}) {
+}: FormProps) {
   return (
     <form className="image-form" onSubmit={(e) => e.preventDefault()}>
+      <FormField type="text" label="Etykieta" placeholder="SEMINARIUM SKNM" value={value.badge} onChange={(v) => onFieldChange('badge', v)} />
       <FormField type="text" label="Tytuł" placeholder={PLACEHOLDERS.title} value={value.title} onChange={(v) => onFieldChange('title', v)} />
       <FormField type="text" label="Opis / podtytuł" value={value.subtitle} onChange={(v) => onFieldChange('subtitle', v)} />
       <FormField type="text" label="Prelegent / organizator" placeholder={PLACEHOLDERS.speaker} value={value.speaker} onChange={(v) => onFieldChange('speaker', v)} />
@@ -27,7 +29,7 @@ export function FormData({
 
       <PhotoGalleryField
         fieldKey="photo"
-        label="Zdjęcie z wydarzenia"
+        label="Zdjęcie prelegenta"
         max={4}
         value={value}
         onAdd={onPhotoAdd}

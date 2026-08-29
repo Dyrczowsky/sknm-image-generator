@@ -1,10 +1,11 @@
+import type { FormProps } from '../types'
 import { PLACEHOLDERS } from '../posters/fallback'
 import { FormField } from './FormField'
 import { LogoField } from './LogoField'
 
 // Formularz Ogłoszenia - krótszy zestaw pól (bez daty, godziny
 // i lokalizacji), do cytatów, komunikatów i podziękowań.
-export function FormOgloszenie({ value, onFieldChange, onLogoChange, onLogoEnabledChange }) {
+export function FormOgloszenie({ value, onFieldChange, onLogoChange, onLogoEnabledChange }: FormProps) {
   return (
     <form className="image-form" onSubmit={(e) => e.preventDefault()}>
       <FormField type="text" label="Treść ogłoszenia / cytatu" placeholder={PLACEHOLDERS.title} value={value.title} onChange={(v) => onFieldChange('title', v)} />

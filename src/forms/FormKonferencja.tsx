@@ -1,10 +1,11 @@
+import type { FormProps } from '../types'
 import { PLACEHOLDERS } from '../posters/fallback'
 import { FormField } from './FormField'
 import { LogoField } from './LogoField'
 
 // Formularz dla Konferencji - krótszy zestaw pól (bez podtytułu,
 // prelegenta i godziny) + powtarzalna lista punktów programu + logo PK.
-export function FormKonferencja({ value, onFieldChange, onLogoChange, onLogoEnabledChange, onListItemAdd, onListItemChange, onListItemRemove }) {
+export function FormKonferencja({ value, onFieldChange, onLogoChange, onLogoEnabledChange, onListItemAdd, onListItemChange, onListItemRemove }: FormProps) {
   const agenda = value.lists.agenda ?? []
 
   return (
