@@ -1,12 +1,14 @@
-function todayIso() {
+import type { RawPosterData } from '../types'
+
+function todayIso(): string {
   const d = new Date()
-  const pad = (n) => String(n).padStart(2, '0')
+  const pad = (n: number) => String(n).padStart(2, '0')
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
 }
 
-function nowTime() {
+function nowTime(): string {
   const d = new Date()
-  const pad = (n) => String(n).padStart(2, '0')
+  const pad = (n: number) => String(n).padStart(2, '0')
   return `${pad(d.getHours())}:${pad(d.getMinutes())}`
 }
 
@@ -24,7 +26,7 @@ export const PLACEHOLDERS = {
   },
 }
 
-export function withPlaceholders(data) {
+export function withPlaceholders(data: RawPosterData) {
   return {
     title: data.title || PLACEHOLDERS.title,
     subtitle: data.subtitle,
@@ -34,8 +36,8 @@ export function withPlaceholders(data) {
     location: data.location || PLACEHOLDERS.location,
     badge: data.badge,
     badge2: data.badge2,
-    logos: data.logos || {},
-    photos: data.photos || {},
-    lists: data.lists || {},
+    logos: data.logos ?? {},
+    photos: data.photos ?? {},
+    lists: data.lists ?? {},
   }
 }

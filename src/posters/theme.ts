@@ -1,3 +1,5 @@
+import type { CSSProperties } from 'react'
+
 // Wspólne tokeny wizualne wyciągnięte z projektów plakatów SKNM.
 export const colors = {
   navy: '#3C459B',
@@ -62,7 +64,7 @@ export const typography = {
   },
 }
 
-export const placeholderBoxStyle = {
+export const placeholderBoxStyle: CSSProperties = {
   boxSizing: 'border-box',
   border: `2px dashed ${colors.placeholderBorder}`,
   display: 'grid',
@@ -72,7 +74,7 @@ export const placeholderBoxStyle = {
   textAlign: 'center',
 }
 
-export const posterBaseStyle = {
+export const posterBaseStyle: CSSProperties = {
   width: 1080,
   height: 1080,
   position: 'relative',
