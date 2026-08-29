@@ -1,4 +1,5 @@
 import { posterRegistry } from '../posters/registry'
+import { SCHEME_LABELS } from '../posters/schemes'
 import { PosterScaled } from './PosterScaled'
 
 const THUMB_SIZE = 120
@@ -19,7 +20,7 @@ export function HistoryList({ entries, onRestore, onDelete }) {
             <div className="history-thumb">
               {Component ? (
                 <PosterScaled size={THUMB_SIZE}>
-                  <Component data={entry} />
+                  <Component data={entry} scheme={entry.color_scheme} />
                 </PosterScaled>
               ) : (
                 <div className="history-thumb-empty" style={{ width: THUMB_SIZE, height: THUMB_SIZE }} />
@@ -30,7 +31,9 @@ export function HistoryList({ entries, onRestore, onDelete }) {
               <strong>{entry.title || '(bez tytułu)'}</strong>
               <span>{[entry.event_date, entry.event_time, entry.location].filter(Boolean).join(' • ')}</span>
               <span className="history-meta">
-                {entry.template_name ?? 'usunięty szablon'} — {entry.created_at}
+                {entry.template_name ?? 'usunięty szablon'}
+                {entry.color_scheme && ` · ${SCHEME_LABELS[entry.color_scheme] ?? entry.color_scheme}`}
+                {' — '}{entry.created_at}
               </span>
             </div>
 

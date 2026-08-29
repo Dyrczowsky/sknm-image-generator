@@ -15,20 +15,20 @@ import { FormOgloszenie } from '../forms/FormOgloszenie'
 import { FormWyklad } from '../forms/FormWyklad'
 import { FormKonferencja } from '../forms/FormKonferencja'
 
-// Każdy szablon plakatu ma własny, jawnie napisany komponent formularza (patrz
-// src/forms/) - `Form` poniżej wskazuje, który z nich się renderuje po
-// wybraniu danego szablonu. Dane formularza (App.jsx) są globalne i
-// przeżywają zmianę szablonu - zmienia się tylko to, który komponent je
-// edytuje. Warianty kolorystyczne tego samego layoutu mają identyczny
-// zestaw pól, więc reużywają Form bazowego wariantu zamiast duplikować go.
+// Każdy wpis to `{ name, Component, Form, schemes? }`:
+//
+// - `name` - podpis kafelki layoutu w TemplateSelector.
+// - `Component` - komponent plakatu; przyjmuje `data` (dane formularza) oraz
+//   `scheme` (nazwa schematu kolorów) i sam woła `resolveScheme(layout, scheme)`.
+// - `Form` - jawnie napisany komponent formularza (patrz src/forms/), renderowany
+//   po wybraniu danego layoutu. Dane formularza (App.jsx) są globalne i
+//   przeżywają zmianę layoutu - zmienia się tylko to, który komponent je edytuje.
+// - `schemes` - uporządkowana lista nazw schematów kolorów (pierwsza = domyślna).
+//   TemplateSelector renderuje ją jako pasek swatchy pod kafelką layoutu.
+//   Layout bez `schemes` (Gala) nie pokazuje paska kolorystyki, a
+//   `resolveScheme` schodzi wtedy do bloku `default` danego layoutu.
 //
 // Klucz (poster_key) jest zapisywany w tabeli `templates` w SQLite.
-//
-// `family` grupuje warianty kolorystyczne tego samego layoutu - TemplateSelector
-// pokazuje jedną kafelkę na `family` (z podpisem `familyLabel`) zamiast
-// osobnej dla każdego koloru, a warianty wybiera się osobnym paskiem
-// swatchy (`colorLabel`). Szablony bez `family` są jednoelementową grupą
-// (bez paska kolorystyki).
 export const posterRegistry = {
   wyklad: {
     name: 'Wykład',

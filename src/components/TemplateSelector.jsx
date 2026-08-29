@@ -1,4 +1,5 @@
 import { posterRegistry } from '../posters/registry'
+import { SCHEME_LABELS } from '../posters/schemes'
 import { PosterScaled } from './PosterScaled'
 
 const THUMB_SIZE = 180
@@ -8,73 +9,53 @@ const SWATCH_SIZE = 64
 // aktualizować na żywo wraz z formularzem, to robi tylko duży podgląd.
 const THUMB_DATA = {}
 
-// Grupuje szablony po `family` (patrz registry.js) - warianty kolorystyczne
-// tego samego layoutu (np. Wykład) dostają jedną wspólną kafelkę zamiast
-// osobnej dla każdego koloru. Kolejność grup odpowiada kolejności pierwszego
-// wystąpienia w `templates` (czyli kolejności w DEFAULT_TEMPLATES).
-function groupByFamily(templates) {
-  const groups = new Map()
-  for (const tpl of templates) {
-    const poster = posterRegistry[tpl.poster_key]
-    if (!poster) continue
-    const key = poster.family ?? tpl.poster_key
-    if (!groups.has(key)) groups.set(key, [])
-    groups.get(key).push(tpl)
-  }
-  return [...groups.values()]
-}
-
-export function TemplateSelector({ templates, selectedId, onSelect }) {
-  const groups = groupByFamily(templates)
-  const activeGroup = groups.find((members) => members.some((m) => m.id === selectedId))
+export function TemplateSelector({ templates, selectedId, selectedScheme, onSelect, onSelectScheme }) {
+  const selected = templates.find((t) => t.id === selectedId)
+  const selectedEntry = selected ? posterRegistry[selected.poster_key] : null
+  const schemeList = selectedEntry?.schemes ?? []
+  const SwatchComponent = selectedEntry?.Component
 
   return (
     <div>
       <div className="template-selector">
-        {groups.map((members) => {
-          const primary = members[0]
-          const poster = posterRegistry[primary.poster_key]
-          const { Component } = poster
-          const isActive = members.some((m) => m.id === selectedId)
-          const targetId = isActive ? selectedId : primary.id
-
+        {templates.map((tpl) => {
+          const entry = posterRegistry[tpl.poster_key]
+          if (!entry) return null
+          const { Component } = entry
+          const isActive = tpl.id === selectedId
           return (
             <button
-              key={primary.poster_key}
+              key={tpl.poster_key}
               type="button"
               className={`template-thumb${isActive ? ' is-selected' : ''}`}
-              onClick={() => onSelect(targetId)}
+              onClick={() => onSelect(tpl.id)}
             >
               <PosterScaled size={THUMB_SIZE}>
-                <Component data={THUMB_DATA} />
+                <Component data={THUMB_DATA} scheme={entry.schemes?.[0]} />
               </PosterScaled>
-              <span>{poster.familyLabel ?? primary.name}</span>
+              <span>{entry.name}</span>
             </button>
           )
         })}
       </div>
 
-      {activeGroup && activeGroup.length > 1 && (
+      {schemeList.length > 1 && (
         <div className="color-variant-selector">
           <span className="color-variant-label">Kolorystyka</span>
           <div className="color-variant-row">
-            {activeGroup.map((tpl) => {
-              const poster = posterRegistry[tpl.poster_key]
-              const { Component } = poster
-              return (
-                <button
-                  key={tpl.id}
-                  type="button"
-                  className={`color-variant-thumb${tpl.id === selectedId ? ' is-selected' : ''}`}
-                  onClick={() => onSelect(tpl.id)}
-                >
-                  <PosterScaled size={SWATCH_SIZE}>
-                    <Component data={THUMB_DATA} />
-                  </PosterScaled>
-                  <span>{poster.colorLabel}</span>
-                </button>
-              )
-            })}
+            {schemeList.map((name) => (
+              <button
+                key={name}
+                type="button"
+                className={`color-variant-thumb${name === selectedScheme ? ' is-selected' : ''}`}
+                onClick={() => onSelectScheme(name)}
+              >
+                <PosterScaled size={SWATCH_SIZE}>
+                  <SwatchComponent data={THUMB_DATA} scheme={name} />
+                </PosterScaled>
+                <span>{SCHEME_LABELS[name] ?? name}</span>
+              </button>
+            ))}
           </div>
         </div>
       )}

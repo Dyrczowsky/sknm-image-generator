@@ -23,6 +23,14 @@ const EMPTY_FORM = {
   lists: {},
 }
 
+// Domyślny schemat kolorów danego layoutu = pierwszy element `schemes`
+// (`undefined` dla Gali, która nie ma wariantów - resolveScheme użyje wtedy
+// bloku `default`).
+function defaultSchemeFor(templateId, templates) {
+  const tpl = templates.find((t) => t.id === templateId)
+  return tpl ? posterRegistry[tpl.poster_key]?.schemes?.[0] : undefined
+}
+
 function App() {
   const dbRef = useRef(null)
   const posterRef = useRef(null)
@@ -31,6 +39,7 @@ function App() {
   const [ready, setReady] = useState(false)
   const [templates, setTemplates] = useState([])
   const [selectedTemplateId, setSelectedTemplateId] = useState(null)
+  const [selectedScheme, setSelectedScheme] = useState(undefined)
   const [form, setForm] = useState(EMPTY_FORM)
   const [history, setHistory] = useState([])
   const [exportFormat, setExportFormat] = useState('square')
@@ -44,6 +53,7 @@ function App() {
       setTemplates(tpls)
 
       const draft = getDraft(db)
+      const initialTemplateId = draft?.template_id ?? tpls[0]?.id ?? null
       if (draft) {
         setForm({
           title: draft.title ?? '',
@@ -58,10 +68,9 @@ function App() {
           photos: {},
           lists: {},
         })
-        setSelectedTemplateId(draft.template_id ?? tpls[0]?.id ?? null)
-      } else {
-        setSelectedTemplateId(tpls[0]?.id ?? null)
       }
+      setSelectedTemplateId(initialTemplateId)
+      setSelectedScheme(draft?.color_scheme ?? defaultSchemeFor(initialTemplateId, tpls))
 
       setHistory(listHistory(db))
       setReady(true)
@@ -71,18 +80,18 @@ function App() {
     }
   }, [])
 
-  const persistDraft = useCallback((nextForm, templateId) => {
+  const persistDraft = useCallback((nextForm, templateId, schemeName) => {
     if (!dbRef.current) return
     if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current)
     saveTimeoutRef.current = setTimeout(() => {
-      saveDraft(dbRef.current, { ...nextForm, template_id: templateId })
+      saveDraft(dbRef.current, { ...nextForm, template_id: templateId, color_scheme: schemeName ?? null })
     }, 400)
   }, [])
 
   const handleFieldChange = (name, value) => {
     setForm((prev) => {
       const next = { ...prev, [name]: value }
-      persistDraft(next, selectedTemplateId)
+      persistDraft(next, selectedTemplateId, selectedScheme)
       return next
     })
   }
@@ -91,7 +100,7 @@ function App() {
     setForm((prev) => {
       const current = prev.logos[slotKey] ?? { enabled: true, src: null }
       const next = { ...prev, logos: { ...prev.logos, [slotKey]: { ...current, src, enabled: true } } }
-      persistDraft(next, selectedTemplateId)
+      persistDraft(next, selectedTemplateId, selectedScheme)
       return next
     })
   }
@@ -100,7 +109,7 @@ function App() {
     setForm((prev) => {
       const current = prev.logos[slotKey] ?? { enabled: true, src: null }
       const next = { ...prev, logos: { ...prev.logos, [slotKey]: { ...current, enabled: checked } } }
-      persistDraft(next, selectedTemplateId)
+      persistDraft(next, selectedTemplateId, selectedScheme)
       return next
     })
   }
@@ -111,7 +120,7 @@ function App() {
     setForm((prev) => {
       const list = prev.photos[fieldKey] ?? []
       const next = { ...prev, photos: { ...prev.photos, [fieldKey]: [...list, { src, x: 50, y: 50 }] } }
-      persistDraft(next, selectedTemplateId)
+      persistDraft(next, selectedTemplateId, selectedScheme)
       return next
     })
   }
@@ -124,7 +133,7 @@ function App() {
         ? list.map((p, i) => (i === index ? { ...p, src } : p))
         : list.filter((_, i) => i !== index)
       const next = { ...prev, photos: { ...prev.photos, [fieldKey]: nextList } }
-      persistDraft(next, selectedTemplateId)
+      persistDraft(next, selectedTemplateId, selectedScheme)
       return next
     })
   }
@@ -134,7 +143,7 @@ function App() {
       const list = prev.photos[fieldKey] ?? []
       const nextList = list.map((p, i) => (i === index ? { ...p, ...partial } : p))
       const next = { ...prev, photos: { ...prev.photos, [fieldKey]: nextList } }
-      persistDraft(next, selectedTemplateId)
+      persistDraft(next, selectedTemplateId, selectedScheme)
       return next
     })
   }
@@ -143,7 +152,7 @@ function App() {
     setForm((prev) => {
       const list = prev.lists[fieldKey] ?? []
       const next = { ...prev, lists: { ...prev.lists, [fieldKey]: [...list, {}] } }
-      persistDraft(next, selectedTemplateId)
+      persistDraft(next, selectedTemplateId, selectedScheme)
       return next
     })
   }
@@ -153,7 +162,7 @@ function App() {
       const list = prev.lists[fieldKey] ?? []
       const nextList = list.map((item, i) => (i === index ? { ...item, [subKey]: val } : item))
       const next = { ...prev, lists: { ...prev.lists, [fieldKey]: nextList } }
-      persistDraft(next, selectedTemplateId)
+      persistDraft(next, selectedTemplateId, selectedScheme)
       return next
     })
   }
@@ -162,14 +171,21 @@ function App() {
     setForm((prev) => {
       const list = prev.lists[fieldKey] ?? []
       const next = { ...prev, lists: { ...prev.lists, [fieldKey]: list.filter((_, i) => i !== index) } }
-      persistDraft(next, selectedTemplateId)
+      persistDraft(next, selectedTemplateId, selectedScheme)
       return next
     })
   }
 
   const handleSelectTemplate = (id) => {
     setSelectedTemplateId(id)
-    persistDraft(form, id)
+    const nextScheme = defaultSchemeFor(id, templates)
+    setSelectedScheme(nextScheme)
+    persistDraft(form, id, nextScheme)
+  }
+
+  const handleSelectScheme = (name) => {
+    setSelectedScheme(name)
+    persistDraft(form, selectedTemplateId, name)
   }
 
   // Przywraca pola tekstowe zapisanego wpisu historii do formularza. Zdjęcia
@@ -191,7 +207,9 @@ function App() {
     setForm(next)
     const templateId = entry.template_id ?? selectedTemplateId
     setSelectedTemplateId(templateId)
-    persistDraft(next, templateId)
+    const nextScheme = entry.color_scheme ?? defaultSchemeFor(templateId, templates)
+    setSelectedScheme(nextScheme)
+    persistDraft(next, templateId, nextScheme)
   }
 
   const handleDeleteHistoryEntry = async (id) => {
@@ -208,7 +226,7 @@ function App() {
     if (!selectedTemplate || !posterRef.current || !dbRef.current) return
     const filename = `${form.title || 'plakat'}.png`.trim().replace(/\s+/g, '_')
     await downloadPosterAsPng(posterRef.current, filename, exportFormat)
-    await addHistoryEntry(dbRef.current, { ...form, template_id: selectedTemplateId })
+    await addHistoryEntry(dbRef.current, { ...form, template_id: selectedTemplateId, color_scheme: selectedScheme })
     setHistory(listHistory(dbRef.current))
   }
 
@@ -230,7 +248,9 @@ function App() {
           <TemplateSelector
             templates={templates}
             selectedId={selectedTemplateId}
+            selectedScheme={selectedScheme}
             onSelect={handleSelectTemplate}
+            onSelectScheme={handleSelectScheme}
           />
         </section>
 
@@ -272,7 +292,7 @@ function App() {
 
         <section className="panel panel-preview">
           <h2>Podgląd</h2>
-          <PosterPreview posterRef={posterRef} Component={selectedPoster?.Component} data={form} />
+          <PosterPreview posterRef={posterRef} Component={selectedPoster?.Component} data={form} scheme={selectedScheme} />
         </section>
 
         <section className="panel panel-history">
