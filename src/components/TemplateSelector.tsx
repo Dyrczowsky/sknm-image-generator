@@ -1,15 +1,25 @@
 import { posterRegistry } from '../posters/registry'
 import { SCHEME_LABELS } from '../posters/schemes'
 import { PosterScaled } from './PosterScaled'
+import type { TemplateRow } from '../types'
+import type { RawPosterData } from '../types'
 
 const THUMB_SIZE = 180
 const SWATCH_SIZE = 64
 
+interface TemplateSelectorProps {
+  templates: TemplateRow[]
+  selectedId: number | null
+  selectedScheme: string | undefined
+  onSelect: (id: number) => void
+  onSelectScheme: (name: string) => void
+}
+
 // Miniatury zawsze pokazują dane przykładowe (placeholder) - nie muszą się
 // aktualizować na żywo wraz z formularzem, to robi tylko duży podgląd.
-const THUMB_DATA = {}
+const THUMB_DATA: RawPosterData = {}
 
-export function TemplateSelector({ templates, selectedId, selectedScheme, onSelect, onSelectScheme }) {
+export function TemplateSelector({ templates, selectedId, selectedScheme, onSelect, onSelectScheme }: TemplateSelectorProps) {
   const selected = templates.find((t) => t.id === selectedId)
   const selectedEntry = selected ? posterRegistry[selected.poster_key] : null
   const schemeList = selectedEntry?.schemes ?? []
@@ -39,7 +49,7 @@ export function TemplateSelector({ templates, selectedId, selectedScheme, onSele
         })}
       </div>
 
-      {schemeList.length > 1 && (
+      {schemeList.length > 1 && SwatchComponent && (
         <div className="color-variant-selector">
           <span className="color-variant-label">Kolorystyka</span>
           <div className="color-variant-row">

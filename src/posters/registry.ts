@@ -14,6 +14,7 @@ import { FormGosc } from '../forms/FormGosc'
 import { FormOgloszenie } from '../forms/FormOgloszenie'
 import { FormWyklad } from '../forms/FormWyklad'
 import { FormKonferencja } from '../forms/FormKonferencja'
+import type { RegistryEntry } from '../types'
 
 // Każdy wpis to `{ name, Component, Form, schemes? }`:
 //
@@ -29,7 +30,7 @@ import { FormKonferencja } from '../forms/FormKonferencja'
 //   `resolveScheme` schodzi wtedy do bloku `default` danego layoutu.
 //
 // Klucz (poster_key) jest zapisywany w tabeli `templates` w SQLite.
-export const posterRegistry = {
+export const posterRegistry: Record<string, RegistryEntry> = {
   wyklad: {
     name: 'Wykład',
     Component: PosterWyklad,

@@ -1,11 +1,17 @@
 import { forwardRef } from 'react'
+import type { ReactNode } from 'react'
 
 const POSTER_SIZE = 1080
+
+interface PosterScaledProps {
+  size: number
+  children: ReactNode
+}
 
 // Renderuje plakat (1080x1080) pomniejszony przez CSS transform do `size` px
 // na ekranie. `innerRef` wskazuje na węzeł w pełnej rozdzielczości - to on
 // jest przekazywany do html-to-image przy eksporcie do PNG.
-export const PosterScaled = forwardRef(function PosterScaled({ size, children }, innerRef) {
+export const PosterScaled = forwardRef<HTMLDivElement, PosterScaledProps>(function PosterScaled({ size, children }, innerRef) {
   const scale = size / POSTER_SIZE
   return (
     <div style={{ width: size, height: size, overflow: 'hidden', flex: '0 0 auto' }}>

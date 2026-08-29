@@ -1,15 +1,35 @@
 import { useRef } from 'react'
+import type { ChangeEvent, PointerEvent } from 'react'
 
-function readAsDataUrl(file) {
+interface ImageUploadProps {
+  label: string
+  hint?: string
+  value: string | null
+  onChange: (src: string | null) => void
+  enabled?: boolean
+  onEnabledChange?: (checked: boolean) => void
+  position?: { x: number; y: number }
+  onPositionChange?: (partial: { x?: number; y?: number }) => void
+}
+
+interface DragState {
+  startX: number
+  startY: number
+  startPosX: number
+  startPosY: number
+  rect: DOMRect
+}
+
+function readAsDataUrl(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
-    reader.onload = () => resolve(reader.result)
-    reader.onerror = reject
+    reader.onload = () => resolve(reader.result as string)
+    reader.onerror = () => reject(reader.error ?? new Error('read failed'))
     reader.readAsDataURL(file)
   })
 }
 
-function clamp(value, min, max) {
+function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value))
 }
 
@@ -22,10 +42,10 @@ function clamp(value, min, max) {
 // kadr, który można przeciągnąć myszką (albo ustawić suwakami), żeby
 // przesunąć wycinek zdjęcia w osi X/Y. Ma sens tylko dla zdjęć wypełniających
 // kadr (cover) - nie dla logo, które zawsze mieści się w całości.
-export function ImageUpload({ label, hint, value, onChange, enabled = true, onEnabledChange, position, onPositionChange }) {
-  const dragState = useRef(null)
+export function ImageUpload({ label, hint, value, onChange, enabled = true, onEnabledChange, position, onPositionChange }: ImageUploadProps) {
+  const dragState = useRef<DragState | null>(null)
 
-  const handleFile = async (e) => {
+  const handleFile = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     e.target.value = ''
     if (!file) return
@@ -33,7 +53,7 @@ export function ImageUpload({ label, hint, value, onChange, enabled = true, onEn
     onChange(dataUrl)
   }
 
-  const handlePointerDown = (e) => {
+  const handlePointerDown = (e: PointerEvent<HTMLDivElement>) => {
     if (!position || !onPositionChange) return
     e.currentTarget.setPointerCapture(e.pointerId)
     dragState.current = {
@@ -45,12 +65,12 @@ export function ImageUpload({ label, hint, value, onChange, enabled = true, onEn
     }
   }
 
-  const handlePointerMove = (e) => {
+  const handlePointerMove = (e: PointerEvent<HTMLDivElement>) => {
     if (!dragState.current) return
     const { startX, startY, startPosX, startPosY, rect } = dragState.current
     const nextX = clamp(startPosX - ((e.clientX - startX) / rect.width) * 100, 0, 100)
     const nextY = clamp(startPosY - ((e.clientY - startY) / rect.height) * 100, 0, 100)
-    onPositionChange({ x: Math.round(nextX), y: Math.round(nextY) })
+    onPositionChange?.({ x: Math.round(nextX), y: Math.round(nextY) })
   }
 
   const handlePointerUp = () => {
