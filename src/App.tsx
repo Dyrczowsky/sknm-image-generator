@@ -1,0 +1,311 @@
+import { useCallback, useEffect, useRef, useState } from 'react'
+import type { Database } from 'sql.js'
+import type { FormValues, FormTextField, HistoryRow, TemplateRow } from './types'
+import { getDb } from './db/client'
+import { listTemplates } from './db/templates'
+import { getDraft, saveDraft } from './db/drafts'
+import { addHistoryEntry, deleteHistoryEntry, listHistory } from './db/history'
+import { posterRegistry } from './posters/registry'
+import { downloadPosterAsPng, EXPORT_FORMATS } from './posters/export'
+import { TemplateSelector } from './components/TemplateSelector'
+import { PosterPreview } from './components/PosterPreview'
+import { HistoryList } from './components/HistoryList'
+
+const EMPTY_FORM: FormValues = {
+  title: '',
+  subtitle: '',
+  speaker: '',
+  event_date: '',
+  event_time: '',
+  location: '',
+  badge: '',
+  badge2: '',
+  logos: {},
+  photos: {},
+  lists: {},
+}
+
+// Domyślny schemat kolorów danego layoutu = pierwszy element `schemes`
+// (`undefined` dla Gali, która nie ma wariantów - resolveScheme użyje wtedy
+// bloku `default`).
+function defaultSchemeFor(templateId: number | null, templates: TemplateRow[]): string | undefined {
+  const tpl = templates.find((t) => t.id === templateId)
+  return tpl ? posterRegistry[tpl.poster_key]?.schemes?.[0] : undefined
+}
+
+function App() {
+  const dbRef = useRef<Database | null>(null)
+  const posterRef = useRef<HTMLDivElement | null>(null)
+  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const [ready, setReady] = useState(false)
+  const [templates, setTemplates] = useState<TemplateRow[]>([])
+  const [selectedTemplateId, setSelectedTemplateId] = useState<number | null>(null)
+  const [selectedScheme, setSelectedScheme] = useState<string | undefined>(undefined)
+  const [form, setForm] = useState<FormValues>(EMPTY_FORM)
+  const [history, setHistory] = useState<HistoryRow[]>([])
+  const [exportFormat, setExportFormat] = useState('square')
+
+  useEffect(() => {
+    let cancelled = false
+    getDb().then((db) => {
+      if (cancelled) return
+      dbRef.current = db
+      const tpls = listTemplates(db)
+      setTemplates(tpls)
+
+      const draft = getDraft(db)
+      const initialTemplateId = draft?.template_id ?? tpls[0]?.id ?? null
+      if (draft) {
+        setForm({
+          title: draft.title ?? '',
+          subtitle: draft.subtitle ?? '',
+          speaker: draft.speaker ?? '',
+          event_date: draft.event_date ?? '',
+          event_time: draft.event_time ?? '',
+          location: draft.location ?? '',
+          badge: draft.badge ?? '',
+          badge2: draft.badge2 ?? '',
+          logos: {},
+          photos: {},
+          lists: {},
+        })
+      }
+      setSelectedTemplateId(initialTemplateId)
+      setSelectedScheme(draft?.color_scheme ?? defaultSchemeFor(initialTemplateId, tpls))
+
+      setHistory(listHistory(db))
+      setReady(true)
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  const persistDraft = useCallback((nextForm: FormValues, templateId: number | null, schemeName: string | undefined) => {
+    const db = dbRef.current
+    if (!db) return
+    if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current)
+    saveTimeoutRef.current = setTimeout(() => {
+      saveDraft(db, { ...nextForm, template_id: templateId, color_scheme: schemeName ?? null })
+    }, 400)
+  }, [])
+
+  const handleFieldChange = (name: FormTextField, value: string) => {
+    setForm((prev) => {
+      const next = { ...prev, [name]: value }
+      persistDraft(next, selectedTemplateId, selectedScheme)
+      return next
+    })
+  }
+
+  const handleLogoChange = (slotKey: string, src: string | null) => {
+    setForm((prev) => {
+      const current = prev.logos[slotKey] ?? { enabled: true, src: null }
+      const next = { ...prev, logos: { ...prev.logos, [slotKey]: { ...current, src, enabled: true } } }
+      persistDraft(next, selectedTemplateId, selectedScheme)
+      return next
+    })
+  }
+
+  const handleLogoEnabledChange = (slotKey: string, checked: boolean) => {
+    setForm((prev) => {
+      const current = prev.logos[slotKey] ?? { enabled: true, src: null }
+      const next = { ...prev, logos: { ...prev.logos, [slotKey]: { ...current, enabled: checked } } }
+      persistDraft(next, selectedTemplateId, selectedScheme)
+      return next
+    })
+  }
+
+  // Galeria zdjęć: dodanie nowego pliku zawsze dokłada kolejny wpis do listy.
+  const handlePhotoAdd = (fieldKey: string, src: string | null) => {
+    if (!src) return
+    setForm((prev) => {
+      const list = prev.photos[fieldKey] ?? []
+      const next = { ...prev, photos: { ...prev.photos, [fieldKey]: [...list, { src, x: 50, y: 50 }] } }
+      persistDraft(next, selectedTemplateId, selectedScheme)
+      return next
+    })
+  }
+
+  // Zmiana pliku pod istniejącym wpisem galerii; `null` usuwa ten wpis.
+  const handlePhotoChangeAt = (fieldKey: string, index: number, src: string | null) => {
+    setForm((prev) => {
+      const list = prev.photos[fieldKey] ?? []
+      const nextList = src
+        ? list.map((p, i) => (i === index ? { ...p, src } : p))
+        : list.filter((_, i) => i !== index)
+      const next = { ...prev, photos: { ...prev.photos, [fieldKey]: nextList } }
+      persistDraft(next, selectedTemplateId, selectedScheme)
+      return next
+    })
+  }
+
+  const handlePhotoPositionChangeAt = (fieldKey: string, index: number, partial: { x?: number; y?: number }) => {
+    setForm((prev) => {
+      const list = prev.photos[fieldKey] ?? []
+      const nextList = list.map((p, i) => (i === index ? { ...p, ...partial } : p))
+      const next = { ...prev, photos: { ...prev.photos, [fieldKey]: nextList } }
+      persistDraft(next, selectedTemplateId, selectedScheme)
+      return next
+    })
+  }
+
+  const handleListItemAdd = (fieldKey: string) => {
+    setForm((prev) => {
+      const list = prev.lists[fieldKey] ?? []
+      const next = { ...prev, lists: { ...prev.lists, [fieldKey]: [...list, {}] } }
+      persistDraft(next, selectedTemplateId, selectedScheme)
+      return next
+    })
+  }
+
+  const handleListItemChange = (fieldKey: string, index: number, subKey: string, val: string) => {
+    setForm((prev) => {
+      const list = prev.lists[fieldKey] ?? []
+      const nextList = list.map((item, i) => (i === index ? { ...item, [subKey]: val } : item))
+      const next = { ...prev, lists: { ...prev.lists, [fieldKey]: nextList } }
+      persistDraft(next, selectedTemplateId, selectedScheme)
+      return next
+    })
+  }
+
+  const handleListItemRemove = (fieldKey: string, index: number) => {
+    setForm((prev) => {
+      const list = prev.lists[fieldKey] ?? []
+      const next = { ...prev, lists: { ...prev.lists, [fieldKey]: list.filter((_, i) => i !== index) } }
+      persistDraft(next, selectedTemplateId, selectedScheme)
+      return next
+    })
+  }
+
+  const handleSelectTemplate = (id: number) => {
+    if (id === selectedTemplateId) return
+    setSelectedTemplateId(id)
+    const nextScheme = defaultSchemeFor(id, templates)
+    setSelectedScheme(nextScheme)
+    persistDraft(form, id, nextScheme)
+  }
+
+  const handleSelectScheme = (name: string) => {
+    setSelectedScheme(name)
+    persistDraft(form, selectedTemplateId, name)
+  }
+
+  // Przywraca pola tekstowe zapisanego wpisu historii do formularza. Zdjęcia
+  // i logo nie są zapisywane w historii, więc wracają do stanu domyślnego.
+  const handleRestoreHistoryEntry = (entry: HistoryRow) => {
+    const next = {
+      title: entry.title ?? '',
+      subtitle: entry.subtitle ?? '',
+      speaker: entry.speaker ?? '',
+      event_date: entry.event_date ?? '',
+      event_time: entry.event_time ?? '',
+      location: entry.location ?? '',
+      badge: '',
+      badge2: '',
+      logos: {},
+      photos: {},
+      lists: {},
+    }
+    setForm(next)
+    const templateId = entry.template_id ?? selectedTemplateId
+    setSelectedTemplateId(templateId)
+    const nextScheme = entry.color_scheme ?? defaultSchemeFor(templateId, templates)
+    setSelectedScheme(nextScheme)
+    persistDraft(next, templateId, nextScheme)
+  }
+
+  const handleDeleteHistoryEntry = async (id: number) => {
+    if (!dbRef.current) return
+    await deleteHistoryEntry(dbRef.current, id)
+    setHistory(listHistory(dbRef.current))
+  }
+
+  const selectedTemplate = templates.find((t) => t.id === selectedTemplateId)
+  const selectedPoster = selectedTemplate ? posterRegistry[selectedTemplate.poster_key] : null
+  const SelectedForm = selectedPoster?.Form
+
+  const handleDownload = async () => {
+    if (!selectedTemplate || !posterRef.current || !dbRef.current) return
+    const filename = `${form.title || 'plakat'}.png`.trim().replace(/\s+/g, '_')
+    await downloadPosterAsPng(posterRef.current, filename, exportFormat)
+    await addHistoryEntry(dbRef.current, { ...form, template_id: selectedTemplateId, color_scheme: selectedScheme })
+    setHistory(listHistory(dbRef.current))
+  }
+
+  if (!ready) {
+    return (
+      <main className="app-shell">
+        <p>Ładowanie...</p>
+      </main>
+    )
+  }
+
+  return (
+    <main className="app-shell">
+      <h1>Generator plakatów SKNM</h1>
+
+      <div className="app-grid">
+        <section className="panel panel-template">
+          <h2>1. Wybierz szablon</h2>
+          <TemplateSelector
+            templates={templates}
+            selectedId={selectedTemplateId}
+            selectedScheme={selectedScheme}
+            onSelect={handleSelectTemplate}
+            onSelectScheme={handleSelectScheme}
+          />
+        </section>
+
+        <section className="panel panel-form">
+          <h2>2. Uzupełnij dane</h2>
+          {SelectedForm && (
+            <SelectedForm
+              value={form}
+              onFieldChange={handleFieldChange}
+              onLogoChange={handleLogoChange}
+              onLogoEnabledChange={handleLogoEnabledChange}
+              onPhotoAdd={handlePhotoAdd}
+              onPhotoChangeAt={handlePhotoChangeAt}
+              onPhotoPositionChangeAt={handlePhotoPositionChangeAt}
+              onListItemAdd={handleListItemAdd}
+              onListItemChange={handleListItemChange}
+              onListItemRemove={handleListItemRemove}
+            />
+          )}
+        </section>
+
+        <section className="panel panel-actions actions">
+          <select
+            className="export-format-select"
+            value={exportFormat}
+            onChange={(e) => setExportFormat(e.target.value)}
+            aria-label="Format eksportu"
+          >
+            {Object.entries(EXPORT_FORMATS).map(([key, format]) => (
+              <option key={key} value={key}>
+                {format.label}
+              </option>
+            ))}
+          </select>
+          <button type="button" onClick={handleDownload}>
+            Pobierz PNG
+          </button>
+        </section>
+
+        <section className="panel panel-preview">
+          <h2>Podgląd</h2>
+          <PosterPreview posterRef={posterRef} Component={selectedPoster?.Component} data={form} scheme={selectedScheme} />
+        </section>
+
+        <section className="panel panel-history">
+          <h2>Historia</h2>
+          <HistoryList entries={history} onRestore={handleRestoreHistoryEntry} onDelete={handleDeleteHistoryEntry} />
+        </section>
+      </div>
+    </main>
+  )
+}
+
+export default App

@@ -1,0 +1,96 @@
+import type { ComponentType } from 'react'
+
+// --- Dane formularza (stan edytora) ---
+export interface LogoSlotValue { enabled: boolean; src: string | null }
+export interface PhotoValue { src: string; x: number; y: number }
+export type ListItem = Record<string, string>
+
+export interface FormValues {
+  title: string
+  subtitle: string
+  speaker: string
+  event_date: string
+  event_time: string
+  location: string
+  badge: string
+  badge2: string
+  logos: Record<string, LogoSlotValue>
+  photos: Record<string, PhotoValue[]>
+  lists: Record<string, ListItem[]>
+}
+
+// Pola tekstowe formularza — te, które faktycznie ustawia onFieldChange.
+export type FormTextField =
+  | 'title' | 'subtitle' | 'speaker'
+  | 'event_date' | 'event_time' | 'location'
+  | 'badge' | 'badge2'
+
+// --- Wiersze SQLite (sql.js) ---
+export interface TemplateRow { id: number; name: string; poster_key: string }
+
+export interface DraftRow {
+  id: number
+  title: string | null
+  subtitle: string | null
+  speaker: string | null
+  event_date: string | null
+  event_time: string | null
+  location: string | null
+  badge: string | null
+  badge2: string | null
+  color_scheme: string | null
+  template_id: number | null
+  updated_at: string | null
+}
+
+export interface HistoryRow {
+  id: number
+  title: string | null
+  subtitle: string | null
+  speaker: string | null
+  event_date: string | null
+  event_time: string | null
+  location: string | null
+  color_scheme: string | null
+  created_at: string
+  template_id: number | null
+  template_name: string | null
+  template_poster_key: string | null
+}
+
+// --- Schematy kolorów ---
+export type SygnetName = 'negatywny' | 'granat' | 'zloty' | 'szary' | 'czarny'
+export type LogoVariant = 'light' | 'dark'
+
+export interface ResolvedScheme {
+  cssVars: Record<`--${string}`, string>
+  sygnet: SygnetName | undefined
+  logoVariant: LogoVariant | undefined
+}
+
+// --- Propsy plakatów / formularzy / rejestru ---
+// `data` plakatu: fragment formularza (edytor / miniatury = {}), pola
+// opcjonalne i null-tolerancyjne. HistoryRow wpasowuje się tu strukturalnie
+// (pola tekstowe pokrywają się, nadmiarowe kolumny nie przeszkadzają).
+export type RawPosterData = { [K in keyof FormValues]?: FormValues[K] | null }
+export interface PosterProps { data: RawPosterData; scheme?: string }
+
+export interface FormProps {
+  value: FormValues
+  onFieldChange: (name: FormTextField, value: string) => void
+  onLogoChange: (slotKey: string, src: string | null) => void
+  onLogoEnabledChange: (slotKey: string, checked: boolean) => void
+  onPhotoAdd: (fieldKey: string, src: string | null) => void
+  onPhotoChangeAt: (fieldKey: string, index: number, src: string | null) => void
+  onPhotoPositionChangeAt: (fieldKey: string, index: number, partial: { x?: number; y?: number }) => void
+  onListItemAdd: (fieldKey: string) => void
+  onListItemChange: (fieldKey: string, index: number, subKey: string, val: string) => void
+  onListItemRemove: (fieldKey: string, index: number) => void
+}
+
+export interface RegistryEntry {
+  name: string
+  Component: ComponentType<PosterProps>
+  Form: ComponentType<FormProps>
+  schemes?: string[]
+}
