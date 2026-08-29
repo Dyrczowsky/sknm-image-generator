@@ -13,7 +13,7 @@ export const DEFAULT_TEMPLATES = [
   { name: 'Ogłoszenie', poster_key: 'ogloszenie' },
 ]
 
-// Bump przy każdej zmianie kształtu tabel wymagającej świeżego startu.
+// Podbijaj przy każdej zmianie kształtu tabel wymagającej świeżego startu.
 export const SCHEMA_VERSION = 2
 
 // Zgoda właściciela: dane lokalne (IndexedDB) można wyczyścić. Zamiast
@@ -23,7 +23,7 @@ export function resetIfStale(db) {
   const [row] = rowsFromExec(db.exec('PRAGMA user_version'))
   const current = row ? Number(Object.values(row)[0]) : 0
   if (current >= SCHEMA_VERSION) return false
-  db.run('DROP TABLE IF EXISTS templates; DROP TABLE IF EXISTS draft; DROP TABLE IF EXISTS generated_images;')
+  db.run('DROP TABLE IF EXISTS generated_images; DROP TABLE IF EXISTS draft; DROP TABLE IF EXISTS templates;')
   db.run(`PRAGMA user_version = ${SCHEMA_VERSION}`)
   return true
 }

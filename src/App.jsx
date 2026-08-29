@@ -177,6 +177,7 @@ function App() {
   }
 
   const handleSelectTemplate = (id) => {
+    if (id === selectedTemplateId) return
     setSelectedTemplateId(id)
     const nextScheme = defaultSchemeFor(id, templates)
     setSelectedScheme(nextScheme)

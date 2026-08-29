@@ -11,7 +11,7 @@ import { InfoLine } from './blocks/InfoLine'
 import { BrandingText } from './blocks/BrandingText'
 import { LogoRow } from './blocks/LogoRow'
 
-// 1g · GALA — złoto na grafitowym
+// GALA — złoto na grafitowym
 export function PosterGala({ data, scheme }) {
   const { title, subtitle, event_date, event_time, location, badge, logos } = withPlaceholders(data)
   const s = resolveScheme('gala', scheme)

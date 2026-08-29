@@ -13,8 +13,13 @@ bespoke divy — to jest ta część designu, której świadomie nie uogólniamy
    zera.
 3. Zdecoruj resztę (trójkąty, clip-pathy, gradienty) bezpośrednio w JSX —
    to jest unikalna część projektu, zwykle skopiowana 1:1 z mockupu.
-4. Dodaj plik do `src/posters/registry.js` (klucz `poster_key` = nazwa layoutu, komponent, formularz, `schemes: [...]`), do `DEFAULT_TEMPLATES` w `src/db/schema.js`, oraz blok `<layout>` do `src/posters/schemes.js` (kolory).
-5. Sprawdź pod `/poster/<layout>` lub `/poster/<layout>/<scheme>` (np. `/poster/gosc/czern`), że dane placeholder (`withPlaceholders` w `../fallback.js`) wyglądają sensownie.
+4. Dodaj plik do `src/posters/registry.js` (klucz `poster_key` = nazwa
+   layoutu, komponent, formularz, `schemes: [...]`), do `DEFAULT_TEMPLATES`
+   w `src/db/schema.js`, oraz blok `<layout>` do `src/posters/schemes.js`
+   (kolory).
+5. Sprawdź pod `/poster/<layout>` lub `/poster/<layout>/<scheme>` (np.
+   `/poster/gosc/czern`), że dane placeholder (`withPlaceholders` w
+   `../fallback.js`) wyglądają sensownie.
 
 ## Dostępne bloki
 

@@ -143,4 +143,17 @@ assert.equal(SCHEME_LABELS.czern, 'Czerń')
   assert.equal(cz.cssVars['--qr-border'], 'rgba(244,242,237,.3)')
 }
 
+// Invariant: każdy layout ma blok `default` (albo alias), a resolveScheme
+// zwraca komplet dla każdej pary layout × schemat.
+for (const layout of Object.keys(schemes)) {
+  const names = Object.keys(schemes[layout])
+  assert.ok(names.includes('default'), `${layout}: brak bloku default`)
+  for (const name of names) {
+    const s = resolveScheme(layout, name)
+    assert.ok(s.sygnet, `${layout}/${name}: brak sygnet`)
+    assert.ok(s.logoVariant === 'light' || s.logoVariant === 'dark', `${layout}/${name}: zły logoVariant`)
+    assert.ok(Object.keys(s.cssVars).length > 0, `${layout}/${name}: pusty cssVars`)
+  }
+}
+
 console.log('check-schemes: OK')

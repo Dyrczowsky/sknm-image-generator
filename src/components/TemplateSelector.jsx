@@ -25,7 +25,7 @@ export function TemplateSelector({ templates, selectedId, selectedScheme, onSele
           const isActive = tpl.id === selectedId
           return (
             <button
-              key={tpl.poster_key}
+              key={tpl.id}
               type="button"
               className={`template-thumb${isActive ? ' is-selected' : ''}`}
               onClick={() => onSelect(tpl.id)}

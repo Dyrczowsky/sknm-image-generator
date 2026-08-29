@@ -4,6 +4,10 @@ import { colors } from './theme.js'
 // granacie) to nie to samo co „granat" Warsztatu (granat na kremie). Każdy
 // layout ma pełny blok `default` + nazwane schematy nadpisujące tylko różnice.
 // Bloki layoutów są poniżej, jeden na layout.
+// UWAGA: rola nieobecna w `default` danego layoutu nie renderuje pustki —
+// `var(--<rola>)` spada do wartości z `:root` w src/index.css (np. `--accent`
+// koliduje z firmowym niebieskim aplikacji), więc każda rola używana przez
+// plakat musi istnieć w jego bloku `default`.
 
 const ogloszenie = {
   default: { pageBg: colors.navy, pageText: colors.cream, accent: colors.lime,
@@ -161,7 +165,7 @@ const rekrutacja = {
     sygnet: 'szary',
   },
 }
-rekrutacja.default = rekrutacja.limonka
+rekrutacja.default = { ...rekrutacja.limonka }
 
 // Warsztat — najbogatszy zestaw ról. Lokalny komponent `Pill` bierze
 // `pillFill`/`pillText`, wypełniona plakietka `badgeFill`/`badgeText`, wielki
