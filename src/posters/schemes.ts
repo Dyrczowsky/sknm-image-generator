@@ -1,4 +1,13 @@
-import { colors } from './theme.js'
+import { colors } from './theme'
+import type { LogoVariant, ResolvedScheme, SygnetName } from '../types'
+
+// Blok jednego schematu: dowolne role kolorów + opcjonalny sygnet/logoVariant.
+interface SchemeBlock {
+  sygnet?: SygnetName
+  logoVariant?: LogoVariant
+  [role: string]: string | undefined
+}
+type LayoutSchemes = Record<string, SchemeBlock>
 
 // Schematy kolorów są ZAGNIEŻDŻONE per layout, bo „granat" Wykładu (biały na
 // granacie) to nie to samo co „granat" Warsztatu (granat na kremie). Każdy
@@ -9,7 +18,7 @@ import { colors } from './theme.js'
 // koliduje z firmowym niebieskim aplikacji), więc każda rola używana przez
 // plakat musi istnieć w jego bloku `default`.
 
-const ogloszenie = {
+const ogloszenie: LayoutSchemes = {
   default: { pageBg: colors.navy, pageText: colors.cream, accent: colors.lime,
              sygnet: 'negatywny', logoVariant: 'dark' },
   czern: { pageBg: colors.black, accent: colors.gold, sygnet: 'negatywny' },
@@ -20,7 +29,7 @@ const ogloszenie = {
            sygnet: 'szary', logoVariant: 'light' },
 }
 
-const gala = {
+const gala: LayoutSchemes = {
   default: {
     pageBg: colors.ink, pageText: colors.goldPanelText, mutedText: colors.creamMuted,
     gold: colors.gold, panelBr: colors.inkPanel,
@@ -32,7 +41,7 @@ const gala = {
 // Gość — `accent` obsługuje naraz tło narożnego trójkąta, kolor tekstu Badge
 // i kolor linku „Wstęp wolny". Pudełko z datą (coral/cream) jest identyczne we
 // wszystkich schematach, więc zostaje literałem w komponencie (nie rolą).
-const gosc = {
+const gosc: LayoutSchemes = {
   default: { pageBg: colors.cream, pageText: colors.ink, mutedText: colors.textMuted,
              accent: colors.navy, sygnet: 'negatywny', logoVariant: 'light' },
   czern: { pageBg: colors.black, pageText: colors.cream, mutedText: colors.creamMuted,
@@ -46,7 +55,7 @@ const gosc = {
 // Data — liczba jako grafika. Etykieta miesiąca jest koralowa we wszystkich
 // pięciu wariantach, więc zostaje literałem w komponencie (nie rolą). Trzy
 // dekoracyjne trójkąty na dole to role `tri1`/`tri2`/`tri3`.
-const data = {
+const data: LayoutSchemes = {
   default: { pageBg: colors.cream, pageText: colors.navy, mutedText: colors.textMuted,
              title: colors.ink, tri1: colors.navy, tri2: colors.lime, tri3: colors.coral,
              sygnet: 'granat', logoVariant: 'light' },
@@ -67,7 +76,7 @@ const data = {
 // hex/rgba per schemat — bez color-mix. `wedgeBr` niesie tylko kolor; jego
 // `opacity: 0.42` zostaje w JSX. Wariant czerń bierze sygnet negatywny (nie
 // złoty), a złoto NIE nadpisuje `pageBg` (zostaje granat).
-const wyklad = {
+const wyklad: LayoutSchemes = {
   default: {
     pageBg: colors.navy, pageText: colors.cream,
     badgeFill: colors.lime, badgeText: colors.limeText,
@@ -97,7 +106,7 @@ const wyklad = {
 // `lineRest` wszystkie pozostałe + końcowa kreska — w czerni i złocie to jawna
 // rgba, nie token. Etykiety godzin w programie są koralowe we wszystkich
 // pięciu wariantach, więc zostają literałem w komponencie (nie rolą).
-const konferencja = {
+const konferencja: LayoutSchemes = {
   default: {
     pageBg: colors.cream, pageText: colors.ink, mutedText: colors.textMuted,
     panel: colors.navy, panelText: colors.cream, headerBadge: colors.lime,
@@ -134,7 +143,7 @@ const konferencja = {
 // Alias `rekrutacja.default = rekrutacja.limonka` niżej: resolver scala nazwany
 // schemat nad `default`, więc bez aliasu `zloto`/`jasny`/`szary` nie
 // odziedziczyłyby wspólnych ról (`footerText`, `qrBorder`, `qrText`, `logoVariant`).
-const rekrutacja = {
+const rekrutacja: LayoutSchemes = {
   limonka: {
     pageBg: colors.lime, pageText: colors.limeText,
     band: colors.navy, subColor: colors.navyDark, footerText: colors.cream,
@@ -173,7 +182,7 @@ rekrutacja.default = { ...rekrutacja.limonka }
 // `qrBorder`/`qrText` to obwódka/etykieta pudełka QR — w `default`/`jasny`/
 // `szary` równe własnym domyślnym `PlaceholderBox` (placeholderBorder/Text),
 // w czerni i złocie jawna rgba. `jasny` nadpisuje tylko tło strony i podkładek.
-const warsztat = {
+const warsztat: LayoutSchemes = {
   default: {
     pageBg: colors.cream, pageText: colors.ink, mutedText: colors.textMuted,
     title: colors.navy, badgeFill: colors.navy, badgeText: colors.lime,
@@ -206,22 +215,26 @@ const warsztat = {
   },
 }
 
-export const schemes = { ogloszenie, gala, gosc, data, wyklad, konferencja, rekrutacja, warsztat }
+export const schemes: Record<string, LayoutSchemes> = { ogloszenie, gala, gosc, data, wyklad, konferencja, rekrutacja, warsztat }
 
 // camelCase → --kebab; layout może dodać dowolną rolę bez zmiany resolvera.
-const roleToVar = (k) => '--' + k.replace(/[A-Z]/g, (m) => '-' + m.toLowerCase())
+const roleToVar = (k: string): `--${string}` => `--${k.replace(/[A-Z]/g, (m) => `-${m.toLowerCase()}`)}`
 const NON_CSS = new Set(['sygnet', 'logoVariant'])
 
 // Scala nazwany schemat nad `default` danego layoutu. Nieznany layout / schemat
 // → pusty wynik / sam `default`.
-export function resolveScheme(layoutKey, name) {
+export function resolveScheme(layoutKey: string, name: string | undefined): ResolvedScheme {
   const layout = schemes[layoutKey] ?? {}
-  const merged = { ...(layout.default ?? {}), ...(layout[name] ?? {}) }
-  const cssVars = {}
+  const merged: SchemeBlock = { ...(layout.default ?? {}), ...(name ? layout[name] ?? {} : {}) }
+  const cssVars: Record<`--${string}`, string> = {}
   for (const [k, v] of Object.entries(merged)) {
-    if (!NON_CSS.has(k)) cssVars[roleToVar(k)] = v
+    if (v !== undefined && !NON_CSS.has(k)) cssVars[roleToVar(k)] = v
   }
-  return { cssVars, sygnet: merged.sygnet, logoVariant: merged.logoVariant }
+  return {
+    cssVars,
+    sygnet: merged.sygnet as SygnetName | undefined,
+    logoVariant: merged.logoVariant as LogoVariant | undefined,
+  }
 }
 
 // Podpisy swatchy kolorystyki w UI. `default` bywa „Granat" albo (Rekrutacja)
