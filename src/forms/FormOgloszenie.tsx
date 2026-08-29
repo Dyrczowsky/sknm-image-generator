@@ -7,7 +7,7 @@ import { LogoField } from './LogoField'
 // i lokalizacji), do cytatów, komunikatów i podziękowań.
 export function FormOgloszenie({ value, onFieldChange, onLogoChange, onLogoEnabledChange }: FormProps) {
   return (
-    <form className="image-form" onSubmit={(e) => e.preventDefault()}>
+    <form className="flex flex-col gap-3.5" onSubmit={(e) => e.preventDefault()}>
       <FormField type="text" label="Treść ogłoszenia / cytatu" placeholder={PLACEHOLDERS.title} value={value.title} onChange={(v) => onFieldChange('title', v)} />
       <FormField type="text" label="Autor / podpis (opcjonalnie)" value={value.subtitle} onChange={(v) => onFieldChange('subtitle', v)} />
 

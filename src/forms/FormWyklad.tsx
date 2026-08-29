@@ -6,7 +6,7 @@ import { LogoField } from './LogoField'
 // Formularz dla Wykładu - logo PK + logo wydziału, bez zdjęć.
 export function FormWyklad({ value, onFieldChange, onLogoChange, onLogoEnabledChange }: FormProps) {
   return (
-    <form className="image-form" onSubmit={(e) => e.preventDefault()}>
+    <form className="flex flex-col gap-3.5" onSubmit={(e) => e.preventDefault()}>
       <FormField type="text" label="Etykieta" placeholder="WYKŁAD OTWARTY" value={value.badge} onChange={(v) => onFieldChange('badge', v)} />
       <FormField type="text" label="Tytuł" placeholder={PLACEHOLDERS.title} value={value.title} onChange={(v) => onFieldChange('title', v)} />
       <FormField type="text" label="Opis / podtytuł" value={value.subtitle} onChange={(v) => onFieldChange('subtitle', v)} />

@@ -13,9 +13,15 @@ interface FormFieldProps {
 // logo/zdjęć).
 export function FormField({ type, label, placeholder, value, onChange }: FormFieldProps) {
   return (
-    <label className="image-form-field">
+    <label className="flex flex-col gap-1.5 text-[0.9rem]">
       {label}
-      <input type={type} placeholder={placeholder} value={value ?? ''} onChange={(e) => onChange(e.target.value)} />
+      <input
+        className="rounded-lg border border-field-border bg-field px-3 py-[9px] text-base text-fg transition-[border-color,box-shadow] focus:border-accent focus:outline-none focus:shadow-[0_0_0_3px_var(--color-accent-soft)]"
+        type={type}
+        placeholder={placeholder}
+        value={value ?? ''}
+        onChange={(e) => onChange(e.target.value)}
+      />
     </label>
   )
 }
