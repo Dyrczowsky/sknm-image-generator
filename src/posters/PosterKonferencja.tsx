@@ -36,7 +36,7 @@ export function PosterKonferencja({ data, scheme }: PosterProps) {
             <span style={fx('location')}>{location}</span>
           </div>
         </div>
-        <img src={sygnetByName[s.sygnet ?? 'negatywny']} alt="SKNM" style={{ width: 132, display: 'block', flex: '0 0 auto' }} />
+        <img src={sygnetByName[s.sygnet ?? 'negatywny']} alt="SKNM" style={{ width: 132, display: 'block', flex: '0 0 auto', alignSelf: 'flex-start' }} />
       </div>
 
       <div style={{ flex: 1, padding: '48px 72px 72px', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
