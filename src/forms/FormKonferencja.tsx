@@ -5,16 +5,17 @@ import { LogoField } from './LogoField'
 
 // Formularz dla Konferencji - krótszy zestaw pól (bez podtytułu,
 // prelegenta i godziny) + powtarzalna lista punktów programu + logo PK.
-export function FormKonferencja({ value, onFieldChange, onLogoChange, onLogoEnabledChange, onListItemAdd, onListItemChange, onListItemRemove }: FormProps) {
+export function FormKonferencja({ value, onFieldChange, onVisibilityChange, onLogoChange, onLogoEnabledChange, onListItemAdd, onListItemChange, onListItemRemove }: FormProps) {
   const agenda = value.lists.agenda ?? []
+  const vis = { visibility: value.visibility, onVisibilityChange }
 
   return (
     <form className="flex flex-col gap-3.5" onSubmit={(e) => e.preventDefault()}>
-      <FormField type="text" label="Etykieta nagłówka" placeholder="SEMINARIUM SKNM" value={value.badge} onChange={(v) => onFieldChange('badge', v)} />
-      <FormField type="text" label="Tytuł" placeholder={PLACEHOLDERS.title} value={value.title} onChange={(v) => onFieldChange('title', v)} />
-      <FormField type="date" label="Data" placeholder={PLACEHOLDERS.event_date} value={value.event_date} onChange={(v) => onFieldChange('event_date', v)} />
-      <FormField type="text" label="Lokalizacja" placeholder={PLACEHOLDERS.location} value={value.location} onChange={(v) => onFieldChange('location', v)} />
-      <FormField type="text" label="Etykieta stopki" placeholder="WIĘCEJ INFORMACJI" value={value.badge2} onChange={(v) => onFieldChange('badge2', v)} />
+      <FormField name="badge" {...vis} type="text" label="Etykieta nagłówka" placeholder="SEMINARIUM SKNM" value={value.badge} onChange={(v) => onFieldChange('badge', v)} />
+      <FormField name="title" {...vis} type="text" label="Tytuł" placeholder={PLACEHOLDERS.title} value={value.title} onChange={(v) => onFieldChange('title', v)} />
+      <FormField name="event_date" {...vis} type="date" label="Data" placeholder={PLACEHOLDERS.event_date} value={value.event_date} onChange={(v) => onFieldChange('event_date', v)} />
+      <FormField name="location" {...vis} type="text" label="Lokalizacja" placeholder={PLACEHOLDERS.location} value={value.location} onChange={(v) => onFieldChange('location', v)} />
+      <FormField name="badge2" {...vis} type="text" label="Etykieta stopki" placeholder="WIĘCEJ INFORMACJI" value={value.badge2} onChange={(v) => onFieldChange('badge2', v)} />
 
       <div className="mt-[18px] flex flex-col gap-2.5 border-t border-border pt-[18px]">
         <span className="text-[0.9rem] font-medium">Program konferencji</span>

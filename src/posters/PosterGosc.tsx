@@ -13,7 +13,7 @@ import type { PosterProps } from '../types'
 
 // GOŚĆ — zdjęcie + pas
 export function PosterGosc({ data, scheme }: PosterProps) {
-  const { title, speaker, event_date, event_time, location, badge, logos, photos } = withPlaceholders(data)
+  const { title, speaker, event_date, event_time, location, badge, logos, photos, hidden, fx } = withPlaceholders(data)
   const s = resolveScheme('gosc', scheme)
 
   return (
@@ -26,18 +26,24 @@ export function PosterGosc({ data, scheme }: PosterProps) {
 
       <div style={{ flex: 1, padding: '56px 72px 72px', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', position: 'relative' }}>
         <div style={{ position: 'absolute', top: -56, right: 72, background: colors.coral, color: colors.cream, padding: '18px 26px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <div style={{ fontSize: 64, fontWeight: 800, lineHeight: 0.9 }}>{getDay(event_date)}</div>
+          <div style={{ fontSize: 64, fontWeight: 800, lineHeight: 0.9, ...fx('event_date') }}>{getDay(event_date)}</div>
           <div style={{ font: `700 22px ${fontMono}`, letterSpacing: '.12em' }}>
-            {[getMonthShort(event_date, { upperCase: true }), event_time].filter(Boolean).join(' ')}
+            <span style={fx('event_date')}>{getMonthShort(event_date, { upperCase: true })}</span>
+            {event_time && <> <span style={fx('event_time')}>{event_time}</span></>}
           </div>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 820 }}>
-          <Badge color="var(--accent)">{badge || 'SEMINARIUM SKNM'}</Badge>
-          <div style={{ fontSize: 82, fontWeight: 800, lineHeight: 0.98, letterSpacing: '-.03em', fontKerning: 'none' }}>
+          <Badge color="var(--accent)" style={fx('badge')}>{badge || 'SEMINARIUM SKNM'}</Badge>
+          <div style={{ fontSize: 82, fontWeight: 800, lineHeight: 0.98, letterSpacing: '-.03em', fontKerning: 'none', ...fx('title') }}>
             {title}
           </div>
-          <InfoLine parts={[speaker]} secondLine={location} style={{ fontSize: 32, color: 'var(--muted-text)', lineHeight: 1.35 }} />
+          <InfoLine
+            parts={[{ text: speaker, hidden: hidden('speaker') }]}
+            secondLine={location}
+            secondLineHidden={hidden('location')}
+            style={{ fontSize: 32, color: 'var(--muted-text)', lineHeight: 1.35 }}
+          />
         </div>
 
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24 }}>

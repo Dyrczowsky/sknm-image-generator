@@ -15,7 +15,8 @@ export const DEFAULT_TEMPLATES: ReadonlyArray<{ name: string; poster_key: string
 ]
 
 // Podbijaj przy każdej zmianie kształtu tabel wymagającej świeżego startu.
-export const SCHEMA_VERSION = 2
+// v3: kolumna draft.visibility (JSON widoczności pól tekstowych).
+export const SCHEMA_VERSION = 3
 
 // Zgoda właściciela: dane lokalne (IndexedDB) można wyczyścić. Zamiast
 // ostrożnej migracji kluczy `1b-czern` → layout+scheme po prostu zrzucamy
@@ -61,6 +62,7 @@ export function createSchema(db: Database): void {
       location TEXT,
       badge TEXT,
       badge2 TEXT,
+      visibility TEXT,
       color_scheme TEXT,
       template_id INTEGER,
       updated_at TEXT

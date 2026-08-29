@@ -5,6 +5,17 @@ export interface LogoSlotValue { enabled: boolean; src: string | null }
 export interface PhotoValue { src: string; x: number; y: number }
 export type ListItem = Record<string, string>
 
+// Pola tekstowe formularza — te, które faktycznie ustawia onFieldChange.
+export type FormTextField =
+  | 'title' | 'subtitle' | 'speaker'
+  | 'event_date' | 'event_time' | 'location'
+  | 'badge' | 'badge2'
+
+// Widoczność pól tekstowych na plakacie. Brak klucza / `true` = widoczne;
+// `false` = ukryte przez `opacity: 0` (element zostaje w layoucie, żeby nie
+// rozsypać flexowej konstrukcji bloków plakatu).
+export type FieldVisibility = Partial<Record<FormTextField, boolean>>
+
 export interface FormValues {
   title: string
   subtitle: string
@@ -14,16 +25,11 @@ export interface FormValues {
   location: string
   badge: string
   badge2: string
+  visibility: FieldVisibility
   logos: Record<string, LogoSlotValue>
   photos: Record<string, PhotoValue[]>
   lists: Record<string, ListItem[]>
 }
-
-// Pola tekstowe formularza — te, które faktycznie ustawia onFieldChange.
-export type FormTextField =
-  | 'title' | 'subtitle' | 'speaker'
-  | 'event_date' | 'event_time' | 'location'
-  | 'badge' | 'badge2'
 
 // --- Wiersze SQLite (sql.js) ---
 export interface TemplateRow { id: number; name: string; poster_key: string }
@@ -38,6 +44,7 @@ export interface DraftRow {
   location: string | null
   badge: string | null
   badge2: string | null
+  visibility: string | null
   color_scheme: string | null
   template_id: number | null
   updated_at: string | null
@@ -78,6 +85,7 @@ export interface PosterProps { data: RawPosterData; scheme?: string }
 export interface FormProps {
   value: FormValues
   onFieldChange: (name: FormTextField, value: string) => void
+  onVisibilityChange: (name: FormTextField, visible: boolean) => void
   onLogoChange: (slotKey: string, src: string | null) => void
   onLogoEnabledChange: (slotKey: string, checked: boolean) => void
   onPhotoAdd: (fieldKey: string, src: string | null) => void

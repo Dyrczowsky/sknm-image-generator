@@ -8,12 +8,12 @@ import { getDay, getMonthShort } from '../utils/formatDate'
 import { PosterFrame } from './blocks/PosterFrame'
 import { Badge } from './blocks/Badge'
 import { LogoRow } from './blocks/LogoRow'
-import type { ReactNode } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
 import type { PosterProps } from '../types'
 
-function Pill({ children }: { children: ReactNode }) {
+function Pill({ children, style }: { children: ReactNode; style?: CSSProperties }) {
   return (
-    <div style={{ background: 'var(--pill-fill)', color: 'var(--pill-text)', fontSize: 28, fontWeight: 700, padding: '12px 20px' }}>
+    <div style={{ background: 'var(--pill-fill)', color: 'var(--pill-text)', fontSize: 28, fontWeight: 700, padding: '12px 20px', ...style }}>
       {children}
     </div>
   )
@@ -21,9 +21,13 @@ function Pill({ children }: { children: ReactNode }) {
 
 // WARSZTAT — skos
 export function PosterWarsztat({ data, scheme }: PosterProps) {
-  const { title, subtitle, event_date, event_time, location, badge, logos, photos } = withPlaceholders(data)
+  const { title, subtitle, event_date, event_time, location, badge, logos, photos, fx } = withPlaceholders(data)
 
-  const pills = [event_time, `${getDay(event_date)} ${getMonthShort(event_date)}`, location]
+  const pills = [
+    { text: event_time, style: fx('event_time') },
+    { text: `${getDay(event_date)} ${getMonthShort(event_date)}`, style: fx('event_date') },
+    { text: location, style: fx('location') },
+  ]
   const s = resolveScheme('warsztat', scheme)
 
   return (
@@ -39,18 +43,18 @@ export function PosterWarsztat({ data, scheme }: PosterProps) {
         <img src={sygnetByName[s.sygnet ?? 'negatywny']} alt="SKNM" style={{ width: 132, display: 'block' }} />
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 22, maxWidth: 600 }}>
-          <Badge background="var(--badge-fill)" color="var(--badge-text)" style={{ padding: '10px 16px' }}>{badge || 'WARSZTATY'}</Badge>
-          <div style={{ fontSize: 104, fontWeight: 800, lineHeight: 0.94, letterSpacing: '-.035em', color: 'var(--title)', fontKerning: 'none' }}>
+          <Badge background="var(--badge-fill)" color="var(--badge-text)" style={{ padding: '10px 16px', ...fx('badge') }}>{badge || 'WARSZTATY'}</Badge>
+          <div style={{ fontSize: 104, fontWeight: 800, lineHeight: 0.94, letterSpacing: '-.035em', color: 'var(--title)', fontKerning: 'none', ...fx('title') }}>
             {title}
           </div>
           {subtitle && (
-            <div style={{ fontSize: 32, fontWeight: 500, lineHeight: 1.4, color: 'var(--muted-text)' }}>{subtitle}</div>
+            <div style={{ fontSize: 32, fontWeight: 500, lineHeight: 1.4, color: 'var(--muted-text)', ...fx('subtitle') }}>{subtitle}</div>
           )}
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 26 }}>
           <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
-            {pills.map((p, i) => <Pill key={i}>{p}</Pill>)}
+            {pills.map((p, i) => <Pill key={i} style={p.style}>{p.text}</Pill>)}
           </div>
           <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24 }}>
             <PlaceholderBox label={<>kod QR<br />zapisy</>} width={150} height={150} style={{ background: 'var(--slot-bg)', borderColor: 'var(--qr-border)', color: 'var(--qr-text)' }} />

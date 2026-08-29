@@ -14,7 +14,7 @@ import type { PosterProps } from '../types'
 
 // GALA — złoto na grafitowym
 export function PosterGala({ data, scheme }: PosterProps) {
-  const { title, subtitle, event_date, event_time, location, badge, logos } = withPlaceholders(data)
+  const { title, subtitle, event_date, event_time, location, badge, logos, hidden, fx } = withPlaceholders(data)
   const s = resolveScheme('gala', scheme)
 
   return (
@@ -28,19 +28,25 @@ export function PosterGala({ data, scheme }: PosterProps) {
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 30, position: 'relative', zIndex: 1 }}>
-        <Badge color="var(--gold)" style={{ font: `700 24px ${fontMono}`, letterSpacing: '.2em' }}>{badge || 'GALA SKNM'}</Badge>
-        <div style={{ fontSize: 126, fontWeight: 800, lineHeight: 0.94, letterSpacing: '-.035em', fontKerning: 'none' }}>
+        <Badge color="var(--gold)" style={{ font: `700 24px ${fontMono}`, letterSpacing: '.2em', ...fx('badge') }}>{badge || 'GALA SKNM'}</Badge>
+        <div style={{ fontSize: 126, fontWeight: 800, lineHeight: 0.94, letterSpacing: '-.035em', fontKerning: 'none', ...fx('title') }}>
           {title}
         </div>
         {subtitle && (
-          <div style={{ fontSize: 34, fontWeight: 500, lineHeight: 1.4, color: 'var(--muted-text)', maxWidth: '26ch' }}>{subtitle}</div>
+          <div style={{ fontSize: 34, fontWeight: 500, lineHeight: 1.4, color: 'var(--muted-text)', maxWidth: '26ch', ...fx('subtitle') }}>{subtitle}</div>
         )}
       </div>
 
       <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 32, position: 'relative', zIndex: 1 }}>
         <div style={{ display: 'flex', gap: 36, alignItems: 'flex-end' }}>
-          <BigDateNumber event_date={event_date} color="var(--gold)" />
-          <InfoLine parts={[event_time, location]} style={{ paddingBottom: 10 }} />
+          <BigDateNumber event_date={event_date} color="var(--gold)" style={fx('event_date')} />
+          <InfoLine
+            parts={[
+              { text: event_time, hidden: hidden('event_time') },
+              { text: location, hidden: hidden('location') },
+            ]}
+            style={{ paddingBottom: 10 }}
+          />
         </div>
         <LogoRow>
           <LogoSlot logo={logos.pk} variant={s.logoVariant} width={190} height={72} />

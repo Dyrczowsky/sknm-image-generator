@@ -9,14 +9,15 @@ src/
 ├── index.css            wejście Tailwind + tokeny kolorów aplikacji (patrz stylowanie.md)
 │
 ├── components/          elementy UI edytora
-│   ├── TemplateSelector   kafelki layoutów + pasek schematów kolorów
+│   ├── TemplateSelector   kafelki layoutów
+│   ├── SchemeSelector     pasek wyboru kolorystyki (renderowany pod podglądem)
 │   ├── PosterPreview      podgląd na żywo (ref do eksportu PNG)
 │   ├── PosterScaled       plakat 1080×1080 przeskalowany CSS transform do podglądu
 │   ├── ImageUpload        uniwersalne pole na grafikę (logo / zdjęcie z kadrowaniem)
 │   └── HistoryList        lista wygenerowanych grafik
 │
 ├── forms/              po jednym komponencie formularza na layout (FormWyklad, FormGala, ...)
-│   ├── FormField          wrapper <label><input>
+│   ├── FormField          wrapper <label><input> + checkbox widoczności pola
 │   ├── LogoField          slot logo (checkbox + upload), opakowuje ImageUpload
 │   └── PhotoGalleryField  galeria 0..N zdjęć, opakowuje ImageUpload
 │
@@ -48,6 +49,16 @@ src/
 4. Dane formularza są **globalne** i przeżywają zmianę layoutu - zmienia się tylko,
    który `Form` je edytuje i który `Component` je rysuje.
 5. "Pobierz PNG" → `downloadPosterAsPng(posterRef.current, ...)` + `addHistoryEntry()`.
+
+## Widoczność pól
+
+Każde pole tekstowe ma w formularzu checkbox widoczności. Stan siedzi w
+`FormValues.visibility` (per-pole `false` = ukryte; brak klucza = widoczne) i jest
+zapisywany w draftcie (kolumna `draft.visibility`, JSON). `withPlaceholders(data)`
+zwraca helpery `fx(name)` (styl `{ opacity: 0 }` lub `undefined`) i `hidden(name)`
+(bool) - plakat rozlewa `...fx('title')` na element danego pola. Ukryte pole
+**zostaje w layoucie** (samo `opacity: 0`), żeby nie rozsypać flexowej konstrukcji
+bloków. Historia nie zapisuje widoczności.
 
 ## Schematy kolorów (skrót)
 

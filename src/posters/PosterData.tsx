@@ -13,7 +13,7 @@ import type { PosterProps } from '../types'
 
 // DATA — liczba jako grafika
 export function PosterData({ data, scheme }: PosterProps) {
-  const { title, subtitle, event_date, event_time, location, logos, photos } = withPlaceholders(data)
+  const { title, subtitle, event_date, event_time, location, logos, photos, hidden, fx } = withPlaceholders(data)
   const s = resolveScheme('data', scheme)
 
   return (
@@ -24,14 +24,14 @@ export function PosterData({ data, scheme }: PosterProps) {
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', margin: '-40px 0' }}>
-        <div style={{ fontSize: 520, fontWeight: 800, lineHeight: 0.72, letterSpacing: '-.06em' }}>
+        <div style={{ fontSize: 520, fontWeight: 800, lineHeight: 0.72, letterSpacing: '-.06em', ...fx('event_date') }}>
           {getDay(event_date)}
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8, paddingLeft: 28, paddingTop: 40 }}>
-          <div style={{ fontSize: 96, fontWeight: 800, lineHeight: 0.9, color: colors.coral, letterSpacing: '-.03em' }}>
+          <div style={{ fontSize: 96, fontWeight: 800, lineHeight: 0.9, color: colors.coral, letterSpacing: '-.03em', ...fx('event_date') }}>
             {getMonthShort(event_date, { upperCase: true })}
           </div>
-          <div style={{ font: `700 26px ${fontMono}`, letterSpacing: '.1em' }}>{event_time}</div>
+          <div style={{ font: `700 26px ${fontMono}`, letterSpacing: '.1em', ...fx('event_time') }}>{event_time}</div>
         </div>
       </div>
 
@@ -43,10 +43,15 @@ export function PosterData({ data, scheme }: PosterProps) {
           labelStyle={{ font: `400 18px ${fontMono}` }}
         />
         <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-          <div style={{ fontSize: 60, fontWeight: 800, lineHeight: 1, letterSpacing: '-.02em', color: 'var(--title)', fontKerning: 'none' }}>
+          <div style={{ fontSize: 60, fontWeight: 800, lineHeight: 1, letterSpacing: '-.02em', color: 'var(--title)', fontKerning: 'none', ...fx('title') }}>
             {title}
           </div>
-          <InfoLine parts={[subtitle]} secondLine={location} style={{ color: 'var(--muted-text)', maxWidth: '24ch' }} />
+          <InfoLine
+            parts={[{ text: subtitle, hidden: hidden('subtitle') }]}
+            secondLine={location}
+            secondLineHidden={hidden('location')}
+            style={{ color: 'var(--muted-text)', maxWidth: '24ch' }}
+          />
         </div>
       </div>
 

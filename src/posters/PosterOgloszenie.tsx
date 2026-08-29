@@ -12,7 +12,7 @@ import type { PosterProps } from '../types'
 // Jedyny szablon bez narożnikowego stosu informacji — do krótkich ogłoszeń,
 // cytatów i podziękowań.
 export function PosterOgloszenie({ data, scheme }: PosterProps) {
-  const { title, subtitle, logos } = withPlaceholders(data)
+  const { title, subtitle, logos, fx } = withPlaceholders(data)
   const s = resolveScheme('ogloszenie', scheme)
 
   return (
@@ -27,11 +27,11 @@ export function PosterOgloszenie({ data, scheme }: PosterProps) {
           <div style={{ width: 46, height: 40, background: 'var(--accent)', clipPath: 'polygon(0 0,100% 0,50% 100%)' }} />
           <div style={{ width: 46, height: 40, background: 'var(--accent)', clipPath: 'polygon(0 0,100% 0,50% 100%)' }} />
         </div>
-        <div style={{ fontSize: 72, fontWeight: 800, lineHeight: 1.08, letterSpacing: '-.02em', maxWidth: '18ch', textWrap: 'balance', fontKerning: 'none' }}>
+        <div style={{ fontSize: 72, fontWeight: 800, lineHeight: 1.08, letterSpacing: '-.02em', maxWidth: '18ch', textWrap: 'balance', fontKerning: 'none', ...fx('title') }}>
           {title}
         </div>
         {subtitle && (
-          <div style={{ font: `700 24px ${fontMono}`, letterSpacing: '.1em', color: 'var(--accent)' }}>— {subtitle.toUpperCase()}</div>
+          <div style={{ font: `700 24px ${fontMono}`, letterSpacing: '.1em', color: 'var(--accent)', ...fx('subtitle') }}>— {subtitle.toUpperCase()}</div>
         )}
       </div>
 
