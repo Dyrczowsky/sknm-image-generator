@@ -49,8 +49,8 @@ export function PosterGosc({ data, scheme }: PosterProps) {
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24 }}>
           <div style={{ fontSize: 22, fontWeight: 600, color: 'var(--accent)' }}>Wstęp wolny · sknm.pk.edu.pl</div>
           <LogoRow>
-            <LogoSlot logo={logos.pk} variant={s.logoVariant} width={190} height={72} />
-            <LogoSlot logo={logos.faculty} variant={s.logoVariant} width={190} height={72} />
+            <LogoSlot logo={logos.pk} variant={s.logoVariant} />
+            <LogoSlot logo={logos.faculty} variant={s.logoVariant} />
           </LogoRow>
         </div>
       </div>

@@ -49,7 +49,7 @@ export function PosterGala({ data, scheme }: PosterProps) {
           />
         </div>
         <LogoRow>
-          <LogoSlot logo={logos.pk} variant={s.logoVariant} width={190} height={72} />
+          <LogoSlot logo={logos.pk} variant={s.logoVariant} />
           <PlaceholderBox label="patronat" width={190} height={72} style={{ borderColor: 'var(--patron-border)', color: 'var(--patron-text)' }} />
         </LogoRow>
       </div>

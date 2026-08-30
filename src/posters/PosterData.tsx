@@ -62,8 +62,8 @@ export function PosterData({ data, scheme }: PosterProps) {
           <div style={{ width: 56, height: 44, background: 'var(--tri3)', clipPath: 'polygon(0 0,100% 0,50% 100%)' }} />
         </div>
         <LogoRow gap={14}>
-          <LogoSlot logo={logos.pk} variant={s.logoVariant} width={180} height={68} />
-          <LogoSlot logo={logos.faculty} variant={s.logoVariant} width={180} height={68} />
+          <LogoSlot logo={logos.pk} variant={s.logoVariant} />
+          <LogoSlot logo={logos.faculty} variant={s.logoVariant} />
         </LogoRow>
       </div>
     </PosterFrame>

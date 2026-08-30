@@ -71,7 +71,7 @@ export function PosterKonferencja({ data, scheme }: PosterProps) {
             <div style={{ fontSize: 24, fontWeight: 600, color: 'var(--muted-text)' }}>sknm.pk.edu.pl</div>
           </div>
           <LogoRow gap={14}>
-            <LogoSlot logo={logos.pk} variant={s.logoVariant} width={180} height={68} />
+            <LogoSlot logo={logos.pk} variant={s.logoVariant} />
             <PlaceholderBox label="patronat" width={180} height={68} />
           </LogoRow>
         </div>

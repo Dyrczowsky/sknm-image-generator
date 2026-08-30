@@ -58,7 +58,7 @@ export function PosterRekrutacja({ data, scheme }: PosterProps) {
         </div>
         <LogoRow alignItems="flex-end">
           <PlaceholderBox label="kod QR" width={130} height={130} style={{ borderColor: 'var(--qr-border)', color: 'var(--qr-text)' }} />
-          <LogoSlot logo={logos.pk} variant={s.logoVariant} width={180} height={68} />
+          <LogoSlot logo={logos.pk} variant={s.logoVariant} />
         </LogoRow>
       </div>
     </PosterFrame>

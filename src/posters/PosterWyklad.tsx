@@ -30,8 +30,8 @@ export function PosterWyklad({ data, scheme }: PosterProps) {
         <div style={{ fontSize: 36, fontWeight: 600, color: 'var(--speaker)', ...fx('speaker') }}>{speaker}</div>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 32, position: 'relative', zIndex: 1 }}>
-        <div style={{ display: 'flex', gap: 36, alignItems: 'flex-end' }}>
+      <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24, position: 'relative', zIndex: 1 }}>
+        <div style={{ display: 'flex', gap: 24, alignItems: 'flex-end' }}>
           <BigDateNumber event_date={event_date} style={fx('event_date')} />
           <InfoLine
             parts={[
@@ -40,12 +40,12 @@ export function PosterWyklad({ data, scheme }: PosterProps) {
             ]}
             secondLine={subtitle}
             secondLineHidden={hidden('subtitle')}
-            style={{ paddingBottom: 10 }}
+            style={{ paddingBottom: 10, whiteSpace: 'nowrap' }}
           />
         </div>
-        <LogoRow alignItems="center">
-          <LogoSlot logo={logos.pk} variant={s.logoVariant} width={200} height={76} />
-          <LogoSlot logo={logos.faculty} variant={s.logoVariant} width={200} height={76} />
+        <LogoRow alignItems="center" gap={12}>
+          <LogoSlot logo={logos.pk} variant={s.logoVariant} />
+          <LogoSlot logo={logos.faculty} variant={s.logoVariant} />
         </LogoRow>
       </div>
 

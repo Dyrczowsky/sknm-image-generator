@@ -59,8 +59,8 @@ export function PosterWarsztat({ data, scheme }: PosterProps) {
           <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24 }}>
             <PlaceholderBox label={<>kod QR<br />zapisy</>} width={150} height={150} style={{ background: 'var(--slot-bg)', borderColor: 'var(--qr-border)', color: 'var(--qr-text)' }} />
             <LogoRow gap={14}>
-              <LogoSlot logo={logos.pk} variant={s.logoVariant} width={170} height={66} style={{ background: 'var(--slot-bg)' }} />
-              <LogoSlot logo={logos.faculty} variant={s.logoVariant} width={170} height={66} style={{ background: 'var(--slot-bg)' }} />
+              <LogoSlot logo={logos.pk} variant={s.logoVariant} style={{ background: 'var(--slot-bg)' }} />
+              <LogoSlot logo={logos.faculty} variant={s.logoVariant} style={{ background: 'var(--slot-bg)' }} />
             </LogoRow>
           </div>
         </div>
