@@ -64,16 +64,6 @@ export const typography = {
   },
 }
 
-export const placeholderBoxStyle: CSSProperties = {
-  boxSizing: 'border-box',
-  border: `2px dashed ${colors.placeholderBorder}`,
-  display: 'grid',
-  placeItems: 'center',
-  font: `400 15px ${fontMono}`,
-  color: colors.placeholderText,
-  textAlign: 'center',
-}
-
 export const posterBaseStyle: CSSProperties = {
   width: 1080,
   height: 1080,

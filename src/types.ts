@@ -30,6 +30,8 @@ export interface FormValues {
   graphics: string[]
   // Czy przed listą grafik renderować domyślne logo Politechniki Krakowskiej.
   showPkLogo: boolean
+  // Link/tekst do zakodowania w kodzie QR w stopce. Pusty = brak QR.
+  qrUrl: string
   photos: Record<string, PhotoValue[]>
   lists: Record<string, ListItem[]>
 }
@@ -93,6 +95,7 @@ export interface FormProps {
   onGraphicRemove: (index: number) => void
   onGraphicMove: (index: number, dir: -1 | 1) => void
   onShowPkChange: (value: boolean) => void
+  onQrUrlChange: (value: string) => void
   onPhotoAdd: (fieldKey: string, src: string | null) => void
   onPhotoChangeAt: (fieldKey: string, index: number, src: string | null) => void
   onPhotoPositionChangeAt: (fieldKey: string, index: number, partial: { x?: number; y?: number }) => void

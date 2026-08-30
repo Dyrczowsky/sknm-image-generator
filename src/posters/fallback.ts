@@ -40,6 +40,7 @@ export function withPlaceholders(data: RawPosterData) {
     badge2: data.badge2,
     graphics: data.graphics ?? [],
     showPkLogo: data.showPkLogo ?? true,
+    qrUrl: data.qrUrl ?? '',
     photos: data.photos ?? {},
     lists: data.lists ?? {},
     // `true` gdy użytkownik wyłączył widoczność danego pola.

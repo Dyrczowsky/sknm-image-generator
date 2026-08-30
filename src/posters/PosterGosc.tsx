@@ -2,6 +2,7 @@ import { colors, fontMono, LOGO_CLEAR } from './theme'
 import { sygnetByName } from './logos'
 import { resolveScheme } from './schemes'
 import { LogoSlots } from './blocks/LogoSlots'
+import { QrSlot } from './blocks/QrSlot'
 import { PhotoGallery } from './PhotoGallery'
 import { withPlaceholders } from './fallback'
 import { getDay, getMonthShort } from '../utils/formatDate'
@@ -13,7 +14,7 @@ import type { PosterProps } from '../types'
 
 // GOŚĆ — zdjęcie + pas
 export function PosterGosc({ data, scheme }: PosterProps) {
-  const { title, speaker, event_date, event_time, location, badge, graphics, showPkLogo, photos, hidden, fx } = withPlaceholders(data)
+  const { title, speaker, event_date, event_time, location, badge, graphics, showPkLogo, qrUrl, photos, hidden, fx } = withPlaceholders(data)
   const s = resolveScheme('gosc', scheme)
   const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
 
@@ -52,6 +53,7 @@ export function PosterGosc({ data, scheme }: PosterProps) {
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24 }}>
           <div style={{ fontSize: 22, fontWeight: 600, color: 'var(--accent)' }}>Wstęp wolny · sknm.pk.edu.pl</div>
           <LogoRow alignItems="flex-end" gap={LOGO_CLEAR}>
+            <QrSlot value={qrUrl} />
             <LogoSlots slots={slots} variant={s.logoVariant} flush={['r', 'b']} />
           </LogoRow>
         </div>

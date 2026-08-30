@@ -1,7 +1,7 @@
 import { LOGO_CLEAR } from './theme'
 import { sygnetByName } from './logos'
-import { PlaceholderBox } from './PlaceholderBox'
 import { LogoSlots } from './blocks/LogoSlots'
+import { QrSlot } from './blocks/QrSlot'
 import { PhotoGallery } from './PhotoGallery'
 import { withPlaceholders } from './fallback'
 import { resolveScheme } from './schemes'
@@ -22,7 +22,7 @@ function Pill({ children, style }: { children: ReactNode; style?: CSSProperties 
 
 // WARSZTAT — skos
 export function PosterWarsztat({ data, scheme }: PosterProps) {
-  const { title, subtitle, event_date, event_time, location, badge, graphics, showPkLogo, photos, fx } = withPlaceholders(data)
+  const { title, subtitle, event_date, event_time, location, badge, graphics, showPkLogo, qrUrl, photos, fx } = withPlaceholders(data)
   const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
 
   const pills = [
@@ -58,8 +58,8 @@ export function PosterWarsztat({ data, scheme }: PosterProps) {
           <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
             {pills.map((p, i) => <Pill key={i} style={p.style}>{p.text}</Pill>)}
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 24 }}>
-            <PlaceholderBox label={<>kod QR<br />zapisy</>} width={150} height={150} style={{ background: 'var(--slot-bg)', borderColor: 'var(--qr-border)', color: 'var(--qr-text)' }} />
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 24 }}>
+            <QrSlot value={qrUrl} size={132} style={{ borderRadius: 8, marginRight: 'auto' }} />
             {/* Logo leży na zdjęciu (nie przy krawędzi plakatu), więc pole
                 ochronne idzie ze wszystkich stron - tło `slot-bg` tworzy
                 czytelną kartę pod znakiem. */}

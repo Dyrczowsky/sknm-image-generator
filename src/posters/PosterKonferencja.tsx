@@ -1,8 +1,8 @@
 import { colors, fontMono, LOGO_CLEAR } from './theme'
 import { sygnetByName } from './logos'
 import { resolveScheme } from './schemes'
-import { PlaceholderBox } from './PlaceholderBox'
 import { LogoSlots } from './blocks/LogoSlots'
+import { QrSlot } from './blocks/QrSlot'
 import { withPlaceholders } from './fallback'
 import { formatFullDate } from '../utils/formatDate'
 import { PosterFrame } from './blocks/PosterFrame'
@@ -18,7 +18,7 @@ const DEFAULT_AGENDA: ListItem[] = [
 
 // KONFERENCJA — nagłówek + lista programu
 export function PosterKonferencja({ data, scheme }: PosterProps) {
-  const { title, event_date, location, badge, badge2, graphics, showPkLogo, lists, hidden, fx } = withPlaceholders(data)
+  const { title, event_date, location, badge, badge2, graphics, showPkLogo, qrUrl, lists, hidden, fx } = withPlaceholders(data)
   const agenda = lists.agenda?.length ? lists.agenda : DEFAULT_AGENDA
   const s = resolveScheme('konferencja', scheme)
   const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
@@ -72,8 +72,8 @@ export function PosterKonferencja({ data, scheme }: PosterProps) {
             <div style={{ fontSize: 24, fontWeight: 600, color: 'var(--muted-text)' }}>sknm.pk.edu.pl</div>
           </div>
           <LogoRow gap={LOGO_CLEAR} alignItems="center">
+            <QrSlot value={qrUrl} />
             <LogoSlots slots={slots} variant={s.logoVariant} />
-            <PlaceholderBox label="patronat" width={180} height={68} />
           </LogoRow>
         </div>
       </div>

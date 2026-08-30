@@ -193,15 +193,24 @@ Wersja z gałęzi `feat/bulk-graphics`:
   owinięte warunkiem, żeby nie zostawało puste.
 - **`MAX_GRAPHICS = 4`** w `theme.ts`.
 
-### Znane ograniczenie
+### Kod QR (dogrywka)
 
-`Rekrutacja` i `Gala`: stopka logo dzieli linię z blokiem tekstu/daty przez
-`space-between`, a logo PK w wersji poziomej ma ~214 px szerokości. Dodanie choćby
-jednej grafiki powoduje zawinięcie rzędu do 2 linii, co przy stałej wysokości
-bryły stopki (`Rekrutacja` — clipPath) wypycha treść ~37–58 px poza dolną krawędź
-kadru. Do decyzji: przerobić stopkę tych 2 szablonów (np. logo pod tekstem),
-skalować grafiki w dół zamiast zawijać, albo ograniczyć liczbę grafik na tych
-layoutach.
+`qrcode.react` (`QRCodeSVG`). `FormValues.qrUrl: string` (link, niezapisywany -
+jak `graphics` / `showPkLogo`). Pole „Kod QR" w `GraphicsField`, propsy w tym
+samym komplecie `gfx`. Nowy klocek `src/posters/blocks/QrSlot.tsx` - biały
+kwadrat ze strefą cichości, `value` pusty => `null`. Renderowany jako pierwszy
+element rzędu stopki we wszystkich 8 szablonach (w `Warsztat` większy, po lewej,
+`marginRight: auto`).
+
+Przy okazji usunięte nieużywane placeholdery: `patronat` (`Gala`, `Konferencja`),
+`kod QR` (`Warsztat`, `Rekrutacja` - zastąpione `QrSlot`). `PlaceholderBox.tsx`
+i `placeholderBoxStyle` skasowane (nic już nie używa). Zmienne `--patron-*` /
+`--qr-*` w `schemes.ts` zostają nieużywane (bez szkody).
+
+Usunięcie `patronat` z `Gali` + `flexWrap` łagodzi wcześniejsze przepełnienie
+stopki - `Rekrutacja` i `Gala` z kodem QR i 1-2 logo mieszczą się w kadrze.
+Przy 3-4 bardzo szerokich logo rząd nadal zawija się do 2 linii; na `Rekrutacji`
+(clipPath stałej wysokości) może to przyciąć dolny wiersz - realnie rzadkie.
 
 ## Poza zakresem
 

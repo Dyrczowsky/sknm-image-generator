@@ -25,6 +25,7 @@ const EMPTY_FORM: FormValues = {
   visibility: {},
   graphics: [],
   showPkLogo: true,
+  qrUrl: '',
   photos: {},
   lists: {},
 }
@@ -73,6 +74,7 @@ function App() {
           visibility: parseVisibility(draft.visibility),
           graphics: [],
           showPkLogo: true,
+          qrUrl: '',
           photos: {},
           lists: {},
         })
@@ -151,6 +153,14 @@ function App() {
   const handleShowPkChange = (value: boolean) => {
     setForm((prev) => {
       const next = { ...prev, showPkLogo: value }
+      persistDraft(next, selectedTemplateId, selectedScheme)
+      return next
+    })
+  }
+
+  const handleQrUrlChange = (value: string) => {
+    setForm((prev) => {
+      const next = { ...prev, qrUrl: value }
       persistDraft(next, selectedTemplateId, selectedScheme)
       return next
     })
@@ -246,6 +256,7 @@ function App() {
       visibility: {},
       graphics: [],
       showPkLogo: true,
+      qrUrl: '',
       photos: {},
       lists: {},
     }
@@ -313,6 +324,7 @@ function App() {
               onGraphicRemove={handleGraphicRemove}
               onGraphicMove={handleGraphicMove}
               onShowPkChange={handleShowPkChange}
+              onQrUrlChange={handleQrUrlChange}
               onPhotoAdd={handlePhotoAdd}
               onPhotoChangeAt={handlePhotoChangeAt}
               onPhotoPositionChangeAt={handlePhotoPositionChangeAt}

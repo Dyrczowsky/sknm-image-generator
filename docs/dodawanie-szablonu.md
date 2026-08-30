@@ -17,12 +17,13 @@ import { resolveScheme } from './schemes'
 import { PosterFrame } from './blocks/PosterFrame'
 import { LogoRow } from './blocks/LogoRow'
 import { LogoSlots } from './blocks/LogoSlots'
+import { QrSlot } from './blocks/QrSlot'
 import { LOGO_CLEAR } from './theme'
 import { sygnetByName } from './logos'
 import type { PosterProps } from '../types'
 
 export function PosterPiknik({ data, scheme }: PosterProps) {
-  const { title, subtitle, event_date, location, graphics, showPkLogo } = withPlaceholders(data)
+  const { title, subtitle, event_date, location, graphics, showPkLogo, qrUrl } = withPlaceholders(data)
   const s = resolveScheme('piknik', scheme)
   // null = domyślne logo PK (fallback), string = hurtowo wgrana grafika
   const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
@@ -38,6 +39,7 @@ export function PosterPiknik({ data, scheme }: PosterProps) {
       </div>
 
       <LogoRow gap={LOGO_CLEAR}>
+        <QrSlot value={qrUrl} />
         <LogoSlots slots={slots} variant={s.logoVariant} />
       </LogoRow>
     </PosterFrame>
@@ -99,8 +101,10 @@ Dostępne klocki:
 
 - `FormField` — pojedyncze `<label><input>` (`type` = `text` / `date` / `time`)
 - `GraphicsField` — checkbox „Dodaj logo PK" + hurtowe wgrywanie grafik stopki
-  (miniatury, kolejność strzałkami, usuwanie), stan w `value.graphics` /
-  `value.showPkLogo`. Po stronie plakatu renderujesz je `<LogoSlots slots={…} />`.
+  (miniatury, kolejność strzałkami, usuwanie) + pole „Kod QR" (link). Stan w
+  `value.graphics` / `value.showPkLogo` / `value.qrUrl`. Po stronie plakatu:
+  `<LogoSlots slots={…} />` dla grafik, `<QrSlot value={qrUrl} />` dla kodu QR.
+  Cała trójka to jeden komplet propsów — patrz `const gfx = {…}` w każdym formularzu.
 - `PhotoGalleryField` — galeria 0..N zdjęć z kadrowaniem, klucz w `value.photos`
 - lista powtarzalna (jak program konferencji) — patrz `FormKonferencja.tsx`,
   używa `onListItemAdd` / `onListItemChange` / `onListItemRemove` i `value.lists`

@@ -9,6 +9,7 @@ interface GraphicsFieldProps {
   onGraphicRemove: (index: number) => void
   onGraphicMove: (index: number, dir: -1 | 1) => void
   onShowPkChange: (value: boolean) => void
+  onQrUrlChange: (value: string) => void
 }
 
 const ACCEPT = '.svg,.png,.jpg,.jpeg,image/svg+xml,image/png,image/jpeg'
@@ -16,8 +17,8 @@ const ACCEPT = '.svg,.png,.jpg,.jpeg,image/svg+xml,image/png,image/jpeg'
 // Stopka plakatu: checkbox "Dodaj logo PK" + hurtowo wgrywane grafiki
 // (logotypy patronów, wydziału itd.). Grafiki układają się w rzędzie na
 // plakacie tak jak logo PK - kolejność sterowana strzałkami.
-export function GraphicsField({ value, onGraphicsAdd, onGraphicRemove, onGraphicMove, onShowPkChange }: GraphicsFieldProps) {
-  const { graphics, showPkLogo } = value
+export function GraphicsField({ value, onGraphicsAdd, onGraphicRemove, onGraphicMove, onShowPkChange, onQrUrlChange }: GraphicsFieldProps) {
+  const { graphics, showPkLogo, qrUrl } = value
   const full = graphics.length >= MAX_GRAPHICS
 
   const handleFiles = async (e: ChangeEvent<HTMLInputElement>) => {
@@ -83,6 +84,19 @@ export function GraphicsField({ value, onGraphicsAdd, onGraphicRemove, onGraphic
       ) : (
         <p className="m-0 text-[0.8rem] text-muted">Maksymalnie {MAX_GRAPHICS} grafiki.</p>
       )}
+
+      <label className="mt-1 flex flex-col gap-1.5">
+        <span className="text-[0.9rem] font-medium">Kod QR (opcjonalnie)</span>
+        <input
+          type="url"
+          inputMode="url"
+          placeholder="https://sknm.pk.edu.pl/..."
+          value={qrUrl}
+          onChange={(e) => onQrUrlChange(e.target.value)}
+          className="rounded-lg border border-field-border bg-field px-3 py-[9px] text-[0.9rem] text-fg"
+        />
+        <span className="text-[0.8rem] text-muted">Podaj link - kod QR wygeneruje się w stopce plakatu.</span>
+      </label>
     </div>
   )
 }
