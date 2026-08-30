@@ -1,4 +1,4 @@
-import { colors, fontMono } from './theme'
+import { colors, fontMono, LOGO_CLEAR } from './theme'
 import { sygnetByName } from './logos'
 import { resolveScheme } from './schemes'
 import { LogoSlot } from './LogoSlot'
@@ -48,9 +48,9 @@ export function PosterGosc({ data, scheme }: PosterProps) {
 
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24 }}>
           <div style={{ fontSize: 22, fontWeight: 600, color: 'var(--accent)' }}>Wstęp wolny · sknm.pk.edu.pl</div>
-          <LogoRow>
-            <LogoSlot logo={logos.pk} variant={s.logoVariant} />
-            <LogoSlot logo={logos.faculty} variant={s.logoVariant} fallback={false} />
+          <LogoRow alignItems="flex-end" gap={LOGO_CLEAR}>
+            <LogoSlot logo={logos.pk} variant={s.logoVariant} flush={['r', 'b']} />
+            <LogoSlot logo={logos.faculty} variant={s.logoVariant} fallback={false} flush={['r', 'b']} />
           </LogoRow>
         </div>
       </div>

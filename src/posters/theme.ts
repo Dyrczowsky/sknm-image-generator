@@ -82,3 +82,10 @@ export const posterBaseStyle: CSSProperties = {
   boxSizing: 'border-box',
   fontFamily: fontHeading,
 }
+
+// Wysokość grafiki logo w slocie (skala plakatu 1080px). Pole ochronne
+// wokół grafiki i odstęp między dwiema grafikami = ¼ tej wysokości -
+// wgrywane pliki są bez własnego pola ochronnego, bierze je na siebie
+// padding wrappera (LogoSlot).
+export const LOGO_HEIGHT = 48
+export const LOGO_CLEAR = Math.round(LOGO_HEIGHT / 4)

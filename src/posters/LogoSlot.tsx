@@ -1,11 +1,9 @@
 import type { CSSProperties } from 'react'
 import { pkLogoLight, pkLogoDark } from './logos'
+import { LOGO_HEIGHT } from './theme'
 import type { LogoSlotValue, LogoVariant } from '../types'
 
-// Wysokość obrazka logo (skala plakatu 1080px, skaluje się proporcjonalnie
-// przy eksporcie). Wokół obrazka dokładamy margines = ¼ jego wysokości
-// z każdej strony (pole ochronne wg księgi znaku PK, s. 6).
-export const MIN_LOGO_HEIGHT = 48
+type Side = 't' | 'r' | 'b' | 'l'
 
 interface LogoSlotProps {
   logo?: LogoSlotValue
@@ -15,25 +13,39 @@ interface LogoSlotProps {
   // (zamiast pokazywać domyślne logo PK). Używane dla slotu logo wydziału,
   // żeby nie dublować logo PK.
   fallback?: boolean
+  // Strony przy krawędzi plakatu - tam pole ochronne pomijamy (nie odsuwamy
+  // grafiki jeszcze raz od granicy, którą trzyma już padding PosterFrame).
+  flush?: Side[]
   style?: CSSProperties
 }
 
-// Miejsce na logo w plakacie: pokazuje logo wgrane przez użytkownika
-// w formularzu, a w jego braku - domyślne logo PK dobrane pod jasne/ciemne
-// tło (chyba że `fallback={false}`). Logo renderuje się NA WYSOKOŚĆ
-// (`height`, klampowane do MIN_LOGO_HEIGHT), szerokość dobiera się z proporcji;
-// wokół idzie margines = ¼ wysokości logo (pole ochronne).
-// Slot wyłączony checkboxem w formularzu - nic nie renderuje.
-export function LogoSlot({ logo, variant = 'light', height = MIN_LOGO_HEIGHT, fallback = true, style }: LogoSlotProps) {
+// Miejsce na grafikę w plakacie: pokazuje plik wgrany przez użytkownika,
+// a w jego braku - domyślne logo PK (chyba że `fallback={false}`).
+// Grafika renderuje się NA WYSOKOŚĆ (`height`), a wrapper dokłada wokół
+// padding = pole ochronne (¼ wysokości). Slot wyłączony checkboxem w
+// formularzu - nic nie renderuje.
+export function LogoSlot({ logo, variant = 'light', height = LOGO_HEIGHT, fallback = true, flush = [], style }: LogoSlotProps) {
   const enabled = logo?.enabled ?? true
   if (!enabled) return null
   if (!logo?.src && !fallback) return null
 
-  const h = Math.max(height, MIN_LOGO_HEIGHT)
+  const h = Math.max(height, LOGO_HEIGHT)
+  const pad = Math.round(h / 4)
   const src = logo?.src || (variant === 'dark' ? pkLogoDark : pkLogoLight)
   return (
-    <div style={{ height: h, margin: Math.round(h / 4), display: 'flex', alignItems: 'center', flex: '0 0 auto', ...style }}>
-      <img src={src} alt="Logo" style={{ height: '100%', width: 'auto', objectFit: 'contain', display: 'block' }} />
+    <div
+      style={{
+        paddingTop: flush.includes('t') ? 0 : pad,
+        paddingRight: flush.includes('r') ? 0 : pad,
+        paddingBottom: flush.includes('b') ? 0 : pad,
+        paddingLeft: flush.includes('l') ? 0 : pad,
+        display: 'flex',
+        alignItems: 'center',
+        flex: '0 0 auto',
+        ...style,
+      }}
+    >
+      <img src={src} alt="Logo" style={{ height: h, width: 'auto', display: 'block' }} />
     </div>
   )
 }

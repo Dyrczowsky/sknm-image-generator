@@ -1,4 +1,4 @@
-import { colors, fontMono } from './theme'
+import { colors, fontMono, LOGO_CLEAR } from './theme'
 import { sygnetByName } from './logos'
 import { resolveScheme } from './schemes'
 import { LogoSlot } from './LogoSlot'
@@ -61,9 +61,9 @@ export function PosterData({ data, scheme }: PosterProps) {
           <div style={{ width: 56, height: 44, background: 'var(--tri2)', clipPath: 'polygon(0 0,100% 0,50% 100%)' }} />
           <div style={{ width: 56, height: 44, background: 'var(--tri3)', clipPath: 'polygon(0 0,100% 0,50% 100%)' }} />
         </div>
-        <LogoRow gap={14}>
-          <LogoSlot logo={logos.pk} variant={s.logoVariant} />
-          <LogoSlot logo={logos.faculty} variant={s.logoVariant} fallback={false} />
+        <LogoRow alignItems="flex-end" gap={LOGO_CLEAR}>
+          <LogoSlot logo={logos.pk} variant={s.logoVariant} flush={['r', 'b']} />
+          <LogoSlot logo={logos.faculty} variant={s.logoVariant} fallback={false} flush={['r', 'b']} />
         </LogoRow>
       </div>
     </PosterFrame>

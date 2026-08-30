@@ -37,8 +37,8 @@ export function PosterOgloszenie({ data, scheme }: PosterProps) {
 
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 24 }}>
         <div style={{ font: `700 20px ${fontMono}`, letterSpacing: '.12em', opacity: 0.85 }}>sknm.pk.edu.pl</div>
-        <LogoRow>
-          <LogoSlot logo={logos.pk} variant={s.logoVariant} />
+        <LogoRow alignItems="flex-end">
+          <LogoSlot logo={logos.pk} variant={s.logoVariant} flush={['r', 'b']} />
         </LogoRow>
       </div>
     </PosterFrame>

@@ -1,3 +1,4 @@
+import { LOGO_CLEAR } from './theme'
 import { sygnetByName } from './logos'
 import { LogoSlot } from './LogoSlot'
 import { withPlaceholders } from './fallback'
@@ -43,9 +44,9 @@ export function PosterWyklad({ data, scheme }: PosterProps) {
             style={{ paddingBottom: 10, whiteSpace: 'nowrap' }}
           />
         </div>
-        <LogoRow alignItems="center" gap={12}>
-          <LogoSlot logo={logos.pk} variant={s.logoVariant} />
-          <LogoSlot logo={logos.faculty} variant={s.logoVariant} fallback={false} />
+        <LogoRow alignItems="flex-end" gap={LOGO_CLEAR}>
+          <LogoSlot logo={logos.pk} variant={s.logoVariant} flush={['r', 'b']} />
+          <LogoSlot logo={logos.faculty} variant={s.logoVariant} fallback={false} flush={['r', 'b']} />
         </LogoRow>
       </div>
 
