@@ -57,7 +57,7 @@ export function PosterWarsztat({ data, scheme }: PosterProps) {
           <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
             {pills.map((p, i) => <Pill key={i} style={p.style}>{p.text}</Pill>)}
           </div>
-          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 24 }}>
             <PlaceholderBox label={<>kod QR<br />zapisy</>} width={150} height={150} style={{ background: 'var(--slot-bg)', borderColor: 'var(--qr-border)', color: 'var(--qr-text)' }} />
             {/* Logo leży na zdjęciu (nie przy krawędzi plakatu), więc pole
                 ochronne idzie ze wszystkich stron - tło `slot-bg` tworzy

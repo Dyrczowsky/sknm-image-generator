@@ -56,9 +56,9 @@ export function PosterRekrutacja({ data, scheme }: PosterProps) {
           />
           <div style={{ fontSize: 26, fontWeight: 500, opacity: 0.85 }}>sknm.pk.edu.pl · @sknm.pk</div>
         </div>
-        <LogoRow alignItems="flex-end" gap={LOGO_CLEAR}>
+        <LogoRow alignItems="center" gap={LOGO_CLEAR}>
           <PlaceholderBox label="kod QR" width={104} height={104} style={{ borderColor: 'var(--qr-border)', color: 'var(--qr-text)' }} />
-          <LogoSlot logo={logos.pk} variant={s.logoVariant} flush={['r', 'b']} />
+          <LogoSlot logo={logos.pk} variant={s.logoVariant} flush={['r']} />
         </LogoRow>
       </div>
     </PosterFrame>

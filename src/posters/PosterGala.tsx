@@ -48,8 +48,8 @@ export function PosterGala({ data, scheme }: PosterProps) {
             style={{ paddingBottom: 10, whiteSpace: 'nowrap' }}
           />
         </div>
-        <LogoRow gap={LOGO_CLEAR} alignItems="flex-end">
-          <LogoSlot logo={logos.pk} variant={s.logoVariant} flush={['b']} />
+        <LogoRow gap={LOGO_CLEAR} alignItems="center">
+          <LogoSlot logo={logos.pk} variant={s.logoVariant} />
           <PlaceholderBox label="patronat" width={140} height={72} style={{ borderColor: 'var(--patron-border)', color: 'var(--patron-text)' }} />
         </LogoRow>
       </div>

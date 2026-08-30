@@ -70,8 +70,8 @@ export function PosterKonferencja({ data, scheme }: PosterProps) {
             <Badge color="var(--footer-badge)" style={{ font: `700 20px ${fontMono}`, letterSpacing: '.12em', ...fx('badge2') }}>{badge2 || 'WIĘCEJ INFORMACJI'}</Badge>
             <div style={{ fontSize: 24, fontWeight: 600, color: 'var(--muted-text)' }}>sknm.pk.edu.pl</div>
           </div>
-          <LogoRow gap={LOGO_CLEAR} alignItems="flex-end">
-            <LogoSlot logo={logos.pk} variant={s.logoVariant} flush={['b']} />
+          <LogoRow gap={LOGO_CLEAR} alignItems="center">
+            <LogoSlot logo={logos.pk} variant={s.logoVariant} />
             <PlaceholderBox label="patronat" width={180} height={68} />
           </LogoRow>
         </div>
