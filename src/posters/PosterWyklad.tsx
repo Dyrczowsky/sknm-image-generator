@@ -1,4 +1,4 @@
-import { LOGO_CLEAR, QR_SLOT_H } from './theme'
+import { QR_SLOT_H } from './theme'
 import { sygnetByName } from './logos'
 import { LogoSlots } from './blocks/LogoSlots'
 import { QrSlot } from './blocks/QrSlot'
@@ -46,9 +46,9 @@ export function PosterWyklad({ data, scheme }: PosterProps) {
             style={{ paddingBottom: 10, whiteSpace: 'nowrap' }}
           />
         </div>
-        <LogoRow alignItems="flex-end" gap={LOGO_CLEAR} minHeight={QR_SLOT_H}>
+        <LogoRow minHeight={QR_SLOT_H}>
           <QrSlot value={qrUrl} />
-          <LogoSlots slots={slots} variant={s.logoVariant} flush={['r', 'b']} />
+          <LogoSlots slots={slots} variant={s.logoVariant} />
         </LogoRow>
       </div>
 

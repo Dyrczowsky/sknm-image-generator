@@ -30,7 +30,7 @@ bespoke divy — to jest ta część designu, której świadomie nie uogólniamy
 | `BigDateNumber` | Duży "dzień + miesiąc" w jednej linii (np. "12 LIS") | `<BigDateNumber event_date={event_date} color="var(--gold)" />` |
 | `InfoLine` | Łączy części (godzina/lokalizacja/cokolwiek) separatorem, opcjonalna druga linia | `<InfoLine parts={[event_time, location]} secondLine={subtitle} />` |
 | `BrandingText` | Pionowy blok tekstu mono w rogu (np. nazwa koła/uczelni), domyślnie wyrównany do prawej | `<BrandingText lines={['SKNM', 'POLITECHNIKA', 'KRAKOWSKA']} />` |
-| `LogoRow` | Rząd `LogoSlot`/`LogoSlots`/`QrSlot` ze spójnym odstępem, `flex-wrap` na nadmiar | `<LogoRow gap={LOGO_CLEAR}><QrSlot .../><LogoSlots .../></LogoRow>` |
+| `LogoRow` | Stopka w prawym dolnym rogu (ujednolicona pozycja logo we wszystkich szablonach): sam wysuwa się o pole ochronne, wyrównuje do dołu, `flex-wrap` na nadmiar. `minHeight={QR_SLOT_H}` rezerwuje kod QR | `<LogoRow minHeight={QR_SLOT_H}><QrSlot .../><LogoSlots .../></LogoRow>` |
 | `LogoSlot` (`../LogoSlot.tsx`) | Miejsce na logo — wgrane przez użytkownika albo domyślne logo PK | `<LogoSlot logo={logo} variant="light" height={48} />` |
 | `LogoSlots` | Renderuje rząd slotów logo z tablicy `slots` (null = fallback PK, string = grafika stopki) | `<LogoSlots slots={slots} variant={s.logoVariant} />` |
 | `QrSlot` | Kod QR generowany na żywo z linku z formularza (`value.qrUrl`); pusty link = nic nie renderuje | `<QrSlot value={qrUrl} />` |

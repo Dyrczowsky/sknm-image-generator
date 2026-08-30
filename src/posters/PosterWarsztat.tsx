@@ -1,4 +1,4 @@
-import { LOGO_CLEAR, QR_SLOT_H } from './theme'
+import { QR_SLOT_H } from './theme'
 import { sygnetByName } from './logos'
 import { LogoSlots } from './blocks/LogoSlots'
 import { QrSlot } from './blocks/QrSlot'
@@ -58,12 +58,12 @@ export function PosterWarsztat({ data, scheme }: PosterProps) {
           <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
             {pills.map((p, i) => <Pill key={i} style={p.style}>{p.text}</Pill>)}
           </div>
-          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-end', gap: 24, minHeight: QR_SLOT_H }}>
-            <QrSlot value={qrUrl} style={{ borderRadius: 8, marginRight: 'auto' }} />
-            {/* Logo leży na zdjęciu (nie przy krawędzi plakatu), więc pole
-                ochronne idzie ze wszystkich stron - tło `slot-bg` tworzy
-                czytelną kartę pod znakiem. */}
-            <LogoRow alignItems="flex-end" gap={LOGO_CLEAR}>
+          {/* Stopka jak w pozostałych szablonach: QR + logo w prawym dolnym
+              rogu. Logo leży na zdjęciu, więc każdy slot dostaje tło
+              `slot-bg` - czytelną kartę pod znakiem. */}
+          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <LogoRow minHeight={QR_SLOT_H}>
+              <QrSlot value={qrUrl} style={{ borderRadius: 8 }} />
               <LogoSlots slots={slots} variant={s.logoVariant} slotStyle={{ background: 'var(--slot-bg)' }} />
             </LogoRow>
           </div>

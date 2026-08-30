@@ -206,9 +206,15 @@ Renderowany jako pierwszy element rzędu stopki we wszystkich 8 szablonach
 (`QR_SIZE + 2·LOGO_CLEAR`), a sloty są `alignItems: flex-end`. Dzięki temu
 wpisanie/skasowanie linku nie przesuwa niczego w plakacie - QR pojawia się
 w miejscu, które i tak jest zarezerwowane. Koszt: stopka każdego szablonu jest
-na stałe ~40 px wyższa (jednorazowe przesunięcie środka w górę). Zmieniono też
-`alignItems` z `center` na `flex-end` w Konferencji/Gali/Rekrutacji (logo siada
-na wspólnej linii bazowej z QR).
+na stałe ~40 px wyższa (jednorazowe przesunięcie środka w górę).
+
+**Ujednolicona stopka:** `LogoRow` sam wysuwa się o `-LOGO_CLEAR` (w prawo i
+w dół) i domyślnie `alignItems: flex-end`, `gap: LOGO_CLEAR`. Grafika ma
+wewnątrz slotu symetryczny padding `LOGO_CLEAR`, więc jej treść siada dokładnie
+na 72 px marginesie kadru - logo PK ląduje w identycznym miejscu (prawy dolny
+róg, `right:72 bottom:72`) na wszystkich 8 szablonach. Usunięto per-szablonowe
+`flush`. `Ogłoszenie`: `padding` 96→72. `Warsztat`: stopka przebudowana na ten
+sam wzorzec (QR + logo w rzędzie, prawy dolny róg).
 
 Przy okazji usunięte nieużywane placeholdery: `patronat` (`Gala`, `Konferencja`),
 `kod QR` (`Warsztat`, `Rekrutacja` - zastąpione `QrSlot`). `PlaceholderBox.tsx`

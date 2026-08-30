@@ -1,4 +1,4 @@
-import { fontMono, LOGO_CLEAR, QR_SLOT_H } from './theme'
+import { fontMono, QR_SLOT_H } from './theme'
 import { sygnetByName } from './logos'
 import { LogoSlots } from './blocks/LogoSlots'
 import { QrSlot } from './blocks/QrSlot'
@@ -18,7 +18,7 @@ export function PosterOgloszenie({ data, scheme }: PosterProps) {
   const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
 
   return (
-    <PosterFrame vars={s.cssVars} padding={96}>
+    <PosterFrame vars={s.cssVars} padding={72}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <img src={sygnetByName[s.sygnet ?? 'negatywny']} alt="SKNM" style={{ width: 132, display: 'block' }} />
         <BrandingText lines={['SKNM', 'POLITECHNIKA', 'KRAKOWSKA']} opacity={0.85} />
@@ -37,11 +37,11 @@ export function PosterOgloszenie({ data, scheme }: PosterProps) {
         )}
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 24 }}>
+      <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24 }}>
         <div style={{ font: `700 20px ${fontMono}`, letterSpacing: '.12em', opacity: 0.85 }}>sknm.pk.edu.pl</div>
-        <LogoRow alignItems="flex-end" gap={LOGO_CLEAR} minHeight={QR_SLOT_H}>
+        <LogoRow minHeight={QR_SLOT_H}>
           <QrSlot value={qrUrl} />
-          <LogoSlots slots={slots} variant={s.logoVariant} flush={['r', 'b']} />
+          <LogoSlots slots={slots} variant={s.logoVariant} />
         </LogoRow>
       </div>
     </PosterFrame>

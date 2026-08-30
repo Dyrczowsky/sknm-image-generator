@@ -18,7 +18,7 @@ import { PosterFrame } from './blocks/PosterFrame'
 import { LogoRow } from './blocks/LogoRow'
 import { LogoSlots } from './blocks/LogoSlots'
 import { QrSlot } from './blocks/QrSlot'
-import { LOGO_CLEAR } from './theme'
+import { QR_SLOT_H } from './theme'
 import { sygnetByName } from './logos'
 import type { PosterProps } from '../types'
 
@@ -29,7 +29,7 @@ export function PosterPiknik({ data, scheme }: PosterProps) {
   const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
 
   return (
-    <PosterFrame vars={s.cssVars} padding={96}>
+    <PosterFrame vars={s.cssVars} padding={72}>
       <img src={sygnetByName[s.sygnet ?? 'negatywny']} alt="SKNM" style={{ width: 132 }} />
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
@@ -38,7 +38,10 @@ export function PosterPiknik({ data, scheme }: PosterProps) {
         <div style={{ fontSize: 28 }}>{event_date} · {location}</div>
       </div>
 
-      <LogoRow gap={LOGO_CLEAR}>
+      {/* Stopka: zawsze prawy dolny róg. `LogoRow` sam wysuwa się o pole
+          ochronne i wyrównuje do dołu, więc logo PK ląduje w tym samym
+          miejscu co w pozostałych szablonach. `minHeight` rezerwuje kod QR. */}
+      <LogoRow minHeight={QR_SLOT_H}>
         <QrSlot value={qrUrl} />
         <LogoSlots slots={slots} variant={s.logoVariant} />
       </LogoRow>

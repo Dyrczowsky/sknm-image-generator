@@ -1,4 +1,4 @@
-import { colors, fontMono, LOGO_CLEAR, QR_SLOT_H } from './theme'
+import { colors, fontMono, QR_SLOT_H } from './theme'
 import { sygnetByName } from './logos'
 import { resolveScheme } from './schemes'
 import { LogoSlots } from './blocks/LogoSlots'
@@ -63,9 +63,9 @@ export function PosterData({ data, scheme }: PosterProps) {
           <div style={{ width: 56, height: 44, background: 'var(--tri2)', clipPath: 'polygon(0 0,100% 0,50% 100%)' }} />
           <div style={{ width: 56, height: 44, background: 'var(--tri3)', clipPath: 'polygon(0 0,100% 0,50% 100%)' }} />
         </div>
-        <LogoRow alignItems="flex-end" gap={LOGO_CLEAR} minHeight={QR_SLOT_H}>
+        <LogoRow minHeight={QR_SLOT_H}>
           <QrSlot value={qrUrl} />
-          <LogoSlots slots={slots} variant={s.logoVariant} flush={['r', 'b']} />
+          <LogoSlots slots={slots} variant={s.logoVariant} />
         </LogoRow>
       </div>
     </PosterFrame>
