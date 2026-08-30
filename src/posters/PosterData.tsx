@@ -14,7 +14,7 @@ import type { PosterProps } from '../types'
 
 // DATA — liczba jako grafika
 export function PosterData({ data, scheme }: PosterProps) {
-  const { title, subtitle, event_date, event_time, location, graphics, showPkLogo, qrUrl, photos, hidden, fx } = withPlaceholders(data)
+  const { title, subtitle, event_date, event_time, location, graphics, showPkLogo, qrUrl, qrColor, photos, hidden, fx } = withPlaceholders(data)
   const s = resolveScheme('data', scheme)
   const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
 
@@ -64,7 +64,7 @@ export function PosterData({ data, scheme }: PosterProps) {
           <div style={{ width: 56, height: 44, background: 'var(--tri3)', clipPath: 'polygon(0 0,100% 0,50% 100%)' }} />
         </div>
         <LogoRow minHeight={QR_SLOT_H}>
-          <QrSlot value={qrUrl} />
+          <QrSlot value={qrUrl} color={qrColor} />
           <LogoSlots slots={slots} variant={s.logoVariant} />
         </LogoRow>
       </div>

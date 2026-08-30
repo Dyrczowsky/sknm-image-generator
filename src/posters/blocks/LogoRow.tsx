@@ -26,8 +26,12 @@ export function LogoRow({ gap = LOGO_CLEAR, alignItems = 'flex-end', minHeight, 
   return (
     <div
       style={{
+        // Wypełnia szerokość stopki i pakuje zawartość do prawej (logo w rogu).
+        // QrSlot ma `marginRight: auto`, więc odbija się maksymalnie w lewo.
+        flex: 1,
         display: 'flex',
         flexWrap: 'wrap',
+        justifyContent: 'flex-end',
         gap,
         alignItems,
         minHeight,

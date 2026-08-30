@@ -41,6 +41,7 @@ export function withPlaceholders(data: RawPosterData) {
     graphics: data.graphics ?? [],
     showPkLogo: data.showPkLogo ?? true,
     qrUrl: data.qrUrl ?? '',
+    qrColor: data.qrColor ?? '',
     photos: data.photos ?? {},
     lists: data.lists ?? {},
     // `true` gdy użytkownik wyłączył widoczność danego pola.

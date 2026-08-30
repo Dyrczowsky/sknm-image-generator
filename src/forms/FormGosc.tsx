@@ -14,12 +14,13 @@ export function FormGosc({
   onGraphicMove,
   onShowPkChange,
   onQrUrlChange,
+  onQrColorChange,
   onPhotoAdd,
   onPhotoChangeAt,
   onPhotoPositionChangeAt,
 }: FormProps) {
   const vis = { visibility: value.visibility, onVisibilityChange }
-  const gfx = { value, onGraphicsAdd, onGraphicRemove, onGraphicMove, onShowPkChange, onQrUrlChange }
+  const gfx = { value, onGraphicsAdd, onGraphicRemove, onGraphicMove, onShowPkChange, onQrUrlChange, onQrColorChange }
   return (
     <form className="flex flex-col gap-3.5" onSubmit={(e) => e.preventDefault()}>
       <FormField name="badge" {...vis} type="text" label="Etykieta" placeholder="SEMINARIUM SKNM" value={value.badge} onChange={(v) => onFieldChange('badge', v)} />

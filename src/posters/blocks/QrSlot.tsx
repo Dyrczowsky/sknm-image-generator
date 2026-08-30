@@ -6,28 +6,37 @@ interface QrSlotProps {
   // Link/tekst do zakodowania. Pusty = slot się nie renderuje (miejsce i tak
   // jest zarezerwowane w rzędzie stopki przez minHeight, patrz QR_SLOT_H).
   value: string
+  // Kolor modułów QR. Pusty => `var(--page-text)` (dopasowuje się do schematu,
+  // więc jest czytelny i na jasnym, i na ciemnym plakacie).
+  color?: string
   // Bok kwadratu QR w skali plakatu (1080px).
   size?: number
   style?: CSSProperties
 }
 
-// Kod QR generowany na żywo z linku podanego w formularzu. Renderuje się na
-// białym tle z marginesem (strefa cichości), żeby dało się go zeskanować
-// niezależnie od koloru stopki. Kwadrat, zwykle pierwszy element rzędu stopki.
-export function QrSlot({ value, size = QR_SIZE, style }: QrSlotProps) {
+// Kod QR generowany na żywo z linku podanego w formularzu. Tło ZAWSZE
+// przezroczyste - moduły leżą wprost na plakacie. Domyślnie pierwszy element
+// rzędu stopki, dociągnięty maksymalnie w lewo (`marginRight: auto`).
+export function QrSlot({ value, color, size = QR_SIZE, style }: QrSlotProps) {
   if (!value.trim()) return null
   return (
     <div
       style={{
         flex: '0 0 auto',
-        background: '#fff',
         padding: LOGO_CLEAR,
         display: 'flex',
-        borderRadius: 4,
+        marginRight: 'auto',
         ...style,
       }}
     >
-      <QRCodeSVG value={value} size={size} marginSize={0} bgColor="#fff" fgColor="#121212" level="M" />
+      <QRCodeSVG
+        value={value}
+        size={size}
+        marginSize={1}
+        bgColor="transparent"
+        fgColor={color || 'var(--page-text)'}
+        level="M"
+      />
     </div>
   )
 }

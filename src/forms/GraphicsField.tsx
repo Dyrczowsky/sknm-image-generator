@@ -10,15 +10,18 @@ interface GraphicsFieldProps {
   onGraphicMove: (index: number, dir: -1 | 1) => void
   onShowPkChange: (value: boolean) => void
   onQrUrlChange: (value: string) => void
+  onQrColorChange: (value: string) => void
 }
+
+const DEFAULT_QR_COLOR = '#121212'
 
 const ACCEPT = '.svg,.png,.jpg,.jpeg,image/svg+xml,image/png,image/jpeg'
 
 // Stopka plakatu: checkbox "Dodaj logo PK" + hurtowo wgrywane grafiki
 // (logotypy patronów, wydziału itd.). Grafiki układają się w rzędzie na
 // plakacie tak jak logo PK - kolejność sterowana strzałkami.
-export function GraphicsField({ value, onGraphicsAdd, onGraphicRemove, onGraphicMove, onShowPkChange, onQrUrlChange }: GraphicsFieldProps) {
-  const { graphics, showPkLogo, qrUrl } = value
+export function GraphicsField({ value, onGraphicsAdd, onGraphicRemove, onGraphicMove, onShowPkChange, onQrUrlChange, onQrColorChange }: GraphicsFieldProps) {
+  const { graphics, showPkLogo, qrUrl, qrColor } = value
   const full = graphics.length >= MAX_GRAPHICS
 
   const handleFiles = async (e: ChangeEvent<HTMLInputElement>) => {
@@ -95,8 +98,32 @@ export function GraphicsField({ value, onGraphicsAdd, onGraphicRemove, onGraphic
           onChange={(e) => onQrUrlChange(e.target.value)}
           className="rounded-lg border border-field-border bg-field px-3 py-[9px] text-[0.9rem] text-fg"
         />
-        <span className="text-[0.8rem] text-muted">Podaj link - kod QR wygeneruje się w stopce plakatu.</span>
+        <span className="text-[0.8rem] text-muted">Podaj link - kod QR wygeneruje się w stopce plakatu (tło zawsze przezroczyste).</span>
       </label>
+
+      {qrUrl.trim() && (
+        <div className="flex items-center gap-2.5">
+          <input
+            type="color"
+            value={qrColor || DEFAULT_QR_COLOR}
+            onChange={(e) => onQrColorChange(e.target.value)}
+            className="h-8 w-10 flex-none cursor-pointer rounded border border-field-border bg-field p-0.5"
+            aria-label="Kolor kodu QR"
+          />
+          <span className="text-[0.85rem]">Kolor kodu QR</span>
+          {qrColor ? (
+            <button
+              type="button"
+              className="ml-auto cursor-pointer rounded-lg border border-field-border bg-transparent px-3 py-[5px] text-[0.8rem] text-muted transition-[border-color,color] hover:border-accent hover:text-accent"
+              onClick={() => onQrColorChange('')}
+            >
+              Dopasuj do schematu
+            </button>
+          ) : (
+            <span className="ml-auto text-[0.8rem] text-muted">Dopasowany do schematu</span>
+          )}
+        </div>
+      )}
     </div>
   )
 }

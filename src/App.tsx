@@ -27,6 +27,7 @@ const EMPTY_FORM: FormValues = {
   graphics: [],
   showPkLogo: true,
   qrUrl: '',
+  qrColor: '',
   photos: {},
   lists: {},
 }
@@ -77,6 +78,7 @@ function App() {
           graphics: [],
           showPkLogo: true,
           qrUrl: '',
+          qrColor: '',
           photos: {},
           lists: {},
         })
@@ -163,6 +165,14 @@ function App() {
   const handleQrUrlChange = (value: string) => {
     setForm((prev) => {
       const next = { ...prev, qrUrl: value }
+      persistDraft(next, selectedTemplateId, selectedScheme)
+      return next
+    })
+  }
+
+  const handleQrColorChange = (value: string) => {
+    setForm((prev) => {
+      const next = { ...prev, qrColor: value }
       persistDraft(next, selectedTemplateId, selectedScheme)
       return next
     })
@@ -259,6 +269,7 @@ function App() {
       graphics: [],
       showPkLogo: true,
       qrUrl: '',
+      qrColor: '',
       photos: {},
       lists: {},
     }
@@ -327,6 +338,7 @@ function App() {
               onGraphicMove={handleGraphicMove}
               onShowPkChange={handleShowPkChange}
               onQrUrlChange={handleQrUrlChange}
+              onQrColorChange={handleQrColorChange}
               onPhotoAdd={handlePhotoAdd}
               onPhotoChangeAt={handlePhotoChangeAt}
               onPhotoPositionChangeAt={handlePhotoPositionChangeAt}

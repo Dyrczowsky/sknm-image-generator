@@ -4,9 +4,9 @@ import { FormField } from './FormField'
 import { GraphicsField } from './GraphicsField'
 
 // Formularz dla Gala - tylko logo PK, bez logo wydziału i bez zdjęć.
-export function FormGala({ value, onFieldChange, onVisibilityChange, onGraphicsAdd, onGraphicRemove, onGraphicMove, onShowPkChange, onQrUrlChange }: FormProps) {
+export function FormGala({ value, onFieldChange, onVisibilityChange, onGraphicsAdd, onGraphicRemove, onGraphicMove, onShowPkChange, onQrUrlChange, onQrColorChange }: FormProps) {
   const vis = { visibility: value.visibility, onVisibilityChange }
-  const gfx = { value, onGraphicsAdd, onGraphicRemove, onGraphicMove, onShowPkChange, onQrUrlChange }
+  const gfx = { value, onGraphicsAdd, onGraphicRemove, onGraphicMove, onShowPkChange, onQrUrlChange, onQrColorChange }
   return (
     <form className="flex flex-col gap-3.5" onSubmit={(e) => e.preventDefault()}>
       <FormField name="badge" {...vis} type="text" label="Etykieta" placeholder="GALA SKNM" value={value.badge} onChange={(v) => onFieldChange('badge', v)} />

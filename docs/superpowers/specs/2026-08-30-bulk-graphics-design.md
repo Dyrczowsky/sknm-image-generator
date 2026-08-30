@@ -195,18 +195,23 @@ Wersja z gałęzi `feat/bulk-graphics`:
 
 ### Kod QR (dogrywka)
 
-`qrcode.react` (`QRCodeSVG`). `FormValues.qrUrl: string` (link, niezapisywany -
-jak `graphics` / `showPkLogo`). Pole „Kod QR" w `GraphicsField`, propsy w tym
-samym komplecie `gfx`. Nowy klocek `src/posters/blocks/QrSlot.tsx` - biały
-kwadrat (`QR_SIZE = 96`) ze strefą cichości, `value` pusty => `null`.
-Renderowany jako pierwszy element rzędu stopki we wszystkich 8 szablonach
-(w `Warsztat` po lewej, `marginRight: auto`).
+`qrcode.react` (`QRCodeSVG`). `FormValues.qrUrl` (link) + `qrColor` (kolor
+modułów; pusty = `var(--page-text)` - dopasowany do schematu, czytelny na
+jasnym i ciemnym). Niezapisywane - jak `graphics` / `showPkLogo`. Pole „Kod QR"
++ picker koloru w `GraphicsField`, propsy w komplecie `gfx`. `QrSlot`
+(`QR_SIZE = 96`): **tło ZAWSZE przezroczyste** (`bgColor="transparent"`),
+`marginRight: auto` (odbija się maksymalnie w lewo), `value` pusty => `null`.
+Pierwszy element rzędu stopki we wszystkich 8 szablonach.
 
 **Rezerwacja miejsca:** rząd stopki (`LogoRow`) ma stałe `minHeight={QR_SLOT_H}`
 (`QR_SIZE + 2·LOGO_CLEAR`), a sloty są `alignItems: flex-end`. Dzięki temu
 wpisanie/skasowanie linku nie przesuwa niczego w plakacie - QR pojawia się
 w miejscu, które i tak jest zarezerwowane. Koszt: stopka każdego szablonu jest
 na stałe ~40 px wyższa (jednorazowe przesunięcie środka w górę).
+
+`LogoRow` jest `flex: 1` + `justifyContent: flex-end` - wypełnia szerokość
+stopki i pakuje logo do prawej. QrSlot z `marginRight: auto` odbija się w lewo
+(do bloku tekstu stopki).
 
 **Ujednolicona stopka:** `LogoRow` sam wysuwa się o `-LOGO_CLEAR` (w prawo i
 w dół) i domyślnie `alignItems: flex-end`, `gap: LOGO_CLEAR`. Grafika ma

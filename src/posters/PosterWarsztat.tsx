@@ -22,7 +22,7 @@ function Pill({ children, style }: { children: ReactNode; style?: CSSProperties 
 
 // WARSZTAT — skos
 export function PosterWarsztat({ data, scheme }: PosterProps) {
-  const { title, subtitle, event_date, event_time, location, badge, graphics, showPkLogo, qrUrl, photos, fx } = withPlaceholders(data)
+  const { title, subtitle, event_date, event_time, location, badge, graphics, showPkLogo, qrUrl, qrColor, photos, fx } = withPlaceholders(data)
   const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
 
   const pills = [
@@ -58,12 +58,12 @@ export function PosterWarsztat({ data, scheme }: PosterProps) {
           <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
             {pills.map((p, i) => <Pill key={i} style={p.style}>{p.text}</Pill>)}
           </div>
-          {/* Stopka jak w pozostałych szablonach: QR + logo w prawym dolnym
-              rogu. Logo leży na zdjęciu, więc każdy slot dostaje tło
-              `slot-bg` - czytelną kartę pod znakiem. */}
-          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+          {/* Stopka jak w pozostałych szablonach: QR maksymalnie w lewo, logo
+              w prawym dolnym rogu. Logo leży na zdjęciu, więc każdy slot
+              dostaje tło `slot-bg` - czytelną kartę pod znakiem. */}
+          <div style={{ display: 'flex' }}>
             <LogoRow minHeight={QR_SLOT_H}>
-              <QrSlot value={qrUrl} style={{ borderRadius: 8 }} />
+              <QrSlot value={qrUrl} color={qrColor} />
               <LogoSlots slots={slots} variant={s.logoVariant} slotStyle={{ background: 'var(--slot-bg)' }} />
             </LogoRow>
           </div>

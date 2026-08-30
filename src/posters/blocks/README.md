@@ -33,7 +33,7 @@ bespoke divy — to jest ta część designu, której świadomie nie uogólniamy
 | `LogoRow` | Stopka w prawym dolnym rogu (ujednolicona pozycja logo we wszystkich szablonach): sam wysuwa się o pole ochronne, wyrównuje do dołu, `flex-wrap` na nadmiar. `minHeight={QR_SLOT_H}` rezerwuje kod QR | `<LogoRow minHeight={QR_SLOT_H}><QrSlot .../><LogoSlots .../></LogoRow>` |
 | `LogoSlot` (`../LogoSlot.tsx`) | Miejsce na logo — wgrane przez użytkownika albo domyślne logo PK | `<LogoSlot logo={logo} variant="light" height={48} />` |
 | `LogoSlots` | Renderuje rząd slotów logo z tablicy `slots` (null = fallback PK, string = grafika stopki) | `<LogoSlots slots={slots} variant={s.logoVariant} />` |
-| `QrSlot` | Kod QR generowany na żywo z linku z formularza (`value.qrUrl`); pusty link = nic nie renderuje | `<QrSlot value={qrUrl} />` |
+| `QrSlot` | Kod QR z linku (`value.qrUrl`), kolor `value.qrColor` (pusty = `var(--page-text)`). Tło zawsze przezroczyste, `marginRight: auto` (odbija się w lewo). Pusty link = `null` | `<QrSlot value={qrUrl} color={qrColor} />` |
 
 Wspólne tokeny typografii (rozmiary/wagi/odstępy używane wewnątrz bloków) są
 w `../theme.js` → `typography`. Jedna zmiana tam propaguje się do wszystkich

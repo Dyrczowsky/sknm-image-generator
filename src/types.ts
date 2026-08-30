@@ -32,6 +32,8 @@ export interface FormValues {
   showPkLogo: boolean
   // Link/tekst do zakodowania w kodzie QR w stopce. Pusty = brak QR.
   qrUrl: string
+  // Kolor modułów kodu QR. Pusty = dopasowany do schematu kolorów plakatu.
+  qrColor: string
   photos: Record<string, PhotoValue[]>
   lists: Record<string, ListItem[]>
 }
@@ -96,6 +98,7 @@ export interface FormProps {
   onGraphicMove: (index: number, dir: -1 | 1) => void
   onShowPkChange: (value: boolean) => void
   onQrUrlChange: (value: string) => void
+  onQrColorChange: (value: string) => void
   onPhotoAdd: (fieldKey: string, src: string | null) => void
   onPhotoChangeAt: (fieldKey: string, index: number, src: string | null) => void
   onPhotoPositionChangeAt: (fieldKey: string, index: number, partial: { x?: number; y?: number }) => void

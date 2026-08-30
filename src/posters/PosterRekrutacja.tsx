@@ -14,7 +14,7 @@ import type { PosterProps } from '../types'
 
 // REKRUTACJA — wzór z sygnetu
 export function PosterRekrutacja({ data, scheme }: PosterProps) {
-  const { title, subtitle, event_date, event_time, location, badge, graphics, showPkLogo, qrUrl, hidden, fx } = withPlaceholders(data)
+  const { title, subtitle, event_date, event_time, location, badge, graphics, showPkLogo, qrUrl, qrColor, hidden, fx } = withPlaceholders(data)
   const s = resolveScheme('rekrutacja', scheme)
   const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
 
@@ -58,7 +58,7 @@ export function PosterRekrutacja({ data, scheme }: PosterProps) {
           <div style={{ fontSize: 26, fontWeight: 500, opacity: 0.85 }}>sknm.pk.edu.pl · @sknm.pk</div>
         </div>
         <LogoRow minHeight={QR_SLOT_H}>
-          <QrSlot value={qrUrl} />
+          <QrSlot value={qrUrl} color={qrColor} />
           <LogoSlots slots={slots} variant={s.logoVariant} />
         </LogoRow>
       </div>

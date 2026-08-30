@@ -23,7 +23,7 @@ import { sygnetByName } from './logos'
 import type { PosterProps } from '../types'
 
 export function PosterPiknik({ data, scheme }: PosterProps) {
-  const { title, subtitle, event_date, location, graphics, showPkLogo, qrUrl } = withPlaceholders(data)
+  const { title, subtitle, event_date, location, graphics, showPkLogo, qrUrl, qrColor } = withPlaceholders(data)
   const s = resolveScheme('piknik', scheme)
   // null = domyślne logo PK (fallback), string = hurtowo wgrana grafika
   const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
@@ -38,11 +38,11 @@ export function PosterPiknik({ data, scheme }: PosterProps) {
         <div style={{ fontSize: 28 }}>{event_date} · {location}</div>
       </div>
 
-      {/* Stopka: zawsze prawy dolny róg. `LogoRow` sam wysuwa się o pole
-          ochronne i wyrównuje do dołu, więc logo PK ląduje w tym samym
-          miejscu co w pozostałych szablonach. `minHeight` rezerwuje kod QR. */}
+      {/* Stopka: logo PK w prawym dolnym rogu (ta sama pozycja we wszystkich
+          szablonach), kod QR odbity maksymalnie w lewo. `LogoRow` sam
+          wysuwa się o pole ochronne; `minHeight` rezerwuje miejsce na QR. */}
       <LogoRow minHeight={QR_SLOT_H}>
-        <QrSlot value={qrUrl} />
+        <QrSlot value={qrUrl} color={qrColor} />
         <LogoSlots slots={slots} variant={s.logoVariant} />
       </LogoRow>
     </PosterFrame>
@@ -106,7 +106,7 @@ Dostępne klocki:
 - `GraphicsField` — checkbox „Dodaj logo PK" + hurtowe wgrywanie grafik stopki
   (miniatury, kolejność strzałkami, usuwanie) + pole „Kod QR" (link). Stan w
   `value.graphics` / `value.showPkLogo` / `value.qrUrl`. Po stronie plakatu:
-  `<LogoSlots slots={…} />` dla grafik, `<QrSlot value={qrUrl} />` dla kodu QR.
+  `<LogoSlots slots={…} />` dla grafik, `<QrSlot value={qrUrl} color={qrColor} />` dla kodu QR.
   Cała trójka to jeden komplet propsów — patrz `const gfx = {…}` w każdym formularzu.
 - `PhotoGalleryField` — galeria 0..N zdjęć z kadrowaniem, klucz w `value.photos`
 - lista powtarzalna (jak program konferencji) — patrz `FormKonferencja.tsx`,
