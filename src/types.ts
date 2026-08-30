@@ -26,7 +26,10 @@ export interface FormValues {
   badge: string
   badge2: string
   visibility: FieldVisibility
-  logos: Record<string, LogoSlotValue>
+  // Grafiki/logotypy w stopce (data URL-e), w kolejności wyświetlania.
+  graphics: string[]
+  // Czy przed listą grafik renderować domyślne logo Politechniki Krakowskiej.
+  showPkLogo: boolean
   photos: Record<string, PhotoValue[]>
   lists: Record<string, ListItem[]>
 }
@@ -86,8 +89,10 @@ export interface FormProps {
   value: FormValues
   onFieldChange: (name: FormTextField, value: string) => void
   onVisibilityChange: (name: FormTextField, visible: boolean) => void
-  onLogoChange: (slotKey: string, src: string | null) => void
-  onLogoEnabledChange: (slotKey: string, checked: boolean) => void
+  onGraphicsAdd: (srcs: string[]) => void
+  onGraphicRemove: (index: number) => void
+  onGraphicMove: (index: number, dir: -1 | 1) => void
+  onShowPkChange: (value: boolean) => void
   onPhotoAdd: (fieldKey: string, src: string | null) => void
   onPhotoChangeAt: (fieldKey: string, index: number, src: string | null) => void
   onPhotoPositionChangeAt: (fieldKey: string, index: number, partial: { x?: number; y?: number }) => void

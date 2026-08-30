@@ -6,6 +6,7 @@ import { listTemplates } from './db/templates'
 import { getDraft, saveDraft, parseVisibility } from './db/drafts'
 import { addHistoryEntry, deleteHistoryEntry, listHistory } from './db/history'
 import { posterRegistry } from './posters/registry'
+import { MAX_GRAPHICS } from './posters/theme'
 import { downloadPosterAsPng, EXPORT_FORMATS } from './posters/export'
 import { TemplateSelector } from './components/TemplateSelector'
 import { SchemeSelector } from './components/SchemeSelector'
@@ -22,7 +23,8 @@ const EMPTY_FORM: FormValues = {
   badge: '',
   badge2: '',
   visibility: {},
-  logos: {},
+  graphics: [],
+  showPkLogo: true,
   photos: {},
   lists: {},
 }
@@ -69,7 +71,8 @@ function App() {
           badge: draft.badge ?? '',
           badge2: draft.badge2 ?? '',
           visibility: parseVisibility(draft.visibility),
-          logos: {},
+          graphics: [],
+          showPkLogo: true,
           photos: {},
           lists: {},
         })
@@ -115,19 +118,39 @@ function App() {
     })
   }
 
-  const handleLogoChange = (slotKey: string, src: string | null) => {
+  const handleGraphicsAdd = (srcs: string[]) => {
     setForm((prev) => {
-      const current = prev.logos[slotKey] ?? { enabled: true, src: null }
-      const next = { ...prev, logos: { ...prev.logos, [slotKey]: { ...current, src, enabled: true } } }
+      const next = { ...prev, graphics: [...prev.graphics, ...srcs].slice(0, MAX_GRAPHICS) }
       persistDraft(next, selectedTemplateId, selectedScheme)
       return next
     })
   }
 
-  const handleLogoEnabledChange = (slotKey: string, checked: boolean) => {
+  const handleGraphicRemove = (index: number) => {
     setForm((prev) => {
-      const current = prev.logos[slotKey] ?? { enabled: true, src: null }
-      const next = { ...prev, logos: { ...prev.logos, [slotKey]: { ...current, enabled: checked } } }
+      const next = { ...prev, graphics: prev.graphics.filter((_, i) => i !== index) }
+      persistDraft(next, selectedTemplateId, selectedScheme)
+      return next
+    })
+  }
+
+  const handleGraphicMove = (index: number, dir: -1 | 1) => {
+    setForm((prev) => {
+      const j = index + dir
+      if (j < 0 || j >= prev.graphics.length) return prev
+      const g = [...prev.graphics]
+      const tmp = g[index]
+      g[index] = g[j]
+      g[j] = tmp
+      const next = { ...prev, graphics: g }
+      persistDraft(next, selectedTemplateId, selectedScheme)
+      return next
+    })
+  }
+
+  const handleShowPkChange = (value: boolean) => {
+    setForm((prev) => {
+      const next = { ...prev, showPkLogo: value }
       persistDraft(next, selectedTemplateId, selectedScheme)
       return next
     })
@@ -221,7 +244,8 @@ function App() {
       badge: '',
       badge2: '',
       visibility: {},
-      logos: {},
+      graphics: [],
+      showPkLogo: true,
       photos: {},
       lists: {},
     }
@@ -285,8 +309,10 @@ function App() {
               value={form}
               onFieldChange={handleFieldChange}
               onVisibilityChange={handleVisibilityChange}
-              onLogoChange={handleLogoChange}
-              onLogoEnabledChange={handleLogoEnabledChange}
+              onGraphicsAdd={handleGraphicsAdd}
+              onGraphicRemove={handleGraphicRemove}
+              onGraphicMove={handleGraphicMove}
+              onShowPkChange={handleShowPkChange}
               onPhotoAdd={handlePhotoAdd}
               onPhotoChangeAt={handlePhotoChangeAt}
               onPhotoPositionChangeAt={handlePhotoPositionChangeAt}

@@ -1,6 +1,6 @@
-import { fontMono } from './theme'
+import { fontMono, LOGO_CLEAR } from './theme'
 import { sygnetByName } from './logos'
-import { LogoSlot } from './LogoSlot'
+import { LogoSlots } from './blocks/LogoSlots'
 import { withPlaceholders } from './fallback'
 import { resolveScheme } from './schemes'
 import { PosterFrame } from './blocks/PosterFrame'
@@ -12,8 +12,9 @@ import type { PosterProps } from '../types'
 // Jedyny szablon bez narożnikowego stosu informacji — do krótkich ogłoszeń,
 // cytatów i podziękowań.
 export function PosterOgloszenie({ data, scheme }: PosterProps) {
-  const { title, subtitle, logos, fx } = withPlaceholders(data)
+  const { title, subtitle, graphics, showPkLogo, fx } = withPlaceholders(data)
   const s = resolveScheme('ogloszenie', scheme)
+  const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
 
   return (
     <PosterFrame vars={s.cssVars} padding={96}>
@@ -37,8 +38,8 @@ export function PosterOgloszenie({ data, scheme }: PosterProps) {
 
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 24 }}>
         <div style={{ font: `700 20px ${fontMono}`, letterSpacing: '.12em', opacity: 0.85 }}>sknm.pk.edu.pl</div>
-        <LogoRow alignItems="flex-end">
-          <LogoSlot logo={logos.pk} variant={s.logoVariant} flush={['r', 'b']} />
+        <LogoRow alignItems="flex-end" gap={LOGO_CLEAR}>
+          <LogoSlots slots={slots} variant={s.logoVariant} flush={['r', 'b']} />
         </LogoRow>
       </div>
     </PosterFrame>

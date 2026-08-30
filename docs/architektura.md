@@ -55,10 +55,12 @@ src/
 Każde pole tekstowe ma w formularzu checkbox widoczności. Stan siedzi w
 `FormValues.visibility` (per-pole `false` = ukryte; brak klucza = widoczne) i jest
 zapisywany w draftcie (kolumna `draft.visibility`, JSON). `withPlaceholders(data)`
-zwraca helpery `fx(name)` (styl `{ opacity: 0 }` lub `undefined`) i `hidden(name)`
+zwraca helpery `fx(name)` (styl `{ display: 'none' }` lub `undefined`) i `hidden(name)`
 (bool) - plakat rozlewa `...fx('title')` na element danego pola. Ukryte pole
-**zostaje w layoucie** (samo `opacity: 0`), żeby nie rozsypać flexowej konstrukcji
-bloków. Historia nie zapisuje widoczności.
+**znika z układu** (`display: none`), a flexowa konstrukcja bloków sama domyka
+lukę - plakat się przekłada zamiast zostawiać puste miejsce. `InfoLine` w ogóle
+nie renderuje ukrytych części ani osieroconych separatorów. Historia nie zapisuje
+widoczności.
 
 ## Schematy kolorów (skrót)
 

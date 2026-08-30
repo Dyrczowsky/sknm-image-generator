@@ -16,13 +16,16 @@ import { withPlaceholders } from './fallback'
 import { resolveScheme } from './schemes'
 import { PosterFrame } from './blocks/PosterFrame'
 import { LogoRow } from './blocks/LogoRow'
-import { LogoSlot } from './LogoSlot'
+import { LogoSlots } from './blocks/LogoSlots'
+import { LOGO_CLEAR } from './theme'
 import { sygnetByName } from './logos'
 import type { PosterProps } from '../types'
 
 export function PosterPiknik({ data, scheme }: PosterProps) {
-  const { title, subtitle, event_date, location, logos } = withPlaceholders(data)
+  const { title, subtitle, event_date, location, graphics, showPkLogo } = withPlaceholders(data)
   const s = resolveScheme('piknik', scheme)
+  // null = domyślne logo PK (fallback), string = hurtowo wgrana grafika
+  const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
 
   return (
     <PosterFrame vars={s.cssVars} padding={96}>
@@ -34,8 +37,8 @@ export function PosterPiknik({ data, scheme }: PosterProps) {
         <div style={{ fontSize: 28 }}>{event_date} · {location}</div>
       </div>
 
-      <LogoRow>
-        <LogoSlot logo={logos.pk} variant={s.logoVariant} width={190} height={72} />
+      <LogoRow gap={LOGO_CLEAR}>
+        <LogoSlots slots={slots} variant={s.logoVariant} />
       </LogoRow>
     </PosterFrame>
   )
@@ -55,7 +58,10 @@ Reguły:
   `...fx('<pole>')` na element każdego pola tekstowego, np.
   `<div style={{ fontSize: 96, ...fx('title') }}>{title}</div>`. Pola przekazywane
   do `InfoLine` podajesz jako `{ text, hidden: hidden('<pole>') }`. Ukryte pole
-  dostaje `opacity: 0` i **zostaje** w layoucie - nie usuwaj go warunkowo z DOM.
+  dostaje `display: none` i wypada z układu - plakat sam się przekłada. Jeśli pole
+  siedzi w osobnym kontenerze z tłem/ramką (np. pływające pudełko z datą), owiń
+  ten kontener warunkiem `{!hidden('<pole>') && ...}`, żeby nie zostało puste
+  pudełko.
 
 ## 2. Formularz — `src/forms/FormPiknik.tsx`
 
@@ -66,11 +72,12 @@ Formularz dostaje `FormProps` i decyduje, które pola pokazać. Kontener:
 import type { FormProps } from '../types'
 import { PLACEHOLDERS } from '../posters/fallback'
 import { FormField } from './FormField'
-import { LogoField } from './LogoField'
+import { GraphicsField } from './GraphicsField'
 
-export function FormPiknik({ value, onFieldChange, onVisibilityChange, onLogoChange, onLogoEnabledChange }: FormProps) {
+export function FormPiknik({ value, onFieldChange, onVisibilityChange, onGraphicsAdd, onGraphicRemove, onGraphicMove, onShowPkChange }: FormProps) {
   // `name` + `{...vis}` włączają checkbox widoczności przy etykiecie pola.
   const vis = { visibility: value.visibility, onVisibilityChange }
+  const gfx = { value, onGraphicsAdd, onGraphicRemove, onGraphicMove, onShowPkChange }
   return (
     <form className="flex flex-col gap-3.5" onSubmit={(e) => e.preventDefault()}>
       <FormField name="title" {...vis} type="text" label="Tytuł" placeholder={PLACEHOLDERS.title}
@@ -82,8 +89,7 @@ export function FormPiknik({ value, onFieldChange, onVisibilityChange, onLogoCha
       <FormField name="location" {...vis} type="text" label="Lokalizacja" placeholder={PLACEHOLDERS.location}
         value={value.location} onChange={(v) => onFieldChange('location', v)} />
 
-      <LogoField fieldKey="pk" label="Logo PK" value={value}
-        onChange={onLogoChange} onEnabledChange={onLogoEnabledChange} />
+      <GraphicsField {...gfx} />
     </form>
   )
 }
@@ -92,7 +98,9 @@ export function FormPiknik({ value, onFieldChange, onVisibilityChange, onLogoCha
 Dostępne klocki:
 
 - `FormField` — pojedyncze `<label><input>` (`type` = `text` / `date` / `time`)
-- `LogoField` — slot logo (checkbox włącz/wyłącz + upload), klucz w `value.logos`
+- `GraphicsField` — checkbox „Dodaj logo PK" + hurtowe wgrywanie grafik stopki
+  (miniatury, kolejność strzałkami, usuwanie), stan w `value.graphics` /
+  `value.showPkLogo`. Po stronie plakatu renderujesz je `<LogoSlots slots={…} />`.
 - `PhotoGalleryField` — galeria 0..N zdjęć z kadrowaniem, klucz w `value.photos`
 - lista powtarzalna (jak program konferencji) — patrz `FormKonferencja.tsx`,
   używa `onListItemAdd` / `onListItemChange` / `onListItemRemove` i `value.lists`

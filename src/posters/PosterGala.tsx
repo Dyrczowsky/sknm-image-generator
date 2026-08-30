@@ -1,7 +1,7 @@
 import { fontMono, LOGO_CLEAR } from './theme'
 import { sygnetByName } from './logos'
 import { PlaceholderBox } from './PlaceholderBox'
-import { LogoSlot } from './LogoSlot'
+import { LogoSlots } from './blocks/LogoSlots'
 import { withPlaceholders } from './fallback'
 import { resolveScheme } from './schemes'
 import { PosterFrame } from './blocks/PosterFrame'
@@ -14,8 +14,9 @@ import type { PosterProps } from '../types'
 
 // GALA — złoto na grafitowym
 export function PosterGala({ data, scheme }: PosterProps) {
-  const { title, subtitle, event_date, event_time, location, badge, logos, hidden, fx } = withPlaceholders(data)
+  const { title, subtitle, event_date, event_time, location, badge, graphics, showPkLogo, hidden, fx } = withPlaceholders(data)
   const s = resolveScheme('gala', scheme)
+  const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
 
   return (
     <PosterFrame vars={s.cssVars} padding={72}>
@@ -49,7 +50,7 @@ export function PosterGala({ data, scheme }: PosterProps) {
           />
         </div>
         <LogoRow gap={LOGO_CLEAR} alignItems="center">
-          <LogoSlot logo={logos.pk} variant={s.logoVariant} />
+          <LogoSlots slots={slots} variant={s.logoVariant} />
           <PlaceholderBox label="patronat" width={140} height={72} style={{ borderColor: 'var(--patron-border)', color: 'var(--patron-text)' }} />
         </LogoRow>
       </div>

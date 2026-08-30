@@ -1,7 +1,7 @@
 import { colors, fontMono, LOGO_CLEAR } from './theme'
 import { sygnetByName } from './logos'
 import { resolveScheme } from './schemes'
-import { LogoSlot } from './LogoSlot'
+import { LogoSlots } from './blocks/LogoSlots'
 import { PhotoGallery } from './PhotoGallery'
 import { withPlaceholders } from './fallback'
 import { getDay, getMonthShort } from '../utils/formatDate'
@@ -13,8 +13,9 @@ import type { PosterProps } from '../types'
 
 // GOŚĆ — zdjęcie + pas
 export function PosterGosc({ data, scheme }: PosterProps) {
-  const { title, speaker, event_date, event_time, location, badge, logos, photos, hidden, fx } = withPlaceholders(data)
+  const { title, speaker, event_date, event_time, location, badge, graphics, showPkLogo, photos, hidden, fx } = withPlaceholders(data)
   const s = resolveScheme('gosc', scheme)
+  const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
 
   return (
     <PosterFrame vars={s.cssVars}>
@@ -25,13 +26,15 @@ export function PosterGosc({ data, scheme }: PosterProps) {
       </PhotoGallery>
 
       <div style={{ flex: 1, padding: '56px 72px 72px', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', position: 'relative' }}>
-        <div style={{ position: 'absolute', top: -56, right: 72, background: colors.coral, color: colors.cream, padding: '18px 26px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <div style={{ fontSize: 64, fontWeight: 800, lineHeight: 0.9, ...fx('event_date') }}>{getDay(event_date)}</div>
-          <div style={{ font: `700 22px ${fontMono}`, letterSpacing: '.12em' }}>
-            <span style={fx('event_date')}>{getMonthShort(event_date, { upperCase: true })}</span>
-            {event_time && <> <span style={fx('event_time')}>{event_time}</span></>}
+        {(!hidden('event_date') || !hidden('event_time')) && (
+          <div style={{ position: 'absolute', top: -56, right: 72, background: colors.coral, color: colors.cream, padding: '18px 26px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <div style={{ fontSize: 64, fontWeight: 800, lineHeight: 0.9, ...fx('event_date') }}>{getDay(event_date)}</div>
+            <div style={{ font: `700 22px ${fontMono}`, letterSpacing: '.12em' }}>
+              <span style={fx('event_date')}>{getMonthShort(event_date, { upperCase: true })}</span>
+              {event_time && !hidden('event_time') && <> <span>{event_time}</span></>}
+            </div>
           </div>
-        </div>
+        )}
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 820 }}>
           <Badge color="var(--accent)" style={fx('badge')}>{badge || 'SEMINARIUM SKNM'}</Badge>
@@ -49,8 +52,7 @@ export function PosterGosc({ data, scheme }: PosterProps) {
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24 }}>
           <div style={{ fontSize: 22, fontWeight: 600, color: 'var(--accent)' }}>Wstęp wolny · sknm.pk.edu.pl</div>
           <LogoRow alignItems="flex-end" gap={LOGO_CLEAR}>
-            <LogoSlot logo={logos.pk} variant={s.logoVariant} flush={['r', 'b']} />
-            <LogoSlot logo={logos.faculty} variant={s.logoVariant} fallback={false} flush={['r', 'b']} />
+            <LogoSlots slots={slots} variant={s.logoVariant} flush={['r', 'b']} />
           </LogoRow>
         </div>
       </div>

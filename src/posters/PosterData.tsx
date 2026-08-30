@@ -1,7 +1,7 @@
 import { colors, fontMono, LOGO_CLEAR } from './theme'
 import { sygnetByName } from './logos'
 import { resolveScheme } from './schemes'
-import { LogoSlot } from './LogoSlot'
+import { LogoSlots } from './blocks/LogoSlots'
 import { PhotoGallery } from './PhotoGallery'
 import { withPlaceholders } from './fallback'
 import { getDay, getMonthShort } from '../utils/formatDate'
@@ -13,8 +13,9 @@ import type { PosterProps } from '../types'
 
 // DATA — liczba jako grafika
 export function PosterData({ data, scheme }: PosterProps) {
-  const { title, subtitle, event_date, event_time, location, logos, photos, hidden, fx } = withPlaceholders(data)
+  const { title, subtitle, event_date, event_time, location, graphics, showPkLogo, photos, hidden, fx } = withPlaceholders(data)
   const s = resolveScheme('data', scheme)
+  const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
 
   return (
     <PosterFrame vars={s.cssVars} padding={72}>
@@ -62,8 +63,7 @@ export function PosterData({ data, scheme }: PosterProps) {
           <div style={{ width: 56, height: 44, background: 'var(--tri3)', clipPath: 'polygon(0 0,100% 0,50% 100%)' }} />
         </div>
         <LogoRow alignItems="flex-end" gap={LOGO_CLEAR}>
-          <LogoSlot logo={logos.pk} variant={s.logoVariant} flush={['r', 'b']} />
-          <LogoSlot logo={logos.faculty} variant={s.logoVariant} fallback={false} flush={['r', 'b']} />
+          <LogoSlots slots={slots} variant={s.logoVariant} flush={['r', 'b']} />
         </LogoRow>
       </div>
     </PosterFrame>

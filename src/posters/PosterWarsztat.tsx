@@ -1,7 +1,7 @@
 import { LOGO_CLEAR } from './theme'
 import { sygnetByName } from './logos'
 import { PlaceholderBox } from './PlaceholderBox'
-import { LogoSlot } from './LogoSlot'
+import { LogoSlots } from './blocks/LogoSlots'
 import { PhotoGallery } from './PhotoGallery'
 import { withPlaceholders } from './fallback'
 import { resolveScheme } from './schemes'
@@ -22,7 +22,8 @@ function Pill({ children, style }: { children: ReactNode; style?: CSSProperties 
 
 // WARSZTAT — skos
 export function PosterWarsztat({ data, scheme }: PosterProps) {
-  const { title, subtitle, event_date, event_time, location, badge, logos, photos, fx } = withPlaceholders(data)
+  const { title, subtitle, event_date, event_time, location, badge, graphics, showPkLogo, photos, fx } = withPlaceholders(data)
+  const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
 
   const pills = [
     { text: event_time, style: fx('event_time') },
@@ -63,8 +64,7 @@ export function PosterWarsztat({ data, scheme }: PosterProps) {
                 ochronne idzie ze wszystkich stron - tło `slot-bg` tworzy
                 czytelną kartę pod znakiem. */}
             <LogoRow alignItems="flex-end" gap={LOGO_CLEAR}>
-              <LogoSlot logo={logos.pk} variant={s.logoVariant} style={{ background: 'var(--slot-bg)' }} />
-              <LogoSlot logo={logos.faculty} variant={s.logoVariant} fallback={false} style={{ background: 'var(--slot-bg)' }} />
+              <LogoSlots slots={slots} variant={s.logoVariant} slotStyle={{ background: 'var(--slot-bg)' }} />
             </LogoRow>
           </div>
         </div>

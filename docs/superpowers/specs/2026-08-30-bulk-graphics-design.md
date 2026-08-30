@@ -176,6 +176,33 @@ Usuń nieużywane propsy `onLogoChange`/`onLogoEnabledChange` z destrukturyzacji
   - eksport PNG z 3 grafikami
   - brak przepełnień przy 4 grafikach
 
+## Implementacja — odstępstwa od szkicu
+
+Wersja z gałęzi `feat/bulk-graphics`:
+
+- **Render slotów:** zamiast `slots.map` inline w każdym plakacie powstał wspólny
+  klocek `src/posters/blocks/LogoSlots.tsx` (`slots`, `variant`, `flush`,
+  `slotStyle`). `flush` może być tablicą albo funkcją `(i, n) => Side[]`.
+- **Przepełnienie stopki:** `LogoRow` dostał `flexWrap: 'wrap'` — gdy grafik jest
+  za dużo na jedną linię, nadmiar schodzi do kolejnego wiersza zamiast wychodzić
+  poza kadr.
+- **Widoczność pól → `display: none`:** przy okazji (prośba użytkownika) `fx()`
+  zwraca teraz `{ display: 'none' }` zamiast `{ opacity: 0 }`, `InfoLine` w ogóle
+  nie renderuje ukrytych części. Dzięki temu wyłączenie bloku daty/tekstu po lewej
+  stronie stopki zwalnia miejsce na grafiki. Pływające pudełko z datą w `Gość`
+  owinięte warunkiem, żeby nie zostawało puste.
+- **`MAX_GRAPHICS = 4`** w `theme.ts`.
+
+### Znane ograniczenie
+
+`Rekrutacja` i `Gala`: stopka logo dzieli linię z blokiem tekstu/daty przez
+`space-between`, a logo PK w wersji poziomej ma ~214 px szerokości. Dodanie choćby
+jednej grafiki powoduje zawinięcie rzędu do 2 linii, co przy stałej wysokości
+bryły stopki (`Rekrutacja` — clipPath) wypycha treść ~37–58 px poza dolną krawędź
+kadru. Do decyzji: przerobić stopkę tych 2 szablonów (np. logo pod tekstem),
+skalować grafiki w dół zamiast zawijać, albo ograniczyć liczbę grafik na tych
+layoutach.
+
 ## Poza zakresem
 
 - Kadrowanie / pozycjonowanie grafik (to mają zdjęcia, nie logotypy)

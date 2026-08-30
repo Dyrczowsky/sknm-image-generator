@@ -1,7 +1,7 @@
 import type { FormProps } from '../types'
 import { PLACEHOLDERS } from '../posters/fallback'
 import { FormField } from './FormField'
-import { LogoField } from './LogoField'
+import { GraphicsField } from './GraphicsField'
 import { PhotoGalleryField } from './PhotoGalleryField'
 
 // Formularz dla Warsztatu - logo PK + logo wydziału + zdjęcie z warsztatów.
@@ -9,13 +9,16 @@ export function FormWarsztat({
   value,
   onFieldChange,
   onVisibilityChange,
-  onLogoChange,
-  onLogoEnabledChange,
+  onGraphicsAdd,
+  onGraphicRemove,
+  onGraphicMove,
+  onShowPkChange,
   onPhotoAdd,
   onPhotoChangeAt,
   onPhotoPositionChangeAt,
 }: FormProps) {
   const vis = { visibility: value.visibility, onVisibilityChange }
+  const gfx = { value, onGraphicsAdd, onGraphicRemove, onGraphicMove, onShowPkChange }
   return (
     <form className="flex flex-col gap-3.5" onSubmit={(e) => e.preventDefault()}>
       <FormField name="badge" {...vis} type="text" label="Etykieta" placeholder="WARSZTATY" value={value.badge} onChange={(v) => onFieldChange('badge', v)} />
@@ -26,8 +29,7 @@ export function FormWarsztat({
       <FormField name="event_time" {...vis} type="time" label="Godzina" placeholder={PLACEHOLDERS.event_time} value={value.event_time} onChange={(v) => onFieldChange('event_time', v)} />
       <FormField name="location" {...vis} type="text" label="Lokalizacja" placeholder={PLACEHOLDERS.location} value={value.location} onChange={(v) => onFieldChange('location', v)} />
 
-      <LogoField fieldKey="pk" label="Logo PK" value={value} onChange={onLogoChange} onEnabledChange={onLogoEnabledChange} />
-      <LogoField fieldKey="faculty" label="Logo wydziału" value={value} onChange={onLogoChange} onEnabledChange={onLogoEnabledChange} />
+      <GraphicsField {...gfx} />
 
       <PhotoGalleryField
         fieldKey="photo"

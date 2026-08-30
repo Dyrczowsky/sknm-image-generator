@@ -89,3 +89,6 @@ export const posterBaseStyle: CSSProperties = {
 // padding wrappera (LogoSlot).
 export const LOGO_HEIGHT = 48
 export const LOGO_CLEAR = Math.round(LOGO_HEIGHT / 4)
+
+// Ile grafik/logotypów mieści się w rzędzie stopki przy LOGO_HEIGHT.
+export const MAX_GRAPHICS = 4

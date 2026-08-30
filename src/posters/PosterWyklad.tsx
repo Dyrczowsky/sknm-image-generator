@@ -1,6 +1,6 @@
 import { LOGO_CLEAR } from './theme'
 import { sygnetByName } from './logos'
-import { LogoSlot } from './LogoSlot'
+import { LogoSlots } from './blocks/LogoSlots'
 import { withPlaceholders } from './fallback'
 import { resolveScheme } from './schemes'
 import { PosterFrame } from './blocks/PosterFrame'
@@ -13,8 +13,9 @@ import type { PosterProps } from '../types'
 
 // WYKŁAD — typografia
 export function PosterWyklad({ data, scheme }: PosterProps) {
-  const { title, subtitle, speaker, event_date, event_time, location, badge, logos, hidden, fx } = withPlaceholders(data)
+  const { title, subtitle, speaker, event_date, event_time, location, badge, graphics, showPkLogo, hidden, fx } = withPlaceholders(data)
   const s = resolveScheme('wyklad', scheme)
+  const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
 
   return (
     <PosterFrame vars={s.cssVars} padding={72}>
@@ -45,8 +46,7 @@ export function PosterWyklad({ data, scheme }: PosterProps) {
           />
         </div>
         <LogoRow alignItems="flex-end" gap={LOGO_CLEAR}>
-          <LogoSlot logo={logos.pk} variant={s.logoVariant} flush={['r', 'b']} />
-          <LogoSlot logo={logos.faculty} variant={s.logoVariant} fallback={false} flush={['r', 'b']} />
+          <LogoSlots slots={slots} variant={s.logoVariant} flush={['r', 'b']} />
         </LogoRow>
       </div>
 
