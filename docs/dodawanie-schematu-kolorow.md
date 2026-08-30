@@ -19,9 +19,15 @@ Komponent plakatu używa roli jako zmiennej CSS w stylu inline:
 <div style={{ background: 'var(--page-bg)', color: 'var(--accent)' }}>
 ```
 
-`resolveScheme(layoutKey, schemeName)` scala `default` + nazwany wariant i zwraca
-`{ cssVars, sygnet, logoVariant }`. `cssVars` jest rozlewane na `PosterFrame`
-(`vars={s.cssVars}`), więc `var(--rola)` działa u każdego potomka.
+`resolveScheme(layoutKey, schemeName)` scala blok bazowy layoutu (`default`, a gdy
+go nie ma - pierwszy schemat) + nazwany wariant i zwraca `{ cssVars, sygnet,
+logoVariant }`. `cssVars` jest rozlewane na `PosterFrame` (`vars={s.cssVars}`),
+więc `var(--rola)` działa u każdego potomka.
+
+**Lista schematów w UI wynika wprost z `schemes.ts`** - `schemesFor(layoutKey)`
+zwraca `Object.keys` bloku layoutu, w kolejności zapisu (pierwszy = domyślny).
+Nie ma osobnej listy w `registry.ts`. Layout z jednym schematem (Gala) nie
+pokazuje paska kolorystyki.
 
 ### Konwersja nazw
 
@@ -48,8 +54,9 @@ nadpisują tylko różnice.
 
 Przykład: dodajemy wariant `morski` do Wykładu.
 
-1. W `schemes.ts`, w bloku `const wyklad: LayoutSchemes = { ... }`, dopisz wariant.
-   Podajesz **tylko** to, co różni się od `wyklad.default`:
+1. W `schemes.ts`, w bloku `const wyklad: LayoutSchemes = { ... }`, dopisz wariant
+   w miejscu, w którym ma się pojawić na pasku (kolejność kluczy = kolejność
+   swatchy). Podajesz **tylko** to, co różni się od bloku bazowego (`wyklad.default`):
 
    ```ts
    morski: {
@@ -65,17 +72,11 @@ Przykład: dodajemy wariant `morski` do Wykładu.
    `rgba(...)`, `oklch(...)`). Jeśli role są dekoracyjne i mają jawne wartości per
    wariant (jak kliny Wykładu) — nie ma `color-mix`, wpisujesz konkretny kolor.
 
-2. Dodaj wariant do listy w `registry.ts` (kolejność = kolejność swatchy w UI):
+   To wystarczy, żeby swatch pojawił się w generatorze — `registry.ts` nie
+   trzyma listy schematów.
 
-   ```ts
-   wyklad: {
-     name: 'Wykład', Component: PosterWyklad, Form: FormWyklad,
-     schemes: ['default', 'zloto', 'czern', 'jasny', 'szary', 'morski'],
-   },
-   ```
-
-3. Podpis swatcha — jeśli nazwa jest nowa, dopisz do `SCHEME_LABELS` na dole
-   `schemes.ts`:
+2. Podpis swatcha — jeśli nazwa jest nowa, dopisz do `SCHEME_LABELS` na dole
+   `schemes.ts` (bez wpisu swatch pokaże surowy klucz):
 
    ```ts
    export const SCHEME_LABELS: Record<string, string> = {
@@ -84,7 +85,7 @@ Przykład: dodajemy wariant `morski` do Wykładu.
    }
    ```
 
-4. Sprawdź: `npm run build && npm test`, potem podgląd
+3. Sprawdź: `npm run build && npm test`, potem podgląd
    `http://localhost:5173/sknm-image-generator/poster/wyklad/morski`
    i pasek kolorystyki w generatorze.
 
@@ -96,25 +97,22 @@ Przykład: dodajemy wariant `morski` do Wykładu.
 3. Resolver nie wymaga zmian — dowolny klucz spoza `sygnet`/`logoVariant`
    automatycznie trafia do `cssVars`.
 
-## C. Wariant jako alias (jak Rekrutacja)
+## C. Layout bez bloku `default` (jak Rekrutacja)
 
-Rekrutacja ma domyślny schemat `limonka`, nie `default`. Żeby `zloto`/`jasny`/
-`szary` odziedziczyły wspólne role (`footerText`, `qrBorder`, ...), na końcu bloku
-jest:
+Rekrutacja nie ma klucza `default` - jej blokiem bazowym jest **pierwszy
+schemat** (`limonka`), bo `resolveScheme` bierze `layout.default ?? layout[
+pierwszy klucz]`. Dzięki temu `czern`/`zloto`/... dziedziczą wspólne role
+(`footerText`, `qrBorder`, ...) wprost z `limonka` i nie trzeba żadnego aliasu.
 
-```ts
-rekrutacja.default = { ...rekrutacja.limonka }
-```
-
-Resolver scala nazwany wariant nad `default`, więc bez tego aliasu warianty inne
-niż `limonka` nie miałyby wspólnej bazy. Stosuj ten wzorzec, gdy "domyślny"
-wygląd layoutu ma własną nazwę na pasku kolorystyki.
+Stosuj ten wzorzec, gdy "domyślny" wygląd layoutu ma własną nazwę na pasku
+kolorystyki: napisz go jako pełny pierwszy blok, reszta podaje tylko różnice.
 
 ## Checklist
 
-- [ ] blok wariantu w `schemes.ts` (tylko różnice względem `default`)
-- [ ] `default` layoutu ma **wszystkie** role używane przez komponent
-- [ ] wariant dopisany do `schemes: [...]` w `registry.ts`
+- [ ] blok wariantu w `schemes.ts` (tylko różnice względem bloku bazowego),
+      w miejscu = pozycja swatcha
+- [ ] blok bazowy layoutu (`default` lub pierwszy schemat) ma **wszystkie**
+      role używane przez komponent
 - [ ] podpis w `SCHEME_LABELS` (jeśli nowa nazwa)
 - [ ] `npm run build && npm test`
-- [ ] podgląd `/poster/<layout>/<wariant>` + eksport PNG
+- [ ] podgląd `/poster/<layout>/<wariant>` + pasek kolorystyki w generatorze

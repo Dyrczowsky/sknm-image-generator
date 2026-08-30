@@ -22,11 +22,11 @@ src/
 │   └── PhotoGalleryField  galeria 0..N zdjęć, opakowuje ImageUpload
 │
 ├── posters/           renderowanie plakatów
-│   ├── registry.ts       poster_key → { name, Component, Form, schemes? }
+│   ├── registry.ts       poster_key → { name, Component, Form }
 │   ├── PosterWyklad...    8 komponentów layoutów (style inline, patrz stylowanie.md)
 │   ├── blocks/           współdzielone bloki plakatu (PosterFrame, Badge, LogoRow, ...)
 │   ├── theme.ts          tokeny wizualne plakatów (kolory, typografia)
-│   ├── schemes.ts        schematy kolorów zagnieżdżone per layout + resolveScheme()
+│   ├── schemes.ts        schematy kolorów per layout + resolveScheme() + schemesFor()
 │   ├── fallback.ts       PLACEHOLDERS + withPlaceholders() (dane przykładowe)
 │   ├── logos.ts          warianty sygnetu SKNM i logo PK
 │   └── export.ts         downloadPosterAsPng() - html-to-image + formaty eksportu
@@ -43,9 +43,11 @@ src/
 
 1. `App` przy starcie woła `getDb()` → `listTemplates()` + `getDraft()` i ustawia stan.
 2. Zmiana pola formularza → `setForm()` + `persistDraft()` (debounce 400 ms → tabela `draft`).
-3. Wybrany szablon (`selectedTemplateId`) + rejestr → `selectedPoster` = `{ Component, Form, schemes }`.
+3. Wybrany szablon (`selectedTemplateId`) + rejestr → `selectedPoster` = `{ Component, Form }`.
    - `Form` renderuje się w panelu "2. Uzupełnij dane".
    - `Component` renderuje się w `PosterPreview` z tymi samymi danymi (`form`) i `scheme`.
+   - Pasek kolorystyki: `schemesFor(poster_key)` z `schemes.ts` (kolejność = kolejność
+     zapisu; layout z jednym schematem nie pokazuje paska).
 4. Dane formularza są **globalne** i przeżywają zmianę layoutu - zmienia się tylko,
    który `Form` je edytuje i który `Component` je rysuje.
 5. "Pobierz PNG" → `downloadPosterAsPng(posterRef.current, ...)` + `addHistoryEntry()`.

@@ -6,6 +6,7 @@ import { listTemplates } from './db/templates'
 import { getDraft, saveDraft, parseVisibility } from './db/drafts'
 import { addHistoryEntry, deleteHistoryEntry, listHistory } from './db/history'
 import { posterRegistry } from './posters/registry'
+import { schemesFor } from './posters/schemes'
 import { MAX_GRAPHICS } from './posters/theme'
 import { downloadPosterAsPng, EXPORT_FORMATS } from './posters/export'
 import { TemplateSelector } from './components/TemplateSelector'
@@ -30,12 +31,13 @@ const EMPTY_FORM: FormValues = {
   lists: {},
 }
 
-// Domyślny schemat kolorów danego layoutu = pierwszy element `schemes`
-// (`undefined` dla Gali, która nie ma wariantów - resolveScheme użyje wtedy
-// bloku `default`).
+// Domyślny schemat kolorów danego layoutu = pierwszy schemat z `schemes.ts`
+// (`undefined` dla Gali, która ma jeden schemat - resolveScheme użyje wtedy
+// bloku bazowego).
 function defaultSchemeFor(templateId: number | null, templates: TemplateRow[]): string | undefined {
   const tpl = templates.find((t) => t.id === templateId)
-  return tpl ? posterRegistry[tpl.poster_key]?.schemes?.[0] : undefined
+  const list = tpl ? schemesFor(tpl.poster_key) : []
+  return list.length > 1 ? list[0] : undefined
 }
 
 function App() {
@@ -360,7 +362,7 @@ function App() {
         <section className={`${panel} min-[900px]:sticky min-[900px]:top-5 min-[900px]:[grid-area:preview]`}>
           <h2 className={panelHeading}>Podgląd</h2>
           <PosterPreview posterRef={posterRef} Component={selectedPoster?.Component} data={form} scheme={selectedScheme} />
-          <SchemeSelector poster={selectedPoster} selectedScheme={selectedScheme} onSelectScheme={handleSelectScheme} />
+          <SchemeSelector poster={selectedPoster} posterKey={selectedTemplate?.poster_key} selectedScheme={selectedScheme} onSelectScheme={handleSelectScheme} />
         </section>
 
         <section className={`${panel} min-[900px]:[grid-area:history]`}>

@@ -34,7 +34,7 @@ export function TemplateSelector({ templates, selectedId, onSelect }: TemplateSe
           >
             <div className="overflow-hidden rounded-md shadow-[0_1px_2px_rgba(0,0,0,0.12)]">
               <PosterScaled size={THUMB_SIZE}>
-                <Component data={THUMB_DATA} scheme={entry.schemes?.[0]} />
+                <Component data={THUMB_DATA} scheme={undefined} />
               </PosterScaled>
             </div>
             <span>{entry.name}</span>

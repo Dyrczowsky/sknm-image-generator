@@ -108,5 +108,4 @@ export interface RegistryEntry {
   name: string
   Component: ComponentType<PosterProps>
   Form: ComponentType<FormProps>
-  schemes?: string[]
 }

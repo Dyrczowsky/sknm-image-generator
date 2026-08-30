@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { SCHEME_LABELS, resolveScheme, schemes } from './schemes'
+import { SCHEME_LABELS, resolveScheme, schemes, schemesFor } from './schemes'
 import { colors } from './theme'
 
 describe('resolveScheme', () => {
@@ -133,11 +133,12 @@ describe('resolveScheme', () => {
     expect(cz.cssVars['--qr-border']).toBe('rgba(244,242,237,.3)')
   })
 
-  it('invariant: każdy layout ma default; każda para zwraca sygnet + logoVariant + niepusty cssVars', () => {
+  it('invariant: każdy layout ma niepustą listę schematów; każdy (z bazą włącznie) zwraca sygnet + logoVariant + niepusty cssVars', () => {
     for (const layout of Object.keys(schemes)) {
-      const names = Object.keys(schemes[layout])
-      expect(names, `${layout}: brak bloku default`).toContain('default')
-      for (const name of names) {
+      const names = schemesFor(layout)
+      expect(names.length, `${layout}: brak schematów`).toBeGreaterThan(0)
+      // `undefined` = blok bazowy (default albo pierwszy schemat layoutu)
+      for (const name of [undefined, ...names]) {
         const s = resolveScheme(layout, name)
         expect(s.sygnet, `${layout}/${name}: brak sygnet`).toBeTruthy()
         expect(['light', 'dark'], `${layout}/${name}: zły logoVariant`).toContain(s.logoVariant)

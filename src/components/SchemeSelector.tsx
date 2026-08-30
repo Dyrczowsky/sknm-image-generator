@@ -1,4 +1,4 @@
-import { SCHEME_LABELS } from '../posters/schemes'
+import { SCHEME_LABELS, schemesFor } from '../posters/schemes'
 import { PosterScaled } from './PosterScaled'
 import type { RawPosterData, RegistryEntry } from '../types'
 
@@ -7,14 +7,16 @@ const THUMB_DATA: RawPosterData = {}
 
 interface SchemeSelectorProps {
   poster: RegistryEntry | null
+  posterKey: string | undefined
   selectedScheme: string | undefined
   onSelectScheme: (name: string) => void
 }
 
 // Pasek wyboru kolorystyki wybranego layoutu - renderowany pod podglądem.
-// Nie pokazuje się dla layoutów bez wariantów (np. Gala).
-export function SchemeSelector({ poster, selectedScheme, onSelectScheme }: SchemeSelectorProps) {
-  const schemeList = poster?.schemes ?? []
+// Lista schematów wynika z `schemes.ts` (schemesFor). Nie pokazuje się dla
+// layoutów z jednym schematem (np. Gala).
+export function SchemeSelector({ poster, posterKey, selectedScheme, onSelectScheme }: SchemeSelectorProps) {
+  const schemeList = posterKey ? schemesFor(posterKey) : []
   const SwatchComponent = poster?.Component
   if (schemeList.length <= 1 || !SwatchComponent) return null
 

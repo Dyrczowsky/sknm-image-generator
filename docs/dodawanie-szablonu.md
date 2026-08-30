@@ -113,9 +113,10 @@ Stan formularza jest globalny — nie każdy layout musi używać wszystkich pó
 
 ## 3. Schemat kolorów — `src/posters/schemes.ts`
 
-Każdy layout musi mieć **pełny blok `default`** ze wszystkimi rolami, których
-używa jego komponent (rola nieobecna spada do `:root` w `index.css` — patrz
-`⚠️` w [stylowanie.md](./stylowanie.md)).
+Każdy layout musi mieć **pełny blok bazowy** (`default`, a gdy go nie ma -
+pierwszy schemat) ze wszystkimi rolami, których używa jego komponent (rola
+nieobecna spada do `:root` w `index.css` — patrz `⚠️` w
+[stylowanie.md](./stylowanie.md)).
 
 ```ts
 const piknik: LayoutSchemes = {
@@ -123,7 +124,8 @@ const piknik: LayoutSchemes = {
     pageBg: colors.lime, pageText: colors.limeText, accent: colors.navy,
     sygnet: 'granat', logoVariant: 'dark',
   },
-  // kolejne warianty nadpisują tylko różnice względem default:
+  // kolejne warianty nadpisują tylko różnice; kolejność kluczy = kolejność
+  // swatchy na pasku kolorystyki:
   czern: { pageBg: colors.black, pageText: colors.cream, accent: colors.gold,
            sygnet: 'negatywny', logoVariant: 'dark' },
 }
@@ -137,8 +139,13 @@ export const schemes: Record<string, LayoutSchemes> = {
 }
 ```
 
+To wszystko — pasek kolorystyki w generatorze budowany jest wprost z tego bloku
+(`schemesFor(poster_key)`), `registry.ts` nie trzyma listy schematów. Layout
+z jednym schematem (jak Gala) nie pokazuje paska.
+
 Jeśli używasz nazwy wariantu spoza `default/limonka/czern/zloto/jasny/szary`,
-dopisz jej podpis do `SCHEME_LABELS` na dole `schemes.ts`.
+dopisz jej podpis do `SCHEME_LABELS` na dole `schemes.ts` (bez wpisu swatch
+pokaże surowy klucz).
 
 Więcej o rolach, `resolveScheme` i konwencji `camelCase → --kebab`:
 [dodawanie-schematu-kolorow.md](./dodawanie-schematu-kolorow.md).
@@ -151,17 +158,11 @@ import { FormPiknik } from '../forms/FormPiknik'
 
 export const posterRegistry: Record<string, RegistryEntry> = {
   // ...
-  piknik: {
-    name: 'Piknik',                       // podpis kafelki w TemplateSelector
-    Component: PosterPiknik,
-    Form: FormPiknik,
-    schemes: ['default', 'czern'],        // pierwszy = domyślny; pomiń pole dla 1 wariantu
-  },
+  piknik: { name: 'Piknik', Component: PosterPiknik, Form: FormPiknik },
 }
 ```
 
-`schemes` to uporządkowana lista nazw z bloku w `schemes.ts`. Layout bez `schemes`
-(jak Gala) nie pokazuje paska kolorystyki i zawsze rysuje `default`.
+`name` to podpis kafelki w TemplateSelector.
 
 ## 5. Domyślny szablon w bazie — `src/db/schema.ts`
 
