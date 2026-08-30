@@ -81,9 +81,10 @@ describe('resolveScheme', () => {
     expect(d.cssVars['--badge-text']).toBe(colors.limeText)
     expect(d.cssVars['--wedge-bl']).toBe(colors.navyDark)
     const zl = resolveScheme('wyklad', 'zloto')
-    expect(zl.cssVars['--page-bg']).toBe(colors.navy)          // z default (zloto = navy)
-    expect(zl.cssVars['--wedge-br']).toBe(colors.navyLight)    // z default
-    expect(zl.cssVars['--speaker']).toBe(colors.cream)
+    expect(zl.cssVars['--page-bg']).toBe(colors.black)         // zloto: czarne tło (jak czerń)
+    expect(zl.cssVars['--wedge-br']).toBe('#1E1E1E')
+    expect(zl.cssVars['--speaker']).toBe(colors.gold)
+    expect(zl.sygnet).toBe('zloty')                            // różnica względem czerni: złoty sygnet
     const cz = resolveScheme('wyklad', 'czern')
     expect(cz.cssVars['--wedge-bl']).toBe('#0A0A0A')
     expect(cz.sygnet).toBe('negatywny')                        // Wykład czerń: negatyw, nie złoto

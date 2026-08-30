@@ -61,7 +61,8 @@ export function FormKonferencja({ value, onFieldChange, onVisibilityChange, onLo
         </button>
       </div>
 
-      <LogoField fieldKey="pk" label="Logo PK" value={value} onChange={onLogoChange} onEnabledChange={onLogoEnabledChange} />
+      <LogoField fieldKey="pk" label="Logo PK / grafika 1" value={value} onChange={onLogoChange} onEnabledChange={onLogoEnabledChange} />
+      <LogoField fieldKey="faculty" label="Grafika 2" fallback={false} value={value} onChange={onLogoChange} onEnabledChange={onLogoEnabledChange} />
     </form>
   )
 }
