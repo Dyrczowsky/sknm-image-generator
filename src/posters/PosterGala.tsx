@@ -1,5 +1,6 @@
 import { fontMono } from './theme'
 import { sygnetByName } from './logos'
+import { PlaceholderBox } from './PlaceholderBox'
 import { LogoSlot } from './LogoSlot'
 import { withPlaceholders } from './fallback'
 import { resolveScheme } from './schemes'
@@ -37,18 +38,19 @@ export function PosterGala({ data, scheme }: PosterProps) {
       </div>
 
       <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 32, position: 'relative', zIndex: 1 }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+        <div style={{ display: 'flex', gap: 20, alignItems: 'flex-end' }}>
           <BigDateNumber event_date={event_date} color="var(--gold)" style={fx('event_date')} />
           <InfoLine
             parts={[
               { text: event_time, hidden: hidden('event_time') },
               { text: location, hidden: hidden('location') },
             ]}
+            style={{ paddingBottom: 10, whiteSpace: 'nowrap' }}
           />
         </div>
-        <LogoRow gap={16} alignItems="flex-end">
+        <LogoRow gap={12}>
           <LogoSlot logo={logos.pk} variant={s.logoVariant} />
-          <LogoSlot logo={logos.faculty} variant={s.logoVariant} fallback={false} />
+          <PlaceholderBox label="patronat" width={140} height={72} style={{ borderColor: 'var(--patron-border)', color: 'var(--patron-text)' }} />
         </LogoRow>
       </div>
     </PosterFrame>

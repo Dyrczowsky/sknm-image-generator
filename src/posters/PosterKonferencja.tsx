@@ -1,6 +1,7 @@
 import { colors, fontMono } from './theme'
 import { sygnetByName } from './logos'
 import { resolveScheme } from './schemes'
+import { PlaceholderBox } from './PlaceholderBox'
 import { LogoSlot } from './LogoSlot'
 import { withPlaceholders } from './fallback'
 import { formatFullDate } from '../utils/formatDate'
@@ -69,9 +70,9 @@ export function PosterKonferencja({ data, scheme }: PosterProps) {
             <Badge color="var(--footer-badge)" style={{ font: `700 20px ${fontMono}`, letterSpacing: '.12em', ...fx('badge2') }}>{badge2 || 'WIĘCEJ INFORMACJI'}</Badge>
             <div style={{ fontSize: 24, fontWeight: 600, color: 'var(--muted-text)' }}>sknm.pk.edu.pl</div>
           </div>
-          <LogoRow gap={16} alignItems="flex-end">
+          <LogoRow gap={14}>
             <LogoSlot logo={logos.pk} variant={s.logoVariant} />
-            <LogoSlot logo={logos.faculty} variant={s.logoVariant} fallback={false} />
+            <PlaceholderBox label="patronat" width={180} height={68} />
           </LogoRow>
         </div>
       </div>

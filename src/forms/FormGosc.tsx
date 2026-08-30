@@ -26,8 +26,8 @@ export function FormGosc({
       <FormField name="event_time" {...vis} type="time" label="Godzina" placeholder={PLACEHOLDERS.event_time} value={value.event_time} onChange={(v) => onFieldChange('event_time', v)} />
       <FormField name="location" {...vis} type="text" label="Lokalizacja" placeholder={PLACEHOLDERS.location} value={value.location} onChange={(v) => onFieldChange('location', v)} />
 
-      <LogoField fieldKey="pk" label="Logo PK / grafika 1" value={value} onChange={onLogoChange} onEnabledChange={onLogoEnabledChange} />
-      <LogoField fieldKey="faculty" label="Grafika 2" fallback={false} value={value} onChange={onLogoChange} onEnabledChange={onLogoEnabledChange} />
+      <LogoField fieldKey="pk" label="Logo PK" value={value} onChange={onLogoChange} onEnabledChange={onLogoEnabledChange} />
+      <LogoField fieldKey="faculty" label="Logo wydziału" value={value} onChange={onLogoChange} onEnabledChange={onLogoEnabledChange} />
 
       <PhotoGalleryField
         fieldKey="photo"

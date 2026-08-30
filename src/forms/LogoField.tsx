@@ -7,22 +7,16 @@ interface LogoFieldProps {
   value: FormValues
   onChange: (fieldKey: string, src: string | null) => void
   onEnabledChange: (fieldKey: string, checked: boolean) => void
-  // `false` → slot bez domyślnego logo PK (pusty, dowolna grafika użytkownika).
-  fallback?: boolean
 }
 
-// Slot na grafikę (checkbox włącz/wyłącz + upload) dla jednego klucza w
+// Slot na logo (checkbox włącz/wyłącz + upload) dla jednego klucza w
 // `value.logos`, np. "pk" albo "faculty".
-export function LogoField({ fieldKey, label, value, onChange, onEnabledChange, fallback = true }: LogoFieldProps) {
+export function LogoField({ fieldKey, label, value, onChange, onEnabledChange }: LogoFieldProps) {
   const logo = value.logos[fieldKey]
   return (
     <ImageUpload
       label={label}
-      hint={
-        fallback
-          ? 'Najlepiej plik SVG (skaluje się bez utraty jakości), PNG lub JPG też zadziałają. Bez wgranego pliku pojawi się domyślne logo PK.'
-          : 'Dowolna grafika (logo wydziału, patrona, kod QR…). SVG / PNG / JPG. Bez pliku zostaje puste, zarezerwowane miejsce.'
-      }
+      hint="Najlepiej plik SVG (skaluje się bez utraty jakości), PNG lub JPG też zadziałają. Bez wgranego pliku pojawi się domyślne logo PK."
       value={logo?.src ?? null}
       onChange={(src) => onChange(fieldKey, src)}
       enabled={logo?.enabled ?? true}
