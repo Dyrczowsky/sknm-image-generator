@@ -198,9 +198,17 @@ Wersja z gałęzi `feat/bulk-graphics`:
 `qrcode.react` (`QRCodeSVG`). `FormValues.qrUrl: string` (link, niezapisywany -
 jak `graphics` / `showPkLogo`). Pole „Kod QR" w `GraphicsField`, propsy w tym
 samym komplecie `gfx`. Nowy klocek `src/posters/blocks/QrSlot.tsx` - biały
-kwadrat ze strefą cichości, `value` pusty => `null`. Renderowany jako pierwszy
-element rzędu stopki we wszystkich 8 szablonach (w `Warsztat` większy, po lewej,
-`marginRight: auto`).
+kwadrat (`QR_SIZE = 96`) ze strefą cichości, `value` pusty => `null`.
+Renderowany jako pierwszy element rzędu stopki we wszystkich 8 szablonach
+(w `Warsztat` po lewej, `marginRight: auto`).
+
+**Rezerwacja miejsca:** rząd stopki (`LogoRow`) ma stałe `minHeight={QR_SLOT_H}`
+(`QR_SIZE + 2·LOGO_CLEAR`), a sloty są `alignItems: flex-end`. Dzięki temu
+wpisanie/skasowanie linku nie przesuwa niczego w plakacie - QR pojawia się
+w miejscu, które i tak jest zarezerwowane. Koszt: stopka każdego szablonu jest
+na stałe ~40 px wyższa (jednorazowe przesunięcie środka w górę). Zmieniono też
+`alignItems` z `center` na `flex-end` w Konferencji/Gali/Rekrutacji (logo siada
+na wspólnej linii bazowej z QR).
 
 Przy okazji usunięte nieużywane placeholdery: `patronat` (`Gala`, `Konferencja`),
 `kod QR` (`Warsztat`, `Rekrutacja` - zastąpione `QrSlot`). `PlaceholderBox.tsx`

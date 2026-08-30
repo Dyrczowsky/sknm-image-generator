@@ -1,4 +1,4 @@
-import { colors, fontMono, LOGO_CLEAR } from './theme'
+import { colors, fontMono, LOGO_CLEAR, QR_SLOT_H } from './theme'
 import { sygnetByName } from './logos'
 import { resolveScheme } from './schemes'
 import { LogoSlots } from './blocks/LogoSlots'
@@ -52,7 +52,7 @@ export function PosterGosc({ data, scheme }: PosterProps) {
 
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24 }}>
           <div style={{ fontSize: 22, fontWeight: 600, color: 'var(--accent)' }}>Wstęp wolny · sknm.pk.edu.pl</div>
-          <LogoRow alignItems="flex-end" gap={LOGO_CLEAR}>
+          <LogoRow alignItems="flex-end" gap={LOGO_CLEAR} minHeight={QR_SLOT_H}>
             <QrSlot value={qrUrl} />
             <LogoSlots slots={slots} variant={s.logoVariant} flush={['r', 'b']} />
           </LogoRow>

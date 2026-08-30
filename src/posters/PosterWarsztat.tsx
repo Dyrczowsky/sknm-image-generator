@@ -1,4 +1,4 @@
-import { LOGO_CLEAR } from './theme'
+import { LOGO_CLEAR, QR_SLOT_H } from './theme'
 import { sygnetByName } from './logos'
 import { LogoSlots } from './blocks/LogoSlots'
 import { QrSlot } from './blocks/QrSlot'
@@ -58,8 +58,8 @@ export function PosterWarsztat({ data, scheme }: PosterProps) {
           <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
             {pills.map((p, i) => <Pill key={i} style={p.style}>{p.text}</Pill>)}
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 24 }}>
-            <QrSlot value={qrUrl} size={132} style={{ borderRadius: 8, marginRight: 'auto' }} />
+          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-end', gap: 24, minHeight: QR_SLOT_H }}>
+            <QrSlot value={qrUrl} style={{ borderRadius: 8, marginRight: 'auto' }} />
             {/* Logo leży na zdjęciu (nie przy krawędzi plakatu), więc pole
                 ochronne idzie ze wszystkich stron - tło `slot-bg` tworzy
                 czytelną kartę pod znakiem. */}

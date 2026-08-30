@@ -1,4 +1,4 @@
-import { fontMono, LOGO_CLEAR } from './theme'
+import { fontMono, LOGO_CLEAR, QR_SLOT_H } from './theme'
 import { sygnetByName } from './logos'
 import { LogoSlots } from './blocks/LogoSlots'
 import { QrSlot } from './blocks/QrSlot'
@@ -49,7 +49,7 @@ export function PosterGala({ data, scheme }: PosterProps) {
             style={{ paddingBottom: 10, whiteSpace: 'nowrap' }}
           />
         </div>
-        <LogoRow gap={LOGO_CLEAR} alignItems="center">
+        <LogoRow gap={LOGO_CLEAR} alignItems="flex-end" minHeight={QR_SLOT_H}>
           <QrSlot value={qrUrl} />
           <LogoSlots slots={slots} variant={s.logoVariant} />
         </LogoRow>

@@ -1,12 +1,12 @@
 import type { CSSProperties } from 'react'
 import { QRCodeSVG } from 'qrcode.react'
-import { LOGO_CLEAR } from '../theme'
+import { LOGO_CLEAR, QR_SIZE } from '../theme'
 
 interface QrSlotProps {
-  // Link/tekst do zakodowania. Pusty = slot się nie renderuje.
+  // Link/tekst do zakodowania. Pusty = slot się nie renderuje (miejsce i tak
+  // jest zarezerwowane w rzędzie stopki przez minHeight, patrz QR_SLOT_H).
   value: string
-  // Bok kwadratu QR w skali plakatu (1080px). Domyślnie zbliżony do
-  // wysokości dwóch slotów logo.
+  // Bok kwadratu QR w skali plakatu (1080px).
   size?: number
   style?: CSSProperties
 }
@@ -14,7 +14,7 @@ interface QrSlotProps {
 // Kod QR generowany na żywo z linku podanego w formularzu. Renderuje się na
 // białym tle z marginesem (strefa cichości), żeby dało się go zeskanować
 // niezależnie od koloru stopki. Kwadrat, zwykle pierwszy element rzędu stopki.
-export function QrSlot({ value, size = 104, style }: QrSlotProps) {
+export function QrSlot({ value, size = QR_SIZE, style }: QrSlotProps) {
   if (!value.trim()) return null
   return (
     <div

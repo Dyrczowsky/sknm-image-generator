@@ -1,4 +1,4 @@
-import { fontMono, LOGO_CLEAR } from './theme'
+import { fontMono, LOGO_CLEAR, QR_SLOT_H } from './theme'
 import { sygnetByName } from './logos'
 import { LogoSlots } from './blocks/LogoSlots'
 import { QrSlot } from './blocks/QrSlot'
@@ -57,7 +57,7 @@ export function PosterRekrutacja({ data, scheme }: PosterProps) {
           />
           <div style={{ fontSize: 26, fontWeight: 500, opacity: 0.85 }}>sknm.pk.edu.pl · @sknm.pk</div>
         </div>
-        <LogoRow alignItems="center" gap={LOGO_CLEAR}>
+        <LogoRow alignItems="flex-end" gap={LOGO_CLEAR} minHeight={QR_SLOT_H}>
           <QrSlot value={qrUrl} />
           <LogoSlots slots={slots} variant={s.logoVariant} flush={(i, n) => (i === n - 1 ? ['r'] : [])} />
         </LogoRow>

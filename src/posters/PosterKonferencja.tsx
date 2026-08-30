@@ -1,4 +1,4 @@
-import { colors, fontMono, LOGO_CLEAR } from './theme'
+import { colors, fontMono, LOGO_CLEAR, QR_SLOT_H } from './theme'
 import { sygnetByName } from './logos'
 import { resolveScheme } from './schemes'
 import { LogoSlots } from './blocks/LogoSlots'
@@ -71,7 +71,7 @@ export function PosterKonferencja({ data, scheme }: PosterProps) {
             <Badge color="var(--footer-badge)" style={{ font: `700 20px ${fontMono}`, letterSpacing: '.12em', ...fx('badge2') }}>{badge2 || 'WIĘCEJ INFORMACJI'}</Badge>
             <div style={{ fontSize: 24, fontWeight: 600, color: 'var(--muted-text)' }}>sknm.pk.edu.pl</div>
           </div>
-          <LogoRow gap={LOGO_CLEAR} alignItems="center">
+          <LogoRow gap={LOGO_CLEAR} alignItems="flex-end" minHeight={QR_SLOT_H}>
             <QrSlot value={qrUrl} />
             <LogoSlots slots={slots} variant={s.logoVariant} />
           </LogoRow>
