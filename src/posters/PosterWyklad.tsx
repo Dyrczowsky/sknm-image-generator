@@ -45,7 +45,7 @@ export function PosterWyklad({ data, scheme }: PosterProps) {
         </div>
         <LogoRow alignItems="center" gap={12}>
           <LogoSlot logo={logos.pk} variant={s.logoVariant} />
-          <LogoSlot logo={logos.faculty} variant={s.logoVariant} />
+          <LogoSlot logo={logos.faculty} variant={s.logoVariant} fallback={false} />
         </LogoRow>
       </div>
 

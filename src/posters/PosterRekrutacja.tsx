@@ -52,12 +52,12 @@ export function PosterRekrutacja({ data, scheme }: PosterProps) {
               { text: event_time, hidden: hidden('event_time') },
               { text: location, hidden: hidden('location') },
             ]}
-            style={{ fontSize: 40, fontWeight: 800, lineHeight: 1.05, fontKerning: 'none' }}
+            style={{ fontSize: 36, fontWeight: 800, lineHeight: 1.05, fontKerning: 'none', whiteSpace: 'nowrap' }}
           />
           <div style={{ fontSize: 26, fontWeight: 500, opacity: 0.85 }}>sknm.pk.edu.pl · @sknm.pk</div>
         </div>
-        <LogoRow alignItems="flex-end">
-          <PlaceholderBox label="kod QR" width={130} height={130} style={{ borderColor: 'var(--qr-border)', color: 'var(--qr-text)' }} />
+        <LogoRow alignItems="flex-end" gap={12}>
+          <PlaceholderBox label="kod QR" width={104} height={104} style={{ borderColor: 'var(--qr-border)', color: 'var(--qr-text)' }} />
           <LogoSlot logo={logos.pk} variant={s.logoVariant} />
         </LogoRow>
       </div>

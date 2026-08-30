@@ -63,7 +63,7 @@ export function PosterData({ data, scheme }: PosterProps) {
         </div>
         <LogoRow gap={14}>
           <LogoSlot logo={logos.pk} variant={s.logoVariant} />
-          <LogoSlot logo={logos.faculty} variant={s.logoVariant} />
+          <LogoSlot logo={logos.faculty} variant={s.logoVariant} fallback={false} />
         </LogoRow>
       </div>
     </PosterFrame>

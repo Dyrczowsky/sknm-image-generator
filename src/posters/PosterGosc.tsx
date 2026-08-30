@@ -50,7 +50,7 @@ export function PosterGosc({ data, scheme }: PosterProps) {
           <div style={{ fontSize: 22, fontWeight: 600, color: 'var(--accent)' }}>Wstęp wolny · sknm.pk.edu.pl</div>
           <LogoRow>
             <LogoSlot logo={logos.pk} variant={s.logoVariant} />
-            <LogoSlot logo={logos.faculty} variant={s.logoVariant} />
+            <LogoSlot logo={logos.faculty} variant={s.logoVariant} fallback={false} />
           </LogoRow>
         </div>
       </div>
