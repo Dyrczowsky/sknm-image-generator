@@ -11,28 +11,39 @@ import type { LogoSlotValue, LogoVariant } from '../types'
 // przy eksporcie do większych rozdzielczości.
 export const MIN_LOGO_HEIGHT = 96
 
+// Proporcje pliku PK_POZIOM (viewBox 5876×1772). Pusty, zarezerwowany slot
+// rezerwuje tyle szerokości, ile zająłby wpisany w niego lockup PK - dzięki
+// temu rząd 2 slotów ma tę samą szerokość niezależnie od tego, ile jest
+// wypełnionych.
+const PK_ASPECT = 5876 / 1772
+
 interface LogoSlotProps {
   logo?: LogoSlotValue
   variant?: LogoVariant
   height?: number
-  // `false` → gdy użytkownik nie wgrał własnego pliku, slot się nie renderuje
-  // (zamiast pokazywać domyślne logo PK). Używane dla slotu logo wydziału,
-  // żeby nie dublować logo PK.
+  // `false` → w braku wgranego pliku NIE pokazuj domyślnego logo PK.
+  // Zamiast tego slot renderuje pusty, zarezerwowany kwadrat (`height`×`height`),
+  // żeby układ stopki nie skakał między "0 grafik" a "1 grafiką".
   fallback?: boolean
   style?: CSSProperties
 }
 
-// Miejsce na logo w plakacie: pokazuje logo wgrane przez użytkownika
-// w formularzu, a w jego braku - domyślne logo PK dobrane pod jasne/ciemne
-// tło (chyba że `fallback={false}`). Logo renderuje się NA WYSOKOŚĆ
-// (`height`, klampowane do MIN_LOGO_HEIGHT), szerokość dobiera się z proporcji.
-// Slot wyłączony checkboxem w formularzu - nic nie renderuje.
+// Miejsce na grafikę w plakacie: pokazuje plik wgrany przez użytkownika,
+// a w jego braku - domyślne logo PK (chyba że `fallback={false}` - wtedy
+// puste, zarezerwowane miejsce). Grafika renderuje się NA WYSOKOŚĆ
+// (`height`, klampowane do MIN_LOGO_HEIGHT), szerokość z proporcji.
+// Slot wyłączony checkboxem w formularzu - nic nie renderuje (bez rezerwacji).
 export function LogoSlot({ logo, variant = 'light', height = MIN_LOGO_HEIGHT, fallback = true, style }: LogoSlotProps) {
   const enabled = logo?.enabled ?? true
   if (!enabled) return null
-  if (!logo?.src && !fallback) return null
 
   const h = Math.max(height, MIN_LOGO_HEIGHT)
+  if (!logo?.src && !fallback) {
+    // Zarezerwowane, przezroczyste miejsce - bez `style` (żeby np. tło
+    // `slot-bg` nie zrobiło z pustego slotu widocznego kwadratu).
+    return <div style={{ height: h, width: Math.round(h * PK_ASPECT), flex: '0 0 auto' }} />
+  }
+
   const src = logo?.src || (variant === 'dark' ? pkLogoDark : pkLogoLight)
   return (
     <div style={{ height: h, display: 'flex', alignItems: 'center', flex: '0 0 auto', ...style }}>

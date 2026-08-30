@@ -1,5 +1,4 @@
 import { sygnetByName } from './logos'
-import { PlaceholderBox } from './PlaceholderBox'
 import { LogoSlot } from './LogoSlot'
 import { PhotoGallery } from './PhotoGallery'
 import { withPlaceholders } from './fallback'
@@ -56,13 +55,10 @@ export function PosterWarsztat({ data, scheme }: PosterProps) {
           <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
             {pills.map((p, i) => <Pill key={i} style={p.style}>{p.text}</Pill>)}
           </div>
-          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24 }}>
-            <PlaceholderBox label={<>kod QR<br />zapisy</>} width={150} height={150} style={{ background: 'var(--slot-bg)', borderColor: 'var(--qr-border)', color: 'var(--qr-text)' }} />
-            <LogoRow gap={14}>
-              <LogoSlot logo={logos.pk} variant={s.logoVariant} style={{ background: 'var(--slot-bg)' }} />
-              <LogoSlot logo={logos.faculty} variant={s.logoVariant} fallback={false} style={{ background: 'var(--slot-bg)' }} />
-            </LogoRow>
-          </div>
+          <LogoRow gap={16} alignItems="flex-end">
+            <LogoSlot logo={logos.pk} variant={s.logoVariant} style={{ background: 'var(--slot-bg)' }} />
+            <LogoSlot logo={logos.faculty} variant={s.logoVariant} fallback={false} style={{ background: 'var(--slot-bg)' }} />
+          </LogoRow>
         </div>
       </div>
     </PosterFrame>

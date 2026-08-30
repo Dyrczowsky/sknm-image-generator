@@ -1,6 +1,5 @@
 import { fontMono } from './theme'
 import { sygnetByName } from './logos'
-import { PlaceholderBox } from './PlaceholderBox'
 import { LogoSlot } from './LogoSlot'
 import { withPlaceholders } from './fallback'
 import { resolveScheme } from './schemes'
@@ -37,28 +36,30 @@ export function PosterRekrutacja({ data, scheme }: PosterProps) {
           poniżej dolin lity granat, na którym siedzi tekst stopki. */}
       <div
         style={{
-          display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 32,
+          display: 'flex', flexDirection: 'column', gap: 18,
           position: 'relative', color: 'var(--footer-text)', background: 'var(--band)',
-          margin: '0 -72px -72px', padding: '150px 72px 72px',
+          margin: '0 -72px -72px', padding: '108px 72px 60px',
           clipPath:
-            'polygon(0 130px,8.33% 0,16.66% 130px,25% 0,33.33% 130px,41.66% 0,50% 130px,58.33% 0,66.66% 130px,75% 0,83.33% 130px,91.66% 0,100% 130px,100% 100%,0 100%)',
+            'polygon(0 100px,8.33% 0,16.66% 100px,25% 0,33.33% 100px,41.66% 0,50% 100px,58.33% 0,66.66% 100px,75% 0,83.33% 100px,91.66% 0,100% 100px,100% 100%,0 100%)',
         }}
       >
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <Badge color="var(--badge-color)" style={{ font: `700 26px ${fontMono}`, letterSpacing: '.1em', ...fx('badge') }}>{badge || 'SPOTKANIE ORGANIZACYJNE'}</Badge>
-          <InfoLine
-            parts={[
-              { text: `${getDay(event_date)} ${getMonthShort(event_date)}`, hidden: hidden('event_date') },
-              { text: event_time, hidden: hidden('event_time') },
-              { text: location, hidden: hidden('location') },
-            ]}
-            style={{ fontSize: 36, fontWeight: 800, lineHeight: 1.05, fontKerning: 'none', whiteSpace: 'nowrap' }}
-          />
-          <div style={{ fontSize: 26, fontWeight: 500, opacity: 0.85 }}>sknm.pk.edu.pl · @sknm.pk</div>
+        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <Badge color="var(--badge-color)" style={{ font: `700 26px ${fontMono}`, letterSpacing: '.1em', ...fx('badge') }}>{badge || 'SPOTKANIE ORGANIZACYJNE'}</Badge>
+            <InfoLine
+              parts={[
+                { text: `${getDay(event_date)} ${getMonthShort(event_date)}`, hidden: hidden('event_date') },
+                { text: event_time, hidden: hidden('event_time') },
+                { text: location, hidden: hidden('location') },
+              ]}
+              style={{ fontSize: 40, fontWeight: 800, lineHeight: 1.05, fontKerning: 'none', whiteSpace: 'nowrap' }}
+            />
+          </div>
+          <div style={{ fontSize: 24, fontWeight: 500, opacity: 0.85, paddingBottom: 4 }}>sknm.pk.edu.pl · @sknm.pk</div>
         </div>
-        <LogoRow alignItems="flex-end" gap={12}>
-          <PlaceholderBox label="kod QR" width={104} height={104} style={{ borderColor: 'var(--qr-border)', color: 'var(--qr-text)' }} />
+        <LogoRow alignItems="flex-end" gap={16}>
           <LogoSlot logo={logos.pk} variant={s.logoVariant} />
+          <LogoSlot logo={logos.faculty} variant={s.logoVariant} fallback={false} />
         </LogoRow>
       </div>
     </PosterFrame>

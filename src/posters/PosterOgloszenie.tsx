@@ -35,10 +35,11 @@ export function PosterOgloszenie({ data, scheme }: PosterProps) {
         )}
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 24 }}>
-        <div style={{ font: `700 20px ${fontMono}`, letterSpacing: '.12em', opacity: 0.85 }}>sknm.pk.edu.pl</div>
-        <LogoRow>
+      <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24 }}>
+        <div style={{ font: `700 20px ${fontMono}`, letterSpacing: '.12em', opacity: 0.85, paddingBottom: 8 }}>sknm.pk.edu.pl</div>
+        <LogoRow gap={16} alignItems="flex-end">
           <LogoSlot logo={logos.pk} variant={s.logoVariant} />
+          <LogoSlot logo={logos.faculty} variant={s.logoVariant} fallback={false} />
         </LogoRow>
       </div>
     </PosterFrame>
