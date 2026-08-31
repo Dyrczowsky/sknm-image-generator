@@ -6,13 +6,17 @@ import { listTemplates } from './db/templates'
 import { getDraft, saveDraft, parseVisibility } from './db/drafts'
 import { addHistoryEntry, deleteHistoryEntry, listHistory } from './db/history'
 import { posterRegistry } from './posters/registry'
-import { schemesFor } from './posters/schemes'
+import { schemesFor, SCHEME_LABELS } from './posters/schemes'
 import { MAX_GRAPHICS } from './posters/theme'
 import { downloadPosterAsPng, EXPORT_FORMATS } from './posters/export'
 import { TemplateSelector } from './components/TemplateSelector'
 import { SchemeSelector } from './components/SchemeSelector'
 import { PosterPreview } from './components/PosterPreview'
 import { HistoryList } from './components/HistoryList'
+import { TicketDialog } from './components/TicketDialog'
+import { FloatingReportButton } from './components/FloatingReportButton'
+import { SiteFooter } from './components/SiteFooter'
+import type { BugContextInput } from './utils/issueUrl'
 
 const EMPTY_FORM: FormValues = {
   title: '',
@@ -53,6 +57,7 @@ function App() {
   const [form, setForm] = useState<FormValues>(EMPTY_FORM)
   const [history, setHistory] = useState<HistoryRow[]>([])
   const [exportFormat, setExportFormat] = useState('square')
+  const [ticket, setTicket] = useState<null | 'bug' | 'request'>(null)
 
   useEffect(() => {
     let cancelled = false
@@ -295,6 +300,17 @@ function App() {
   const selectedPoster = selectedTemplate ? posterRegistry[selectedTemplate.poster_key] : null
   const SelectedForm = selectedPoster?.Form
 
+  const bugContext: BugContextInput = {
+    templateName: selectedTemplate?.name,
+    posterKey: selectedTemplate?.poster_key,
+    schemeKey: selectedScheme,
+    schemeLabel: selectedScheme ? SCHEME_LABELS[selectedScheme] : undefined,
+    form,
+    appUrl: window.location.href,
+    userAgent: navigator.userAgent,
+    version: __APP_VERSION__,
+  }
+
   const handleDownload = async () => {
     if (!selectedTemplate || !posterRef.current || !dbRef.current) return
     const filename = `${form.title || 'plakat'}.png`.trim().replace(/\s+/g, '_')
@@ -318,75 +334,80 @@ function App() {
   }
 
   return (
-    <main className={shell}>
-      <h1 className="mb-2 text-[1.6rem] font-bold">Generator plakatów SKNM</h1>
+    <>
+      <main className={shell}>
+        <h1 className="mb-2 text-[1.6rem] font-bold">Generator plakatów SKNM</h1>
 
-      {/* Do 900px sekcje płyną jedna pod drugą w kolejności DOM. Od 900px
-          grid-template-areas robi dwie kolumny: lewa to szablon/formularz/
-          akcje/historia, prawa to przypięty (sticky) podgląd. */}
-      <div className="flex flex-col min-[900px]:mt-5 min-[900px]:grid min-[900px]:grid-cols-[1fr_460px] min-[900px]:items-start min-[900px]:gap-6 min-[900px]:[grid-template-areas:'template_preview''form_preview''actions_preview''history_preview']">
-        <section className={`${panel} min-[900px]:[grid-area:template]`}>
-          <h2 className={panelHeading}>1. Wybierz szablon</h2>
-          <TemplateSelector templates={templates} selectedId={selectedTemplateId} onSelect={handleSelectTemplate} />
-        </section>
+        {/* Do 900px sekcje płyną jedna pod drugą w kolejności DOM. Od 900px
+            grid-template-areas robi dwie kolumny: lewa to szablon/formularz/
+            akcje/historia, prawa to przypięty (sticky) podgląd. */}
+        <div className="flex flex-col min-[900px]:mt-5 min-[900px]:grid min-[900px]:grid-cols-[1fr_460px] min-[900px]:items-start min-[900px]:gap-6 min-[900px]:[grid-template-areas:'template_preview''form_preview''actions_preview''history_preview']">
+          <section className={`${panel} min-[900px]:[grid-area:template]`}>
+            <h2 className={panelHeading}>1. Wybierz szablon</h2>
+            <TemplateSelector templates={templates} selectedId={selectedTemplateId} onSelect={handleSelectTemplate} />
+          </section>
 
-        <section className={`${panel} min-[900px]:[grid-area:form]`}>
-          <h2 className={panelHeading}>2. Uzupełnij dane</h2>
-          {SelectedForm && (
-            <SelectedForm
-              value={form}
-              onFieldChange={handleFieldChange}
-              onVisibilityChange={handleVisibilityChange}
-              onGraphicsAdd={handleGraphicsAdd}
-              onGraphicRemove={handleGraphicRemove}
-              onGraphicMove={handleGraphicMove}
-              onShowPkChange={handleShowPkChange}
-              onQrUrlChange={handleQrUrlChange}
-              onColorChange={handleColorChange}
-              onPhotoAdd={handlePhotoAdd}
-              onPhotoChangeAt={handlePhotoChangeAt}
-              onPhotoPositionChangeAt={handlePhotoPositionChangeAt}
-              onListItemAdd={handleListItemAdd}
-              onListItemChange={handleListItemChange}
-              onListItemRemove={handleListItemRemove}
-            />
-          )}
-        </section>
+          <section className={`${panel} min-[900px]:[grid-area:form]`}>
+            <h2 className={panelHeading}>2. Uzupełnij dane</h2>
+            {SelectedForm && (
+              <SelectedForm
+                value={form}
+                onFieldChange={handleFieldChange}
+                onVisibilityChange={handleVisibilityChange}
+                onGraphicsAdd={handleGraphicsAdd}
+                onGraphicRemove={handleGraphicRemove}
+                onGraphicMove={handleGraphicMove}
+                onShowPkChange={handleShowPkChange}
+                onQrUrlChange={handleQrUrlChange}
+                onColorChange={handleColorChange}
+                onPhotoAdd={handlePhotoAdd}
+                onPhotoChangeAt={handlePhotoChangeAt}
+                onPhotoPositionChangeAt={handlePhotoPositionChangeAt}
+                onListItemAdd={handleListItemAdd}
+                onListItemChange={handleListItemChange}
+                onListItemRemove={handleListItemRemove}
+              />
+            )}
+          </section>
 
-        <section className={`${panel} flex gap-3 min-[900px]:[grid-area:actions]`}>
-          <select
-            className="rounded-lg border border-field-border bg-field px-3.5 py-[11px] text-[0.9rem] text-fg"
-            value={exportFormat}
-            onChange={(e) => setExportFormat(e.target.value)}
-            aria-label="Format eksportu"
-          >
-            {Object.entries(EXPORT_FORMATS).map(([key, format]) => (
-              <option key={key} value={key}>
-                {format.label}
-              </option>
-            ))}
-          </select>
-          <button
-            type="button"
-            className="cursor-pointer rounded-lg bg-accent px-[18px] py-[11px] text-[0.95rem] font-medium text-white transition-[background-color,transform] hover:bg-accent-hover active:scale-[0.98]"
-            onClick={handleDownload}
-          >
-            Pobierz PNG
-          </button>
-        </section>
+          <section className={`${panel} flex gap-3 min-[900px]:[grid-area:actions]`}>
+            <select
+              className="rounded-lg border border-field-border bg-field px-3.5 py-[11px] text-[0.9rem] text-fg"
+              value={exportFormat}
+              onChange={(e) => setExportFormat(e.target.value)}
+              aria-label="Format eksportu"
+            >
+              {Object.entries(EXPORT_FORMATS).map(([key, format]) => (
+                <option key={key} value={key}>
+                  {format.label}
+                </option>
+              ))}
+            </select>
+            <button
+              type="button"
+              className="cursor-pointer rounded-lg bg-accent px-[18px] py-[11px] text-[0.95rem] font-medium text-white transition-[background-color,transform] hover:bg-accent-hover active:scale-[0.98]"
+              onClick={handleDownload}
+            >
+              Pobierz PNG
+            </button>
+          </section>
 
-        <section className={`${panel} min-[900px]:sticky min-[900px]:top-5 min-[900px]:[grid-area:preview]`}>
-          <h2 className={panelHeading}>Podgląd</h2>
-          <PosterPreview posterRef={posterRef} Component={selectedPoster?.Component} data={form} scheme={selectedScheme} />
-          <SchemeSelector poster={selectedPoster} posterKey={selectedTemplate?.poster_key} selectedScheme={selectedScheme} onSelectScheme={handleSelectScheme} />
-        </section>
+          <section className={`${panel} min-[900px]:sticky min-[900px]:top-5 min-[900px]:[grid-area:preview]`}>
+            <h2 className={panelHeading}>Podgląd</h2>
+            <PosterPreview posterRef={posterRef} Component={selectedPoster?.Component} data={form} scheme={selectedScheme} />
+            <SchemeSelector poster={selectedPoster} posterKey={selectedTemplate?.poster_key} selectedScheme={selectedScheme} onSelectScheme={handleSelectScheme} />
+          </section>
 
-        <section className={`${panel} min-[900px]:[grid-area:history]`}>
-          <h2 className={panelHeading}>Historia</h2>
-          <HistoryList entries={history} onRestore={handleRestoreHistoryEntry} onDelete={handleDeleteHistoryEntry} />
-        </section>
-      </div>
-    </main>
+          <section className={`${panel} min-[900px]:[grid-area:history]`}>
+            <h2 className={panelHeading}>Historia</h2>
+            <HistoryList entries={history} onRestore={handleRestoreHistoryEntry} onDelete={handleDeleteHistoryEntry} />
+          </section>
+        </div>
+        <SiteFooter onRequestClick={() => setTicket('request')} />
+      </main>
+      <FloatingReportButton onClick={() => setTicket('bug')} />
+      <TicketDialog type={ticket} onClose={() => setTicket(null)} bugContext={bugContext} />
+    </>
   )
 }
 

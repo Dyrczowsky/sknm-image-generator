@@ -13,6 +13,9 @@ export default defineConfig({
     assetsInlineLimit: 0,
   },
   base: "/sknm-image-generator/",
+  define: {
+    __APP_VERSION__: JSON.stringify((process.env.GITHUB_SHA ?? '').slice(0, 7) || 'dev'),
+  },
   plugins: [
     react(),
     tailwindcss(),
