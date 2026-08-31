@@ -21,7 +21,7 @@ export function PosterGala({ data, scheme }: PosterProps) {
   return (
     <PosterFrame vars={s.cssVars} padding={72}>
       <div style={{ position: 'absolute', bottom: 0, right: 0, width: 880, height: 700, background: 'var(--panel-br)', clipPath: 'polygon(100% 0,100% 100%,0 100%)' }} />
-      <div style={{ position: 'absolute', top: 232, left: 0, right: 0, height: 1, background: `linear-gradient(to right, rgba(132,117,78,0) 0, var(--gold) 18%, var(--gold) 82%, rgba(132,117,78,0) 100%)` }} />
+      <div style={{ position: 'absolute', top: 232, left: 0, right: 0, height: 1, background: `linear-gradient(to right, transparent 0, var(--gold) 18%, var(--gold) 82%, transparent 100%)` }} />
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', position: 'relative', zIndex: 1 }}>
         <img src={sygnetByName[s.sygnet ?? 'negatywny']} alt="SKNM" style={{ width: 132, display: 'block' }} />
