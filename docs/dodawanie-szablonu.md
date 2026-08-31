@@ -148,7 +148,7 @@ export const schemes: Record<string, LayoutSchemes> = {
 
 To wszystko — pasek kolorystyki w generatorze budowany jest wprost z tego bloku
 (`schemesFor(poster_key)`), `registry.ts` nie trzyma listy schematów. Layout
-z jednym schematem (jak Gala) nie pokazuje paska.
+z jednym schematem nie pokazuje paska.
 
 Jeśli używasz nazwy wariantu spoza `default / limonka / czernZolta /
 czernPomaranczowa / czernGranatowa / okazjonalnyZloty / okazjonalnySrebrny /

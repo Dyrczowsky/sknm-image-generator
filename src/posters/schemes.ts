@@ -320,7 +320,7 @@ const NON_CSS = new Set(['sygnet', 'logoVariant'])
 
 // Nazwy schematów danego layoutu w kolejności zapisu w `schemes.ts` = kolejność
 // swatchy na pasku kolorystyki. Pierwsza pozycja to schemat domyślny. Layout
-// z jednym wpisem (Gala) nie pokazuje paska.
+// z jednym wpisem nie pokazuje paska.
 export function schemesFor(layoutKey: string): string[] {
   return Object.keys(schemes[layoutKey] ?? {})
 }
