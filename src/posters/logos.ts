@@ -4,6 +4,7 @@ import sygnetGranat from '../assets/brand/sknm/sygnet_granat.svg'
 import sygnetZloty from '../assets/brand/sknm/sygnet_zloty.svg'
 import sygnetSzary from '../assets/brand/sknm/sygnet_szary.svg'
 import sygnetCzarny from '../assets/brand/sknm/sygnet_czarny.svg'
+import sygnetSrebrny from '../assets/brand/sknm/sygnet_srebrny.svg'
 import type { SygnetName } from '../types'
 
 // Wybór sygnetu po nazwie roli ze schematu (patrz schemes.js).
@@ -13,6 +14,7 @@ export const sygnetByName: Record<SygnetName, string> = {
   zloty: sygnetZloty,
   szary: sygnetSzary,
   czarny: sygnetCzarny,
+  srebrny: sygnetSrebrny,
 }
 
 // Logo Politechniki Krakowskiej - domyślne logo w miejscach na logo PK/wydziału,

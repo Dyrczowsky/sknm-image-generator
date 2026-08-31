@@ -78,7 +78,7 @@ export interface HistoryRow {
 }
 
 // --- Schematy kolorów ---
-export type SygnetName = 'negatywny' | 'granat' | 'zloty' | 'szary' | 'czarny'
+export type SygnetName = 'negatywny' | 'granat' | 'zloty' | 'szary' | 'czarny' | 'srebrny'
 export type LogoVariant = 'light' | 'dark'
 
 export interface ResolvedScheme {
