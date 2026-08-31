@@ -30,6 +30,12 @@ function trimTrailingHighSurrogate(s: string): string {
   return /[\uD800-\uDBFF]$/.test(s) ? s.slice(0, -1) : s
 }
 
+// Usuwa osamotnione połówki par surogatów (np. z wklejenia uciętego emoji) —
+// inaczej `encodeURIComponent` rzuca URIError.
+function stripLoneSurrogates(s: string): string {
+  return s.replace(/\p{Surrogate}/gu, '')
+}
+
 function fieldsSummary(form: FormValues): string {
   const parts = TEXT_FIELDS
     .filter((k) => typeof form[k] === 'string' && form[k].trim() !== '')
@@ -60,7 +66,7 @@ function attachmentsSummary(form: FormValues): string {
 
 export function formatBugContext(input: BugContextInput): string {
   const template = input.templateName
-    ? `${input.templateName} (\`${input.posterKey}\`)`
+    ? `${input.templateName} (\`${input.posterKey ?? '?'}\`)`
     : '—'
   const scheme = input.schemeKey
     ? `${input.schemeLabel ?? input.schemeKey} (\`${input.schemeKey}\`)`
@@ -93,11 +99,12 @@ export function buildBugIssueUrl(args: {
   contact?: string
   context: BugContextInput
 }): string {
-  const contact = args.contact?.trim()
+  const userText = stripLoneSurrogates(args.userText)
+  const contact = stripLoneSurrogates(args.contact ?? '').trim()
   const contactLine = contact ? `\n\n**Kontakt:** ${contact}` : ''
-  const fullBody = `${args.userText.trim()}${contactLine}\n\n${formatBugContext(args.context)}`
+  const fullBody = stripLoneSurrogates(`${userText.trim()}${contactLine}\n\n${formatBugContext(args.context)}`)
   const base = `https://github.com/${TICKET_REPO}/issues/new`
-  const title = issueTitle(args.userText)
+  const title = issueTitle(userText)
   const build = (body: string) =>
     `${base}?title=${encodeURIComponent(title)}&labels=bug&body=${encodeURIComponent(body)}`
 
@@ -105,6 +112,7 @@ export function buildBugIssueUrl(args: {
   if (url.length <= MAX_ISSUE_URL) return url
 
   const room = MAX_ISSUE_URL - build('').length - encodeURIComponent(TRUNCATION_MARK).length
+  if (room <= 0) return build('')
   let sliced = fullBody
   while (sliced.length > 0 && encodeURIComponent(sliced).length > room) {
     sliced = trimTrailingHighSurrogate(sliced.slice(0, Math.max(0, sliced.length - 64)))
@@ -121,19 +129,24 @@ export interface PosterRequestInput {
 }
 
 export function buildPosterRequestMailto(input: PosterRequestInput): string {
-  const eventForSubject = input.event.length > SUBJECT_EVENT_MAX
-    ? `${trimTrailingHighSurrogate(input.event.slice(0, SUBJECT_EVENT_MAX - 1).trimEnd())}…`
-    : input.event
+  const event = stripLoneSurrogates(input.event)
+  const details = stripLoneSurrogates(input.details)
+  const contact = stripLoneSurrogates(input.contact)
+  const eventDate = input.eventDate ? stripLoneSurrogates(input.eventDate) : undefined
+  const neededBy = input.neededBy ? stripLoneSurrogates(input.neededBy) : undefined
+  const eventForSubject = event.length > SUBJECT_EVENT_MAX
+    ? `${trimTrailingHighSurrogate(event.slice(0, SUBJECT_EVENT_MAX - 1).trimEnd())}…`
+    : event
   const subject = `Zapotrzebowanie na plakat: ${eventForSubject}`
   const linesFull = [
-    `Wydarzenie: ${input.event}`,
-    input.eventDate ? `Data wydarzenia: ${input.eventDate}` : null,
-    input.neededBy ? `Plakat potrzebny do: ${input.neededBy}` : null,
+    `Wydarzenie: ${event}`,
+    eventDate ? `Data wydarzenia: ${eventDate}` : null,
+    neededBy ? `Plakat potrzebny do: ${neededBy}` : null,
     '',
     'Treść / czego potrzeba:',
-    input.details,
+    details,
     '',
-    `Kontakt: ${input.contact}`,
+    `Kontakt: ${contact}`,
   ].filter((l): l is string => l !== null)
   const build = (body: string) =>
     `mailto:${TICKET_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
@@ -143,6 +156,7 @@ export function buildPosterRequestMailto(input: PosterRequestInput): string {
   if (url.length <= MAX_MAILTO_URL) return url
 
   const room = MAX_MAILTO_URL - build('').length - encodeURIComponent(MAILTO_MARK).length
+  if (room <= 0) return build('')
   let sliced = fullBody
   while (sliced.length > 0 && encodeURIComponent(sliced).length > room) {
     sliced = trimTrailingHighSurrogate(sliced.slice(0, Math.max(0, sliced.length - 32)))

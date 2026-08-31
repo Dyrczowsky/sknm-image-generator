@@ -98,6 +98,20 @@ describe('buildBugIssueUrl', () => {
     expect(url.length).toBeLessThanOrEqual(7500)
     expect(new URL(url).searchParams.get('body')).toContain('kontekst skrócony')
   })
+
+  it('opis z emoji przy granicy obcięcia → nie rzuca', () => {
+    expect(() => buildBugIssueUrl({ userText: '🎉'.repeat(6000), context: ctx() })).not.toThrow()
+  })
+
+  it('osamotniony surogat we wpisie → nie rzuca i URL poprawny', () => {
+    expect(() => buildBugIssueUrl({ userText: 'abc\uD800def', context: ctx() })).not.toThrow()
+    const url = buildBugIssueUrl({ userText: 'abc\uD800def', context: ctx() })
+    expect(() => new URL(url)).not.toThrow()
+  })
+
+  it('osamotniony surogat w polach zapotrzebowania → nie rzuca', () => {
+    expect(() => buildPosterRequestMailto({ event: 'x\uDC00y', details: 'd\uD83Ce', contact: 'c' })).not.toThrow()
+  })
 })
 
 describe('buildPosterRequestMailto', () => {
@@ -127,10 +141,6 @@ describe('buildPosterRequestMailto', () => {
   it('bardzo długa nazwa wydarzenia → URL ≤ 1800', () => {
     const url = buildPosterRequestMailto({ event: 'W'.repeat(5000), details: 'x', contact: 'z' })
     expect(url.length).toBeLessThanOrEqual(1800)
-  })
-
-  it('opis z emoji przy granicy obcięcia → nie rzuca', () => {
-    expect(() => buildBugIssueUrl({ userText: '🎉'.repeat(6000), context: ctx() })).not.toThrow()
   })
 
   it('nazwa wydarzenia z emoji dłuższa niż limit tematu → nie rzuca i URL ≤ 1800', () => {
