@@ -76,16 +76,18 @@ describe('resolveScheme', () => {
     expect(cz.cssVars['--muted-text']).toBe(colors.creamMuted)
     expect(cz.sygnet).toBe('negatywny')
 
-    // Gość rysuje sygnet NA trójkącie akcentu, więc metaliczny akcent zniknąłby
-    // pod złotym/srebrnym sygnetem — dlatego `okazjonalne` trzymają `accent`
-    // równy tłu (ink), a metal niesie sam sygnet.
+    // Gość rysuje sygnet NA trójkącie, więc metaliczny `accent` schowałby złoty/
+    // srebrny sygnet. `okazjonalne` dają trójkątowi własną rolę `sygnetBg`
+    // (granat), a `accent` (złoto/srebro) niesie tekst Badge + link „Wstęp wolny".
     const zl = resolveScheme('gosc', 'okazjonalnyZloty')
     expect(zl.cssVars['--page-bg']).toBe(colors.ink)
-    expect(zl.cssVars['--accent']).toBe(colors.ink)
+    expect(zl.cssVars['--accent']).toBe(colors.gold)
+    expect(zl.cssVars['--sygnet-bg']).toBe(colors.navy)
     expect(zl.sygnet).toBe('zloty')
 
     const sr = resolveScheme('gosc', 'okazjonalnySrebrny')
-    expect(sr.cssVars['--accent']).toBe(colors.ink)
+    expect(sr.cssVars['--accent']).toBe(colors.silver)
+    expect(sr.cssVars['--sygnet-bg']).toBe(colors.navy)
     expect(sr.sygnet).toBe('srebrny')
   })
 

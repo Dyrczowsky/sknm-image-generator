@@ -26,7 +26,7 @@ export function PosterGosc({ data, scheme }: PosterProps) {
   return (
     <PosterFrame vars={s.cssVars}>
       <PhotoGallery photos={photos.photo} label={<>zdjęcie prelegenta<br />1080 × 600</>} style={{ height: 600 }}>
-        <div style={{ position: 'absolute', top: 0, left: 0, width: 420, height: 420, background: 'var(--accent)', clipPath: 'polygon(0 0,100% 0,0 100%)', display: 'flex', padding: '44px 0 0 44px', boxSizing: 'border-box' }}>
+        <div style={{ position: 'absolute', top: 0, left: 0, width: 420, height: 420, background: 'var(--sygnet-bg, var(--accent))', clipPath: 'polygon(0 0,100% 0,0 100%)', display: 'flex', padding: '44px 0 0 44px', boxSizing: 'border-box' }}>
           <img src={sygnetByName[s.sygnet ?? 'negatywny']} alt="SKNM" style={{ width: 132, height: 132, objectFit: 'contain' }} />
         </div>
       </PhotoGallery>

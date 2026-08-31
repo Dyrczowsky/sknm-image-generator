@@ -48,8 +48,11 @@ const gala: LayoutSchemes = {
   },
 }
 
-// Gość — `accent` obsługuje naraz tło narożnego trójkąta, kolor tekstu Badge
-// i kolor linku „Wstęp wolny". Pudełko z datą (coral/cream) jest identyczne we
+// Gość — `accent` niesie kolor tekstu Badge i linku „Wstęp wolny". Tło
+// narożnego trójkąta bierze `sygnetBg` z fallbackiem do `accent`
+// (`var(--sygnet-bg, var(--accent))` w komponencie) — schematy `okazjonalne`
+// ustawiają je jawnie na granat, żeby złoty/srebrny sygnet nie zniknął na
+// złotym/srebrnym akcencie. Pudełko z datą (coral/cream) jest identyczne we
 // wszystkich schematach, więc zostaje literałem w komponencie (nie rolą).
 const gosc: LayoutSchemes = {
   default: { pageBg: colors.cream, pageText: colors.ink, mutedText: colors.textMuted,
@@ -61,9 +64,9 @@ const gosc: LayoutSchemes = {
   czernGranatowa:    { pageBg: colors.black, pageText: colors.cream, mutedText: colors.creamMuted,
                        accent: colors.navyLight, sygnet: 'negatywny', logoVariant: 'dark' },
   okazjonalnyZloty:   { pageBg: colors.ink, pageText: colors.paper, mutedText: colors.creamMuted,
-                        accent: colors.ink,   sygnet: 'zloty',   logoVariant: 'dark' },
+                        accent: colors.gold,   sygnetBg: colors.navy, sygnet: 'zloty',   logoVariant: 'dark' },
   okazjonalnySrebrny: { pageBg: colors.ink, pageText: colors.paper, mutedText: colors.creamMuted,
-                        accent: colors.ink, sygnet: 'srebrny', logoVariant: 'dark' },
+                        accent: colors.silver, sygnetBg: colors.navy, sygnet: 'srebrny', logoVariant: 'dark' },
   jasny: { pageBg: colors.paper },
   szary: { pageBg: colors.paper, pageText: colors.slate, accent: colors.grayDark },
 }
