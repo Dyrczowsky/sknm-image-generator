@@ -1,7 +1,7 @@
-import { LOGO_CLEAR } from './theme'
+import { QR_SLOT_H } from './theme'
 import { sygnetByName } from './logos'
-import { PlaceholderBox } from './PlaceholderBox'
-import { LogoSlot } from './LogoSlot'
+import { LogoSlots } from './blocks/LogoSlots'
+import { QrSlot } from './blocks/QrSlot'
 import { PhotoGallery } from './PhotoGallery'
 import { withPlaceholders } from './fallback'
 import { resolveScheme } from './schemes'
@@ -22,7 +22,8 @@ function Pill({ children, style }: { children: ReactNode; style?: CSSProperties 
 
 // WARSZTAT — skos
 export function PosterWarsztat({ data, scheme }: PosterProps) {
-  const { title, subtitle, event_date, event_time, location, badge, logos, photos, fx } = withPlaceholders(data)
+  const { title, subtitle, event_date, event_time, location, badge, graphics, showPkLogo, qrUrl, photos, fx } = withPlaceholders(data)
+  const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
 
   const pills = [
     { text: event_time, style: fx('event_time') },
@@ -57,14 +58,13 @@ export function PosterWarsztat({ data, scheme }: PosterProps) {
           <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
             {pills.map((p, i) => <Pill key={i} style={p.style}>{p.text}</Pill>)}
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 24 }}>
-            <PlaceholderBox label={<>kod QR<br />zapisy</>} width={150} height={150} style={{ background: 'var(--slot-bg)', borderColor: 'var(--qr-border)', color: 'var(--qr-text)' }} />
-            {/* Logo leży na zdjęciu (nie przy krawędzi plakatu), więc pole
-                ochronne idzie ze wszystkich stron - tło `slot-bg` tworzy
-                czytelną kartę pod znakiem. */}
-            <LogoRow alignItems="flex-end" gap={LOGO_CLEAR}>
-              <LogoSlot logo={logos.pk} variant={s.logoVariant} style={{ background: 'var(--slot-bg)' }} />
-              <LogoSlot logo={logos.faculty} variant={s.logoVariant} fallback={false} style={{ background: 'var(--slot-bg)' }} />
+          {/* Stopka jak w pozostałych szablonach: QR maksymalnie w lewo, logo
+              w prawym dolnym rogu. Logo leży na zdjęciu, więc każdy slot
+              dostaje tło `slot-bg` - czytelną kartę pod znakiem. */}
+          <div style={{ display: 'flex' }}>
+            <LogoRow minHeight={QR_SLOT_H}>
+              <QrSlot value={qrUrl} />
+              <LogoSlots slots={slots} variant={s.logoVariant} slotStyle={{ background: 'var(--slot-bg)' }} />
             </LogoRow>
           </div>
         </div>

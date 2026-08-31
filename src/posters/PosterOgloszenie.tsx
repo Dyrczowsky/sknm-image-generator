@@ -1,6 +1,7 @@
-import { fontMono } from './theme'
+import { fontMono, QR_SLOT_H } from './theme'
 import { sygnetByName } from './logos'
-import { LogoSlot } from './LogoSlot'
+import { LogoSlots } from './blocks/LogoSlots'
+import { QrSlot } from './blocks/QrSlot'
 import { withPlaceholders } from './fallback'
 import { resolveScheme } from './schemes'
 import { PosterFrame } from './blocks/PosterFrame'
@@ -12,11 +13,12 @@ import type { PosterProps } from '../types'
 // Jedyny szablon bez narożnikowego stosu informacji — do krótkich ogłoszeń,
 // cytatów i podziękowań.
 export function PosterOgloszenie({ data, scheme }: PosterProps) {
-  const { title, subtitle, logos, fx } = withPlaceholders(data)
+  const { title, subtitle, graphics, showPkLogo, qrUrl, fx } = withPlaceholders(data)
   const s = resolveScheme('ogloszenie', scheme)
+  const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
 
   return (
-    <PosterFrame vars={s.cssVars} padding={96}>
+    <PosterFrame vars={s.cssVars} padding={72}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <img src={sygnetByName[s.sygnet ?? 'negatywny']} alt="SKNM" style={{ width: 132, display: 'block' }} />
         <BrandingText lines={['SKNM', 'POLITECHNIKA', 'KRAKOWSKA']} opacity={0.85} />
@@ -35,10 +37,11 @@ export function PosterOgloszenie({ data, scheme }: PosterProps) {
         )}
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 24 }}>
+      <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24 }}>
         <div style={{ font: `700 20px ${fontMono}`, letterSpacing: '.12em', opacity: 0.85 }}>sknm.pk.edu.pl</div>
-        <LogoRow alignItems="flex-end">
-          <LogoSlot logo={logos.pk} variant={s.logoVariant} flush={['r', 'b']} />
+        <LogoRow minHeight={QR_SLOT_H}>
+          <QrSlot value={qrUrl} />
+          <LogoSlots slots={slots} variant={s.logoVariant} />
         </LogoRow>
       </div>
     </PosterFrame>

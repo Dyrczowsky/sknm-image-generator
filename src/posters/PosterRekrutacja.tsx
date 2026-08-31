@@ -1,7 +1,7 @@
-import { fontMono, LOGO_CLEAR } from './theme'
+import { fontMono, QR_SLOT_H } from './theme'
 import { sygnetByName } from './logos'
-import { PlaceholderBox } from './PlaceholderBox'
-import { LogoSlot } from './LogoSlot'
+import { LogoSlots } from './blocks/LogoSlots'
+import { QrSlot } from './blocks/QrSlot'
 import { withPlaceholders } from './fallback'
 import { resolveScheme } from './schemes'
 import { getDay, getMonthShort } from '../utils/formatDate'
@@ -14,8 +14,9 @@ import type { PosterProps } from '../types'
 
 // REKRUTACJA — wzór z sygnetu
 export function PosterRekrutacja({ data, scheme }: PosterProps) {
-  const { title, subtitle, event_date, event_time, location, badge, logos, hidden, fx } = withPlaceholders(data)
+  const { title, subtitle, event_date, event_time, location, badge, graphics, showPkLogo, qrUrl, hidden, fx } = withPlaceholders(data)
   const s = resolveScheme('rekrutacja', scheme)
+  const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
 
   return (
     <PosterFrame vars={s.cssVars} padding={72}>
@@ -56,9 +57,9 @@ export function PosterRekrutacja({ data, scheme }: PosterProps) {
           />
           <div style={{ fontSize: 26, fontWeight: 500, opacity: 0.85 }}>sknm.pk.edu.pl · @sknm.pk</div>
         </div>
-        <LogoRow alignItems="center" gap={LOGO_CLEAR}>
-          <PlaceholderBox label="kod QR" width={104} height={104} style={{ borderColor: 'var(--qr-border)', color: 'var(--qr-text)' }} />
-          <LogoSlot logo={logos.pk} variant={s.logoVariant} flush={['r']} />
+        <LogoRow minHeight={QR_SLOT_H}>
+          <QrSlot value={qrUrl} />
+          <LogoSlots slots={slots} variant={s.logoVariant} />
         </LogoRow>
       </div>
     </PosterFrame>

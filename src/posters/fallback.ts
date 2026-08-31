@@ -38,14 +38,18 @@ export function withPlaceholders(data: RawPosterData) {
     location: data.location || PLACEHOLDERS.location,
     badge: data.badge,
     badge2: data.badge2,
-    logos: data.logos ?? {},
+    graphics: data.graphics ?? [],
+    showPkLogo: data.showPkLogo ?? true,
+    qrUrl: data.qrUrl ?? '',
+    colors: data.colors ?? {},
     photos: data.photos ?? {},
     lists: data.lists ?? {},
     // `true` gdy użytkownik wyłączył widoczność danego pola.
     hidden: (name: FormTextField): boolean => visibility[name] === false,
-    // Styl do rozlania na element pola: ukryte pole dostaje `opacity: 0`
-    // (zostaje w layoucie - nie rozsypuje flexowej konstrukcji bloków).
+    // Styl do rozlania na element pola: ukryte pole dostaje `display: none`
+    // (znika z układu, plakat sam się przekłada - flexowa konstrukcja bloków
+    // domyka lukę zamiast zostawiać puste miejsce po `opacity: 0`).
     fx: (name: FormTextField): CSSProperties | undefined =>
-      visibility[name] === false ? { opacity: 0 } : undefined,
+      visibility[name] === false ? { display: 'none' } : undefined,
   }
 }

@@ -1,5 +1,6 @@
 import { useRef } from 'react'
 import type { ChangeEvent, PointerEvent } from 'react'
+import { readAsDataUrl } from '../utils/readAsDataUrl'
 
 interface ImageUploadProps {
   label: string
@@ -21,15 +22,6 @@ interface DragState {
   startPosX: number
   startPosY: number
   rect: DOMRect
-}
-
-function readAsDataUrl(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onload = () => resolve(reader.result as string)
-    reader.onerror = () => reject(reader.error ?? new Error('read failed'))
-    reader.readAsDataURL(file)
-  })
 }
 
 function clamp(value: number, min: number, max: number) {

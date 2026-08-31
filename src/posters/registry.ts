@@ -16,7 +16,7 @@ import { FormWyklad } from '../forms/FormWyklad'
 import { FormKonferencja } from '../forms/FormKonferencja'
 import type { RegistryEntry } from '../types'
 
-// Każdy wpis to `{ name, Component, Form, schemes? }`:
+// Każdy wpis to `{ name, Component, Form }`:
 //
 // - `name` - podpis kafelki layoutu w TemplateSelector.
 // - `Component` - komponent plakatu; przyjmuje `data` (dane formularza) oraz
@@ -24,61 +24,18 @@ import type { RegistryEntry } from '../types'
 // - `Form` - jawnie napisany komponent formularza (patrz src/forms/), renderowany
 //   po wybraniu danego layoutu. Dane formularza (App.jsx) są globalne i
 //   przeżywają zmianę layoutu - zmienia się tylko to, który komponent je edytuje.
-// - `schemes` - uporządkowana lista nazw schematów kolorów (pierwsza = domyślna).
-//   TemplateSelector renderuje ją jako pasek swatchy pod kafelką layoutu.
-//   Layout bez `schemes` (Gala) nie pokazuje paska kolorystyki, a
-//   `resolveScheme` schodzi wtedy do bloku `default` danego layoutu.
+//
+// Lista schematów kolorów NIE jest tutaj - wynika wprost z `schemes.ts`
+// (`schemesFor(poster_key)`, kolejność = kolejność zapisu w bloku layoutu).
 //
 // Klucz (poster_key) jest zapisywany w tabeli `templates` w SQLite.
 export const posterRegistry: Record<string, RegistryEntry> = {
-  wyklad: {
-    name: 'Wykład',
-    Component: PosterWyklad,
-    Form: FormWyklad,
-    schemes: ['default', 'zloto', 'czern', 'jasny', 'szary'],
-  },
-
-  warsztat: {
-    name: 'Warsztat',
-    Component: PosterWarsztat,
-    Form: FormWarsztat,
-    schemes: ['default', 'czern', 'zloto', 'jasny', 'szary'],
-  },
-
-  konferencja: {
-    name: 'Konferencja',
-    Component: PosterKonferencja,
-    Form: FormKonferencja,
-    schemes: ['default', 'czern', 'zloto', 'jasny', 'szary'],
-  },
-
-  rekrutacja: {
-    name: 'Rekrutacja',
-    Component: PosterRekrutacja,
-    Form: FormRekrutacja,
-    schemes: ['limonka', 'czern', 'zloto', 'jasny', 'szary'],
-  },
-
-  data: {
-    name: 'Data',
-    Component: PosterData,
-    Form: FormData,
-    schemes: ['default', 'czern', 'zloto', 'jasny', 'szary'],
-  },
-
-  gosc: {
-    name: 'Gość',
-    Component: PosterGosc,
-    Form: FormGosc,
-    schemes: ['default', 'czern', 'zloto', 'jasny', 'szary'],
-  },
-
+  wyklad: { name: 'Wykład', Component: PosterWyklad, Form: FormWyklad },
+  warsztat: { name: 'Warsztat', Component: PosterWarsztat, Form: FormWarsztat },
+  konferencja: { name: 'Konferencja', Component: PosterKonferencja, Form: FormKonferencja },
+  rekrutacja: { name: 'Rekrutacja', Component: PosterRekrutacja, Form: FormRekrutacja },
+  data: { name: 'Data', Component: PosterData, Form: FormData },
+  gosc: { name: 'Gość', Component: PosterGosc, Form: FormGosc },
   gala: { name: 'Gala', Component: PosterGala, Form: FormGala },
-
-  ogloszenie: {
-    name: 'Ogłoszenie',
-    Component: PosterOgloszenie,
-    Form: FormOgloszenie,
-    schemes: ['default', 'czern', 'zloto', 'jasny', 'szary'],
-  },
+  ogloszenie: { name: 'Ogłoszenie', Component: PosterOgloszenie, Form: FormOgloszenie },
 }

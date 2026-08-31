@@ -50,6 +50,9 @@ const gosc: LayoutSchemes = {
            accent: colors.gold, sygnet: 'zloty', logoVariant: 'dark' },
   jasny: { pageBg: colors.paper },
   szary: { pageBg: colors.paper, pageText: colors.slate, accent: colors.grayDark },
+  gala: {
+    pageBg: colors.navy
+  }
 }
 
 // Data — liczba jako grafika. Etykieta miesiąca jest koralowa we wszystkich
@@ -99,7 +102,7 @@ const wyklad: LayoutSchemes = {
   szary: { pageBg: colors.paper, pageText: colors.slate,
            badgeFill: colors.grayDark, badgeText: colors.cream, speaker: colors.grayDark, chips: colors.gray,
            washTop: 'rgba(138,141,143,.08)', wedgeBr: '#D8D4CA', wedgeBl: '#CFCAC0',
-           sygnet: 'szary', logoVariant: 'light' },
+           sygnet: 'szary', logoVariant: 'light' }
 }
 
 // Konferencja — nagłówkowa banda + lista programu. `panel`/`panelText` to pas
@@ -161,9 +164,9 @@ const rekrutacja: LayoutSchemes = {
     sygnet: 'negatywny', logoVariant: 'light',
   },
   zloto: {
-    pageBg: colors.gold, pageText: colors.ink,
-    band: colors.navy, subColor: colors.navyDark, badgeColor: colors.gold,
-    sygnet: 'zloty',
+    pageBg: colors.gold, pageText: colors.black,
+    band: colors.black, subColor: colors.navyDark, badgeColor: colors.gold,
+    sygnet: 'czarny',
   },
   jasny: {
     pageBg: colors.paper, pageText: colors.navy,
@@ -176,7 +179,8 @@ const rekrutacja: LayoutSchemes = {
     sygnet: 'szary',
   },
 }
-rekrutacja.default = { ...rekrutacja.limonka }
+// Rekrutacja nie ma bloku `default` - bazą jest jej pierwszy schemat `limonka`
+// (patrz baseBlock), więc `czern`/`zloto`/... dziedziczą wspólne role z niego.
 
 // Warsztat — najbogatszy zestaw ról. Lokalny komponent `Pill` bierze
 // `pillFill`/`pillText`, wypełniona plakietka `badgeFill`/`badgeText`, wielki
@@ -223,11 +227,24 @@ export const schemes: Record<string, LayoutSchemes> = { ogloszenie, gala, gosc, 
 const roleToVar = (k: string): `--${string}` => `--${k.replace(/[A-Z]/g, (m) => `-${m.toLowerCase()}`)}`
 const NON_CSS = new Set(['sygnet', 'logoVariant'])
 
-// Scala nazwany schemat nad `default` danego layoutu. Nieznany layout / schemat
-// → pusty wynik / sam `default`.
+// Nazwy schematów danego layoutu w kolejności zapisu w `schemes.ts` = kolejność
+// swatchy na pasku kolorystyki. Pierwsza pozycja to schemat domyślny. Layout
+// z jednym wpisem (Gala) nie pokazuje paska.
+export function schemesFor(layoutKey: string): string[] {
+  return Object.keys(schemes[layoutKey] ?? {})
+}
+
+// Blok bazowy layoutu: `default`, a gdy layout go nie ma (np. Rekrutacja) -
+// jego pierwszy schemat. Nazwane schematy nadpisują nad nim tylko różnice.
+function baseBlock(layout: LayoutSchemes): SchemeBlock {
+  return layout.default ?? layout[Object.keys(layout)[0]] ?? {}
+}
+
+// Scala nazwany schemat nad blokiem bazowym layoutu. Nieznany layout / schemat
+// → pusty wynik / sama baza.
 export function resolveScheme(layoutKey: string, name: string | undefined): ResolvedScheme {
   const layout = schemes[layoutKey] ?? {}
-  const merged: SchemeBlock = { ...(layout.default ?? {}), ...(name ? layout[name] ?? {} : {}) }
+  const merged: SchemeBlock = { ...baseBlock(layout), ...(name ? layout[name] ?? {} : {}) }
   const cssVars: Record<`--${string}`, string> = {}
   for (const [k, v] of Object.entries(merged)) {
     if (v !== undefined && !NON_CSS.has(k)) cssVars[roleToVar(k)] = v
@@ -239,8 +256,8 @@ export function resolveScheme(layoutKey: string, name: string | undefined): Reso
   }
 }
 
-// Podpisy swatchy kolorystyki w UI. `default` bywa „Granat" albo (Rekrutacja)
-// pierwszym elementem jest `limonka`.
+// Podpisy swatchy kolorystyki w UI. Brak wpisu → swatch pokazuje surowy klucz
+// schematu, więc każdą nową nazwę dopisz tutaj.
 export const SCHEME_LABELS: Record<string, string> = {
   default: 'Granat',
   limonka: 'Limonka',
@@ -248,4 +265,5 @@ export const SCHEME_LABELS: Record<string, string> = {
   zloto: 'Złoto',
   jasny: 'Jasny',
   szary: 'Szary',
+  gala: 'Gala',
 }

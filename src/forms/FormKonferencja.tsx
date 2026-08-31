@@ -1,13 +1,14 @@
 import type { FormProps } from '../types'
 import { PLACEHOLDERS } from '../posters/fallback'
 import { FormField } from './FormField'
-import { LogoField } from './LogoField'
+import { GraphicsField } from './GraphicsField'
 
 // Formularz dla Konferencji - krótszy zestaw pól (bez podtytułu,
 // prelegenta i godziny) + powtarzalna lista punktów programu + logo PK.
-export function FormKonferencja({ value, onFieldChange, onVisibilityChange, onLogoChange, onLogoEnabledChange, onListItemAdd, onListItemChange, onListItemRemove }: FormProps) {
+export function FormKonferencja({ value, onFieldChange, onVisibilityChange, onGraphicsAdd, onGraphicRemove, onGraphicMove, onShowPkChange, onQrUrlChange, onListItemAdd, onListItemChange, onListItemRemove }: FormProps) {
   const agenda = value.lists.agenda ?? []
   const vis = { visibility: value.visibility, onVisibilityChange }
+  const gfx = { value, onGraphicsAdd, onGraphicRemove, onGraphicMove, onShowPkChange, onQrUrlChange }
 
   return (
     <form className="flex flex-col gap-3.5" onSubmit={(e) => e.preventDefault()}>
@@ -61,7 +62,7 @@ export function FormKonferencja({ value, onFieldChange, onVisibilityChange, onLo
         </button>
       </div>
 
-      <LogoField fieldKey="pk" label="Logo PK" value={value} onChange={onLogoChange} onEnabledChange={onLogoEnabledChange} />
+      <GraphicsField {...gfx} />
     </form>
   )
 }

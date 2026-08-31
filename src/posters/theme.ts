@@ -64,16 +64,6 @@ export const typography = {
   },
 }
 
-export const placeholderBoxStyle: CSSProperties = {
-  boxSizing: 'border-box',
-  border: `2px dashed ${colors.placeholderBorder}`,
-  display: 'grid',
-  placeItems: 'center',
-  font: `400 15px ${fontMono}`,
-  color: colors.placeholderText,
-  textAlign: 'center',
-}
-
 export const posterBaseStyle: CSSProperties = {
   width: 1080,
   height: 1080,
@@ -89,3 +79,13 @@ export const posterBaseStyle: CSSProperties = {
 // padding wrappera (LogoSlot).
 export const LOGO_HEIGHT = 48
 export const LOGO_CLEAR = Math.round(LOGO_HEIGHT / 4)
+
+// Ile grafik/logotypów mieści się w rzędzie stopki przy LOGO_HEIGHT.
+export const MAX_GRAPHICS = 4
+
+// Bok kwadratu kodu QR + pełna wysokość jego slotu (z polem ochronnym).
+// Rząd stopki rezerwuje `QR_SLOT_H` na stałe (minHeight), żeby wpisanie
+// linku nie rozpychało układu - QR pojawia się w miejscu, które i tak
+// jest już puste.
+export const QR_SIZE = 96
+export const QR_SLOT_H = QR_SIZE + LOGO_CLEAR * 2

@@ -1,8 +1,8 @@
-import { colors, fontMono, LOGO_CLEAR } from './theme'
+import { colors, fontMono, QR_SLOT_H } from './theme'
 import { sygnetByName } from './logos'
 import { resolveScheme } from './schemes'
-import { PlaceholderBox } from './PlaceholderBox'
-import { LogoSlot } from './LogoSlot'
+import { LogoSlots } from './blocks/LogoSlots'
+import { QrSlot } from './blocks/QrSlot'
 import { withPlaceholders } from './fallback'
 import { formatFullDate } from '../utils/formatDate'
 import { PosterFrame } from './blocks/PosterFrame'
@@ -18,9 +18,10 @@ const DEFAULT_AGENDA: ListItem[] = [
 
 // KONFERENCJA — nagłówek + lista programu
 export function PosterKonferencja({ data, scheme }: PosterProps) {
-  const { title, event_date, location, badge, badge2, logos, lists, hidden, fx } = withPlaceholders(data)
+  const { title, event_date, location, badge, badge2, graphics, showPkLogo, qrUrl, lists, hidden, fx } = withPlaceholders(data)
   const agenda = lists.agenda?.length ? lists.agenda : DEFAULT_AGENDA
   const s = resolveScheme('konferencja', scheme)
+  const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
 
   return (
     <PosterFrame vars={s.cssVars}>
@@ -32,7 +33,7 @@ export function PosterKonferencja({ data, scheme }: PosterProps) {
           </div>
           <div style={{ fontSize: 28, fontWeight: 600 }}>
             <span style={fx('event_date')}>{formatFullDate(event_date)}</span>
-            <span style={hidden('event_date') || hidden('location') ? { opacity: 0 } : undefined}>{' · '}</span>
+            {!hidden('event_date') && !hidden('location') && <span>{' · '}</span>}
             <span style={fx('location')}>{location}</span>
           </div>
         </div>
@@ -70,9 +71,9 @@ export function PosterKonferencja({ data, scheme }: PosterProps) {
             <Badge color="var(--footer-badge)" style={{ font: `700 20px ${fontMono}`, letterSpacing: '.12em', ...fx('badge2') }}>{badge2 || 'WIĘCEJ INFORMACJI'}</Badge>
             <div style={{ fontSize: 24, fontWeight: 600, color: 'var(--muted-text)' }}>sknm.pk.edu.pl</div>
           </div>
-          <LogoRow gap={LOGO_CLEAR} alignItems="center">
-            <LogoSlot logo={logos.pk} variant={s.logoVariant} />
-            <PlaceholderBox label="patronat" width={180} height={68} />
+          <LogoRow minHeight={QR_SLOT_H}>
+            <QrSlot value={qrUrl} />
+            <LogoSlots slots={slots} variant={s.logoVariant} />
           </LogoRow>
         </div>
       </div>

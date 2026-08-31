@@ -22,27 +22,26 @@ function normalize(part: RawPart): InfoLinePart {
 }
 
 // Łączy część danych (np. godzinę i lokalizację) wspólnym separatorem,
-// z opcjonalną drugą linią (np. opisem). Puste elementy są pomijane.
-//
-// Każda część (i każdy separator) renderuje się w osobnym <span> - ukrycie
-// pola (`hidden`) daje mu `opacity: 0` bez zwijania szerokości. Separator
-// znika, gdy któryś z jego sąsiadów jest ukryty, więc nie zostaje osierocony.
+// z opcjonalną drugą linią (np. opisem). Puste oraz ukryte (`hidden`)
+// elementy są w całości pomijane - nie renderują się i nie zajmują miejsca,
+// a osierocone separatory nie powstają. Gdy nie ma nic do pokazania, blok
+// zwraca `null`.
 export function InfoLine({ parts, secondLine, secondLineHidden, separator = ' · ', style }: InfoLineProps) {
-  const visible = parts.map(normalize).filter((p) => Boolean(p.text))
+  const visible = parts.map(normalize).filter((p) => Boolean(p.text) && !p.hidden)
+  const showSecond = Boolean(secondLine) && !secondLineHidden
+  if (visible.length === 0 && !showSecond) return null
   return (
     <div style={{ ...typography.body, ...style }}>
       {visible.map((part, i) => (
         <Fragment key={i}>
-          {i > 0 && (
-            <span style={part.hidden || visible[i - 1].hidden ? { opacity: 0 } : undefined}>{separator}</span>
-          )}
-          <span style={part.hidden ? { opacity: 0 } : undefined}>{part.text}</span>
+          {i > 0 && <span>{separator}</span>}
+          <span>{part.text}</span>
         </Fragment>
       ))}
-      {secondLine && (
+      {showSecond && (
         <>
-          <br />
-          <span style={secondLineHidden ? { opacity: 0 } : undefined}>{secondLine}</span>
+          {visible.length > 0 && <br />}
+          <span>{secondLine}</span>
         </>
       )}
     </div>

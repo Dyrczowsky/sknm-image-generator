@@ -16,16 +16,20 @@ import { withPlaceholders } from './fallback'
 import { resolveScheme } from './schemes'
 import { PosterFrame } from './blocks/PosterFrame'
 import { LogoRow } from './blocks/LogoRow'
-import { LogoSlot } from './LogoSlot'
+import { LogoSlots } from './blocks/LogoSlots'
+import { QrSlot } from './blocks/QrSlot'
+import { QR_SLOT_H } from './theme'
 import { sygnetByName } from './logos'
 import type { PosterProps } from '../types'
 
 export function PosterPiknik({ data, scheme }: PosterProps) {
-  const { title, subtitle, event_date, location, logos } = withPlaceholders(data)
+  const { title, subtitle, event_date, location, graphics, showPkLogo, qrUrl } = withPlaceholders(data)
   const s = resolveScheme('piknik', scheme)
+  // null = domyślne logo PK (fallback), string = hurtowo wgrana grafika
+  const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
 
   return (
-    <PosterFrame vars={s.cssVars} padding={96}>
+    <PosterFrame vars={s.cssVars} padding={72}>
       <img src={sygnetByName[s.sygnet ?? 'negatywny']} alt="SKNM" style={{ width: 132 }} />
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
@@ -34,8 +38,12 @@ export function PosterPiknik({ data, scheme }: PosterProps) {
         <div style={{ fontSize: 28 }}>{event_date} · {location}</div>
       </div>
 
-      <LogoRow>
-        <LogoSlot logo={logos.pk} variant={s.logoVariant} width={190} height={72} />
+      {/* Stopka: logo PK w prawym dolnym rogu (ta sama pozycja we wszystkich
+          szablonach), kod QR odbity maksymalnie w lewo. `LogoRow` sam
+          wysuwa się o pole ochronne; `minHeight` rezerwuje miejsce na QR. */}
+      <LogoRow minHeight={QR_SLOT_H}>
+        <QrSlot value={qrUrl} />
+        <LogoSlots slots={slots} variant={s.logoVariant} />
       </LogoRow>
     </PosterFrame>
   )
@@ -55,7 +63,10 @@ Reguły:
   `...fx('<pole>')` na element każdego pola tekstowego, np.
   `<div style={{ fontSize: 96, ...fx('title') }}>{title}</div>`. Pola przekazywane
   do `InfoLine` podajesz jako `{ text, hidden: hidden('<pole>') }`. Ukryte pole
-  dostaje `opacity: 0` i **zostaje** w layoucie - nie usuwaj go warunkowo z DOM.
+  dostaje `display: none` i wypada z układu - plakat sam się przekłada. Jeśli pole
+  siedzi w osobnym kontenerze z tłem/ramką (np. pływające pudełko z datą), owiń
+  ten kontener warunkiem `{!hidden('<pole>') && ...}`, żeby nie zostało puste
+  pudełko.
 
 ## 2. Formularz — `src/forms/FormPiknik.tsx`
 
@@ -66,11 +77,12 @@ Formularz dostaje `FormProps` i decyduje, które pola pokazać. Kontener:
 import type { FormProps } from '../types'
 import { PLACEHOLDERS } from '../posters/fallback'
 import { FormField } from './FormField'
-import { LogoField } from './LogoField'
+import { GraphicsField } from './GraphicsField'
 
-export function FormPiknik({ value, onFieldChange, onVisibilityChange, onLogoChange, onLogoEnabledChange }: FormProps) {
+export function FormPiknik({ value, onFieldChange, onVisibilityChange, onGraphicsAdd, onGraphicRemove, onGraphicMove, onShowPkChange }: FormProps) {
   // `name` + `{...vis}` włączają checkbox widoczności przy etykiecie pola.
   const vis = { visibility: value.visibility, onVisibilityChange }
+  const gfx = { value, onGraphicsAdd, onGraphicRemove, onGraphicMove, onShowPkChange }
   return (
     <form className="flex flex-col gap-3.5" onSubmit={(e) => e.preventDefault()}>
       <FormField name="title" {...vis} type="text" label="Tytuł" placeholder={PLACEHOLDERS.title}
@@ -82,8 +94,7 @@ export function FormPiknik({ value, onFieldChange, onVisibilityChange, onLogoCha
       <FormField name="location" {...vis} type="text" label="Lokalizacja" placeholder={PLACEHOLDERS.location}
         value={value.location} onChange={(v) => onFieldChange('location', v)} />
 
-      <LogoField fieldKey="pk" label="Logo PK" value={value}
-        onChange={onLogoChange} onEnabledChange={onLogoEnabledChange} />
+      <GraphicsField {...gfx} />
     </form>
   )
 }
@@ -92,7 +103,11 @@ export function FormPiknik({ value, onFieldChange, onVisibilityChange, onLogoCha
 Dostępne klocki:
 
 - `FormField` — pojedyncze `<label><input>` (`type` = `text` / `date` / `time`)
-- `LogoField` — slot logo (checkbox włącz/wyłącz + upload), klucz w `value.logos`
+- `GraphicsField` — checkbox „Dodaj logo PK" + hurtowe wgrywanie grafik stopki
+  (miniatury, kolejność strzałkami, usuwanie) + pole „Kod QR" (link). Stan w
+  `value.graphics` / `value.showPkLogo` / `value.qrUrl`. Po stronie plakatu:
+  `<LogoSlots slots={…} />` dla grafik, `<QrSlot value={qrUrl} />` dla kodu QR.
+  Cała trójka to jeden komplet propsów — patrz `const gfx = {…}` w każdym formularzu.
 - `PhotoGalleryField` — galeria 0..N zdjęć z kadrowaniem, klucz w `value.photos`
 - lista powtarzalna (jak program konferencji) — patrz `FormKonferencja.tsx`,
   używa `onListItemAdd` / `onListItemChange` / `onListItemRemove` i `value.lists`
@@ -101,9 +116,10 @@ Stan formularza jest globalny — nie każdy layout musi używać wszystkich pó
 
 ## 3. Schemat kolorów — `src/posters/schemes.ts`
 
-Każdy layout musi mieć **pełny blok `default`** ze wszystkimi rolami, których
-używa jego komponent (rola nieobecna spada do `:root` w `index.css` — patrz
-`⚠️` w [stylowanie.md](./stylowanie.md)).
+Każdy layout musi mieć **pełny blok bazowy** (`default`, a gdy go nie ma -
+pierwszy schemat) ze wszystkimi rolami, których używa jego komponent (rola
+nieobecna spada do `:root` w `index.css` — patrz `⚠️` w
+[stylowanie.md](./stylowanie.md)).
 
 ```ts
 const piknik: LayoutSchemes = {
@@ -111,7 +127,8 @@ const piknik: LayoutSchemes = {
     pageBg: colors.lime, pageText: colors.limeText, accent: colors.navy,
     sygnet: 'granat', logoVariant: 'dark',
   },
-  // kolejne warianty nadpisują tylko różnice względem default:
+  // kolejne warianty nadpisują tylko różnice; kolejność kluczy = kolejność
+  // swatchy na pasku kolorystyki:
   czern: { pageBg: colors.black, pageText: colors.cream, accent: colors.gold,
            sygnet: 'negatywny', logoVariant: 'dark' },
 }
@@ -125,8 +142,13 @@ export const schemes: Record<string, LayoutSchemes> = {
 }
 ```
 
+To wszystko — pasek kolorystyki w generatorze budowany jest wprost z tego bloku
+(`schemesFor(poster_key)`), `registry.ts` nie trzyma listy schematów. Layout
+z jednym schematem (jak Gala) nie pokazuje paska.
+
 Jeśli używasz nazwy wariantu spoza `default/limonka/czern/zloto/jasny/szary`,
-dopisz jej podpis do `SCHEME_LABELS` na dole `schemes.ts`.
+dopisz jej podpis do `SCHEME_LABELS` na dole `schemes.ts` (bez wpisu swatch
+pokaże surowy klucz).
 
 Więcej o rolach, `resolveScheme` i konwencji `camelCase → --kebab`:
 [dodawanie-schematu-kolorow.md](./dodawanie-schematu-kolorow.md).
@@ -139,17 +161,11 @@ import { FormPiknik } from '../forms/FormPiknik'
 
 export const posterRegistry: Record<string, RegistryEntry> = {
   // ...
-  piknik: {
-    name: 'Piknik',                       // podpis kafelki w TemplateSelector
-    Component: PosterPiknik,
-    Form: FormPiknik,
-    schemes: ['default', 'czern'],        // pierwszy = domyślny; pomiń pole dla 1 wariantu
-  },
+  piknik: { name: 'Piknik', Component: PosterPiknik, Form: FormPiknik },
 }
 ```
 
-`schemes` to uporządkowana lista nazw z bloku w `schemes.ts`. Layout bez `schemes`
-(jak Gala) nie pokazuje paska kolorystyki i zawsze rysuje `default`.
+`name` to podpis kafelki w TemplateSelector.
 
 ## 5. Domyślny szablon w bazie — `src/db/schema.ts`
 

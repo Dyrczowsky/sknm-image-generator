@@ -30,9 +30,10 @@ bespoke divy — to jest ta część designu, której świadomie nie uogólniamy
 | `BigDateNumber` | Duży "dzień + miesiąc" w jednej linii (np. "12 LIS") | `<BigDateNumber event_date={event_date} color="var(--gold)" />` |
 | `InfoLine` | Łączy części (godzina/lokalizacja/cokolwiek) separatorem, opcjonalna druga linia | `<InfoLine parts={[event_time, location]} secondLine={subtitle} />` |
 | `BrandingText` | Pionowy blok tekstu mono w rogu (np. nazwa koła/uczelni), domyślnie wyrównany do prawej | `<BrandingText lines={['SKNM', 'POLITECHNIKA', 'KRAKOWSKA']} />` |
-| `LogoRow` | Rząd `LogoSlot`/`PlaceholderBox` ze spójnym odstępem | `<LogoRow><LogoSlot .../><LogoSlot .../></LogoRow>` |
-| `LogoSlot` (`../LogoSlot.jsx`) | Miejsce na logo — wgrane przez użytkownika albo domyślne logo PK | `<LogoSlot logo={logo} variant="light" width={190} height={72} />` |
-| `PlaceholderBox` (`../PlaceholderBox.jsx`) | Przerywany placeholder na zdjęcie/QR/patronat | `<PlaceholderBox label="kod QR" width={150} height={150} />` |
+| `LogoRow` | Stopka w prawym dolnym rogu (ujednolicona pozycja logo we wszystkich szablonach): sam wysuwa się o pole ochronne, wyrównuje do dołu, `flex-wrap` na nadmiar. `minHeight={QR_SLOT_H}` rezerwuje kod QR | `<LogoRow minHeight={QR_SLOT_H}><QrSlot .../><LogoSlots .../></LogoRow>` |
+| `LogoSlot` (`../LogoSlot.tsx`) | Miejsce na logo — wgrane przez użytkownika albo domyślne logo PK | `<LogoSlot logo={logo} variant="light" height={48} />` |
+| `LogoSlots` | Renderuje rząd slotów logo z tablicy `slots` (null = fallback PK, string = grafika stopki) | `<LogoSlots slots={slots} variant={s.logoVariant} />` |
+| `QrSlot` | Kod QR z linku (`value.qrUrl`). Tło zawsze przezroczyste, kolor modułów = rola `qr` ze schematu (`var(--qr, var(--page-text))`) - konfigurowalny tylko w `schemes.ts`. `marginRight: auto` (odbija się w lewo). Pusty link = `null` | `<QrSlot value={qrUrl} />` |
 
 Wspólne tokeny typografii (rozmiary/wagi/odstępy używane wewnątrz bloków) są
 w `../theme.js` → `typography`. Jedna zmiana tam propaguje się do wszystkich
