@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { Database } from 'sql.js'
-import type { FormValues, FormTextField, HistoryRow, TemplateRow } from './types'
+import type { FormValues, FormTextField, FormColorField, HistoryRow, TemplateRow } from './types'
 import { getDb } from './db/client'
 import { listTemplates } from './db/templates'
 import { getDraft, saveDraft, parseVisibility } from './db/drafts'
@@ -28,6 +28,7 @@ const EMPTY_FORM: FormValues = {
   showPkLogo: true,
   qrUrl: '',
   qrColor: '',
+  colors: {},
   photos: {},
   lists: {},
 }
@@ -79,6 +80,7 @@ function App() {
           showPkLogo: true,
           qrUrl: '',
           qrColor: '',
+          colors: {},
           photos: {},
           lists: {},
         })
@@ -178,6 +180,18 @@ function App() {
     })
   }
 
+  // Nadpisanie koloru per szablon; pusty string = usunięcie nadpisania.
+  const handleColorChange = (name: FormColorField, value: string) => {
+    setForm((prev) => {
+      const nextColors = { ...prev.colors }
+      if (value) nextColors[name] = value
+      else delete nextColors[name]
+      const next = { ...prev, colors: nextColors }
+      persistDraft(next, selectedTemplateId, selectedScheme)
+      return next
+    })
+  }
+
   // Galeria zdjęć: dodanie nowego pliku zawsze dokłada kolejny wpis do listy.
   const handlePhotoAdd = (fieldKey: string, src: string | null) => {
     if (!src) return
@@ -270,6 +284,7 @@ function App() {
       showPkLogo: true,
       qrUrl: '',
       qrColor: '',
+      colors: {},
       photos: {},
       lists: {},
     }
@@ -339,6 +354,7 @@ function App() {
               onShowPkChange={handleShowPkChange}
               onQrUrlChange={handleQrUrlChange}
               onQrColorChange={handleQrColorChange}
+              onColorChange={handleColorChange}
               onPhotoAdd={handlePhotoAdd}
               onPhotoChangeAt={handlePhotoChangeAt}
               onPhotoPositionChangeAt={handlePhotoPositionChangeAt}

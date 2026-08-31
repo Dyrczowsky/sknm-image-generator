@@ -70,6 +70,15 @@ widoczności.
 `cssVars` (np. `--page-bg`, `--accent`) są rozlewane na `PosterFrame`, a każdy potomek
 używa `var(--rola)` w stylu inline. Szczegóły: [dodawanie-schematu-kolorow.md](./dodawanie-schematu-kolorow.md).
 
+## Nadpisania kolorów per szablon
+
+Poza schematem użytkownik może nadpisać wybrane kolory pojedynczych elementów.
+Stan siedzi w `FormValues.colors` (mapa `FormColorField` → hex, pusty wpis =
+wartość ze schematu), sterowany klockiem `forms/ColorField.tsx` (próbnik +
+„Wyczyść"). Plakat bierze wartość z fallbackiem: `co.goscBoxBg || colors.coral`.
+Obecnie tylko Gość (`goscBoxBg`, `goscBoxText`, `goscTextColor`). Niezapisywane
+w draftcie - jak `qrColor`.
+
 ## Baza / wersjonowanie
 
 - `SCHEMA_VERSION` w `src/db/schema.ts` - podbij przy zmianie kształtu tabel;

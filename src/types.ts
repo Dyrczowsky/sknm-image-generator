@@ -16,6 +16,11 @@ export type FormTextField =
 // rozsypać flexowej konstrukcji bloków plakatu).
 export type FieldVisibility = Partial<Record<FormTextField, boolean>>
 
+// Nadpisania kolorów per szablon (pusty string = wartość ze schematu).
+// Gość: `goscBoxBg`/`goscBoxText` = prostokąt z datą, `goscTextColor` =
+// etykieta + „Wstęp wolny" (odpięte od `--accent`).
+export type FormColorField = 'goscBoxBg' | 'goscBoxText' | 'goscTextColor'
+
 export interface FormValues {
   title: string
   subtitle: string
@@ -34,6 +39,8 @@ export interface FormValues {
   qrUrl: string
   // Kolor modułów kodu QR. Pusty = dopasowany do schematu kolorów plakatu.
   qrColor: string
+  // Nadpisania kolorów per szablon (pusty = wartość ze schematu).
+  colors: Partial<Record<FormColorField, string>>
   photos: Record<string, PhotoValue[]>
   lists: Record<string, ListItem[]>
 }
@@ -99,6 +106,8 @@ export interface FormProps {
   onShowPkChange: (value: boolean) => void
   onQrUrlChange: (value: string) => void
   onQrColorChange: (value: string) => void
+  // Nadpisanie koloru per szablon; pusty string = wyczyszczenie (wartość ze schematu).
+  onColorChange: (name: FormColorField, value: string) => void
   onPhotoAdd: (fieldKey: string, src: string | null) => void
   onPhotoChangeAt: (fieldKey: string, index: number, src: string | null) => void
   onPhotoPositionChangeAt: (fieldKey: string, index: number, partial: { x?: number; y?: number }) => void

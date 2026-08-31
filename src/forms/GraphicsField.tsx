@@ -2,6 +2,7 @@ import type { ChangeEvent } from 'react'
 import type { FormValues } from '../types'
 import { MAX_GRAPHICS } from '../posters/theme'
 import { readAsDataUrl } from '../utils/readAsDataUrl'
+import { ColorField } from './ColorField'
 
 interface GraphicsFieldProps {
   value: FormValues
@@ -102,27 +103,7 @@ export function GraphicsField({ value, onGraphicsAdd, onGraphicRemove, onGraphic
       </label>
 
       {qrUrl.trim() && (
-        <div className="flex items-center gap-2.5">
-          <input
-            type="color"
-            value={qrColor || DEFAULT_QR_COLOR}
-            onChange={(e) => onQrColorChange(e.target.value)}
-            className="h-8 w-10 flex-none cursor-pointer rounded border border-field-border bg-field p-0.5"
-            aria-label="Kolor kodu QR"
-          />
-          <span className="text-[0.85rem]">Kolor kodu QR</span>
-          {qrColor ? (
-            <button
-              type="button"
-              className="ml-auto cursor-pointer rounded-lg border border-field-border bg-transparent px-3 py-[5px] text-[0.8rem] text-muted transition-[border-color,color] hover:border-accent hover:text-accent"
-              onClick={() => onQrColorChange('')}
-            >
-              Dopasuj do schematu
-            </button>
-          ) : (
-            <span className="ml-auto text-[0.8rem] text-muted">Dopasowany do schematu</span>
-          )}
-        </div>
+        <ColorField label="Kolor kodu QR" value={qrColor} onChange={onQrColorChange} fallback={DEFAULT_QR_COLOR} />
       )}
     </div>
   )
