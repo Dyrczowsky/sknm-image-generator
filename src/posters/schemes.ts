@@ -61,9 +61,9 @@ const gosc: LayoutSchemes = {
   czernGranatowa:    { pageBg: colors.black, pageText: colors.cream, mutedText: colors.creamMuted,
                        accent: colors.navyLight, sygnet: 'negatywny', logoVariant: 'dark' },
   okazjonalnyZloty:   { pageBg: colors.ink, pageText: colors.paper, mutedText: colors.creamMuted,
-                        accent: colors.gold,   sygnet: 'zloty',   logoVariant: 'dark' },
+                        accent: colors.ink,   sygnet: 'zloty',   logoVariant: 'dark' },
   okazjonalnySrebrny: { pageBg: colors.ink, pageText: colors.paper, mutedText: colors.creamMuted,
-                        accent: colors.silver, sygnet: 'srebrny', logoVariant: 'dark' },
+                        accent: colors.ink, sygnet: 'srebrny', logoVariant: 'dark' },
   jasny: { pageBg: colors.paper },
   szary: { pageBg: colors.paper, pageText: colors.slate, accent: colors.grayDark },
 }
