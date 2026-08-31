@@ -13,6 +13,10 @@ w obrębie layoutu:
 - specyficzne dla layoutu, np. Wykład: `badgeFill`, `badgeText`, `speaker`,
   `chips`, `washTop`, `wedgeBr`, `wedgeBl`
 
+Kolor `colors.gold` w roli akcentu łączymy **wyłącznie** z sygnetem `'zloty'`,
+a `colors.silver` z `'srebrny'` (schematy „okazjonalny złoty" / „okazjonalny
+srebrny"). W pozostałych wariantach akcent to `lime` / `coral` / `navy`.
+
 Komponent plakatu używa roli jako zmiennej CSS w stylu inline:
 
 ```tsx
@@ -26,8 +30,8 @@ więc `var(--rola)` działa u każdego potomka.
 
 **Lista schematów w UI wynika wprost z `schemes.ts`** - `schemesFor(layoutKey)`
 zwraca `Object.keys` bloku layoutu, w kolejności zapisu (pierwszy = domyślny).
-Nie ma osobnej listy w `registry.ts`. Layout z jednym schematem (Gala) nie
-pokazuje paska kolorystyki.
+Nie ma osobnej listy w `registry.ts`. Layout z jednym schematem nie pokazuje
+paska kolorystyki.
 
 ### Konwersja nazw
 
@@ -101,8 +105,9 @@ Przykład: dodajemy wariant `morski` do Wykładu.
 
 Rekrutacja nie ma klucza `default` - jej blokiem bazowym jest **pierwszy
 schemat** (`limonka`), bo `resolveScheme` bierze `layout.default ?? layout[
-pierwszy klucz]`. Dzięki temu `czern`/`zloto`/... dziedziczą wspólne role
-(`footerText`, `qrBorder`, ...) wprost z `limonka` i nie trzeba żadnego aliasu.
+pierwszy klucz]`. Dzięki temu `czernZolta`/`okazjonalnyZloty`/... dziedziczą
+wspólne role (`footerText`, `qrBorder`, ...) wprost z `limonka` i nie trzeba
+żadnego aliasu.
 
 Stosuj ten wzorzec, gdy "domyślny" wygląd layoutu ma własną nazwę na pasku
 kolorystyki: napisz go jako pełny pierwszy blok, reszta podaje tylko różnice.

@@ -18,7 +18,7 @@ bespoke divy — to jest ta część designu, której świadomie nie uogólniamy
    w `src/db/schema.js`, oraz blok `<layout>` do `src/posters/schemes.js`
    (kolory).
 5. Sprawdź pod `/poster/<layout>` lub `/poster/<layout>/<scheme>` (np.
-   `/poster/gosc/czern`), że dane placeholder (`withPlaceholders` w
+   `/poster/gosc/czernZolta`), że dane placeholder (`withPlaceholders` w
    `../fallback.js`) wyglądają sensownie.
 
 ## Dostępne bloki
@@ -53,8 +53,9 @@ korzeń 1080×1080, więc każdy potomek (również bloki) widzi `var(--page-bg)
 
 Wszystkie wartości kolorów są w `src/posters/schemes.js`, zagnieżdżone po
 layoucie: `schemes.<layout>.default` to pełny zestaw ról, nazwane schematy
-(`czern`, `zloto`, `jasny`, `szary`, dla Rekrutacji `limonka`) nadpisują tylko
-różnice. Dekoracje (trójkąty, kliny) mają własne role z konkretną wartością per
+(`czernZolta`, `czernPomaranczowa`, `czernGranatowa`, `okazjonalnyZloty`,
+`okazjonalnySrebrny`, `jasny`, `szary`; dla `data` też `czern`, dla Rekrutacji
+`limonka`) nadpisują tylko różnice. Dekoracje (trójkąty, kliny) mają własne role z konkretną wartością per
 schemat — bez `color-mix`.
 
 `s.sygnet` (nazwa assetu, przez `sygnetByName`) i `s.logoVariant`

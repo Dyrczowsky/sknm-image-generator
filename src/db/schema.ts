@@ -16,7 +16,10 @@ export const DEFAULT_TEMPLATES: ReadonlyArray<{ name: string; poster_key: string
 
 // Podbijaj przy każdej zmianie kształtu tabel wymagającej świeżego startu.
 // v3: kolumna draft.visibility (JSON widoczności pól tekstowych).
-export const SCHEMA_VERSION = 3
+// v4: przemianowane klucze schematów kolorów (zloto→okazjonalnyZloty,
+//     czern→czernZolta/…); stare wartości color_scheme w draftcie/historii
+//     przestały pasować, więc czyścimy tabele.
+export const SCHEMA_VERSION = 4
 
 // Zgoda właściciela: dane lokalne (IndexedDB) można wyczyścić. Zamiast
 // ostrożnej migracji kluczy `1b-czern` → layout+scheme po prostu zrzucamy

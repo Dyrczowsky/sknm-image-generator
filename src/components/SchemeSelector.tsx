@@ -14,7 +14,7 @@ interface SchemeSelectorProps {
 
 // Pasek wyboru kolorystyki wybranego layoutu - renderowany pod podglądem.
 // Lista schematów wynika z `schemes.ts` (schemesFor). Nie pokazuje się dla
-// layoutów z jednym schematem (np. Gala).
+// layoutów z jednym schematem.
 export function SchemeSelector({ poster, posterKey, selectedScheme, onSelectScheme }: SchemeSelectorProps) {
   const schemeList = posterKey ? schemesFor(posterKey) : []
   const SwatchComponent = poster?.Component

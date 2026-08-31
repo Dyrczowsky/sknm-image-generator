@@ -33,8 +33,8 @@ const EMPTY_FORM: FormValues = {
 }
 
 // Domyślny schemat kolorów danego layoutu = pierwszy schemat z `schemes.ts`
-// (`undefined` dla Gali, która ma jeden schemat - resolveScheme użyje wtedy
-// bloku bazowego).
+// (`undefined` tylko dla layoutu z jednym schematem — żaden obecnie taki nie
+// jest — resolveScheme użyje wtedy bloku bazowego).
 function defaultSchemeFor(templateId: number | null, templates: TemplateRow[]): string | undefined {
   const tpl = templates.find((t) => t.id === templateId)
   const list = tpl ? schemesFor(tpl.poster_key) : []
