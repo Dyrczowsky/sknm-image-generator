@@ -15,14 +15,13 @@ export function FormGosc({
   onGraphicMove,
   onShowPkChange,
   onQrUrlChange,
-  onQrColorChange,
   onColorChange,
   onPhotoAdd,
   onPhotoChangeAt,
   onPhotoPositionChangeAt,
 }: FormProps) {
   const vis = { visibility: value.visibility, onVisibilityChange }
-  const gfx = { value, onGraphicsAdd, onGraphicRemove, onGraphicMove, onShowPkChange, onQrUrlChange, onQrColorChange }
+  const gfx = { value, onGraphicsAdd, onGraphicRemove, onGraphicMove, onShowPkChange, onQrUrlChange }
   const c = value.colors
   return (
     <form className="flex flex-col gap-3.5" onSubmit={(e) => e.preventDefault()}>

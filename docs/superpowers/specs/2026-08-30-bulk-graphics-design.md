@@ -195,13 +195,13 @@ Wersja z gałęzi `feat/bulk-graphics`:
 
 ### Kod QR (dogrywka)
 
-`qrcode.react` (`QRCodeSVG`). `FormValues.qrUrl` (link) + `qrColor` (kolor
-modułów; pusty = `var(--page-text)` - dopasowany do schematu, czytelny na
-jasnym i ciemnym). Niezapisywane - jak `graphics` / `showPkLogo`. Pole „Kod QR"
-+ picker koloru w `GraphicsField`, propsy w komplecie `gfx`. `QrSlot`
-(`QR_SIZE = 96`): **tło ZAWSZE przezroczyste** (`bgColor="transparent"`),
-`marginRight: auto` (odbija się maksymalnie w lewo), `value` pusty => `null`.
-Pierwszy element rzędu stopki we wszystkich 8 szablonach.
+`qrcode.react` (`QRCodeSVG`). `FormValues.qrUrl` (link, niezapisywany - jak
+`graphics` / `showPkLogo`). Pole „Kod QR" w `GraphicsField`, propsy w komplecie
+`gfx`. `QrSlot` (`QR_SIZE = 96`): **tło ZAWSZE przezroczyste**
+(`bgColor="transparent"`), kolor modułów = `var(--qr, var(--page-text))` -
+**tylko ze schematu** (`schemes.ts`), bez kontrolki w edytorze. `marginRight:
+auto` (odbija się maksymalnie w lewo), `value` pusty => `null`. Pierwszy element
+rzędu stopki we wszystkich 8 szablonach.
 
 **Rezerwacja miejsca:** rząd stopki (`LogoRow`) ma stałe `minHeight={QR_SLOT_H}`
 (`QR_SIZE + 2·LOGO_CLEAR`), a sloty są `alignItems: flex-end`. Dzięki temu

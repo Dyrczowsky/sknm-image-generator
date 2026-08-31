@@ -14,13 +14,12 @@ export function FormData({
   onGraphicMove,
   onShowPkChange,
   onQrUrlChange,
-  onQrColorChange,
   onPhotoAdd,
   onPhotoChangeAt,
   onPhotoPositionChangeAt,
 }: FormProps) {
   const vis = { visibility: value.visibility, onVisibilityChange }
-  const gfx = { value, onGraphicsAdd, onGraphicRemove, onGraphicMove, onShowPkChange, onQrUrlChange, onQrColorChange }
+  const gfx = { value, onGraphicsAdd, onGraphicRemove, onGraphicMove, onShowPkChange, onQrUrlChange }
   return (
     <form className="flex flex-col gap-3.5" onSubmit={(e) => e.preventDefault()}>
       <FormField name="title" {...vis} type="text" label="Tytuł" placeholder={PLACEHOLDERS.title} value={value.title} onChange={(v) => onFieldChange('title', v)} />

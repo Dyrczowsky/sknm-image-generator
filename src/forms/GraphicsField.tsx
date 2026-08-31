@@ -2,7 +2,6 @@ import type { ChangeEvent } from 'react'
 import type { FormValues } from '../types'
 import { MAX_GRAPHICS } from '../posters/theme'
 import { readAsDataUrl } from '../utils/readAsDataUrl'
-import { ColorField } from './ColorField'
 
 interface GraphicsFieldProps {
   value: FormValues
@@ -11,18 +10,15 @@ interface GraphicsFieldProps {
   onGraphicMove: (index: number, dir: -1 | 1) => void
   onShowPkChange: (value: boolean) => void
   onQrUrlChange: (value: string) => void
-  onQrColorChange: (value: string) => void
 }
-
-const DEFAULT_QR_COLOR = '#121212'
 
 const ACCEPT = '.svg,.png,.jpg,.jpeg,image/svg+xml,image/png,image/jpeg'
 
 // Stopka plakatu: checkbox "Dodaj logo PK" + hurtowo wgrywane grafiki
 // (logotypy patronów, wydziału itd.). Grafiki układają się w rzędzie na
 // plakacie tak jak logo PK - kolejność sterowana strzałkami.
-export function GraphicsField({ value, onGraphicsAdd, onGraphicRemove, onGraphicMove, onShowPkChange, onQrUrlChange, onQrColorChange }: GraphicsFieldProps) {
-  const { graphics, showPkLogo, qrUrl, qrColor } = value
+export function GraphicsField({ value, onGraphicsAdd, onGraphicRemove, onGraphicMove, onShowPkChange, onQrUrlChange }: GraphicsFieldProps) {
+  const { graphics, showPkLogo, qrUrl } = value
   const full = graphics.length >= MAX_GRAPHICS
 
   const handleFiles = async (e: ChangeEvent<HTMLInputElement>) => {
@@ -99,12 +95,8 @@ export function GraphicsField({ value, onGraphicsAdd, onGraphicRemove, onGraphic
           onChange={(e) => onQrUrlChange(e.target.value)}
           className="rounded-lg border border-field-border bg-field px-3 py-[9px] text-[0.9rem] text-fg"
         />
-        <span className="text-[0.8rem] text-muted">Podaj link - kod QR wygeneruje się w stopce plakatu (tło zawsze przezroczyste).</span>
+        <span className="text-[0.8rem] text-muted">Podaj link - kod QR wygeneruje się w stopce plakatu (tło przezroczyste, kolor ze schematu).</span>
       </label>
-
-      {qrUrl.trim() && (
-        <ColorField label="Kolor kodu QR" value={qrColor} onChange={onQrColorChange} fallback={DEFAULT_QR_COLOR} />
-      )}
     </div>
   )
 }

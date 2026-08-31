@@ -18,7 +18,7 @@ const DEFAULT_AGENDA: ListItem[] = [
 
 // KONFERENCJA — nagłówek + lista programu
 export function PosterKonferencja({ data, scheme }: PosterProps) {
-  const { title, event_date, location, badge, badge2, graphics, showPkLogo, qrUrl, qrColor, lists, hidden, fx } = withPlaceholders(data)
+  const { title, event_date, location, badge, badge2, graphics, showPkLogo, qrUrl, lists, hidden, fx } = withPlaceholders(data)
   const agenda = lists.agenda?.length ? lists.agenda : DEFAULT_AGENDA
   const s = resolveScheme('konferencja', scheme)
   const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
@@ -72,7 +72,7 @@ export function PosterKonferencja({ data, scheme }: PosterProps) {
             <div style={{ fontSize: 24, fontWeight: 600, color: 'var(--muted-text)' }}>sknm.pk.edu.pl</div>
           </div>
           <LogoRow minHeight={QR_SLOT_H}>
-            <QrSlot value={qrUrl} color={qrColor} />
+            <QrSlot value={qrUrl} />
             <LogoSlots slots={slots} variant={s.logoVariant} />
           </LogoRow>
         </div>

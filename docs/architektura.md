@@ -77,7 +77,10 @@ Stan siedzi w `FormValues.colors` (mapa `FormColorField` → hex, pusty wpis =
 wartość ze schematu), sterowany klockiem `forms/ColorField.tsx` (próbnik +
 „Wyczyść"). Plakat bierze wartość z fallbackiem: `co.goscBoxBg || colors.coral`.
 Obecnie tylko Gość (`goscBoxBg`, `goscBoxText`, `goscTextColor`). Niezapisywane
-w draftcie - jak `qrColor`.
+w draftcie - jak grafiki stopki.
+
+Kolor kodu QR NIE jest tu - idzie wyłącznie ze schematu (rola `qr`, fallback
+`var(--page-text)`), bez kontrolki w edytorze.
 
 ## Baza / wersjonowanie
 

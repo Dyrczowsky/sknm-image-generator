@@ -5,9 +5,9 @@ import { GraphicsField } from './GraphicsField'
 
 // Formularz Ogłoszenia - krótszy zestaw pól (bez daty, godziny
 // i lokalizacji), do cytatów, komunikatów i podziękowań.
-export function FormOgloszenie({ value, onFieldChange, onVisibilityChange, onGraphicsAdd, onGraphicRemove, onGraphicMove, onShowPkChange, onQrUrlChange, onQrColorChange }: FormProps) {
+export function FormOgloszenie({ value, onFieldChange, onVisibilityChange, onGraphicsAdd, onGraphicRemove, onGraphicMove, onShowPkChange, onQrUrlChange }: FormProps) {
   const vis = { visibility: value.visibility, onVisibilityChange }
-  const gfx = { value, onGraphicsAdd, onGraphicRemove, onGraphicMove, onShowPkChange, onQrUrlChange, onQrColorChange }
+  const gfx = { value, onGraphicsAdd, onGraphicRemove, onGraphicMove, onShowPkChange, onQrUrlChange }
   return (
     <form className="flex flex-col gap-3.5" onSubmit={(e) => e.preventDefault()}>
       <FormField name="title" {...vis} type="text" label="Treść ogłoszenia / cytatu" placeholder={PLACEHOLDERS.title} value={value.title} onChange={(v) => onFieldChange('title', v)} />

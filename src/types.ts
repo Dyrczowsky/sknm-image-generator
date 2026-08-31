@@ -37,8 +37,6 @@ export interface FormValues {
   showPkLogo: boolean
   // Link/tekst do zakodowania w kodzie QR w stopce. Pusty = brak QR.
   qrUrl: string
-  // Kolor modułów kodu QR. Pusty = dopasowany do schematu kolorów plakatu.
-  qrColor: string
   // Nadpisania kolorów per szablon (pusty = wartość ze schematu).
   colors: Partial<Record<FormColorField, string>>
   photos: Record<string, PhotoValue[]>
@@ -105,7 +103,6 @@ export interface FormProps {
   onGraphicMove: (index: number, dir: -1 | 1) => void
   onShowPkChange: (value: boolean) => void
   onQrUrlChange: (value: string) => void
-  onQrColorChange: (value: string) => void
   // Nadpisanie koloru per szablon; pusty string = wyczyszczenie (wartość ze schematu).
   onColorChange: (name: FormColorField, value: string) => void
   onPhotoAdd: (fieldKey: string, src: string | null) => void

@@ -14,7 +14,7 @@ import type { PosterProps } from '../types'
 
 // GALA — złoto na grafitowym
 export function PosterGala({ data, scheme }: PosterProps) {
-  const { title, subtitle, event_date, event_time, location, badge, graphics, showPkLogo, qrUrl, qrColor, hidden, fx } = withPlaceholders(data)
+  const { title, subtitle, event_date, event_time, location, badge, graphics, showPkLogo, qrUrl, hidden, fx } = withPlaceholders(data)
   const s = resolveScheme('gala', scheme)
   const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
 
@@ -50,7 +50,7 @@ export function PosterGala({ data, scheme }: PosterProps) {
           />
         </div>
         <LogoRow minHeight={QR_SLOT_H}>
-          <QrSlot value={qrUrl} color={qrColor} />
+          <QrSlot value={qrUrl} />
           <LogoSlots slots={slots} variant={s.logoVariant} />
         </LogoRow>
       </div>

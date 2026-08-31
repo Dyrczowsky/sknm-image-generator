@@ -5,10 +5,10 @@ import { GraphicsField } from './GraphicsField'
 
 // Formularz dla Konferencji - krótszy zestaw pól (bez podtytułu,
 // prelegenta i godziny) + powtarzalna lista punktów programu + logo PK.
-export function FormKonferencja({ value, onFieldChange, onVisibilityChange, onGraphicsAdd, onGraphicRemove, onGraphicMove, onShowPkChange, onQrUrlChange, onQrColorChange, onListItemAdd, onListItemChange, onListItemRemove }: FormProps) {
+export function FormKonferencja({ value, onFieldChange, onVisibilityChange, onGraphicsAdd, onGraphicRemove, onGraphicMove, onShowPkChange, onQrUrlChange, onListItemAdd, onListItemChange, onListItemRemove }: FormProps) {
   const agenda = value.lists.agenda ?? []
   const vis = { visibility: value.visibility, onVisibilityChange }
-  const gfx = { value, onGraphicsAdd, onGraphicRemove, onGraphicMove, onShowPkChange, onQrUrlChange, onQrColorChange }
+  const gfx = { value, onGraphicsAdd, onGraphicRemove, onGraphicMove, onShowPkChange, onQrUrlChange }
 
   return (
     <form className="flex flex-col gap-3.5" onSubmit={(e) => e.preventDefault()}>

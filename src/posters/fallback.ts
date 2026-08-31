@@ -41,7 +41,6 @@ export function withPlaceholders(data: RawPosterData) {
     graphics: data.graphics ?? [],
     showPkLogo: data.showPkLogo ?? true,
     qrUrl: data.qrUrl ?? '',
-    qrColor: data.qrColor ?? '',
     colors: data.colors ?? {},
     photos: data.photos ?? {},
     lists: data.lists ?? {},

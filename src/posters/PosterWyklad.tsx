@@ -14,7 +14,7 @@ import type { PosterProps } from '../types'
 
 // WYKŁAD — typografia
 export function PosterWyklad({ data, scheme }: PosterProps) {
-  const { title, subtitle, speaker, event_date, event_time, location, badge, graphics, showPkLogo, qrUrl, qrColor, hidden, fx } = withPlaceholders(data)
+  const { title, subtitle, speaker, event_date, event_time, location, badge, graphics, showPkLogo, qrUrl, hidden, fx } = withPlaceholders(data)
   const s = resolveScheme('wyklad', scheme)
   const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
 
@@ -47,7 +47,7 @@ export function PosterWyklad({ data, scheme }: PosterProps) {
           />
         </div>
         <LogoRow minHeight={QR_SLOT_H}>
-          <QrSlot value={qrUrl} color={qrColor} />
+          <QrSlot value={qrUrl} />
           <LogoSlots slots={slots} variant={s.logoVariant} />
         </LogoRow>
       </div>
