@@ -11,7 +11,7 @@ type LayoutSchemes = Record<string, SchemeBlock>
 
 // Schematy kolorów są ZAGNIEŻDŻONE per layout, bo „granat" Wykładu (biały na
 // granacie) to nie to samo co „granat" Warsztatu (granat na kremie). Każdy
-// layout ma blok bazowy (`default`, a gdy go brak - pierwszy schemat, jak w
+// layout ma blok bazowy (`default`, a gdy go brak — pierwszy schemat, jak w
 // Rekrutacji i Gali) + nazwane schematy nadpisujące tylko różnice.
 // Bloki layoutów są poniżej, jeden na layout.
 // UWAGA: rola nieobecna w `default` danego layoutu nie renderuje pustki —
@@ -35,17 +35,15 @@ const ogloszenie: LayoutSchemes = {
 
 // Gala — bez bloku `default`; bazą jest pierwszy schemat `okazjonalnyZloty`
 // (patrz baseBlock). `okazjonalnySrebrny` nadpisuje tylko rolę `gold`
-// (niesie wtedy srebro) i obwódkę patrona; resztę dziedziczy z bazy.
+// (niesie wtedy srebro) i sygnet; resztę dziedziczy z bazy.
 const gala: LayoutSchemes = {
   okazjonalnyZloty: {
     pageBg: colors.ink, pageText: colors.goldPanelText, mutedText: colors.creamMuted,
     gold: colors.gold, panelBr: colors.inkPanel,
-    patronBorder: 'rgba(184,148,58,.5)', patronText: 'rgba(240,237,228,.7)',
     sygnet: 'zloty', logoVariant: 'dark',
   },
   okazjonalnySrebrny: {
     gold: colors.silver,
-    patronBorder: 'rgba(198,199,203,.5)',
     sygnet: 'srebrny',
   },
 }
@@ -71,7 +69,7 @@ const gosc: LayoutSchemes = {
 }
 
 // Data — liczba jako grafika. Etykieta miesiąca jest koralowa we wszystkich
-// pięciu wariantach, więc zostaje literałem w komponencie (nie rolą). Trzy
+// sześciu wariantach, więc zostaje literałem w komponencie (nie rolą). Trzy
 // dekoracyjne trójkąty na dole to role `tri1`/`tri2`/`tri3`.
 const data: LayoutSchemes = {
   default: { pageBg: colors.cream, pageText: colors.navy, mutedText: colors.textMuted,
@@ -139,9 +137,9 @@ const wyklad: LayoutSchemes = {
 // Konferencja — nagłówkowa banda + lista programu. `panel`/`panelText` to pas
 // nagłówka (tło/tekst), `headerBadge` plakietka w nagłówku, `footerBadge`
 // plakietka w stopce. `lineFirst` to `borderTop` pierwszego wiersza programu,
-// `lineRest` wszystkie pozostałe + końcowa kreska — w czerni i złocie to jawna
-// rgba, nie token. Etykiety godzin w programie są koralowe we wszystkich
-// pięciu wariantach, więc zostają literałem w komponencie (nie rolą).
+// `lineRest` wszystkie pozostałe + końcowa kreska — w wariantach na ciemnym
+// tle to jawna rgba, nie token. Etykiety godzin w programie są koralowe we
+// wszystkich ośmiu wariantach, więc zostają literałem w komponencie (nie rolą).
 const konferencja: LayoutSchemes = {
   default: {
     pageBg: colors.cream, pageText: colors.ink, mutedText: colors.textMuted,
@@ -214,8 +212,8 @@ const rekrutacja: LayoutSchemes = {
   },
   czernPomaranczowa: {
     pageBg: colors.black, pageText: colors.cream,
-    band: colors.coral, subColor: colors.creamMuted, footerText: colors.cream,
-    badgeColor: colors.cream,
+    band: colors.coral, subColor: colors.creamMuted, footerText: colors.limeText,
+    badgeColor: colors.black,
     qrBorder: 'rgba(18,18,18,.4)', qrText: 'rgba(18,18,18,.6)',
     sygnet: 'negatywny', logoVariant: 'light',
   },
@@ -259,7 +257,7 @@ const rekrutacja: LayoutSchemes = {
 // tytuł `title`. `slotBg` obsługuje naraz tło pudełka QR i podkładki obu logo.
 // `qrBorder`/`qrText` to obwódka/etykieta pudełka QR — w `default`/`jasny`/
 // `szary` równe własnym domyślnym `PlaceholderBox` (placeholderBorder/Text),
-// w czerni i złocie jawna rgba. `jasny` nadpisuje tylko tło strony i podkładek.
+// w wariantach na ciemnym tle jawna rgba. `jasny` nadpisuje tylko tło strony i podkładek.
 const warsztat: LayoutSchemes = {
   default: {
     pageBg: colors.cream, pageText: colors.ink, mutedText: colors.textMuted,

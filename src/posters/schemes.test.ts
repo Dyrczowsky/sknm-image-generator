@@ -169,6 +169,7 @@ describe('resolveScheme', () => {
     expect(cz.sygnet).toBe('negatywny')
 
     expect(resolveScheme('rekrutacja', 'czernPomaranczowa').cssVars['--band']).toBe(colors.coral)
+    expect(resolveScheme('rekrutacja', 'czernPomaranczowa').cssVars['--footer-text']).toBe(colors.limeText)
     expect(resolveScheme('rekrutacja', 'czernGranatowa').cssVars['--band']).toBe(colors.navyLight)
 
     const zl = resolveScheme('rekrutacja', 'okazjonalnyZloty')
@@ -222,10 +223,10 @@ describe('resolveScheme', () => {
     for (const layout of Object.keys(schemes)) {
       for (const name of [undefined, ...schemesFor(layout)]) {
         const s = resolveScheme(layout, name)
-        const vals = Object.values(s.cssVars)
-        if (vals.includes(colors.gold))
+        const vals = Object.values(s.cssVars).map((v) => v.toLowerCase())
+        if (vals.includes(colors.gold.toLowerCase()))
           expect(s.sygnet, `${layout}/${name}: gold bez sygnetu zloty`).toBe('zloty')
-        if (vals.includes(colors.silver))
+        if (vals.includes(colors.silver.toLowerCase()))
           expect(s.sygnet, `${layout}/${name}: silver bez sygnetu srebrny`).toBe('srebrny')
       }
     }
