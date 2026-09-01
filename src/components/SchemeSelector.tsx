@@ -1,6 +1,6 @@
-import { SCHEME_LABELS, schemesFor } from '../posters/schemes'
+import { ACCENT_DOT, ACCENT_LABELS, ACCENT_NAMES, SCHEME_LABELS, accentsFor, schemesFor } from '../posters/schemes'
 import { PosterScaled } from './PosterScaled'
-import type { RawPosterData, RegistryEntry } from '../types'
+import type { AccentName, RawPosterData, RegistryEntry } from '../types'
 
 const SWATCH_SIZE = 64
 const THUMB_DATA: RawPosterData = {}
@@ -10,37 +10,81 @@ interface SchemeSelectorProps {
   posterKey: string | undefined
   selectedScheme: string | undefined
   onSelectScheme: (name: string) => void
+  selectedAccent: AccentName | undefined
+  onSelectAccent: (accent: AccentName | undefined) => void
 }
 
-// Pasek wyboru kolorystyki wybranego layoutu - renderowany pod podglądem.
-// Lista schematów wynika z `schemes.ts` (schemesFor). Nie pokazuje się dla
-// layoutów z jednym schematem.
-export function SchemeSelector({ poster, posterKey, selectedScheme, onSelectScheme }: SchemeSelectorProps) {
-  const schemeList = posterKey ? schemesFor(posterKey) : []
+// Pasek kolorystyki (swatche schematów) + kontrolka koloru akcentu.
+// Swatche znikają dla layoutu z jednym schematem (Gala); kontrolka akcentu
+// jest zawsze widoczna, wyszarzona gdy layout nie ma wariantów akcentu (Data).
+export function SchemeSelector({
+  poster, posterKey, selectedScheme, onSelectScheme, selectedAccent, onSelectAccent,
+}: SchemeSelectorProps) {
   const SwatchComponent = poster?.Component
-  if (schemeList.length <= 1 || !SwatchComponent) return null
+  if (!posterKey || !SwatchComponent) return null
+
+  const schemeList = schemesFor(posterKey)
+  const accents = accentsFor(posterKey)
+  const accentEnabled = accents.length > 0
 
   return (
-    <div className="mt-[18px] flex flex-col gap-2.5 border-t border-border pt-[18px]">
-      <span className="text-[0.8rem] font-semibold uppercase tracking-[0.04em] text-muted">Kolorystyka</span>
-      <div className="flex flex-wrap gap-2.5">
-        {schemeList.map((name) => (
+    <div className="mt-[18px] flex flex-col gap-3 border-t border-border pt-[18px]">
+      {schemeList.length > 1 && (
+        <div className="flex flex-col gap-2.5">
+          <span className="text-[0.8rem] font-semibold uppercase tracking-[0.04em] text-muted">Kolorystyka</span>
+          <div className="flex flex-wrap gap-2.5">
+            {schemeList.map((name) => (
+              <button
+                key={name}
+                type="button"
+                className={`flex cursor-pointer flex-col items-center gap-1.5 rounded-lg border-2 bg-transparent p-1 text-[0.72rem] transition-[border-color,transform] hover:-translate-y-0.5 ${
+                  name === selectedScheme ? 'border-accent text-fg' : 'border-transparent text-muted'
+                }`}
+                onClick={() => onSelectScheme(name)}
+              >
+                <div className="overflow-hidden rounded-[5px] shadow-[0_1px_2px_rgba(0,0,0,0.12)]">
+                  <PosterScaled size={SWATCH_SIZE}>
+                    <SwatchComponent data={THUMB_DATA} scheme={name} />
+                  </PosterScaled>
+                </div>
+                <span>{SCHEME_LABELS[name] ?? name}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="flex flex-col gap-2">
+        <span className="text-[0.8rem] font-semibold uppercase tracking-[0.04em] text-muted">
+          Akcent{!accentEnabled && ' — ten szablon nie ma wariantów akcentu'}
+        </span>
+        <div className={`flex flex-wrap items-center gap-2 ${accentEnabled ? '' : 'pointer-events-none opacity-40'}`}>
           <button
-            key={name}
             type="button"
-            className={`flex cursor-pointer flex-col items-center gap-1.5 rounded-lg border-2 bg-transparent p-1 text-[0.72rem] transition-[border-color,transform] hover:-translate-y-0.5 ${
-              name === selectedScheme ? 'border-accent text-fg' : 'border-transparent text-muted'
+            disabled={!accentEnabled}
+            className={`rounded-full border-2 px-3 py-1 text-[0.72rem] ${
+              !selectedAccent ? 'border-accent text-fg' : 'border-border text-muted'
             }`}
-            onClick={() => onSelectScheme(name)}
+            onClick={() => onSelectAccent(undefined)}
           >
-            <div className="overflow-hidden rounded-[5px] shadow-[0_1px_2px_rgba(0,0,0,0.12)]">
-              <PosterScaled size={SWATCH_SIZE}>
-                <SwatchComponent data={THUMB_DATA} scheme={name} />
-              </PosterScaled>
-            </div>
-            <span>{SCHEME_LABELS[name] ?? name}</span>
+            Domyślny
           </button>
-        ))}
+          {ACCENT_NAMES.map((a) => (
+            <button
+              key={a}
+              type="button"
+              disabled={!accentEnabled}
+              title={ACCENT_LABELS[a]}
+              aria-label={ACCENT_LABELS[a]}
+              className={`flex h-7 w-7 items-center justify-center rounded-full border-2 ${
+                selectedAccent === a ? 'border-accent' : 'border-transparent'
+              }`}
+              onClick={() => onSelectAccent(a)}
+            >
+              <span className="block h-4 w-4 rounded-full" style={{ background: ACCENT_DOT[a] }} />
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   )

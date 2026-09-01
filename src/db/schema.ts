@@ -19,7 +19,10 @@ export const DEFAULT_TEMPLATES: ReadonlyArray<{ name: string; poster_key: string
 // v4: przemianowane klucze schematów kolorów (zloto→okazjonalnyZloty,
 //     czern→czernZolta/…); stare wartości color_scheme w draftcie/historii
 //     przestały pasować, więc czyścimy tabele.
-export const SCHEMA_VERSION = 4
+// v5: oś akcentu — usunięte klucze czernZolta/czernPomaranczowa/czernGranatowa/
+//     okazjonalnyZloty/okazjonalnySrebrny z większości layoutów; stare
+//     color_scheme w draftcie/historii przestały pasować.
+export const SCHEMA_VERSION = 5
 
 // Zgoda właściciela: dane lokalne (IndexedDB) można wyczyścić. Zamiast
 // ostrożnej migracji kluczy `1b-czern` → layout+scheme po prostu zrzucamy

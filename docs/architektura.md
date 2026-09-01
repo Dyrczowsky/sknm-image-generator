@@ -26,7 +26,7 @@ src/
 │   ├── PosterWyklad...    8 komponentów layoutów (style inline, patrz stylowanie.md)
 │   ├── blocks/           współdzielone bloki plakatu (PosterFrame, Badge, LogoRow, ...)
 │   ├── theme.ts          tokeny wizualne plakatów (kolory, typografia)
-│   ├── schemes.ts        schematy kolorów per layout + resolveScheme() + schemesFor()
+│   ├── schemes.ts        schematy kolorów per layout + resolveScheme() + schemesFor() + oś akcentu (accentsFor)
 │   ├── fallback.ts       PLACEHOLDERS + withPlaceholders() (dane przykładowe)
 │   ├── logos.ts          warianty sygnetu SKNM i logo PK
 │   └── export.ts         downloadPosterAsPng() - html-to-image + formaty eksportu
@@ -66,9 +66,17 @@ widoczności.
 
 ## Schematy kolorów (skrót)
 
-`Component` woła `resolveScheme(layoutKey, schemeName)` → `{ cssVars, sygnet, logoVariant }`.
+`Component` woła `resolveScheme(layoutKey, schemeName, accent?)` → `{ cssVars, sygnet, logoVariant }`.
 `cssVars` (np. `--page-bg`, `--accent`) są rozlewane na `PosterFrame`, a każdy potomek
 używa `var(--rola)` w stylu inline. Szczegóły: [dodawanie-schematu-kolorow.md](./dodawanie-schematu-kolorow.md).
+
+### Oś akcentu
+
+Trzeci parametr `resolveScheme` to `accent` (`AccentName`). Recepty per layout w
+`schemes.ts` (`accentRecipes`) nakładają nadpisania ról „akcentowych" nad scalonym
+schematem; `accentsFor(layoutKey)` zwraca dostępne akcenty (puste = kontrolka
+wyłączona, np. Data). Wybór jest kodowany w kolumnie `color_scheme` jako
+`schemat~akcent` (helpery `encodeScheme`/`decodeScheme` w `utils/colorScheme.ts`).
 
 ## Nadpisania kolorów per szablon
 

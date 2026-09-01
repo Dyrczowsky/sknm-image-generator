@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { Database } from 'sql.js'
-import type { FormValues, FormTextField, FormColorField, HistoryRow, TemplateRow } from './types'
+import type { AccentName, FormValues, FormTextField, FormColorField, HistoryRow, TemplateRow } from './types'
 import { getDb } from './db/client'
 import { listTemplates } from './db/templates'
 import { getDraft, saveDraft, parseVisibility } from './db/drafts'
@@ -16,6 +16,7 @@ import { HistoryList } from './components/HistoryList'
 import { TicketDialog } from './components/TicketDialog'
 import { FloatingReportButton } from './components/FloatingReportButton'
 import { SiteFooter } from './components/SiteFooter'
+import { encodeScheme, decodeScheme } from './utils/colorScheme'
 import type { BugContextInput } from './utils/issueUrl'
 
 const EMPTY_FORM: FormValues = {
@@ -54,6 +55,7 @@ function App() {
   const [templates, setTemplates] = useState<TemplateRow[]>([])
   const [selectedTemplateId, setSelectedTemplateId] = useState<number | null>(null)
   const [selectedScheme, setSelectedScheme] = useState<string | undefined>(undefined)
+  const [selectedAccent, setSelectedAccent] = useState<AccentName | undefined>(undefined)
   const [form, setForm] = useState<FormValues>(EMPTY_FORM)
   const [history, setHistory] = useState<HistoryRow[]>([])
   const [exportFormat, setExportFormat] = useState('square')
@@ -89,7 +91,9 @@ function App() {
         })
       }
       setSelectedTemplateId(initialTemplateId)
-      setSelectedScheme(draft?.color_scheme ?? defaultSchemeFor(initialTemplateId, tpls))
+      const { scheme, accent } = decodeScheme(draft?.color_scheme)
+      setSelectedScheme(scheme ?? defaultSchemeFor(initialTemplateId, tpls))
+      setSelectedAccent(accent)
 
       setHistory(listHistory(db))
       setReady(true)
@@ -99,19 +103,27 @@ function App() {
     }
   }, [])
 
-  const persistDraft = useCallback((nextForm: FormValues, templateId: number | null, schemeName: string | undefined) => {
-    const db = dbRef.current
-    if (!db) return
-    if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current)
-    saveTimeoutRef.current = setTimeout(() => {
-      saveDraft(db, { ...nextForm, template_id: templateId, color_scheme: schemeName ?? null })
-    }, 400)
-  }, [])
+  const persistDraft = useCallback(
+    (
+      nextForm: FormValues,
+      templateId: number | null,
+      schemeName: string | undefined,
+      accent: AccentName | undefined,
+    ) => {
+      const db = dbRef.current
+      if (!db) return
+      if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current)
+      saveTimeoutRef.current = setTimeout(() => {
+        saveDraft(db, { ...nextForm, template_id: templateId, color_scheme: encodeScheme(schemeName, accent) ?? null })
+      }, 400)
+    },
+    [],
+  )
 
   const handleFieldChange = (name: FormTextField, value: string) => {
     setForm((prev) => {
       const next = { ...prev, [name]: value }
-      persistDraft(next, selectedTemplateId, selectedScheme)
+      persistDraft(next, selectedTemplateId, selectedScheme, selectedAccent)
       return next
     })
   }
@@ -124,7 +136,7 @@ function App() {
       if (visible) delete nextVisibility[name]
       else nextVisibility[name] = false
       const next = { ...prev, visibility: nextVisibility }
-      persistDraft(next, selectedTemplateId, selectedScheme)
+      persistDraft(next, selectedTemplateId, selectedScheme, selectedAccent)
       return next
     })
   }
@@ -132,7 +144,7 @@ function App() {
   const handleGraphicsAdd = (srcs: string[]) => {
     setForm((prev) => {
       const next = { ...prev, graphics: [...prev.graphics, ...srcs].slice(0, MAX_GRAPHICS) }
-      persistDraft(next, selectedTemplateId, selectedScheme)
+      persistDraft(next, selectedTemplateId, selectedScheme, selectedAccent)
       return next
     })
   }
@@ -140,7 +152,7 @@ function App() {
   const handleGraphicRemove = (index: number) => {
     setForm((prev) => {
       const next = { ...prev, graphics: prev.graphics.filter((_, i) => i !== index) }
-      persistDraft(next, selectedTemplateId, selectedScheme)
+      persistDraft(next, selectedTemplateId, selectedScheme, selectedAccent)
       return next
     })
   }
@@ -154,7 +166,7 @@ function App() {
       g[index] = g[j]
       g[j] = tmp
       const next = { ...prev, graphics: g }
-      persistDraft(next, selectedTemplateId, selectedScheme)
+      persistDraft(next, selectedTemplateId, selectedScheme, selectedAccent)
       return next
     })
   }
@@ -162,7 +174,7 @@ function App() {
   const handleShowPkChange = (value: boolean) => {
     setForm((prev) => {
       const next = { ...prev, showPkLogo: value }
-      persistDraft(next, selectedTemplateId, selectedScheme)
+      persistDraft(next, selectedTemplateId, selectedScheme, selectedAccent)
       return next
     })
   }
@@ -170,7 +182,7 @@ function App() {
   const handleQrUrlChange = (value: string) => {
     setForm((prev) => {
       const next = { ...prev, qrUrl: value }
-      persistDraft(next, selectedTemplateId, selectedScheme)
+      persistDraft(next, selectedTemplateId, selectedScheme, selectedAccent)
       return next
     })
   }
@@ -182,7 +194,7 @@ function App() {
       if (value) nextColors[name] = value
       else delete nextColors[name]
       const next = { ...prev, colors: nextColors }
-      persistDraft(next, selectedTemplateId, selectedScheme)
+      persistDraft(next, selectedTemplateId, selectedScheme, selectedAccent)
       return next
     })
   }
@@ -193,7 +205,7 @@ function App() {
     setForm((prev) => {
       const list = prev.photos[fieldKey] ?? []
       const next = { ...prev, photos: { ...prev.photos, [fieldKey]: [...list, { src, x: 50, y: 50 }] } }
-      persistDraft(next, selectedTemplateId, selectedScheme)
+      persistDraft(next, selectedTemplateId, selectedScheme, selectedAccent)
       return next
     })
   }
@@ -206,7 +218,7 @@ function App() {
         ? list.map((p, i) => (i === index ? { ...p, src } : p))
         : list.filter((_, i) => i !== index)
       const next = { ...prev, photos: { ...prev.photos, [fieldKey]: nextList } }
-      persistDraft(next, selectedTemplateId, selectedScheme)
+      persistDraft(next, selectedTemplateId, selectedScheme, selectedAccent)
       return next
     })
   }
@@ -216,7 +228,7 @@ function App() {
       const list = prev.photos[fieldKey] ?? []
       const nextList = list.map((p, i) => (i === index ? { ...p, ...partial } : p))
       const next = { ...prev, photos: { ...prev.photos, [fieldKey]: nextList } }
-      persistDraft(next, selectedTemplateId, selectedScheme)
+      persistDraft(next, selectedTemplateId, selectedScheme, selectedAccent)
       return next
     })
   }
@@ -225,7 +237,7 @@ function App() {
     setForm((prev) => {
       const list = prev.lists[fieldKey] ?? []
       const next = { ...prev, lists: { ...prev.lists, [fieldKey]: [...list, {}] } }
-      persistDraft(next, selectedTemplateId, selectedScheme)
+      persistDraft(next, selectedTemplateId, selectedScheme, selectedAccent)
       return next
     })
   }
@@ -235,7 +247,7 @@ function App() {
       const list = prev.lists[fieldKey] ?? []
       const nextList = list.map((item, i) => (i === index ? { ...item, [subKey]: val } : item))
       const next = { ...prev, lists: { ...prev.lists, [fieldKey]: nextList } }
-      persistDraft(next, selectedTemplateId, selectedScheme)
+      persistDraft(next, selectedTemplateId, selectedScheme, selectedAccent)
       return next
     })
   }
@@ -244,7 +256,7 @@ function App() {
     setForm((prev) => {
       const list = prev.lists[fieldKey] ?? []
       const next = { ...prev, lists: { ...prev.lists, [fieldKey]: list.filter((_, i) => i !== index) } }
-      persistDraft(next, selectedTemplateId, selectedScheme)
+      persistDraft(next, selectedTemplateId, selectedScheme, selectedAccent)
       return next
     })
   }
@@ -254,12 +266,18 @@ function App() {
     setSelectedTemplateId(id)
     const nextScheme = defaultSchemeFor(id, templates)
     setSelectedScheme(nextScheme)
-    persistDraft(form, id, nextScheme)
+    setSelectedAccent(undefined)
+    persistDraft(form, id, nextScheme, undefined)
   }
 
   const handleSelectScheme = (name: string) => {
     setSelectedScheme(name)
-    persistDraft(form, selectedTemplateId, name)
+    persistDraft(form, selectedTemplateId, name, selectedAccent)
+  }
+
+  const handleSelectAccent = (accent: AccentName | undefined) => {
+    setSelectedAccent(accent)
+    persistDraft(form, selectedTemplateId, selectedScheme, accent)
   }
 
   // Przywraca pola tekstowe zapisanego wpisu historii do formularza. Zdjęcia
@@ -285,9 +303,11 @@ function App() {
     setForm(next)
     const templateId = entry.template_id ?? selectedTemplateId
     setSelectedTemplateId(templateId)
-    const nextScheme = entry.color_scheme ?? defaultSchemeFor(templateId, templates)
+    const { scheme, accent } = decodeScheme(entry.color_scheme)
+    const nextScheme = scheme ?? defaultSchemeFor(templateId, templates)
     setSelectedScheme(nextScheme)
-    persistDraft(next, templateId, nextScheme)
+    setSelectedAccent(accent)
+    persistDraft(next, templateId, nextScheme, accent)
   }
 
   const handleDeleteHistoryEntry = async (id: number) => {
@@ -315,7 +335,7 @@ function App() {
     if (!selectedTemplate || !posterRef.current || !dbRef.current) return
     const filename = `${form.title || 'plakat'}.png`.trim().replace(/\s+/g, '_')
     await downloadPosterAsPng(posterRef.current, filename, exportFormat)
-    await addHistoryEntry(dbRef.current, { ...form, template_id: selectedTemplateId, color_scheme: selectedScheme })
+    await addHistoryEntry(dbRef.current, { ...form, template_id: selectedTemplateId, color_scheme: encodeScheme(selectedScheme, selectedAccent) })
     setHistory(listHistory(dbRef.current))
   }
 
@@ -394,8 +414,15 @@ function App() {
 
           <section className={`${panel} min-[900px]:sticky min-[900px]:top-5 min-[900px]:[grid-area:preview]`}>
             <h2 className={panelHeading}>Podgląd</h2>
-            <PosterPreview posterRef={posterRef} Component={selectedPoster?.Component} data={form} scheme={selectedScheme} />
-            <SchemeSelector poster={selectedPoster} posterKey={selectedTemplate?.poster_key} selectedScheme={selectedScheme} onSelectScheme={handleSelectScheme} />
+            <PosterPreview posterRef={posterRef} Component={selectedPoster?.Component} data={form} scheme={selectedScheme} accent={selectedAccent} />
+            <SchemeSelector
+              poster={selectedPoster}
+              posterKey={selectedTemplate?.poster_key}
+              selectedScheme={selectedScheme}
+              onSelectScheme={handleSelectScheme}
+              selectedAccent={selectedAccent}
+              onSelectAccent={handleSelectAccent}
+            />
           </section>
 
           <section className={`${panel} min-[900px]:[grid-area:history]`}>
