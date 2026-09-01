@@ -3,6 +3,7 @@ import {
   ACCENT_LABELS,
   ACCENT_NAMES,
   SCHEME_LABELS,
+  accentAllowed,
   accentsFor,
   resolveScheme,
   schemes,
@@ -67,11 +68,18 @@ describe('resolveScheme — baza (bez akcentu)', () => {
 describe('accentsFor', () => {
   it('data → puste (kontrolka wyłączona)', () => {
     expect(accentsFor('data')).toEqual([])
+    expect(accentsFor('data', 'czern')).toEqual([])
   })
-  it('layouty z receptą → 5 akcentów', () => {
+  it('layout z receptą, schemat bez wpisu w schemeAccents → wszystkie 5', () => {
     for (const l of ['ogloszenie', 'gosc', 'wyklad', 'konferencja', 'rekrutacja', 'warsztat', 'gala']) {
+      expect(accentsFor(l, 'czern')).toEqual(ACCENT_NAMES)
       expect(accentsFor(l)).toEqual(ACCENT_NAMES)
     }
+  })
+  it('accentAllowed: brak akcentu zawsze OK; akcent z pełnej listy OK', () => {
+    expect(accentAllowed('wyklad', 'czern', undefined)).toBe(true)
+    expect(accentAllowed('wyklad', 'czern', 'zloty')).toBe(true)
+    expect(accentAllowed('data', 'czern', 'zloty')).toBe(false) // layout bez recepty
   })
   it('ACCENT_LABELS ma polskie podpisy', () => {
     expect(ACCENT_LABELS.zolty).toBe('Żółty')

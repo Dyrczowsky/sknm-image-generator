@@ -129,9 +129,15 @@ Sygnatura jest wstecznie zgodna — bez `accent` resolver działa jak wcześniej
   (np. „granatowy" daje `navyLight` na ciemnym tle, `navy` na jasnym). Recepta
   nadpisuje tylko role akcentowe danego layoutu; dla metalu (`zloty`/`srebrny`)
   dokłada `sygnet`. `resolveScheme` scala jej wynik na wierzchu.
-- **`accentsFor(layout)`** — lista akcentów dla kontrolki. Pusta = kontrolka
-  wyłączona (layout bez recepty, jak `data`, które trzyma osobne schematy
-  `okazjonalny*`).
+- **`accentsFor(layout, scheme?)`** — lista akcentów dla kontrolki. Pusta =
+  kontrolka wyłączona (layout bez recepty, jak `data`). Brak `scheme` lub brak
+  wpisu w `schemeAccents` = wszystkie 5.
+- **`schemeAccents`** — mapa `layout → { schemat → AccentName[] }` ograniczająca
+  akcenty per **(layout, schemat)**. Np. schemat „Granat" może dawać tylko 3
+  akcenty, a „Czerń" tego samego layoutu wszystkie 5. Brak wpisu = wszystkie 5.
+  Żeby usunąć cały schemat z layoutu — skasuj jego blok w `LayoutSchemes`.
+- **`accentAllowed(layout, scheme, accent)`** — czy akcent jest dozwolony dla
+  pary; `App` używa tego, żeby „przypiąć" zapisany akcent przy zawężeniu listy.
 - **`ACCENT_NAMES` / `ACCENT_LABELS` / `ACCENT_DOT`** — kolejność, polskie
   podpisy i kolor kropki-podglądu w kontrolce.
 

@@ -288,9 +288,26 @@ const accentRecipes: Record<string, AccentRecipe | undefined> = {
 
 export const ACCENT_NAMES: AccentName[] = ['zolty', 'pomaranczowy', 'granatowy', 'zloty', 'srebrny']
 
-// Puste = kontrolka akcentu wyłączona dla tego layoutu.
-export function accentsFor(layoutKey: string): AccentName[] {
-  return accentRecipes[layoutKey] ? ACCENT_NAMES : []
+// Ograniczenie dostępnych akcentów per (layout, schemat). Brak wpisu dla
+// pary = wszystkie 5 akcentów. Layout bez recepty (`data`) i tak ma kontrolkę
+// wyłączoną. Kolejność w tablicy = kolejność kropek w kontrolce.
+// Przykład: `ogloszenie: { default: ['zolty', 'pomaranczowy', 'granatowy'] }`
+// — schemat „Granat" tego layoutu daje tylko 3 akcenty, „Czerń" nadal 5.
+// (Żeby usunąć cały schemat z layoutu — skasuj jego blok w `LayoutSchemes`.)
+const schemeAccents: Record<string, Partial<Record<string, AccentName[]>>> = {}
+
+// Dostępne akcenty dla danego schematu. Puste = kontrolka wyłączona
+// (layout bez recepty). Brak wpisu w `schemeAccents` = wszystkie 5.
+export function accentsFor(layoutKey: string, schemeName?: string): AccentName[] {
+  if (!accentRecipes[layoutKey]) return []
+  return (schemeName && schemeAccents[layoutKey]?.[schemeName]) || ACCENT_NAMES
+}
+
+// Czy akcent jest dozwolony dla pary (layout, schemat) — do „przypięcia"
+// zapisanego akcentu, gdy zmiana schematu zawęża listę.
+export function accentAllowed(layoutKey: string, schemeName: string | undefined, accent: AccentName | undefined): boolean {
+  if (!accent) return true
+  return accentsFor(layoutKey, schemeName).includes(accent)
 }
 
 export const ACCENT_LABELS: Record<AccentName, string> = {

@@ -6,7 +6,7 @@ import { listTemplates } from './db/templates'
 import { getDraft, saveDraft, parseVisibility } from './db/drafts'
 import { addHistoryEntry, deleteHistoryEntry, listHistory } from './db/history'
 import { posterRegistry } from './posters/registry'
-import { schemesFor, SCHEME_LABELS } from './posters/schemes'
+import { schemesFor, SCHEME_LABELS, accentAllowed } from './posters/schemes'
 import { MAX_GRAPHICS } from './posters/theme'
 import { downloadPosterAsPng, EXPORT_FORMATS } from './posters/export'
 import { TemplateSelector } from './components/TemplateSelector'
@@ -92,8 +92,10 @@ function App() {
       }
       setSelectedTemplateId(initialTemplateId)
       const { scheme, accent } = decodeScheme(draft?.color_scheme)
-      setSelectedScheme(scheme ?? defaultSchemeFor(initialTemplateId, tpls))
-      setSelectedAccent(accent)
+      const initScheme = scheme ?? defaultSchemeFor(initialTemplateId, tpls)
+      const initKey = tpls.find((t) => t.id === initialTemplateId)?.poster_key ?? ''
+      setSelectedScheme(initScheme)
+      setSelectedAccent(accentAllowed(initKey, initScheme, accent) ? accent : undefined)
 
       setHistory(listHistory(db))
       setReady(true)
@@ -272,7 +274,11 @@ function App() {
 
   const handleSelectScheme = (name: string) => {
     setSelectedScheme(name)
-    persistDraft(form, selectedTemplateId, name, selectedAccent)
+    // Nowy schemat może zawężać listę akcentów — „przypnij" niedozwolony.
+    const posterKey = templates.find((t) => t.id === selectedTemplateId)?.poster_key ?? ''
+    const accent = accentAllowed(posterKey, name, selectedAccent) ? selectedAccent : undefined
+    setSelectedAccent(accent)
+    persistDraft(form, selectedTemplateId, name, accent)
   }
 
   const handleSelectAccent = (accent: AccentName | undefined) => {
@@ -305,9 +311,11 @@ function App() {
     setSelectedTemplateId(templateId)
     const { scheme, accent } = decodeScheme(entry.color_scheme)
     const nextScheme = scheme ?? defaultSchemeFor(templateId, templates)
+    const posterKey = templates.find((t) => t.id === templateId)?.poster_key ?? ''
+    const nextAccent = accentAllowed(posterKey, nextScheme, accent) ? accent : undefined
     setSelectedScheme(nextScheme)
-    setSelectedAccent(accent)
-    persistDraft(next, templateId, nextScheme, accent)
+    setSelectedAccent(nextAccent)
+    persistDraft(next, templateId, nextScheme, nextAccent)
   }
 
   const handleDeleteHistoryEntry = async (id: number) => {

@@ -24,7 +24,7 @@ export function SchemeSelector({
   if (!posterKey || !SwatchComponent) return null
 
   const schemeList = schemesFor(posterKey)
-  const accents = accentsFor(posterKey)
+  const accents = accentsFor(posterKey, selectedScheme)
   const accentEnabled = accents.length > 0
 
   return (
@@ -70,7 +70,7 @@ export function SchemeSelector({
           >
             Domyślny
           </button>
-          {ACCENT_NAMES.map((a) => (
+          {(accentEnabled ? accents : ACCENT_NAMES).map((a) => (
             <button
               key={a}
               type="button"

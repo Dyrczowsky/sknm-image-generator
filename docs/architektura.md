@@ -74,7 +74,8 @@ używa `var(--rola)` w stylu inline. Szczegóły: [dodawanie-schematu-kolorow.md
 
 Trzeci parametr `resolveScheme` to `accent` (`AccentName`). Recepty per layout w
 `schemes.ts` (`accentRecipes`) nakładają nadpisania ról „akcentowych" nad scalonym
-schematem; `accentsFor(layoutKey)` zwraca dostępne akcenty (puste = kontrolka
+schematem; `accentsFor(layoutKey, scheme?)` zwraca dostępne akcenty — mapa
+`schemeAccents` zawęża je per (layout, schemat) (puste = kontrolka
 wyłączona, np. Data). Wybór jest kodowany w kolumnie `color_scheme` jako
 `schemat~akcent` (helpery `encodeScheme`/`decodeScheme` w `utils/colorScheme.ts`).
 
