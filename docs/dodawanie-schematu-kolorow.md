@@ -105,12 +105,39 @@ Przykład: dodajemy wariant `morski` do Wykładu.
 
 Rekrutacja nie ma klucza `default` - jej blokiem bazowym jest **pierwszy
 schemat** (`limonka`), bo `resolveScheme` bierze `layout.default ?? layout[
-pierwszy klucz]`. Dzięki temu `czernZolta`/`okazjonalnyZloty`/... dziedziczą
-wspólne role (`footerText`, `qrBorder`, ...) wprost z `limonka` i nie trzeba
-żadnego aliasu.
+pierwszy klucz]`. Dzięki temu `czern`/`jasny`/`szary` dziedziczą wspólne role
+(`footerText`, `qrBorder`, ...) wprost z `limonka` i nie trzeba żadnego aliasu.
 
 Stosuj ten wzorzec, gdy "domyślny" wygląd layoutu ma własną nazwę na pasku
 kolorystyki: napisz go jako pełny pierwszy blok, reszta podaje tylko różnice.
+
+## D. Oś akcentu (`resolveScheme(layout, name, accent?)`)
+
+Część layoutów ma dziś jeden „ciemny" schemat `czern` (z wbudowanym żółtym
+akcentem), a pozostałe warianty akcentu (pomarańczowy / granatowy / okazjonalny
+złoty / okazjonalny srebrny) dokłada **oś akcentu** — trzeci, opcjonalny
+argument `resolveScheme`:
+
+```ts
+resolveScheme('wyklad', 'czern', 'pomaranczowy') // czerń + koralowy akcent
+```
+
+Sygnatura jest wstecznie zgodna — bez `accent` resolver działa jak wcześniej.
+
+- **`accentRecipes[layout]`** — funkcja `(accent, ctx) => nadpisania ról`. `ctx`
+  to blok już scalony (baza + nazwany schemat), więc recepta może zależeć od tła
+  (np. „granatowy" daje `navyLight` na ciemnym tle, `navy` na jasnym). Recepta
+  nadpisuje tylko role akcentowe danego layoutu; dla metalu (`zloty`/`srebrny`)
+  dokłada `sygnet`. `resolveScheme` scala jej wynik na wierzchu.
+- **`accentsFor(layout)`** — lista akcentów dla kontrolki. Pusta = kontrolka
+  wyłączona (layout bez recepty, jak `data`, które trzyma osobne schematy
+  `okazjonalny*`).
+- **`ACCENT_NAMES` / `ACCENT_LABELS` / `ACCENT_DOT`** — kolejność, polskie
+  podpisy i kolor kropki-podglądu w kontrolce.
+
+Niezmiennik: po nałożeniu akcentu `colors.gold` w `cssVars` występuje wyłącznie
+z sygnetem `'zloty'`, a `colors.silver` z `'srebrny'` — recepty są tak napisane,
+że zachodzi to „z konstrukcji".
 
 ## Checklist
 

@@ -1,8 +1,17 @@
 import { describe, expect, it } from 'vitest'
-import { SCHEME_LABELS, resolveScheme, schemes, schemesFor } from './schemes'
+import {
+  ACCENT_LABELS,
+  ACCENT_NAMES,
+  SCHEME_LABELS,
+  accentsFor,
+  resolveScheme,
+  schemes,
+  schemesFor,
+} from './schemes'
 import { colors } from './theme'
+import type { AccentName } from '../types'
 
-describe('resolveScheme', () => {
+describe('resolveScheme — baza (bez akcentu)', () => {
   it('nieznany layout/schemat → pusty wynik', () => {
     const s = resolveScheme('nieistnieje', 'tez-nie')
     expect(s.cssVars).toEqual({})
@@ -11,228 +20,141 @@ describe('resolveScheme', () => {
   })
 
   it('roleToVar: camelCase → --kebab, NON_CSS pomijane', () => {
-    schemes.__probe = {
-      default: { pageBg: '#000', badgeFill: '#111', wedgeBr: '#222', tri1: '#333', logoVariant: 'dark' },
-    }
+    schemes.__probe = { default: { pageBg: '#000', badgeFill: '#111', tri1: '#333', logoVariant: 'dark' } }
     const s = resolveScheme('__probe', undefined)
     expect(s.cssVars['--page-bg']).toBe('#000')
     expect(s.cssVars['--badge-fill']).toBe('#111')
-    expect(s.cssVars['--wedge-br']).toBe('#222')
     expect(s.cssVars['--tri1']).toBe('#333')
     expect(s.cssVars['--logo-variant']).toBeUndefined()
     expect(s.logoVariant).toBe('dark')
     delete schemes.__probe
   })
 
-  it('Ogłoszenie: czerń w trzech akcentach + okazjonalne', () => {
+  it('Ogłoszenie: default + czern + jasny + szary', () => {
+    expect(schemesFor('ogloszenie')).toEqual(['default', 'czern', 'jasny', 'szary'])
     const d = resolveScheme('ogloszenie', undefined)
     expect(d.cssVars['--page-bg']).toBe(colors.navy)
     expect(d.cssVars['--accent']).toBe(colors.lime)
-    expect(d.sygnet).toBe('negatywny')
-
-    const cz = resolveScheme('ogloszenie', 'czernZolta')
+    const cz = resolveScheme('ogloszenie', 'czern')
     expect(cz.cssVars['--page-bg']).toBe(colors.black)
-    expect(cz.cssVars['--accent']).toBe(colors.lime)
-    expect(cz.cssVars['--page-text']).toBe(colors.cream)  // z default
+    expect(cz.cssVars['--accent']).toBe(colors.lime)          // żółty wbudowany
+    expect(cz.cssVars['--page-text']).toBe(colors.cream)      // z default
     expect(cz.sygnet).toBe('negatywny')
-    expect(cz.logoVariant).toBe('dark')                   // z default
-
-    expect(resolveScheme('ogloszenie', 'czernPomaranczowa').cssVars['--accent']).toBe(colors.coral)
-    expect(resolveScheme('ogloszenie', 'czernGranatowa').cssVars['--accent']).toBe(colors.navyLight)
-
-    const zl = resolveScheme('ogloszenie', 'okazjonalnyZloty')
-    expect(zl.cssVars['--page-bg']).toBe(colors.navy)     // z default
-    expect(zl.cssVars['--accent']).toBe(colors.gold)
-    expect(zl.sygnet).toBe('zloty')
-
-    const sr = resolveScheme('ogloszenie', 'okazjonalnySrebrny')
-    expect(sr.cssVars['--accent']).toBe(colors.silver)
-    expect(sr.sygnet).toBe('srebrny')
+    expect(cz.logoVariant).toBe('dark')
   })
 
-  it('Gala (dwa schematy)', () => {
+  it('Gala: jeden schemat default (ink, złoto, sygnet zloty)', () => {
+    expect(schemesFor('gala')).toEqual(['default'])
     const d = resolveScheme('gala', undefined)
     expect(d.cssVars['--page-bg']).toBe(colors.ink)
     expect(d.cssVars['--gold']).toBe(colors.gold)
-    expect(d.cssVars['--panel-br']).toBe(colors.inkPanel)
     expect(d.sygnet).toBe('zloty')
-
-    const sr = resolveScheme('gala', 'okazjonalnySrebrny')
-    expect(sr.cssVars['--gold']).toBe(colors.silver)    // rola --gold niesie srebro
-    expect(sr.cssVars['--page-bg']).toBe(colors.ink)    // z bazy
-    expect(sr.sygnet).toBe('srebrny')
-    expect(sr.logoVariant).toBe('dark')
   })
 
-  it('Gość: brak osobnego schematu gala; okazjonalne na tle ink', () => {
-    const d = resolveScheme('gosc', undefined)
-    expect(d.cssVars['--accent']).toBe(colors.navy)
-    expect(d.sygnet).toBe('negatywny')
-    expect(schemesFor('gosc')).not.toContain('gala')
-
-    const cz = resolveScheme('gosc', 'czernPomaranczowa')
-    expect(cz.cssVars['--page-bg']).toBe(colors.black)
-    expect(cz.cssVars['--accent']).toBe(colors.coral)
-    expect(cz.cssVars['--muted-text']).toBe(colors.creamMuted)
-    expect(cz.sygnet).toBe('negatywny')
-
-    // Gość rysuje sygnet NA trójkącie, więc metaliczny `accent` schowałby złoty/
-    // srebrny sygnet. `okazjonalne` dają trójkątowi własną rolę `sygnetBg`
-    // (granat), a `accent` (złoto/srebro) niesie tekst Badge + link „Wstęp wolny".
-    const zl = resolveScheme('gosc', 'okazjonalnyZloty')
-    expect(zl.cssVars['--page-bg']).toBe(colors.ink)
-    expect(zl.cssVars['--accent']).toBe(colors.gold)
-    expect(zl.cssVars['--sygnet-bg']).toBe(colors.navy)
-    expect(zl.sygnet).toBe('zloty')
-
-    const sr = resolveScheme('gosc', 'okazjonalnySrebrny')
-    expect(sr.cssVars['--accent']).toBe(colors.silver)
-    expect(sr.cssVars['--sygnet-bg']).toBe(colors.navy)
-    expect(sr.sygnet).toBe('srebrny')
+  it('Data: bez zmian, 6 schematów', () => {
+    expect(schemesFor('data')).toEqual(['default', 'czern', 'okazjonalnyZloty', 'okazjonalnySrebrny', 'jasny', 'szary'])
+    expect(resolveScheme('data', 'okazjonalnyZloty').cssVars['--tri1']).toBe(colors.gold)
+    expect(resolveScheme('data', 'okazjonalnyZloty').sygnet).toBe('zloty')
   })
 
-  it('Data: czerń bez zmian, dochodzi okazjonalny srebrny', () => {
-    const d = resolveScheme('data', undefined)
-    expect(d.cssVars['--page-text']).toBe(colors.navy)
-    expect(d.cssVars['--tri2']).toBe(colors.lime)
-
-    const cz = resolveScheme('data', 'czern')
-    expect(cz.cssVars['--tri1']).toBe(colors.lime)
-    expect(cz.sygnet).toBe('negatywny')
-
-    const zl = resolveScheme('data', 'okazjonalnyZloty')
-    expect(zl.cssVars['--tri1']).toBe(colors.gold)
-    expect(zl.sygnet).toBe('zloty')
-
-    const sr = resolveScheme('data', 'okazjonalnySrebrny')
-    expect(sr.cssVars['--tri1']).toBe(colors.silver)
-    expect(sr.cssVars['--tri2']).toBe(colors.coral)
-    expect(sr.sygnet).toBe('srebrny')
-    expect(sr.logoVariant).toBe('dark')
+  it('Rekrutacja: baza limonka, klucze limonka/czern/jasny/szary', () => {
+    expect(schemesFor('rekrutacja')).toEqual(['limonka', 'czern', 'jasny', 'szary'])
+    expect(resolveScheme('rekrutacja', 'limonka').cssVars['--band']).toBe(colors.navy)
+    expect(resolveScheme('rekrutacja', 'czern').cssVars['--band']).toBe(colors.lime)   // żółty wbudowany
   })
+})
 
-  it('Wykład: trzy czernie + okazjonalne', () => {
-    const d = resolveScheme('wyklad', undefined)
-    expect(d.cssVars['--badge-fill']).toBe(colors.lime)
-    expect(d.cssVars['--wedge-bl']).toBe(colors.navyDark)
+describe('accentsFor', () => {
+  it('data → puste (kontrolka wyłączona)', () => {
+    expect(accentsFor('data')).toEqual([])
+  })
+  it('layouty z receptą → 5 akcentów', () => {
+    for (const l of ['ogloszenie', 'gosc', 'wyklad', 'konferencja', 'rekrutacja', 'warsztat', 'gala']) {
+      expect(accentsFor(l)).toEqual(ACCENT_NAMES)
+    }
+  })
+  it('ACCENT_LABELS ma polskie podpisy', () => {
+    expect(ACCENT_LABELS.zolty).toBe('Żółty')
+    expect(ACCENT_LABELS.zloty).toBe('Złoty (okazjonalny)')
+  })
+})
 
-    const cz = resolveScheme('wyklad', 'czernZolta')
-    expect(cz.cssVars['--page-bg']).toBe(colors.black)
-    expect(cz.cssVars['--badge-fill']).toBe(colors.lime)
-    expect(cz.cssVars['--wedge-br']).toBe('#1E1E1E')
-    expect(cz.sygnet).toBe('negatywny')
-
-    expect(resolveScheme('wyklad', 'czernPomaranczowa').cssVars['--speaker']).toBe(colors.coral)
-    expect(resolveScheme('wyklad', 'czernGranatowa').cssVars['--chips']).toBe(colors.navyLight)
-
-    const zl = resolveScheme('wyklad', 'okazjonalnyZloty')
-    expect(zl.cssVars['--page-bg']).toBe(colors.black)
-    expect(zl.cssVars['--speaker']).toBe(colors.gold)
+describe('resolveScheme — z akcentem', () => {
+  it('Wykład Czerń × akcenty — role plakietki', () => {
+    expect(resolveScheme('wyklad', 'czern', 'zolty').cssVars['--badge-fill']).toBe(colors.lime)
+    expect(resolveScheme('wyklad', 'czern', 'pomaranczowy').cssVars['--badge-fill']).toBe(colors.coral)
+    expect(resolveScheme('wyklad', 'czern', 'pomaranczowy').cssVars['--speaker']).toBe(colors.coral)
+    expect(resolveScheme('wyklad', 'czern', 'granatowy').cssVars['--chips']).toBe(colors.navyLight)
+    const zl = resolveScheme('wyklad', 'czern', 'zloty')
+    expect(zl.cssVars['--badge-fill']).toBe(colors.gold)
+    expect(zl.cssVars['--badge-text']).toBe(colors.cream)
     expect(zl.sygnet).toBe('zloty')
-
-    const sr = resolveScheme('wyklad', 'okazjonalnySrebrny')
-    expect(sr.cssVars['--badge-fill']).toBe(colors.silver)
+    const sr = resolveScheme('wyklad', 'czern', 'srebrny')
     expect(sr.cssVars['--badge-text']).toBe(colors.ink)
     expect(sr.sygnet).toBe('srebrny')
   })
 
-  it('Konferencja: trzy czernie + okazjonalne', () => {
-    const d = resolveScheme('konferencja', undefined)
-    expect(d.cssVars['--panel']).toBe(colors.navy)
-    expect(d.cssVars['--line-rest']).toBe(colors.creamMuted)
-
-    const cz = resolveScheme('konferencja', 'czernZolta')
-    expect(cz.cssVars['--panel']).toBe(colors.inkPanel)
-    expect(cz.cssVars['--header-badge']).toBe(colors.lime)
-    expect(cz.cssVars['--line-rest']).toBe('rgba(244,242,237,.2)')
-    expect(cz.cssVars['--panel-text']).toBe(colors.cream)   // z default
-    expect(cz.sygnet).toBe('negatywny')
-
-    expect(resolveScheme('konferencja', 'czernPomaranczowa').cssVars['--footer-badge']).toBe(colors.coral)
-    expect(resolveScheme('konferencja', 'czernGranatowa').cssVars['--line-first']).toBe(colors.navyLight)
-
-    const zl = resolveScheme('konferencja', 'okazjonalnyZloty')
-    expect(zl.cssVars['--page-bg']).toBe(colors.navy)
-    expect(zl.cssVars['--header-badge']).toBe(colors.gold)
-    expect(zl.sygnet).toBe('zloty')
-
-    const sr = resolveScheme('konferencja', 'okazjonalnySrebrny')
-    expect(sr.cssVars['--header-badge']).toBe(colors.silver)
-    expect(sr.sygnet).toBe('srebrny')
+  it('Gość: metaliczny akcent dokłada sygnetBg (granat)', () => {
+    expect(resolveScheme('gosc', 'czern', 'zloty').cssVars['--sygnet-bg']).toBe(colors.navy)
+    expect(resolveScheme('gosc', 'czern', 'srebrny').cssVars['--sygnet-bg']).toBe(colors.navy)
+    expect(resolveScheme('gosc', 'czern', 'pomaranczowy').cssVars['--sygnet-bg']).toBeUndefined()
   })
 
-  it('Rekrutacja (baza = limonka): trzy czernie + okazjonalne, bez pełnozłotego tła', () => {
-    const li = resolveScheme('rekrutacja', 'limonka')
-    expect(li.cssVars['--page-bg']).toBe(colors.lime)
-    expect(li.cssVars['--band']).toBe(colors.navy)
-
-    expect(schemesFor('rekrutacja')).not.toContain('zloto')
-
-    const cz = resolveScheme('rekrutacja', 'czernZolta')
-    expect(cz.cssVars['--page-bg']).toBe(colors.black)
-    expect(cz.cssVars['--band']).toBe(colors.lime)
-    expect(cz.sygnet).toBe('negatywny')
-
-    expect(resolveScheme('rekrutacja', 'czernPomaranczowa').cssVars['--band']).toBe(colors.coral)
-    expect(resolveScheme('rekrutacja', 'czernPomaranczowa').cssVars['--footer-text']).toBe(colors.limeText)
-    expect(resolveScheme('rekrutacja', 'czernGranatowa').cssVars['--band']).toBe(colors.navyLight)
-
-    const zl = resolveScheme('rekrutacja', 'okazjonalnyZloty')
-    expect(zl.cssVars['--page-bg']).toBe(colors.black)
-    expect(zl.cssVars['--band']).toBe(colors.gold)
-    expect(zl.sygnet).toBe('zloty')
-
-    const sr = resolveScheme('rekrutacja', 'okazjonalnySrebrny')
-    expect(sr.cssVars['--band']).toBe(colors.silver)
-    expect(sr.sygnet).toBe('srebrny')
+  it('granatowy: navyLight na ciemnym tle, navy na jasnym', () => {
+    expect(resolveScheme('ogloszenie', 'czern', 'granatowy').cssVars['--accent']).toBe(colors.navyLight)
+    expect(resolveScheme('ogloszenie', 'jasny', 'granatowy').cssVars['--accent']).toBe(colors.navy)
   })
 
-  it('Warsztat: trzy czernie + okazjonalne', () => {
-    const d = resolveScheme('warsztat', undefined)
-    expect(d.cssVars['--pill-fill']).toBe(colors.lime)
-
-    const cz = resolveScheme('warsztat', 'czernZolta')
-    expect(cz.cssVars['--slot-bg']).toBe(colors.black)
-    expect(cz.cssVars['--pill-fill']).toBe(colors.lime)
-    expect(cz.cssVars['--qr-border']).toBe('rgba(244,242,237,.3)')
-    expect(cz.sygnet).toBe('negatywny')
-
-    expect(resolveScheme('warsztat', 'czernPomaranczowa').cssVars['--badge-fill']).toBe(colors.coral)
-    expect(resolveScheme('warsztat', 'czernGranatowa').cssVars['--pill-fill']).toBe(colors.navyLight)
-
-    const zl = resolveScheme('warsztat', 'okazjonalnyZloty')
-    expect(zl.cssVars['--page-bg']).toBe(colors.navy)
-    expect(zl.cssVars['--badge-fill']).toBe(colors.gold)
-    expect(zl.sygnet).toBe('zloty')
-
-    const sr = resolveScheme('warsztat', 'okazjonalnySrebrny')
-    expect(sr.cssVars['--pill-fill']).toBe(colors.silver)
-    expect(sr.cssVars['--pill-text']).toBe(colors.ink)
-    expect(sr.sygnet).toBe('srebrny')
+  it('Gala × akcent: rola --gold niesie kolor akcentu, sygnet dopasowany', () => {
+    expect(resolveScheme('gala', 'default', 'granatowy').cssVars['--gold']).toBe(colors.navyLight)
+    expect(resolveScheme('gala', 'default', 'granatowy').sygnet).toBe('negatywny')
+    expect(resolveScheme('gala', 'default', 'srebrny').cssVars['--gold']).toBe(colors.silver)
+    expect(resolveScheme('gala', 'default', 'srebrny').sygnet).toBe('srebrny')
   })
 
-  it('invariant: każdy layout ma niepustą listę schematów; każdy (z bazą włącznie) zwraca sygnet + logoVariant + niepusty cssVars', () => {
-    for (const layout of Object.keys(schemes)) {
-      const names = schemesFor(layout)
-      expect(names.length, `${layout}: brak schematów`).toBeGreaterThan(0)
-      for (const name of [undefined, ...names]) {
-        const s = resolveScheme(layout, name)
-        expect(s.sygnet, `${layout}/${name}: brak sygnet`).toBeTruthy()
-        expect(['light', 'dark'], `${layout}/${name}: zły logoVariant`).toContain(s.logoVariant)
-        expect(Object.keys(s.cssVars).length, `${layout}/${name}: pusty cssVars`).toBeGreaterThan(0)
+  it('Rekrutacja × akcent: banda + logoVariant', () => {
+    expect(resolveScheme('rekrutacja', 'czern', 'granatowy').cssVars['--band']).toBe(colors.navyLight)
+    expect(resolveScheme('rekrutacja', 'czern', 'granatowy').logoVariant).toBe('dark')
+    expect(resolveScheme('rekrutacja', 'czern', 'zloty').cssVars['--band']).toBe(colors.gold)
+    expect(resolveScheme('rekrutacja', 'czern', 'zloty').logoVariant).toBe('light')
+    expect(resolveScheme('rekrutacja', 'czern', 'zloty').sygnet).toBe('zloty')
+  })
+
+  it('data ignoruje akcent (brak recepty)', () => {
+    const a = resolveScheme('data', 'czern', 'zloty')
+    const b = resolveScheme('data', 'czern', undefined)
+    expect(a.cssVars).toEqual(b.cssVars)
+    expect(a.sygnet).toBe(b.sygnet)
+  })
+})
+
+describe('invarianty', () => {
+  const layoutsAndSchemes = () =>
+    Object.keys(schemes).flatMap((layout) =>
+      [undefined, ...schemesFor(layout)].map((name) => ({ layout, name })),
+    )
+  const accents: (AccentName | undefined)[] = [undefined, ...ACCENT_NAMES]
+
+  it('każdy layout × schemat × akcent: sygnet + logoVariant + niepusty cssVars', () => {
+    for (const { layout, name } of layoutsAndSchemes()) {
+      for (const acc of accents) {
+        const s = resolveScheme(layout, name, acc)
+        expect(s.sygnet, `${layout}/${name}/${acc}: brak sygnet`).toBeTruthy()
+        expect(['light', 'dark'], `${layout}/${name}/${acc}: zły logoVariant`).toContain(s.logoVariant)
+        expect(Object.keys(s.cssVars).length, `${layout}/${name}/${acc}: pusty cssVars`).toBeGreaterThan(0)
       }
     }
   })
 
-  it('invariant: gold tylko z sygnetem zloty, silver tylko ze srebrny', () => {
-    for (const layout of Object.keys(schemes)) {
-      for (const name of [undefined, ...schemesFor(layout)]) {
-        const s = resolveScheme(layout, name)
+  it('gold tylko z sygnetem zloty, silver tylko ze srebrny — po nałożeniu akcentu', () => {
+    for (const { layout, name } of layoutsAndSchemes()) {
+      for (const acc of accents) {
+        const s = resolveScheme(layout, name, acc)
         const vals = Object.values(s.cssVars).map((v) => v.toLowerCase())
         if (vals.includes(colors.gold.toLowerCase()))
-          expect(s.sygnet, `${layout}/${name}: gold bez sygnetu zloty`).toBe('zloty')
+          expect(s.sygnet, `${layout}/${name}/${acc}: gold bez sygnetu zloty`).toBe('zloty')
         if (vals.includes(colors.silver.toLowerCase()))
-          expect(s.sygnet, `${layout}/${name}: silver bez sygnetu srebrny`).toBe('srebrny')
+          expect(s.sygnet, `${layout}/${name}/${acc}: silver bez sygnetu srebrny`).toBe('srebrny')
       }
     }
   })
@@ -240,8 +162,7 @@ describe('resolveScheme', () => {
 
 it('SCHEME_LABELS', () => {
   expect(SCHEME_LABELS.czern).toBe('Czerń')
-  expect(SCHEME_LABELS.czernZolta).toBe('Czerń żółta')
-  expect(SCHEME_LABELS.okazjonalnyZloty).toBe('Okazjonalny złoty')
-  expect(SCHEME_LABELS.okazjonalnySrebrny).toBe('Okazjonalny srebrny')
-  expect(SCHEME_LABELS.zloto).toBeUndefined()
+  expect(SCHEME_LABELS.default).toBe('Granat')
+  expect(SCHEME_LABELS.czernZolta).toBeUndefined()
+  expect(SCHEME_LABELS.okazjonalnyZloty).toBe('Okazjonalny złoty')   // nadal dla Daty
 })

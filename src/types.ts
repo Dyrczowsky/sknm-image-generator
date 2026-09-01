@@ -80,6 +80,7 @@ export interface HistoryRow {
 // --- Schematy kolorów ---
 export type SygnetName = 'negatywny' | 'granat' | 'zloty' | 'szary' | 'czarny' | 'srebrny'
 export type LogoVariant = 'light' | 'dark'
+export type AccentName = 'zolty' | 'pomaranczowy' | 'granatowy' | 'zloty' | 'srebrny'
 
 export interface ResolvedScheme {
   cssVars: Record<`--${string}`, string>
