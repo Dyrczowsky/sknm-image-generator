@@ -21,7 +21,7 @@ function Pill({ children, style }: { children: ReactNode; style?: CSSProperties 
 }
 
 // WARSZTAT — skos
-export function PosterWarsztat({ data, scheme }: PosterProps) {
+export function PosterWarsztat({ data, scheme, accent }: PosterProps) {
   const { title, subtitle, event_date, event_time, location, badge, graphics, showPkLogo, qrUrl, photos, fx } = withPlaceholders(data)
   const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
 
@@ -30,7 +30,7 @@ export function PosterWarsztat({ data, scheme }: PosterProps) {
     { text: `${getDay(event_date)} ${getMonthShort(event_date)}`, style: fx('event_date') },
     { text: location, style: fx('location') },
   ]
-  const s = resolveScheme('warsztat', scheme)
+  const s = resolveScheme('warsztat', scheme, accent)
 
   return (
     <PosterFrame vars={s.cssVars}>

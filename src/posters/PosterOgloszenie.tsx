@@ -12,9 +12,9 @@ import type { PosterProps } from '../types'
 // OGŁOSZENIE — wyśrodkowany cytat/komunikat, bez zdjęcia i bez daty.
 // Jedyny szablon bez narożnikowego stosu informacji — do krótkich ogłoszeń,
 // cytatów i podziękowań.
-export function PosterOgloszenie({ data, scheme }: PosterProps) {
+export function PosterOgloszenie({ data, scheme, accent }: PosterProps) {
   const { title, subtitle, graphics, showPkLogo, qrUrl, fx } = withPlaceholders(data)
-  const s = resolveScheme('ogloszenie', scheme)
+  const s = resolveScheme('ogloszenie', scheme, accent)
   const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
 
   return (

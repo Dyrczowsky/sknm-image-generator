@@ -13,9 +13,9 @@ import { LogoRow } from './blocks/LogoRow'
 import type { PosterProps } from '../types'
 
 // DATA — liczba jako grafika
-export function PosterData({ data, scheme }: PosterProps) {
+export function PosterData({ data, scheme, accent }: PosterProps) {
   const { title, subtitle, event_date, event_time, location, graphics, showPkLogo, qrUrl, photos, hidden, fx } = withPlaceholders(data)
-  const s = resolveScheme('data', scheme)
+  const s = resolveScheme('data', scheme, accent)
   const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
 
   return (

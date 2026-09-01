@@ -93,7 +93,7 @@ export interface ResolvedScheme {
 // opcjonalne i null-tolerancyjne. HistoryRow wpasowuje się tu strukturalnie
 // (pola tekstowe pokrywają się, nadmiarowe kolumny nie przeszkadzają).
 export type RawPosterData = { [K in keyof FormValues]?: FormValues[K] | null }
-export interface PosterProps { data: RawPosterData; scheme?: string }
+export interface PosterProps { data: RawPosterData; scheme?: string; accent?: AccentName }
 
 export interface FormProps {
   value: FormValues

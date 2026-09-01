@@ -13,9 +13,9 @@ import { LogoRow } from './blocks/LogoRow'
 import type { PosterProps } from '../types'
 
 // WYKŁAD — typografia
-export function PosterWyklad({ data, scheme }: PosterProps) {
+export function PosterWyklad({ data, scheme, accent }: PosterProps) {
   const { title, subtitle, speaker, event_date, event_time, location, badge, graphics, showPkLogo, qrUrl, hidden, fx } = withPlaceholders(data)
-  const s = resolveScheme('wyklad', scheme)
+  const s = resolveScheme('wyklad', scheme, accent)
   const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
 
   return (

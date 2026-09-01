@@ -13,9 +13,9 @@ import { LogoRow } from './blocks/LogoRow'
 import type { PosterProps } from '../types'
 
 // REKRUTACJA — wzór z sygnetu
-export function PosterRekrutacja({ data, scheme }: PosterProps) {
+export function PosterRekrutacja({ data, scheme, accent }: PosterProps) {
   const { title, subtitle, event_date, event_time, location, badge, graphics, showPkLogo, qrUrl, hidden, fx } = withPlaceholders(data)
-  const s = resolveScheme('rekrutacja', scheme)
+  const s = resolveScheme('rekrutacja', scheme, accent)
   const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
 
   return (

@@ -13,9 +13,9 @@ import { LogoRow } from './blocks/LogoRow'
 import type { PosterProps } from '../types'
 
 // GOŚĆ — zdjęcie + pas
-export function PosterGosc({ data, scheme }: PosterProps) {
+export function PosterGosc({ data, scheme, accent }: PosterProps) {
   const { title, speaker, event_date, event_time, location, badge, graphics, showPkLogo, qrUrl, colors: co, photos, hidden, fx } = withPlaceholders(data)
-  const s = resolveScheme('gosc', scheme)
+  const s = resolveScheme('gosc', scheme, accent)
   const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
 
   // Nadpisania kolorów z formularza (pusty = wartość ze schematu / literał).

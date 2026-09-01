@@ -13,9 +13,9 @@ import { LogoRow } from './blocks/LogoRow'
 import type { PosterProps } from '../types'
 
 // GALA — złoto na grafitowym
-export function PosterGala({ data, scheme }: PosterProps) {
+export function PosterGala({ data, scheme, accent }: PosterProps) {
   const { title, subtitle, event_date, event_time, location, badge, graphics, showPkLogo, qrUrl, hidden, fx } = withPlaceholders(data)
-  const s = resolveScheme('gala', scheme)
+  const s = resolveScheme('gala', scheme, accent)
   const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
 
   return (

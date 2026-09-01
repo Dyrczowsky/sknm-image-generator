@@ -17,10 +17,10 @@ const DEFAULT_AGENDA: ListItem[] = [
 ]
 
 // KONFERENCJA — nagłówek + lista programu
-export function PosterKonferencja({ data, scheme }: PosterProps) {
+export function PosterKonferencja({ data, scheme, accent }: PosterProps) {
   const { title, event_date, location, badge, badge2, graphics, showPkLogo, qrUrl, lists, hidden, fx } = withPlaceholders(data)
   const agenda = lists.agenda?.length ? lists.agenda : DEFAULT_AGENDA
-  const s = resolveScheme('konferencja', scheme)
+  const s = resolveScheme('konferencja', scheme, accent)
   const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
 
   return (
