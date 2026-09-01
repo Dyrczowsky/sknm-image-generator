@@ -37,13 +37,13 @@ const EMPTY_FORM: FormValues = {
   lists: {},
 }
 
-// Domyślny schemat kolorów danego layoutu = pierwszy schemat z `schemes.ts`
-// (`undefined` tylko dla layoutu z jednym schematem — żaden obecnie taki nie
-// jest — resolveScheme użyje wtedy bloku bazowego).
+// Domyślny schemat kolorów danego layoutu = pierwszy schemat z `schemes.ts`.
+// `undefined` tylko gdy layout nie ma żadnego schematu; `resolveScheme` użyje
+// wtedy bloku bazowego.
 function defaultSchemeFor(templateId: number | null, templates: TemplateRow[]): string | undefined {
   const tpl = templates.find((t) => t.id === templateId)
   const list = tpl ? schemesFor(tpl.poster_key) : []
-  return list.length > 1 ? list[0] : undefined
+  return list[0]
 }
 
 function App() {
@@ -323,7 +323,7 @@ function App() {
   const bugContext: BugContextInput = {
     templateName: selectedTemplate?.name,
     posterKey: selectedTemplate?.poster_key,
-    schemeKey: selectedScheme,
+    schemeKey: encodeScheme(selectedScheme, selectedAccent),
     schemeLabel: selectedScheme ? SCHEME_LABELS[selectedScheme] : undefined,
     form,
     appUrl: window.location.href,

@@ -62,7 +62,8 @@ export function SchemeSelector({
           <button
             type="button"
             disabled={!accentEnabled}
-            className={`rounded-full border-2 px-3 py-1 text-[0.72rem] ${
+            aria-pressed={!selectedAccent}
+            className={`cursor-pointer rounded-full border-2 px-3 py-1 text-[0.72rem] ${
               !selectedAccent ? 'border-accent text-fg' : 'border-border text-muted'
             }`}
             onClick={() => onSelectAccent(undefined)}
@@ -76,12 +77,13 @@ export function SchemeSelector({
               disabled={!accentEnabled}
               title={ACCENT_LABELS[a]}
               aria-label={ACCENT_LABELS[a]}
-              className={`flex h-7 w-7 items-center justify-center rounded-full border-2 ${
+              aria-pressed={selectedAccent === a}
+              className={`flex h-7 w-7 cursor-pointer items-center justify-center rounded-full border-2 ${
                 selectedAccent === a ? 'border-accent' : 'border-transparent'
               }`}
               onClick={() => onSelectAccent(a)}
             >
-              <span className="block h-4 w-4 rounded-full" style={{ background: ACCENT_DOT[a] }} />
+              <span className="block h-4 w-4 rounded-full ring-1 ring-black/10" style={{ background: ACCENT_DOT[a] }} />
             </button>
           ))}
         </div>

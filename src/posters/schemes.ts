@@ -214,7 +214,7 @@ const warsztat: LayoutSchemes = {
 // „granatowy" mógł zależeć od tła. Metal (zloty/srebrny) dokłada `sygnet`.
 type AccentRecipe = (accent: AccentName, ctx: SchemeBlock) => SchemeBlock
 
-const DARK_BGS = new Set<string>([colors.black, colors.ink, colors.navy, colors.inkPanel, colors.navyDark])
+const DARK_BGS = new Set<string>([colors.black, colors.ink, colors.navy, colors.inkPanel, colors.navyDark, colors.grayDark])
 
 function accentColor(accent: AccentName, ctx: SchemeBlock): string {
   switch (accent) {
@@ -253,8 +253,9 @@ const accentRecipes: Record<string, AccentRecipe | undefined> = {
   },
 
   konferencja: (a, ctx) => {
-    const c = accentColor(a, ctx)
-    return { headerBadge: c, lineFirst: c, footerBadge: c, ...accentSygnet(a) }
+    const onPage = accentColor(a, ctx)
+    const onPanel = accentColor(a, { ...ctx, pageBg: ctx.panel })
+    return { headerBadge: onPanel, lineFirst: onPage, footerBadge: onPage, ...accentSygnet(a) }
   },
 
   warsztat: (a, ctx) => {

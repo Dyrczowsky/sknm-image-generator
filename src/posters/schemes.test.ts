@@ -105,6 +105,16 @@ describe('resolveScheme — z akcentem', () => {
     expect(resolveScheme('ogloszenie', 'jasny', 'granatowy').cssVars['--accent']).toBe(colors.navy)
   })
 
+  it('Konferencja: header-badge liczony względem panelu, nie strony', () => {
+    // default: panel = navy (ciemny) → granatowy header-badge = navyLight (nie navy=panel)
+    expect(resolveScheme('konferencja', undefined, 'granatowy').cssVars['--header-badge']).toBe(colors.navyLight)
+    // lineFirst/footerBadge na jasnej stronie → navy
+    expect(resolveScheme('konferencja', undefined, 'granatowy').cssVars['--line-first']).toBe(colors.navy)
+    // czern: panel = inkPanel (ciemny), strona czarna → oba navyLight
+    expect(resolveScheme('konferencja', 'czern', 'granatowy').cssVars['--header-badge']).toBe(colors.navyLight)
+    expect(resolveScheme('konferencja', 'czern', 'granatowy').cssVars['--footer-badge']).toBe(colors.navyLight)
+  })
+
   it('Gala × akcent: rola --gold niesie kolor akcentu, sygnet dopasowany', () => {
     expect(resolveScheme('gala', 'default', 'granatowy').cssVars['--gold']).toBe(colors.navyLight)
     expect(resolveScheme('gala', 'default', 'granatowy').sygnet).toBe('negatywny')
