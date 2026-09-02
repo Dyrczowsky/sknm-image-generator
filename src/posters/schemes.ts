@@ -39,7 +39,8 @@ type LayoutSchemes = Record<string, SchemeBlock>
 
 const ogloszenie: LayoutSchemes = {
   default: { pageBg: colors.navy, pageText: colors.cream, accent: colors.lime,
-             sygnet: 'negatywny', logoVariant: 'dark' },
+             sygnet: 'negatywny', logoVariant: 'dark',
+             accents: ['zolty', 'pomaranczowy', 'granatowy'], defaultAccent: 'zolty' },
   czern: { pageBg: colors.black, accent: colors.lime, sygnet: 'negatywny',
            accents: 'all', defaultAccent: 'zolty' },
   jasny: { pageBg: colors.cream, pageText: colors.limeText, accent: colors.navy,
@@ -68,7 +69,8 @@ const gala: LayoutSchemes = {
 // komponencie (nie rolą).
 const gosc: LayoutSchemes = {
   default: { pageBg: colors.cream, pageText: colors.ink, mutedText: colors.textMuted,
-             accent: colors.navy, sygnet: 'negatywny', logoVariant: 'light' },
+             accent: colors.navy, sygnet: 'negatywny', logoVariant: 'light',
+             accents: ['zolty', 'pomaranczowy', 'granatowy'], defaultAccent: 'granatowy' },
   czern: { pageBg: colors.black, pageText: colors.cream, mutedText: colors.creamMuted,
            accent: colors.lime, sygnet: 'negatywny', logoVariant: 'dark',
            accents: 'all', defaultAccent: 'zolty' },
@@ -112,6 +114,7 @@ const wyklad: LayoutSchemes = {
     speaker: colors.lime, chips: colors.lime,
     washTop: 'rgba(255,255,255,.055)', wedgeBr: colors.navyLight, wedgeBl: colors.navyDark,
     sygnet: 'negatywny', logoVariant: 'dark',
+    accents: ['zolty', 'pomaranczowy', 'granatowy'], defaultAccent: 'zolty',
   },
   czern: { pageBg: colors.black, badgeFill: colors.lime, badgeText: colors.limeText,
            speaker: colors.lime, chips: colors.lime,
@@ -236,6 +239,13 @@ const warsztat: LayoutSchemes = {
 // Recepta zwraca nadpisania ról „akcentowych" danego layoutu dla wybranego
 // koloru akcentu. `ctx` = blok już scalony (baza + nazwany schemat) — żeby
 // „granatowy" mógł zależeć od tła. Metal (zloty/srebrny) dokłada `sygnet`.
+// UWAGA: schemat może dostać oś (`accents`/`defaultAccent`) tylko wtedy, gdy
+// `recipe(defaultAccent, blok)` daje dokładnie to, co blok już ma wpisane —
+// inaczej „Domyślny" zmieni wygląd schematu. Dlatego `konferencja`/`warsztat`
+// `default` oraz `rekrutacja.limonka` NIE mają jeszcze osi: ich wbudowane role
+// akcentowe nie są jednolicie w jednym kolorze (odblokuje to refaktor „B" —
+// blok `default`/`czern` przestaje wpisywać akcent, recepta jest jedynym
+// źródłem).
 type AccentRecipe = (accent: AccentName, ctx: SchemeBlock) => SchemeBlock
 
 const DARK_BGS = new Set<string>([colors.black, colors.ink, colors.navy, colors.inkPanel, colors.navyDark, colors.grayDark])
@@ -318,21 +328,17 @@ export function layoutHasAccentAxis(layoutKey: string): boolean {
   return Boolean(accentRecipes[layoutKey])
 }
 
-// Blok, z którego czytamy deklarację osi akcentu (`accents`/`defaultAccent`) —
-// WŁASNY blok schematu (nie scalony z bazą, żeby stały schemat nie dziedziczył
-// osi po bazie), a gdy brak nazwy — blok bazowy.
-function axisBlock(layoutKey: string, schemeName?: string): SchemeBlock {
-  const layout = schemes[layoutKey] ?? {}
-  return (schemeName ? layout[schemeName] : undefined) ?? baseBlock(layout)
-}
-
+// Deklaracja osi akcentu dla pary (layout, schemat). Czytana z WŁASNEGO bloku
+// schematu (nie scalonego z bazą — żeby stały schemat nie dziedziczył osi po
+// bazie), a gdy brak nazwy — z bloku bazowego. Zwrócona lista to kopia.
 function axisInfo(layoutKey: string, schemeName?: string): { accents: AccentName[]; defaultAccent?: AccentName } {
-  if (!accentRecipes[layoutKey]) return { accents: [] }
-  const b = axisBlock(layoutKey, schemeName)
-  if (b.accents === undefined) return { accents: [] }
+  if (!layoutHasAccentAxis(layoutKey)) return { accents: [] }
+  const layout = schemes[layoutKey] ?? {}
+  const block = (schemeName ? layout[schemeName] : undefined) ?? baseBlock(layout)
+  if (block.accents === undefined) return { accents: [] }
   return {
-    accents: b.accents === 'all' ? ACCENT_NAMES : b.accents,
-    defaultAccent: b.defaultAccent,
+    accents: block.accents === 'all' ? [...ACCENT_NAMES] : [...block.accents],
+    defaultAccent: block.defaultAccent,
   }
 }
 

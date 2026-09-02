@@ -1,4 +1,4 @@
-import { ACCENT_DOT, ACCENT_LABELS, ACCENT_NAMES, SCHEME_LABELS, accentsFor, layoutHasAccentAxis, schemesFor } from '../posters/schemes'
+import { ACCENT_DOT, ACCENT_LABELS, ACCENT_NAMES, SCHEME_LABELS, accentsFor, defaultAccentFor, layoutHasAccentAxis, schemesFor } from '../posters/schemes'
 import { PosterScaled } from './PosterScaled'
 import type { AccentName, RawPosterData, RegistryEntry } from '../types'
 
@@ -28,6 +28,7 @@ export function SchemeSelector({
   const showAccent = layoutHasAccentAxis(posterKey)
   const accents = accentsFor(posterKey, selectedScheme)
   const accentEnabled = accents.length > 0
+  const defaultAcc = defaultAccentFor(posterKey, selectedScheme)
 
   return (
     <div className="mt-[18px] flex flex-col gap-3 border-t border-border pt-[18px]">
@@ -66,6 +67,7 @@ export function SchemeSelector({
               type="button"
               disabled={!accentEnabled}
               aria-pressed={!selectedAccent}
+              title={defaultAcc ? `Domyślny akcent: ${ACCENT_LABELS[defaultAcc]}` : undefined}
               className={`cursor-pointer rounded-full border-2 px-3 py-1 text-[0.72rem] ${
                 !selectedAccent ? 'border-accent text-fg' : 'border-border text-muted'
               }`}

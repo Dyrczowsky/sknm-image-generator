@@ -79,11 +79,13 @@ describe('oś akcentu — dostępność per schemat', () => {
       expect(accentsFor(l, 'czern')).toEqual(ACCENT_NAMES)
       expect(defaultAccentFor(l, 'czern')).toBe('zolty')
     }
-    // stałe schematy (jasny/szary/limonka/default) — brak `accents`
+    // stałe schematy (jasny/szary/limonka) — brak `accents`
     expect(accentsFor('ogloszenie', 'jasny')).toEqual([])
     expect(accentsFor('ogloszenie', 'szary')).toEqual([])
-    expect(accentsFor('ogloszenie', 'default')).toEqual([]) // „Granat" bez osi
     expect(accentsFor('rekrutacja', 'limonka')).toEqual([])
+    // „Granat" (default) — oś tam, gdzie recepta zolty == blok (ogloszenie/wyklad/gosc)
+    expect(accentsFor('ogloszenie', 'default')).toEqual(['zolty', 'pomaranczowy', 'granatowy'])
+    expect(accentsFor('konferencja', 'default')).toEqual([]) // jeszcze stały (patrz komentarz w schemes.ts)
   })
   it('Gala: jedyny schemat `default` ma oś (accents: all)', () => {
     expect(accentsFor('gala', 'default')).toEqual(ACCENT_NAMES)
@@ -93,6 +95,13 @@ describe('oś akcentu — dostępność per schemat', () => {
   it('Data: kontrolka wyłączona niezależnie od schematu', () => {
     expect(accentsFor('data')).toEqual([])
     expect(accentsFor('data', 'czern')).toEqual([])
+  })
+  it('każdy layout z receptą ma co najmniej jeden schemat z osią', () => {
+    for (const layout of Object.keys(schemes)) {
+      if (!layoutHasAccentAxis(layout)) continue
+      const anyAxis = schemesFor(layout).some((s) => accentsFor(layout, s).length > 0)
+      expect(anyAxis, `${layout}: recepta jest, ale żaden schemat nie ma osi`).toBe(true)
+    }
   })
   it('accentAllowed', () => {
     expect(accentAllowed('wyklad', 'czern', undefined)).toBe(true)
@@ -137,8 +146,42 @@ describe('resolveScheme — z akcentem', () => {
     expect(resolveScheme('wyklad', 'jasny', 'zloty').cssVars['--badge-fill']).toBe(colors.navy)
   })
 
+  it('regresja: „czern" bez wyboru akcentu = to, co blok już miał wpisane', () => {
+    // defaultAccent uruchamia receptę — jej wynik MUSI się zgadzać z wbudowanym
+    // żółtym akcentem bloku, inaczej „Domyślny" po cichu zmienia wygląd.
+    const rek = resolveScheme('rekrutacja', 'czern', undefined)
+    expect(rek.cssVars['--band']).toBe(colors.lime)
+    expect(rek.cssVars['--footer-text']).toBe(colors.limeText)
+    expect(rek.cssVars['--badge-color']).toBe(colors.black)
+    expect(rek.cssVars['--qr-border']).toBe('rgba(18,18,18,.4)')
+    expect(rek.cssVars['--qr-text']).toBe('rgba(18,18,18,.6)')
+    expect(rek.logoVariant).toBe('light')
+    expect(rek.sygnet).toBe('negatywny')
+    const kon = resolveScheme('konferencja', 'czern', undefined)
+    expect(kon.cssVars['--header-badge']).toBe(colors.lime)
+    expect(kon.cssVars['--line-first']).toBe(colors.lime)
+    expect(kon.cssVars['--footer-badge']).toBe(colors.lime)
+    expect(kon.cssVars['--line-rest']).toBe('rgba(244,242,237,.2)')
+    const wy = resolveScheme('wyklad', 'czern', undefined)
+    expect(wy.cssVars['--badge-fill']).toBe(colors.lime)
+    expect(wy.cssVars['--badge-text']).toBe(colors.limeText)
+    expect(wy.cssVars['--speaker']).toBe(colors.lime)
+  })
+
+  it('regresja: „Granat" (default) z osią — Domyślny renderuje tak jak blok', () => {
+    // ogloszenie/wyklad/gosc.default dostały oś (3 akcenty). „Domyślny" nie
+    // może zmienić ich dotychczasowego wyglądu.
+    expect(accentsFor('ogloszenie', 'default')).toHaveLength(3)
+    expect(resolveScheme('ogloszenie', 'default', undefined).cssVars['--accent']).toBe(colors.lime)
+    expect(resolveScheme('wyklad', 'default', undefined).cssVars['--badge-fill']).toBe(colors.lime)
+    expect(resolveScheme('gosc', 'default', undefined).cssVars['--accent']).toBe(colors.navy)
+    // konferencja/warsztat.default zostają stałe (brak osi)
+    expect(accentsFor('konferencja', 'default')).toEqual([])
+    expect(accentsFor('warsztat', 'default')).toEqual([])
+    expect(accentsFor('rekrutacja', 'limonka')).toEqual([])
+  })
+
   it('brak wybranego akcentu → renderuje defaultAccent schematu', () => {
-    // „czern" ma defaultAccent: 'zolty' — bez wyboru wychodzi żółty.
     expect(resolveScheme('wyklad', 'czern', undefined).cssVars['--badge-fill']).toBe(colors.lime)
     expect(resolveScheme('rekrutacja', 'czern', undefined).cssVars['--band']).toBe(colors.lime)
   })
