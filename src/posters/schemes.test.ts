@@ -5,6 +5,8 @@ import {
   SCHEME_LABELS,
   accentAllowed,
   accentsFor,
+  defaultAccentFor,
+  layoutHasAccentAxis,
   resolveScheme,
   schemes,
   schemesFor,
@@ -65,21 +67,38 @@ describe('resolveScheme — baza (bez akcentu)', () => {
   })
 })
 
-describe('accentsFor', () => {
-  it('data → puste (kontrolka wyłączona)', () => {
+describe('oś akcentu — dostępność per schemat', () => {
+  it('layoutHasAccentAxis: Data nie, reszta tak', () => {
+    expect(layoutHasAccentAxis('data')).toBe(false)
+    for (const l of ['ogloszenie', 'gosc', 'wyklad', 'konferencja', 'rekrutacja', 'warsztat', 'gala']) {
+      expect(layoutHasAccentAxis(l)).toBe(true)
+    }
+  })
+  it('schemat „czern" (accents: all) → wszystkie 5; schemat stały → puste', () => {
+    for (const l of ['ogloszenie', 'gosc', 'wyklad', 'konferencja', 'rekrutacja', 'warsztat']) {
+      expect(accentsFor(l, 'czern')).toEqual(ACCENT_NAMES)
+      expect(defaultAccentFor(l, 'czern')).toBe('zolty')
+    }
+    // stałe schematy (jasny/szary/limonka/default) — brak `accents`
+    expect(accentsFor('ogloszenie', 'jasny')).toEqual([])
+    expect(accentsFor('ogloszenie', 'szary')).toEqual([])
+    expect(accentsFor('ogloszenie', 'default')).toEqual([]) // „Granat" bez osi
+    expect(accentsFor('rekrutacja', 'limonka')).toEqual([])
+  })
+  it('Gala: jedyny schemat `default` ma oś (accents: all)', () => {
+    expect(accentsFor('gala', 'default')).toEqual(ACCENT_NAMES)
+    expect(accentsFor('gala')).toEqual(ACCENT_NAMES)          // baza = default
+    expect(defaultAccentFor('gala', 'default')).toBe('zloty')
+  })
+  it('Data: kontrolka wyłączona niezależnie od schematu', () => {
     expect(accentsFor('data')).toEqual([])
     expect(accentsFor('data', 'czern')).toEqual([])
   })
-  it('layout z receptą, schemat bez wpisu w schemeAccents → wszystkie 5', () => {
-    for (const l of ['ogloszenie', 'gosc', 'wyklad', 'konferencja', 'rekrutacja', 'warsztat', 'gala']) {
-      expect(accentsFor(l, 'czern')).toEqual(ACCENT_NAMES)
-      expect(accentsFor(l)).toEqual(ACCENT_NAMES)
-    }
-  })
-  it('accentAllowed: brak akcentu zawsze OK; akcent z pełnej listy OK', () => {
+  it('accentAllowed', () => {
     expect(accentAllowed('wyklad', 'czern', undefined)).toBe(true)
     expect(accentAllowed('wyklad', 'czern', 'zloty')).toBe(true)
-    expect(accentAllowed('data', 'czern', 'zloty')).toBe(false) // layout bez recepty
+    expect(accentAllowed('wyklad', 'jasny', 'zloty')).toBe(false)   // schemat stały
+    expect(accentAllowed('data', 'czern', 'zloty')).toBe(false)     // layout bez osi
   })
   it('ACCENT_LABELS ma polskie podpisy', () => {
     expect(ACCENT_LABELS.zolty).toBe('Żółty')
@@ -108,17 +127,24 @@ describe('resolveScheme — z akcentem', () => {
     expect(resolveScheme('gosc', 'czern', 'pomaranczowy').cssVars['--sygnet-bg']).toBeUndefined()
   })
 
-  it('granatowy: navyLight na ciemnym tle, navy na jasnym', () => {
+  it('granatowy na czerni (ciemne tło) → navyLight', () => {
     expect(resolveScheme('ogloszenie', 'czern', 'granatowy').cssVars['--accent']).toBe(colors.navyLight)
-    expect(resolveScheme('ogloszenie', 'jasny', 'granatowy').cssVars['--accent']).toBe(colors.navy)
   })
 
-  it('Konferencja: header-badge liczony względem panelu, nie strony', () => {
-    // default: panel = navy (ciemny) → granatowy header-badge = navyLight (nie navy=panel)
-    expect(resolveScheme('konferencja', undefined, 'granatowy').cssVars['--header-badge']).toBe(colors.navyLight)
-    // lineFirst/footerBadge na jasnej stronie → navy
-    expect(resolveScheme('konferencja', undefined, 'granatowy').cssVars['--line-first']).toBe(colors.navy)
-    // czern: panel = inkPanel (ciemny), strona czarna → oba navyLight
+  it('schemat stały ignoruje akcent', () => {
+    // „Jasny" nie ma osi — podanie akcentu nic nie zmienia, renderuje blok.
+    expect(resolveScheme('ogloszenie', 'jasny', 'granatowy').cssVars['--accent']).toBe(colors.navy)
+    expect(resolveScheme('wyklad', 'jasny', 'zloty').cssVars['--badge-fill']).toBe(colors.navy)
+  })
+
+  it('brak wybranego akcentu → renderuje defaultAccent schematu', () => {
+    // „czern" ma defaultAccent: 'zolty' — bez wyboru wychodzi żółty.
+    expect(resolveScheme('wyklad', 'czern', undefined).cssVars['--badge-fill']).toBe(colors.lime)
+    expect(resolveScheme('rekrutacja', 'czern', undefined).cssVars['--band']).toBe(colors.lime)
+  })
+
+  it('Konferencja: header-badge liczony względem panelu (ciemnego), nie strony', () => {
+    // czern: panel = inkPanel (ciemny) → granatowy header-badge = navyLight
     expect(resolveScheme('konferencja', 'czern', 'granatowy').cssVars['--header-badge']).toBe(colors.navyLight)
     expect(resolveScheme('konferencja', 'czern', 'granatowy').cssVars['--footer-badge']).toBe(colors.navyLight)
   })

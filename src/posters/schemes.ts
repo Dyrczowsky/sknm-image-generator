@@ -1,11 +1,29 @@
 import { colors } from './theme'
 import type { AccentName, LogoVariant, ResolvedScheme, SygnetName } from '../types'
 
-// Blok jednego schematu: dowolne role kolorów + opcjonalny sygnet/logoVariant.
-interface SchemeBlock {
+// Wszystkie role kolorów, jakich używają plakaty. Każda staje się zmienną CSS
+// `--kebab-case` (patrz `roleToVar`). Nowa rola = dopisz tutaj; wtedy TypeScript
+// wyłapie literówkę w bloku schematu (`qrBrdr` zamiast `qrBorder`).
+export type Role =
+  | 'pageBg' | 'pageText' | 'mutedText' | 'accent' | 'title'
+  | 'gold' | 'panel' | 'panelText' | 'panelBr' | 'sygnetBg'
+  | 'badgeFill' | 'badgeText' | 'badgeColor' | 'headerBadge' | 'footerBadge'
+  | 'speaker' | 'chips' | 'washTop' | 'wedgeBr' | 'wedgeBl'
+  | 'lineFirst' | 'lineRest'
+  | 'band' | 'subColor' | 'footerText'
+  | 'pillFill' | 'pillText' | 'slotBg' | 'qr' | 'qrBorder' | 'qrText'
+  | 'tri1' | 'tri2' | 'tri3'
+
+// Blok jednego schematu: podzbiór ról + opcjonalny sygnet/logoVariant + (dla
+// schematów parametryzowanych osią akcentu) `accents` / `defaultAccent`.
+interface SchemeBlock extends Partial<Record<Role, string>> {
   sygnet?: SygnetName
   logoVariant?: LogoVariant
-  [role: string]: string | undefined
+  // Obecność `accents` = schemat MA oś akcentu (kontrolka aktywna). Brak =
+  // schemat stały (kontrolka wyłączona dla tego schematu). `'all'` = wszystkie 5.
+  accents?: AccentName[] | 'all'
+  // Akcent renderowany, gdy użytkownik nic nie wybrał („Domyślny" w kontrolce).
+  defaultAccent?: AccentName
 }
 type LayoutSchemes = Record<string, SchemeBlock>
 
@@ -22,7 +40,8 @@ type LayoutSchemes = Record<string, SchemeBlock>
 const ogloszenie: LayoutSchemes = {
   default: { pageBg: colors.navy, pageText: colors.cream, accent: colors.lime,
              sygnet: 'negatywny', logoVariant: 'dark' },
-  czern: { pageBg: colors.black, accent: colors.lime, sygnet: 'negatywny' },
+  czern: { pageBg: colors.black, accent: colors.lime, sygnet: 'negatywny',
+           accents: 'all', defaultAccent: 'zolty' },
   jasny: { pageBg: colors.cream, pageText: colors.limeText, accent: colors.navy,
            sygnet: 'granat', logoVariant: 'light' },
   szary: { pageBg: colors.paper, pageText: colors.slate, accent: colors.grayDark,
@@ -36,6 +55,7 @@ const gala: LayoutSchemes = {
     pageBg: colors.ink, pageText: colors.goldPanelText, mutedText: colors.creamMuted,
     gold: colors.gold, panelBr: colors.inkPanel,
     sygnet: 'zloty', logoVariant: 'dark',
+    accents: 'all', defaultAccent: 'zloty',
   },
 }
 
@@ -50,7 +70,8 @@ const gosc: LayoutSchemes = {
   default: { pageBg: colors.cream, pageText: colors.ink, mutedText: colors.textMuted,
              accent: colors.navy, sygnet: 'negatywny', logoVariant: 'light' },
   czern: { pageBg: colors.black, pageText: colors.cream, mutedText: colors.creamMuted,
-           accent: colors.lime, sygnet: 'negatywny', logoVariant: 'dark' },
+           accent: colors.lime, sygnet: 'negatywny', logoVariant: 'dark',
+           accents: 'all', defaultAccent: 'zolty' },
   jasny: { pageBg: colors.paper },
   szary: { pageBg: colors.paper, pageText: colors.slate, accent: colors.grayDark },
 }
@@ -95,7 +116,7 @@ const wyklad: LayoutSchemes = {
   czern: { pageBg: colors.black, badgeFill: colors.lime, badgeText: colors.limeText,
            speaker: colors.lime, chips: colors.lime,
            washTop: 'rgba(255,255,255,.04)', wedgeBr: '#1E1E1E', wedgeBl: '#0A0A0A',
-           sygnet: 'negatywny' },
+           sygnet: 'negatywny', accents: 'all', defaultAccent: 'zolty' },
   jasny: { pageBg: colors.cream, pageText: colors.limeText,
            badgeFill: colors.navy, badgeText: colors.cream, speaker: colors.navy, chips: colors.navy,
            washTop: 'rgba(60,69,155,.05)', wedgeBr: '#E2DED3', wedgeBl: '#DAD5C8',
@@ -125,6 +146,7 @@ const konferencja: LayoutSchemes = {
     panel: colors.inkPanel, headerBadge: colors.lime,
     lineFirst: colors.lime, lineRest: 'rgba(244,242,237,.2)', footerBadge: colors.lime,
     sygnet: 'negatywny', logoVariant: 'dark',
+    accents: 'all', defaultAccent: 'zolty',
   },
   jasny: { pageBg: colors.paper },
   szary: {
@@ -161,6 +183,7 @@ const rekrutacja: LayoutSchemes = {
     badgeColor: colors.black,
     qrBorder: 'rgba(18,18,18,.4)', qrText: 'rgba(18,18,18,.6)',
     sygnet: 'negatywny', logoVariant: 'light',
+    accents: 'all', defaultAccent: 'zolty',
   },
   jasny: {
     pageBg: colors.paper, pageText: colors.navy,
@@ -198,6 +221,7 @@ const warsztat: LayoutSchemes = {
     pillFill: colors.lime, pillText: colors.limeText, slotBg: colors.black,
     qrBorder: 'rgba(244,242,237,.3)', qrText: 'rgba(244,242,237,.7)',
     sygnet: 'negatywny', logoVariant: 'dark',
+    accents: 'all', defaultAccent: 'zolty',
   },
   jasny: { pageBg: colors.paper, slotBg: colors.paper },
   szary: {
@@ -288,19 +312,39 @@ const accentRecipes: Record<string, AccentRecipe | undefined> = {
 
 export const ACCENT_NAMES: AccentName[] = ['zolty', 'pomaranczowy', 'granatowy', 'zloty', 'srebrny']
 
-// Ograniczenie dostępnych akcentów per (layout, schemat). Brak wpisu dla
-// pary = wszystkie 5 akcentów. Layout bez recepty (`data`) i tak ma kontrolkę
-// wyłączoną. Kolejność w tablicy = kolejność kropek w kontrolce.
-// Przykład: `ogloszenie: { default: ['zolty', 'pomaranczowy', 'granatowy'] }`
-// — schemat „Granat" tego layoutu daje tylko 3 akcenty, „Czerń" nadal 5.
-// (Żeby usunąć cały schemat z layoutu — skasuj jego blok w `LayoutSchemes`.)
-const schemeAccents: Record<string, Partial<Record<string, AccentName[]>>> = {}
+// Czy layout w OGÓLE ma oś akcentu (istnieje recepta). Fałsz → kontrolka
+// akcentu w ogóle się nie pokazuje dla tego layoutu (np. „Data").
+export function layoutHasAccentAxis(layoutKey: string): boolean {
+  return Boolean(accentRecipes[layoutKey])
+}
 
-// Dostępne akcenty dla danego schematu. Puste = kontrolka wyłączona
-// (layout bez recepty). Brak wpisu w `schemeAccents` = wszystkie 5.
+// Blok, z którego czytamy deklarację osi akcentu (`accents`/`defaultAccent`) —
+// WŁASNY blok schematu (nie scalony z bazą, żeby stały schemat nie dziedziczył
+// osi po bazie), a gdy brak nazwy — blok bazowy.
+function axisBlock(layoutKey: string, schemeName?: string): SchemeBlock {
+  const layout = schemes[layoutKey] ?? {}
+  return (schemeName ? layout[schemeName] : undefined) ?? baseBlock(layout)
+}
+
+function axisInfo(layoutKey: string, schemeName?: string): { accents: AccentName[]; defaultAccent?: AccentName } {
+  if (!accentRecipes[layoutKey]) return { accents: [] }
+  const b = axisBlock(layoutKey, schemeName)
+  if (b.accents === undefined) return { accents: [] }
+  return {
+    accents: b.accents === 'all' ? ACCENT_NAMES : b.accents,
+    defaultAccent: b.defaultAccent,
+  }
+}
+
+// Dostępne akcenty dla pary (layout, schemat). Puste = schemat stały (kontrolka
+// nieaktywna) albo layout bez osi (patrz `layoutHasAccentAxis`).
 export function accentsFor(layoutKey: string, schemeName?: string): AccentName[] {
-  if (!accentRecipes[layoutKey]) return []
-  return (schemeName && schemeAccents[layoutKey]?.[schemeName]) || ACCENT_NAMES
+  return axisInfo(layoutKey, schemeName).accents
+}
+
+// „Domyślny" akcent schematu (renderowany, gdy użytkownik nic nie wybrał).
+export function defaultAccentFor(layoutKey: string, schemeName?: string): AccentName | undefined {
+  return axisInfo(layoutKey, schemeName).defaultAccent
 }
 
 // Czy akcent jest dozwolony dla pary (layout, schemat) — do „przypięcia"
@@ -331,7 +375,7 @@ export const schemes: Record<string, LayoutSchemes> = { ogloszenie, gala, gosc, 
 
 // camelCase → --kebab; layout może dodać dowolną rolę bez zmiany resolvera.
 const roleToVar = (k: string): `--${string}` => `--${k.replace(/[A-Z]/g, (m) => `-${m.toLowerCase()}`)}`
-const NON_CSS = new Set(['sygnet', 'logoVariant'])
+const NON_CSS = new Set(['sygnet', 'logoVariant', 'accents', 'defaultAccent'])
 
 // Nazwy schematów danego layoutu w kolejności zapisu w `schemes.ts` = kolejność
 // swatchy na pasku kolorystyki. Pierwsza pozycja to schemat domyślny. Layout
@@ -346,9 +390,10 @@ function baseBlock(layout: LayoutSchemes): SchemeBlock {
   return layout.default ?? layout[Object.keys(layout)[0]] ?? {}
 }
 
-// Scala nazwany schemat nad blokiem bazowym layoutu, a następnie — gdy podano
-// `accent` i layout ma receptę — nadpisania z osi akcentu. Nieznany layout /
-// schemat → pusty wynik / sama baza.
+// Scala nazwany schemat nad blokiem bazowym layoutu, a następnie — dla schematu
+// z osią akcentu — nadpisania z recepty dla wybranego akcentu (a gdy nic nie
+// wybrano, dla `defaultAccent` schematu). Schemat stały (`accents` nieobecne)
+// renderuje się jak zapisany w bloku. Nieznany layout/schemat → pusty wynik.
 export function resolveScheme(
   layoutKey: string,
   name: string | undefined,
@@ -357,10 +402,13 @@ export function resolveScheme(
   const layout = schemes[layoutKey] ?? {}
   const merged: SchemeBlock = { ...baseBlock(layout), ...(name ? layout[name] ?? {} : {}) }
   const recipe = accentRecipes[layoutKey]
-  const withAccent: SchemeBlock = accent && recipe ? { ...merged, ...recipe(accent, merged) } : merged
+  const axis = axisInfo(layoutKey, name)
+  const effAccent = axis.accents.length ? (accent ?? axis.defaultAccent) : undefined
+  const withAccent: SchemeBlock =
+    effAccent && recipe ? { ...merged, ...recipe(effAccent, merged) } : merged
   const cssVars: Record<`--${string}`, string> = {}
   for (const [k, v] of Object.entries(withAccent)) {
-    if (v !== undefined && !NON_CSS.has(k)) cssVars[roleToVar(k)] = v
+    if (v !== undefined && !NON_CSS.has(k)) cssVars[roleToVar(k)] = v as string
   }
   return {
     cssVars,

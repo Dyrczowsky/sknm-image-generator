@@ -1,4 +1,4 @@
-import { ACCENT_DOT, ACCENT_LABELS, ACCENT_NAMES, SCHEME_LABELS, accentsFor, schemesFor } from '../posters/schemes'
+import { ACCENT_DOT, ACCENT_LABELS, ACCENT_NAMES, SCHEME_LABELS, accentsFor, layoutHasAccentAxis, schemesFor } from '../posters/schemes'
 import { PosterScaled } from './PosterScaled'
 import type { AccentName, RawPosterData, RegistryEntry } from '../types'
 
@@ -15,8 +15,9 @@ interface SchemeSelectorProps {
 }
 
 // Pasek kolorystyki (swatche schematów) + kontrolka koloru akcentu.
-// Swatche znikają dla layoutu z jednym schematem (Gala); kontrolka akcentu
-// jest zawsze widoczna, wyszarzona gdy layout nie ma wariantów akcentu (Data).
+// Swatche znikają dla layoutu z jednym schematem (Gala). Kontrolka akcentu
+// pokazuje się tylko dla layoutów z osią akcentu (nie „Data"); jest wyszarzona,
+// gdy wybrany schemat jest stały (np. „Jasny"/„Szary").
 export function SchemeSelector({
   poster, posterKey, selectedScheme, onSelectScheme, selectedAccent, onSelectAccent,
 }: SchemeSelectorProps) {
@@ -24,6 +25,7 @@ export function SchemeSelector({
   if (!posterKey || !SwatchComponent) return null
 
   const schemeList = schemesFor(posterKey)
+  const showAccent = layoutHasAccentAxis(posterKey)
   const accents = accentsFor(posterKey, selectedScheme)
   const accentEnabled = accents.length > 0
 
@@ -54,40 +56,42 @@ export function SchemeSelector({
         </div>
       )}
 
-      <div className="flex flex-col gap-2">
-        <span className="text-[0.8rem] font-semibold uppercase tracking-[0.04em] text-muted">
-          Akcent{!accentEnabled && ' — ten szablon nie ma wariantów akcentu'}
-        </span>
-        <div className={`flex flex-wrap items-center gap-2 ${accentEnabled ? '' : 'pointer-events-none opacity-40'}`}>
-          <button
-            type="button"
-            disabled={!accentEnabled}
-            aria-pressed={!selectedAccent}
-            className={`cursor-pointer rounded-full border-2 px-3 py-1 text-[0.72rem] ${
-              !selectedAccent ? 'border-accent text-fg' : 'border-border text-muted'
-            }`}
-            onClick={() => onSelectAccent(undefined)}
-          >
-            Domyślny
-          </button>
-          {(accentEnabled ? accents : ACCENT_NAMES).map((a) => (
+      {showAccent && (
+        <div className="flex flex-col gap-2">
+          <span className="text-[0.8rem] font-semibold uppercase tracking-[0.04em] text-muted">
+            Akcent{!accentEnabled && ' — ten schemat nie ma wariantów akcentu'}
+          </span>
+          <div className={`flex flex-wrap items-center gap-2 ${accentEnabled ? '' : 'pointer-events-none opacity-40'}`}>
             <button
-              key={a}
               type="button"
               disabled={!accentEnabled}
-              title={ACCENT_LABELS[a]}
-              aria-label={ACCENT_LABELS[a]}
-              aria-pressed={selectedAccent === a}
-              className={`flex h-7 w-7 cursor-pointer items-center justify-center rounded-full border-2 ${
-                selectedAccent === a ? 'border-accent' : 'border-transparent'
+              aria-pressed={!selectedAccent}
+              className={`cursor-pointer rounded-full border-2 px-3 py-1 text-[0.72rem] ${
+                !selectedAccent ? 'border-accent text-fg' : 'border-border text-muted'
               }`}
-              onClick={() => onSelectAccent(a)}
+              onClick={() => onSelectAccent(undefined)}
             >
-              <span className="block h-4 w-4 rounded-full ring-1 ring-black/10" style={{ background: ACCENT_DOT[a] }} />
+              Domyślny
             </button>
-          ))}
+            {(accentEnabled ? accents : ACCENT_NAMES).map((a) => (
+              <button
+                key={a}
+                type="button"
+                disabled={!accentEnabled}
+                title={ACCENT_LABELS[a]}
+                aria-label={ACCENT_LABELS[a]}
+                aria-pressed={selectedAccent === a}
+                className={`flex h-7 w-7 cursor-pointer items-center justify-center rounded-full border-2 ${
+                  selectedAccent === a ? 'border-accent' : 'border-transparent'
+                }`}
+                onClick={() => onSelectAccent(a)}
+              >
+                <span className="block h-4 w-4 rounded-full ring-1 ring-black/10" style={{ background: ACCENT_DOT[a] }} />
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }
