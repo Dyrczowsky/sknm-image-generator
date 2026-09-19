@@ -143,6 +143,7 @@ const konferencja: LayoutSchemes = {
     panel: colors.navy, panelText: colors.cream, headerBadge: colors.lime,
     lineFirst: colors.navy, lineRest: colors.creamMuted, footerBadge: colors.navy,
     sygnet: 'negatywny', logoVariant: 'light',
+    accents: ['zolty', 'pomaranczowy', 'granatowy'], defaultAccent: 'zolty',
   },
   czern: {
     pageBg: colors.black, pageText: colors.cream, mutedText: colors.creamMuted,
@@ -179,6 +180,7 @@ const rekrutacja: LayoutSchemes = {
     badgeColor: colors.lime,
     qrBorder: 'rgba(244,242,237,.55)', qrText: 'rgba(244,242,237,.75)',
     sygnet: 'granat', logoVariant: 'dark',
+    accents: ['zolty', 'pomaranczowy', 'granatowy'], defaultAccent: 'granatowy',
   },
   czern: {
     pageBg: colors.black, pageText: colors.cream,
@@ -217,6 +219,7 @@ const warsztat: LayoutSchemes = {
     pillFill: colors.lime, pillText: colors.limeText, slotBg: colors.cream,
     qrBorder: colors.placeholderBorder, qrText: colors.placeholderText,
     sygnet: 'granat', logoVariant: 'light',
+    accents: ['zolty', 'pomaranczowy', 'granatowy'], defaultAccent: 'zolty',
   },
   czern: {
     pageBg: colors.black, pageText: colors.cream, mutedText: colors.creamMuted,
@@ -241,11 +244,10 @@ const warsztat: LayoutSchemes = {
 // „granatowy" mógł zależeć od tła. Metal (zloty/srebrny) dokłada `sygnet`.
 // UWAGA: schemat może dostać oś (`accents`/`defaultAccent`) tylko wtedy, gdy
 // `recipe(defaultAccent, blok)` daje dokładnie to, co blok już ma wpisane —
-// inaczej „Domyślny" zmieni wygląd schematu. Dlatego `konferencja`/`warsztat`
-// `default` oraz `rekrutacja.limonka` NIE mają jeszcze osi: ich wbudowane role
-// akcentowe nie są jednolicie w jednym kolorze (odblokuje to refaktor „B" —
-// blok `default`/`czern` przestaje wpisywać akcent, recepta jest jedynym
-// źródłem).
+// inaczej „Domyślny" zmieni wygląd schematu. `konferencja`/`warsztat` (role
+// akcentowe niejednolite między jasnym `default` i ciemnym `czern`) rozwiązują
+// to recepturą zależną od jasności tła strony (`DARK_BGS`) — patrz komentarze
+// przy tych recepturach.
 type AccentRecipe = (accent: AccentName, ctx: SchemeBlock) => SchemeBlock
 
 const DARK_BGS = new Set<string>([colors.black, colors.ink, colors.navy, colors.inkPanel, colors.navyDark, colors.grayDark])
@@ -286,16 +288,31 @@ const accentRecipes: Record<string, AccentRecipe | undefined> = {
     return { badgeFill: c, badgeText: t, speaker: c, chips: c, ...accentSygnet(a) }
   },
 
+  // `headerBadge` (w panelu, zawsze ciemnym) niesie akcent niezależnie od tła
+  // strony. `lineFirst`/`footerBadge` niosą akcent tylko na ciemnym tle strony
+  // (jak `czern`) — na jasnym tle (`default`) zostają stałym granatem, bo
+  // akcent (żółty/koralowy) jako kreska/kropka na kremie wygląda gorzej niż
+  // granat i tak wyglądało to dotychczas w `default`.
   konferencja: (a, ctx) => {
-    const onPage = accentColor(a, ctx)
     const onPanel = accentColor(a, { ...ctx, pageBg: ctx.panel })
-    return { headerBadge: onPanel, lineFirst: onPage, footerBadge: onPage, ...accentSygnet(a) }
+    const onLine = DARK_BGS.has(ctx.pageBg ?? '') ? accentColor(a, ctx) : colors.navy
+    return { headerBadge: onPanel, lineFirst: onLine, footerBadge: onLine, ...accentSygnet(a) }
   },
 
+  // `pillFill`/`pillText` zawsze niosą akcent. `badgeFill`/`badgeText` niosą
+  // akcent tylko na ciemnym tle strony (jak `czern`) — na jasnym tle
+  // (`default`) zostają stałą parą granat/limonka, jak dotychczas.
   warsztat: (a, ctx) => {
     const c = accentColor(a, ctx)
     const t = a === 'zloty' || a === 'srebrny' ? colors.ink : accentText(a)
-    return { badgeFill: c, badgeText: t, pillFill: c, pillText: t, ...accentSygnet(a) }
+    const dark = DARK_BGS.has(ctx.pageBg ?? '')
+    return {
+      badgeFill: dark ? c : colors.navy,
+      badgeText: dark ? t : colors.lime,
+      pillFill: c,
+      pillText: t,
+      ...accentSygnet(a),
+    }
   },
 
   rekrutacja: (a, ctx) => {
@@ -304,7 +321,9 @@ const accentRecipes: Record<string, AccentRecipe | undefined> = {
     return {
       band: c,
       footerText: a === 'srebrny' || a === 'zloty' ? colors.ink : lightBand ? colors.limeText : colors.cream,
-      badgeColor: a === 'srebrny' ? colors.ink : lightBand ? colors.black : colors.cream,
+      // "wycięcie" plakietki w kolorze tła strony — na jasnym tle (limonka)
+      // daje limonkę, na ciemnym (czern) daje czerń, jak dotychczas.
+      badgeColor: a === 'srebrny' ? colors.ink : (ctx.pageBg ?? colors.cream),
       qrBorder: lightBand ? 'rgba(18,18,18,.4)' : 'rgba(244,242,237,.55)',
       qrText: lightBand ? 'rgba(18,18,18,.6)' : 'rgba(244,242,237,.75)',
       logoVariant: lightBand ? 'light' : 'dark',

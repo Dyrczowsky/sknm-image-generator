@@ -79,13 +79,14 @@ describe('oś akcentu — dostępność per schemat', () => {
       expect(accentsFor(l, 'czern')).toEqual(ACCENT_NAMES)
       expect(defaultAccentFor(l, 'czern')).toBe('zolty')
     }
-    // stałe schematy (jasny/szary/limonka) — brak `accents`
+    // stałe schematy (jasny/szary) — brak `accents`
     expect(accentsFor('ogloszenie', 'jasny')).toEqual([])
     expect(accentsFor('ogloszenie', 'szary')).toEqual([])
-    expect(accentsFor('rekrutacja', 'limonka')).toEqual([])
-    // „Granat" (default) — oś tam, gdzie recepta zolty == blok (ogloszenie/wyklad/gosc)
+    // „Granat"/„Limonka" (default/limonka) — oś tam, gdzie recepta zolty/granatowy == blok
     expect(accentsFor('ogloszenie', 'default')).toEqual(['zolty', 'pomaranczowy', 'granatowy'])
-    expect(accentsFor('konferencja', 'default')).toEqual([]) // jeszcze stały (patrz komentarz w schemes.ts)
+    expect(accentsFor('konferencja', 'default')).toEqual(['zolty', 'pomaranczowy', 'granatowy'])
+    expect(accentsFor('warsztat', 'default')).toEqual(['zolty', 'pomaranczowy', 'granatowy'])
+    expect(accentsFor('rekrutacja', 'limonka')).toEqual(['zolty', 'pomaranczowy', 'granatowy'])
   })
   it('Gala: jedyny schemat `default` ma oś (accents: all)', () => {
     expect(accentsFor('gala', 'default')).toEqual(ACCENT_NAMES)
@@ -175,10 +176,17 @@ describe('resolveScheme — z akcentem', () => {
     expect(resolveScheme('ogloszenie', 'default', undefined).cssVars['--accent']).toBe(colors.lime)
     expect(resolveScheme('wyklad', 'default', undefined).cssVars['--badge-fill']).toBe(colors.lime)
     expect(resolveScheme('gosc', 'default', undefined).cssVars['--accent']).toBe(colors.navy)
-    // konferencja/warsztat.default zostają stałe (brak osi)
-    expect(accentsFor('konferencja', 'default')).toEqual([])
-    expect(accentsFor('warsztat', 'default')).toEqual([])
-    expect(accentsFor('rekrutacja', 'limonka')).toEqual([])
+    // konferencja/warsztat.default i rekrutacja.limonka: „Domyślny" renderuje
+    // dokładnie to, co blok miał wpisane na sztywno przed dołożeniem osi.
+    expect(resolveScheme('konferencja', 'default', undefined).cssVars['--header-badge']).toBe(colors.lime)
+    expect(resolveScheme('konferencja', 'default', undefined).cssVars['--line-first']).toBe(colors.navy)
+    expect(resolveScheme('konferencja', 'default', undefined).cssVars['--footer-badge']).toBe(colors.navy)
+    expect(resolveScheme('warsztat', 'default', undefined).cssVars['--badge-fill']).toBe(colors.navy)
+    expect(resolveScheme('warsztat', 'default', undefined).cssVars['--badge-text']).toBe(colors.lime)
+    expect(resolveScheme('warsztat', 'default', undefined).cssVars['--pill-fill']).toBe(colors.lime)
+    expect(resolveScheme('warsztat', 'default', undefined).cssVars['--pill-text']).toBe(colors.limeText)
+    expect(resolveScheme('rekrutacja', 'limonka', undefined).cssVars['--band']).toBe(colors.navy)
+    expect(resolveScheme('rekrutacja', 'limonka', undefined).cssVars['--badge-color']).toBe(colors.lime)
   })
 
   it('brak wybranego akcentu → renderuje defaultAccent schematu', () => {
@@ -205,6 +213,23 @@ describe('resolveScheme — z akcentem', () => {
     expect(resolveScheme('rekrutacja', 'czern', 'zloty').cssVars['--band']).toBe(colors.gold)
     expect(resolveScheme('rekrutacja', 'czern', 'zloty').logoVariant).toBe('light')
     expect(resolveScheme('rekrutacja', 'czern', 'zloty').sygnet).toBe('zloty')
+  })
+
+  it('Konferencja/Warsztat default: header/pill śledzą akcent, line/badge stałe na jasnym tle', () => {
+    const kon = resolveScheme('konferencja', 'default', 'pomaranczowy')
+    expect(kon.cssVars['--header-badge']).toBe(colors.coral)
+    expect(kon.cssVars['--line-first']).toBe(colors.navy)      // jasne tło → stałe, nie akcent
+    expect(kon.cssVars['--footer-badge']).toBe(colors.navy)
+    const wa = resolveScheme('warsztat', 'default', 'pomaranczowy')
+    expect(wa.cssVars['--pill-fill']).toBe(colors.coral)
+    expect(wa.cssVars['--badge-fill']).toBe(colors.navy)       // jasne tło → stałe, nie akcent
+    expect(wa.cssVars['--badge-text']).toBe(colors.lime)
+  })
+
+  it('Rekrutacja limonka × akcent: badgeColor = tło strony (limonka)', () => {
+    const rek = resolveScheme('rekrutacja', 'limonka', 'pomaranczowy')
+    expect(rek.cssVars['--band']).toBe(colors.coral)
+    expect(rek.cssVars['--badge-color']).toBe(colors.lime)
   })
 
   it('data ignoruje akcent (brak recepty)', () => {
