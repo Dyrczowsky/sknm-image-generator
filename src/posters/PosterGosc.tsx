@@ -14,14 +14,13 @@ import type { PosterProps } from '../types'
 
 // GOŚĆ — zdjęcie + pas
 export function PosterGosc({ data, scheme, accent }: PosterProps) {
-  const { title, speaker, event_date, event_time, location, badge, graphics, showPkLogo, qrUrl, colors: co, photos, hidden, fx } = withPlaceholders(data)
+  const { title, speaker, event_date, event_time, location, badge, graphics, showPkLogo, qrUrl, photos, hidden, fx } = withPlaceholders(data)
   const s = resolveScheme('gosc', scheme, accent)
   const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
 
-  // Nadpisania kolorów z formularza (pusty = wartość ze schematu / literał).
-  const boxBg = co.goscBoxBg || colors.coral
-  const boxText = co.goscBoxText || colors.cream
-  const textColor = co.goscTextColor || 'var(--accent)'
+  const boxBg = colors.coral
+  const boxText = colors.cream
+  const textColor = 'var(--accent)'
 
   return (
     <PosterFrame vars={s.cssVars}>

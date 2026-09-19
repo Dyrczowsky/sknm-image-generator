@@ -79,18 +79,6 @@ schematem. Który schemat ma oś akcentu — mówi sam blok schematu (pola `acce
 recepty) nie ma osi w ogóle. Wybór jest kodowany w kolumnie `color_scheme` jako
 `schemat~akcent` (helpery `encodeScheme`/`decodeScheme` w `utils/colorScheme.ts`).
 
-## Nadpisania kolorów per szablon
-
-Poza schematem użytkownik może nadpisać wybrane kolory pojedynczych elementów.
-Stan siedzi w `FormValues.colors` (mapa `FormColorField` → hex, pusty wpis =
-wartość ze schematu), sterowany klockiem `forms/ColorField.tsx` (próbnik +
-„Wyczyść"). Plakat bierze wartość z fallbackiem: `co.goscBoxBg || colors.coral`.
-Obecnie tylko Gość (`goscBoxBg`, `goscBoxText`, `goscTextColor`). Niezapisywane
-w draftcie - jak grafiki stopki.
-
-Kolor kodu QR NIE jest tu - idzie wyłącznie ze schematu (rola `qr`, fallback
-`var(--page-text)`), bez kontrolki w edytorze.
-
 ## Baza / wersjonowanie
 
 - `SCHEMA_VERSION` w `src/db/schema.ts` - podbij przy zmianie kształtu tabel;

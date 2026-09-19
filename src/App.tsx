@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { Database } from 'sql.js'
-import type { AccentName, FormValues, FormTextField, FormColorField, HistoryRow, TemplateRow } from './types'
+import type { AccentName, FormValues, FormTextField, HistoryRow, TemplateRow } from './types'
 import { getDb } from './db/client'
 import { listTemplates } from './db/templates'
 import { getDraft, saveDraft, parseVisibility } from './db/drafts'
@@ -32,7 +32,6 @@ const EMPTY_FORM: FormValues = {
   graphics: [],
   showPkLogo: true,
   qrUrl: '',
-  colors: {},
   photos: {},
   lists: {},
 }
@@ -85,7 +84,6 @@ function App() {
           graphics: [],
           showPkLogo: true,
           qrUrl: '',
-          colors: {},
           photos: {},
           lists: {},
         })
@@ -184,18 +182,6 @@ function App() {
   const handleQrUrlChange = (value: string) => {
     setForm((prev) => {
       const next = { ...prev, qrUrl: value }
-      persistDraft(next, selectedTemplateId, selectedScheme, selectedAccent)
-      return next
-    })
-  }
-
-  // Nadpisanie koloru per szablon; pusty string = usunięcie nadpisania.
-  const handleColorChange = (name: FormColorField, value: string) => {
-    setForm((prev) => {
-      const nextColors = { ...prev.colors }
-      if (value) nextColors[name] = value
-      else delete nextColors[name]
-      const next = { ...prev, colors: nextColors }
       persistDraft(next, selectedTemplateId, selectedScheme, selectedAccent)
       return next
     })
@@ -302,7 +288,6 @@ function App() {
       graphics: [],
       showPkLogo: true,
       qrUrl: '',
-      colors: {},
       photos: {},
       lists: {},
     }
@@ -387,7 +372,6 @@ function App() {
                 onGraphicMove={handleGraphicMove}
                 onShowPkChange={handleShowPkChange}
                 onQrUrlChange={handleQrUrlChange}
-                onColorChange={handleColorChange}
                 onPhotoAdd={handlePhotoAdd}
                 onPhotoChangeAt={handlePhotoChangeAt}
                 onPhotoPositionChangeAt={handlePhotoPositionChangeAt}
