@@ -8,7 +8,7 @@ w rejestrze, w `schemes.ts`, w bazie i w URL-u podglądu. Komponenty to
 
 ## 1. Komponent plakatu — `src/posters/PosterPiknik.tsx`
 
-Plakat dostaje `PosterProps` (`{ data, scheme, accent }`), uzupełnia dane placeholderami
+Plakat dostaje `PosterProps` (`{ data, scheme, accent, lang }`), uzupełnia dane placeholderami
 i rozwiązuje schemat kolorów. Kontener to zawsze `PosterFrame` (1080×1080).
 
 ```tsx
@@ -22,7 +22,7 @@ import { QR_SLOT_H } from './theme'
 import { sygnetByName } from './logos'
 import type { PosterProps } from '../types'
 
-export function PosterPiknik({ data, scheme, accent }: PosterProps) {
+export function PosterPiknik({ data, scheme, accent, lang }: PosterProps) {
   const { title, subtitle, event_date, location, graphics, showPkLogo, qrUrl } = withPlaceholders(data)
   const s = resolveScheme('piknik', scheme, accent)
   // null = domyślne logo PK (fallback), string = hurtowo wgrana grafika

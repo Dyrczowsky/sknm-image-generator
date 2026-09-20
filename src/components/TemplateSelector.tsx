@@ -1,6 +1,6 @@
 import { posterRegistry } from '../posters/registry'
 import { PosterScaled } from './PosterScaled'
-import type { RawPosterData, TemplateRow } from '../types'
+import type { PosterLang, RawPosterData, TemplateRow } from '../types'
 
 const THUMB_SIZE = 180
 
@@ -8,6 +8,7 @@ interface TemplateSelectorProps {
   templates: TemplateRow[]
   selectedId: number | null
   onSelect: (id: number) => void
+  lang?: PosterLang
 }
 
 // Miniatury zawsze pokazują dane przykładowe (placeholder) - nie muszą się
@@ -15,7 +16,7 @@ interface TemplateSelectorProps {
 // Wybór kolorystyki jest osobno, pod podglądem (SchemeSelector).
 const THUMB_DATA: RawPosterData = {}
 
-export function TemplateSelector({ templates, selectedId, onSelect }: TemplateSelectorProps) {
+export function TemplateSelector({ templates, selectedId, onSelect, lang }: TemplateSelectorProps) {
   return (
     <div className="flex flex-wrap gap-3.5">
       {templates.map((tpl) => {
@@ -34,7 +35,7 @@ export function TemplateSelector({ templates, selectedId, onSelect }: TemplateSe
           >
             <div className="overflow-hidden rounded-md shadow-[0_1px_2px_rgba(0,0,0,0.12)]">
               <PosterScaled size={THUMB_SIZE}>
-                <Component data={THUMB_DATA} scheme={undefined} />
+                <Component data={THUMB_DATA} scheme={undefined} lang={lang} />
               </PosterScaled>
             </div>
             <span>{entry.name}</span>

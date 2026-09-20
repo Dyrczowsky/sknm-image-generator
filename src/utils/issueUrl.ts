@@ -16,6 +16,7 @@ export interface BugContextInput {
   posterKey?: string
   schemeKey?: string
   schemeLabel?: string
+  lang?: string
   form: FormValues
   appUrl: string
   userAgent: string
@@ -77,6 +78,7 @@ export function formatBugContext(input: BugContextInput): string {
     '',
     `- **Szablon:** ${template}`,
     `- **Schemat:** ${scheme}`,
+    `- **Język plakatu:** ${input.lang ?? 'pl'}`,
     `- **Pola:** ${fieldsSummary(input.form)}`,
     `- **Ukryte pola:** ${hiddenSummary(input.form)}`,
     `- **QR:** ${qr}`,

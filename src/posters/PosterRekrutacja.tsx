@@ -30,7 +30,9 @@ export function PosterRekrutacja({ data, scheme, accent, lang }: PosterProps) {
           {title}
         </div>
         <div style={{ fontSize: 38, fontWeight: 600, lineHeight: 1.3, color: 'var(--sub-color)', ...fx('subtitle') }}>
-          {subtitle || 'Seminaria, konkursy, wyjazdy i własne projekty badawcze. Każdy rok studiów, każdy wydział.'}
+          {subtitle || (lang === 'en'
+            ? 'Seminars, competitions, trips, and our own research projects. Every year of study, every faculty.'
+            : 'Seminaria, konkursy, wyjazdy i własne projekty badawcze. Każdy rok studiów, każdy wydział.')}
         </div>
       </div>
 

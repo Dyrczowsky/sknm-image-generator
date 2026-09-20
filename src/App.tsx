@@ -338,6 +338,7 @@ function App() {
     posterKey: selectedTemplate?.poster_key,
     schemeKey: encodeScheme(selectedScheme, selectedAccent),
     schemeLabel: selectedScheme ? SCHEME_LABELS[selectedScheme] : undefined,
+    lang,
     form,
     appUrl: window.location.href,
     userAgent: navigator.userAgent,
@@ -380,7 +381,7 @@ function App() {
         <div className="flex flex-col min-[900px]:mt-5 min-[900px]:grid min-[900px]:grid-cols-[1fr_460px] min-[900px]:items-start min-[900px]:gap-6 min-[900px]:[grid-template-areas:'template_preview''form_preview''actions_preview''history_preview']">
           <section className={`${panel} min-[900px]:[grid-area:template]`}>
             <h2 className={panelHeading}>1. Wybierz szablon</h2>
-            <TemplateSelector templates={templates} selectedId={selectedTemplateId} onSelect={handleSelectTemplate} />
+            <TemplateSelector templates={templates} selectedId={selectedTemplateId} onSelect={handleSelectTemplate} lang={lang} />
           </section>
 
           <section className={`${panel} min-[900px]:[grid-area:form]`}>
