@@ -74,6 +74,7 @@ export interface HistoryRow {
 export type SygnetName = 'negatywny' | 'granat' | 'zloty' | 'szary' | 'czarny' | 'srebrny'
 export type LogoVariant = 'light' | 'dark'
 export type AccentName = 'zolty' | 'pomaranczowy' | 'granatowy' | 'zloty' | 'srebrny'
+export type PosterLang = 'pl' | 'en'
 
 export interface ResolvedScheme {
   cssVars: Record<`--${string}`, string>
@@ -86,7 +87,7 @@ export interface ResolvedScheme {
 // opcjonalne i null-tolerancyjne. HistoryRow wpasowuje się tu strukturalnie
 // (pola tekstowe pokrywają się, nadmiarowe kolumny nie przeszkadzają).
 export type RawPosterData = { [K in keyof FormValues]?: FormValues[K] | null }
-export interface PosterProps { data: RawPosterData; scheme?: string; accent?: AccentName }
+export interface PosterProps { data: RawPosterData; scheme?: string; accent?: AccentName; lang?: PosterLang }
 
 export interface FormProps {
   value: FormValues
