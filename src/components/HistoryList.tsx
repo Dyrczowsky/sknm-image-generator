@@ -2,7 +2,7 @@ import { posterRegistry } from '../posters/registry'
 import { ACCENT_LABELS, SCHEME_LABELS } from '../posters/schemes'
 import { decodeScheme } from '../utils/colorScheme'
 import { PosterScaled } from './PosterScaled'
-import type { HistoryRow } from '../types'
+import type { HistoryRow, PosterLang } from '../types'
 
 const THUMB_SIZE = 120
 
@@ -10,9 +10,10 @@ interface HistoryListProps {
   entries: HistoryRow[]
   onRestore: (entry: HistoryRow) => void
   onDelete: (id: number) => void
+  lang?: PosterLang
 }
 
-export function HistoryList({ entries, onRestore, onDelete }: HistoryListProps) {
+export function HistoryList({ entries, onRestore, onDelete, lang }: HistoryListProps) {
   if (entries.length === 0) {
     return <p className="text-muted">Brak wygenerowanych obrazów.</p>
   }
@@ -35,7 +36,7 @@ export function HistoryList({ entries, onRestore, onDelete }: HistoryListProps) 
             <div className="flex-none overflow-hidden rounded-md shadow-[0_1px_2px_rgba(0,0,0,0.12)]">
               {Component ? (
                 <PosterScaled size={THUMB_SIZE}>
-                  <Component data={entry} scheme={entryScheme} accent={entryAccent} />
+                  <Component data={entry} scheme={entryScheme} accent={entryAccent} lang={lang} />
                 </PosterScaled>
               ) : (
                 <div className="bg-border" style={{ width: THUMB_SIZE, height: THUMB_SIZE }} />

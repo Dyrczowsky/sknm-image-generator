@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { Database } from 'sql.js'
-import type { AccentName, FormValues, FormTextField, HistoryRow, TemplateRow } from './types'
+import type { AccentName, FormValues, FormTextField, HistoryRow, PosterLang, TemplateRow } from './types'
 import { getDb } from './db/client'
 import { listTemplates } from './db/templates'
 import { getDraft, saveDraft, parseVisibility } from './db/drafts'
@@ -11,6 +11,7 @@ import { MAX_GRAPHICS } from './posters/theme'
 import { downloadPosterAsPng, EXPORT_FORMATS } from './posters/export'
 import { TemplateSelector } from './components/TemplateSelector'
 import { SchemeSelector } from './components/SchemeSelector'
+import { LangToggle } from './components/LangToggle'
 import { PosterPreview } from './components/PosterPreview'
 import { HistoryList } from './components/HistoryList'
 import { TicketDialog } from './components/TicketDialog'
@@ -18,6 +19,16 @@ import { FloatingReportButton } from './components/FloatingReportButton'
 import { SiteFooter } from './components/SiteFooter'
 import { encodeScheme, decodeScheme } from './utils/colorScheme'
 import type { BugContextInput } from './utils/issueUrl'
+
+const LANG_STORAGE_KEY = 'sknm-poster-lang'
+
+function loadStoredLang(): PosterLang {
+  try {
+    return localStorage.getItem(LANG_STORAGE_KEY) === 'en' ? 'en' : 'pl'
+  } catch {
+    return 'pl'
+  }
+}
 
 const EMPTY_FORM: FormValues = {
   title: '',
@@ -55,6 +66,7 @@ function App() {
   const [selectedTemplateId, setSelectedTemplateId] = useState<number | null>(null)
   const [selectedScheme, setSelectedScheme] = useState<string | undefined>(undefined)
   const [selectedAccent, setSelectedAccent] = useState<AccentName | undefined>(undefined)
+  const [lang, setLang] = useState<PosterLang>(loadStoredLang)
   const [form, setForm] = useState<FormValues>(EMPTY_FORM)
   const [history, setHistory] = useState<HistoryRow[]>([])
   const [exportFormat, setExportFormat] = useState('square')
@@ -102,6 +114,14 @@ function App() {
       cancelled = true
     }
   }, [])
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(LANG_STORAGE_KEY, lang)
+    } catch {
+      // localStorage niedostępny (np. tryb prywatny) — język zostaje tylko w pamięci sesji.
+    }
+  }, [lang])
 
   const persistDraft = useCallback(
     (
@@ -349,7 +369,10 @@ function App() {
   return (
     <>
       <main className={shell}>
-        <h1 className="mb-2 text-[1.6rem] font-bold">Generator plakatów SKNM</h1>
+        <div className="mb-2 flex flex-wrap items-center justify-between gap-3">
+          <h1 className="text-[1.6rem] font-bold">Generator plakatów SKNM</h1>
+          <LangToggle value={lang} onChange={setLang} />
+        </div>
 
         {/* Do 900px sekcje płyną jedna pod drugą w kolejności DOM. Od 900px
             grid-template-areas robi dwie kolumny: lewa to szablon/formularz/
@@ -406,7 +429,7 @@ function App() {
 
           <section className={`${panel} min-[900px]:sticky min-[900px]:top-5 min-[900px]:[grid-area:preview]`}>
             <h2 className={panelHeading}>Podgląd</h2>
-            <PosterPreview posterRef={posterRef} Component={selectedPoster?.Component} data={form} scheme={selectedScheme} accent={selectedAccent} />
+            <PosterPreview posterRef={posterRef} Component={selectedPoster?.Component} data={form} scheme={selectedScheme} accent={selectedAccent} lang={lang} />
             <SchemeSelector
               poster={selectedPoster}
               posterKey={selectedTemplate?.poster_key}
@@ -414,12 +437,13 @@ function App() {
               onSelectScheme={handleSelectScheme}
               selectedAccent={selectedAccent}
               onSelectAccent={handleSelectAccent}
+              lang={lang}
             />
           </section>
 
           <section className={`${panel} min-[900px]:[grid-area:history]`}>
             <h2 className={panelHeading}>Historia</h2>
-            <HistoryList entries={history} onRestore={handleRestoreHistoryEntry} onDelete={handleDeleteHistoryEntry} />
+            <HistoryList entries={history} onRestore={handleRestoreHistoryEntry} onDelete={handleDeleteHistoryEntry} lang={lang} />
           </section>
         </div>
         <SiteFooter onRequestClick={() => setTicket('request')} />

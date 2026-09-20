@@ -1,5 +1,5 @@
 import type { ComponentType, RefObject } from 'react'
-import type { AccentName, PosterProps, RawPosterData } from '../types'
+import type { AccentName, PosterLang, PosterProps, RawPosterData } from '../types'
 import { PosterScaled } from './PosterScaled'
 
 const PREVIEW_SIZE = 420
@@ -10,16 +10,17 @@ interface PosterPreviewProps {
   data: RawPosterData
   scheme?: string
   accent?: AccentName
+  lang?: PosterLang
 }
 
 // Podgląd na żywo - aktualizuje się automatycznie przy każdej zmianie
 // formularza, szablonu lub schematu kolorów (bez przycisku "Generuj").
-export function PosterPreview({ posterRef, Component, data, scheme, accent }: PosterPreviewProps) {
+export function PosterPreview({ posterRef, Component, data, scheme, accent, lang }: PosterPreviewProps) {
   if (!Component) return null
   return (
     <div className="w-fit overflow-hidden rounded-[10px] border border-border shadow-[0_4px_16px_rgba(0,0,0,0.12)]">
       <PosterScaled ref={posterRef} size={PREVIEW_SIZE}>
-        <Component data={data} scheme={scheme} accent={accent} />
+        <Component data={data} scheme={scheme} accent={accent} lang={lang} />
       </PosterScaled>
     </div>
   )

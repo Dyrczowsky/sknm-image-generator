@@ -1,6 +1,6 @@
 import { ACCENT_DOT, ACCENT_LABELS, ACCENT_NAMES, SCHEME_LABELS, accentsFor, defaultAccentFor, layoutHasAccentAxis, schemesFor } from '../posters/schemes'
 import { PosterScaled } from './PosterScaled'
-import type { AccentName, RawPosterData, RegistryEntry } from '../types'
+import type { AccentName, PosterLang, RawPosterData, RegistryEntry } from '../types'
 
 const SWATCH_SIZE = 64
 const THUMB_DATA: RawPosterData = {}
@@ -12,6 +12,7 @@ interface SchemeSelectorProps {
   onSelectScheme: (name: string) => void
   selectedAccent: AccentName | undefined
   onSelectAccent: (accent: AccentName | undefined) => void
+  lang?: PosterLang
 }
 
 // Pasek kolorystyki (swatche schematów) + kontrolka koloru akcentu.
@@ -19,7 +20,7 @@ interface SchemeSelectorProps {
 // pokazuje się tylko dla layoutów z osią akcentu (nie „Data"); jest wyszarzona,
 // gdy wybrany schemat jest stały (np. „Jasny"/„Szary").
 export function SchemeSelector({
-  poster, posterKey, selectedScheme, onSelectScheme, selectedAccent, onSelectAccent,
+  poster, posterKey, selectedScheme, onSelectScheme, selectedAccent, onSelectAccent, lang,
 }: SchemeSelectorProps) {
   const SwatchComponent = poster?.Component
   if (!posterKey || !SwatchComponent) return null
@@ -47,7 +48,7 @@ export function SchemeSelector({
               >
                 <div className="overflow-hidden rounded-[5px] shadow-[0_1px_2px_rgba(0,0,0,0.12)]">
                   <PosterScaled size={SWATCH_SIZE}>
-                    <SwatchComponent data={THUMB_DATA} scheme={name} />
+                    <SwatchComponent data={THUMB_DATA} scheme={name} lang={lang} />
                   </PosterScaled>
                 </div>
                 <span>{SCHEME_LABELS[name] ?? name}</span>
