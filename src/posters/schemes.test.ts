@@ -276,8 +276,10 @@ describe('resolveScheme — z akcentem', () => {
     expect(resolveScheme('rekrutacja', 'czern', 'granatowy').cssVars['--band']).toBe(colors.navyLight)
     expect(resolveScheme('rekrutacja', 'czern', 'granatowy').logoVariant).toBe('dark')
     expect(resolveScheme('rekrutacja', 'czern', 'zloty').cssVars['--band']).toBe(colors.gold)
-    expect(resolveScheme('rekrutacja', 'czern', 'zloty').logoVariant).toBe('light')
+    // złoto jest za ciemne na kolorowe logo PK / ciemny QR-obrys -> jak granatowy
+    expect(resolveScheme('rekrutacja', 'czern', 'zloty').logoVariant).toBe('dark')
     expect(resolveScheme('rekrutacja', 'czern', 'zloty').sygnet).toBe('zloty')
+    expect(resolveScheme('rekrutacja', 'czern', 'srebrny').logoVariant).toBe('light')
   })
 
   it('Konferencja default: header śledzi akcent, line/footer-badge stałe na jasnym tle', () => {

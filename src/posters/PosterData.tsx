@@ -1,4 +1,4 @@
-import { colors, fontMono, QR_SLOT_H } from './theme'
+import { fontMono, QR_SLOT_H } from './theme'
 import { sygnetByName } from './logos'
 import { resolveScheme } from './schemes'
 import { LogoSlots } from './blocks/LogoSlots'
@@ -30,7 +30,7 @@ export function PosterData({ data, scheme, accent }: PosterProps) {
           {getDay(event_date)}
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8, paddingLeft: 28, paddingTop: 40 }}>
-          <div style={{ fontSize: 96, fontWeight: 800, lineHeight: 0.9, color: colors.coral, letterSpacing: '-.03em', ...fx('event_date') }}>
+          <div style={{ fontSize: 96, fontWeight: 800, lineHeight: 0.9, color: 'var(--month-color)', letterSpacing: '-.03em', ...fx('event_date') }}>
             {getMonthShort(event_date, { upperCase: true })}
           </div>
           <div style={{ font: `700 26px ${fontMono}`, letterSpacing: '.1em', ...fx('event_time') }}>{event_time}</div>

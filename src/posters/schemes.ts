@@ -12,7 +12,7 @@ export type Role =
   | 'lineFirst' | 'lineRest'
   | 'band' | 'subColor' | 'footerText'
   | 'pillFill' | 'pillText' | 'slotBg' | 'qr' | 'qrBorder' | 'qrText'
-  | 'tri1' | 'tri2' | 'tri3'
+  | 'tri1' | 'tri2' | 'tri3' | 'monthColor'
   | 'dateBg' | 'dateText'
 
 // Blok jednego schematu: podzbiór ról + opcjonalny sygnet/logoVariant + (dla
@@ -88,24 +88,28 @@ const gosc: LayoutSchemes = {
                  logoVariant: 'dark', accents: ['zloty', 'srebrny'], defaultAccent: 'zloty' },
 }
 
-// Data — liczba jako grafika. Etykieta miesiąca jest koralowa we wszystkich
-// pięciu wariantach, więc zostaje literałem w komponencie (nie rolą). Trzy
-// dekoracyjne trójkąty na dole to role `tri1`/`tri2`/`tri3`. Data zachowuje
-// osobne schematy złoto/srebro (`okazjonalny*`) i NIE ma osi akcentu
-// (`accentRecipes.data = undefined`, `accentsFor('data') → []`). Brak
-// schematu `jasny` (usunięty).
+// Data — liczba jako grafika. Etykieta miesiąca to rola `monthColor` (koral
+// domyślnie; złoto/srebro w wariantach okazjonalnych). Trzy dekoracyjne
+// trójkąty na dole to role `tri1`/`tri2`/`tri3` — w wariantach okazjonalnych
+// wszystkie trzy niosą metal (jednolita, uroczysta paleta), gdzie indziej mają
+// osobne kolory. Data zachowuje osobne schematy złoto/srebro (`okazjonalny*`)
+// i NIE ma osi akcentu (`accentRecipes.data = undefined`, `accentsFor('data')
+// → []`). Brak schematu `jasny` (usunięty).
 const data: LayoutSchemes = {
   default: { pageBg: colors.cream, pageText: colors.navy, mutedText: colors.textMuted,
              title: colors.ink, tri1: colors.navy, tri2: colors.lime, tri3: colors.coral,
+             monthColor: colors.coral,
              sygnet: 'granat', logoVariant: 'light' },
   czern: { pageBg: colors.black, pageText: colors.cream, mutedText: colors.creamMuted,
            title: colors.cream, tri1: colors.lime, tri2: colors.coral, tri3: colors.cream,
            sygnet: 'negatywny', logoVariant: 'dark' },
   okazjonalnyZloty: { pageBg: colors.ink, pageText: colors.goldPanelText, mutedText: colors.creamMuted,
-           title: colors.cream, tri1: colors.gold, tri2: colors.coral, tri3: colors.cream,
+           title: colors.cream, tri1: colors.gold, tri2: colors.gold, tri3: colors.gold,
+           monthColor: colors.gold,
            sygnet: 'zloty', logoVariant: 'dark' },
   okazjonalnySrebrny: { pageBg: colors.ink, pageText: colors.goldPanelText, mutedText: colors.creamMuted,
-           title: colors.cream, tri1: colors.silver, tri2: colors.coral, tri3: colors.cream,
+           title: colors.cream, tri1: colors.silver, tri2: colors.silver, tri3: colors.silver,
+           monthColor: colors.silver,
            sygnet: 'srebrny', logoVariant: 'dark' },
   szary: { pageBg: colors.paper, pageText: colors.slate, title: colors.slate,
            tri1: colors.grayDark, tri2: colors.gray, sygnet: 'szary' },
@@ -351,7 +355,11 @@ const accentRecipes: Record<string, AccentRecipe | undefined> = {
 
   rekrutacja: (a, ctx) => {
     const c = accentColor(a, ctx)
-    const lightBand = a === 'zolty' || a === 'pomaranczowy' || a === 'zloty' || a === 'srebrny'
+    // `lightBand` = banda na tyle jasna, że kolorowe (domyślne) logo PK i
+    // ciemny QR-obrys na niej czytelne. Złoto (`zloty`, brąz-oliwka) jest ZA
+    // CIEMNE na to — dostaje traktowanie jak `granatowy` (logo negatywne,
+    // jasny QR-obrys), inaczej niż jasne srebro.
+    const lightBand = a === 'zolty' || a === 'pomaranczowy' || a === 'srebrny'
     return {
       band: c,
       footerText: a === 'srebrny' || a === 'zloty' ? colors.ink : lightBand ? colors.limeText : colors.cream,
