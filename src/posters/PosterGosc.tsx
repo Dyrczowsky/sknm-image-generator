@@ -1,4 +1,4 @@
-import { colors, fontMono, QR_SLOT_H } from './theme'
+import { fontMono, QR_SLOT_H } from './theme'
 import { sygnetByName } from './logos'
 import { resolveScheme } from './schemes'
 import { LogoSlots } from './blocks/LogoSlots'
@@ -18,15 +18,15 @@ export function PosterGosc({ data, scheme, accent }: PosterProps) {
   const s = resolveScheme('gosc', scheme, accent)
   const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
 
-  const boxBg = colors.coral
-  const boxText = colors.cream
+  const boxBg = 'var(--date-bg)'
+  const boxText = 'var(--date-text)'
   const textColor = 'var(--accent)'
 
   return (
     <PosterFrame vars={s.cssVars}>
       <PhotoGallery photos={photos.photo} label={<>zdjęcie prelegenta<br />1080 × 600</>} style={{ height: 600 }}>
-        <div style={{ position: 'absolute', top: 0, left: 0, width: 420, height: 420, background: 'var(--sygnet-bg, var(--accent))', clipPath: 'polygon(0 0,100% 0,0 100%)', display: 'flex', padding: '44px 0 0 44px', boxSizing: 'border-box' }}>
-          <img src={sygnetByName[s.sygnet ?? 'negatywny']} alt="SKNM" style={{ width: 132, height: 132, objectFit: 'contain' }} />
+        <div style={{ position: 'absolute', top: 0, left: 0, width: 420, height: 420, background: 'var(--sygnet-bg, var(--accent))', clipPath: 'polygon(0 0,100% 0,0 100%)', display: 'flex', alignItems: 'flex-start', padding: '72px 0 0 72px', boxSizing: 'border-box' }}>
+          <img src={sygnetByName[s.sygnet ?? 'negatywny']} alt="SKNM" style={{ width: 132, display: 'block' }} />
         </div>
       </PhotoGallery>
 

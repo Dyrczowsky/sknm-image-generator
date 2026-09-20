@@ -54,16 +54,23 @@ describe('resolveScheme — baza (bez akcentu)', () => {
     expect(d.sygnet).toBe('zloty')
   })
 
-  it('Data: bez zmian, 6 schematów', () => {
-    expect(schemesFor('data')).toEqual(['default', 'czern', 'okazjonalnyZloty', 'okazjonalnySrebrny', 'jasny', 'szary'])
+  it('Data: bez schematu jasny, 5 schematów', () => {
+    expect(schemesFor('data')).toEqual(['default', 'czern', 'okazjonalnyZloty', 'okazjonalnySrebrny', 'szary'])
     expect(resolveScheme('data', 'okazjonalnyZloty').cssVars['--tri1']).toBe(colors.gold)
     expect(resolveScheme('data', 'okazjonalnyZloty').sygnet).toBe('zloty')
   })
 
-  it('Rekrutacja: baza limonka, klucze limonka/czern/jasny/szary', () => {
-    expect(schemesFor('rekrutacja')).toEqual(['limonka', 'czern', 'jasny', 'szary'])
+  it('Rekrutacja: baza limonka, klucze limonka/czern/szary', () => {
+    expect(schemesFor('rekrutacja')).toEqual(['limonka', 'czern', 'szary'])
     expect(resolveScheme('rekrutacja', 'limonka').cssVars['--band']).toBe(colors.navy)
     expect(resolveScheme('rekrutacja', 'czern').cssVars['--band']).toBe(colors.lime)   // żółty wbudowany
+  })
+
+  it('Schemat „jasny" usunięty z Wykładu/Gościa/Warsztatu/Danych/Konferencji/Rekrutacji, zostaje w Ogłoszeniu', () => {
+    for (const l of ['wyklad', 'gosc', 'warsztat', 'data', 'konferencja', 'rekrutacja']) {
+      expect(schemesFor(l), l).not.toContain('jasny')
+    }
+    expect(schemesFor('ogloszenie')).toContain('jasny')
   })
 })
 
@@ -104,10 +111,15 @@ describe('oś akcentu — dostępność per schemat', () => {
       expect(anyAxis, `${layout}: recepta jest, ale żaden schemat nie ma osi`).toBe(true)
     }
   })
+  it('Wykład: brak schematów „szary"/„jasny", brak akcentu „granatowy" na „Granat" (default)', () => {
+    expect(schemesFor('wyklad')).toEqual(['default', 'czern'])
+    expect(accentsFor('wyklad', 'default')).toEqual(['zolty', 'pomaranczowy'])
+    expect(accentAllowed('wyklad', 'default', 'granatowy')).toBe(false)
+  })
   it('accentAllowed', () => {
     expect(accentAllowed('wyklad', 'czern', undefined)).toBe(true)
     expect(accentAllowed('wyklad', 'czern', 'zloty')).toBe(true)
-    expect(accentAllowed('wyklad', 'jasny', 'zloty')).toBe(false)   // schemat stały
+    expect(accentAllowed('gosc', 'szary', 'zloty')).toBe(false)     // schemat stały
     expect(accentAllowed('data', 'czern', 'zloty')).toBe(false)     // layout bez osi
   })
   it('ACCENT_LABELS ma polskie podpisy', () => {
@@ -137,6 +149,18 @@ describe('resolveScheme — z akcentem', () => {
     expect(resolveScheme('gosc', 'czern', 'pomaranczowy').cssVars['--sygnet-bg']).toBeUndefined()
   })
 
+  it('Gość: pudełko z datą (dateBg/dateText) idzie za akcentem', () => {
+    // pomaranczowy odtwarza dawny stały wygląd (coral/cream).
+    expect(resolveScheme('gosc', 'default', 'pomaranczowy').cssVars['--date-bg']).toBe(colors.coral)
+    expect(resolveScheme('gosc', 'default', 'pomaranczowy').cssVars['--date-text']).toBe(colors.cream)
+    expect(resolveScheme('gosc', 'default', 'zolty').cssVars['--date-bg']).toBe(colors.lime)
+    expect(resolveScheme('gosc', 'default', 'zolty').cssVars['--date-text']).toBe(colors.limeText)
+    expect(resolveScheme('gosc', 'default', undefined).cssVars['--date-bg']).toBe(colors.navy)
+    // „Szary" zostaje bez osi — literał w bloku.
+    expect(accentsFor('gosc', 'szary')).toEqual([])
+    expect(resolveScheme('gosc', 'szary', undefined).cssVars['--date-bg']).toBe(colors.grayDark)
+  })
+
   it('granatowy na czerni (ciemne tło) → navyLight', () => {
     expect(resolveScheme('ogloszenie', 'czern', 'granatowy').cssVars['--accent']).toBe(colors.navyLight)
   })
@@ -144,7 +168,7 @@ describe('resolveScheme — z akcentem', () => {
   it('schemat stały ignoruje akcent', () => {
     // „Jasny" nie ma osi — podanie akcentu nic nie zmienia, renderuje blok.
     expect(resolveScheme('ogloszenie', 'jasny', 'granatowy').cssVars['--accent']).toBe(colors.navy)
-    expect(resolveScheme('wyklad', 'jasny', 'zloty').cssVars['--badge-fill']).toBe(colors.navy)
+    expect(resolveScheme('gosc', 'szary', 'zolty').cssVars['--date-bg']).toBe(colors.grayDark)
   })
 
   it('regresja: „czern" bez wyboru akcentu = to, co blok już miał wpisane', () => {
@@ -181,8 +205,8 @@ describe('resolveScheme — z akcentem', () => {
     expect(resolveScheme('konferencja', 'default', undefined).cssVars['--header-badge']).toBe(colors.lime)
     expect(resolveScheme('konferencja', 'default', undefined).cssVars['--line-first']).toBe(colors.navy)
     expect(resolveScheme('konferencja', 'default', undefined).cssVars['--footer-badge']).toBe(colors.navy)
-    expect(resolveScheme('warsztat', 'default', undefined).cssVars['--badge-fill']).toBe(colors.navy)
-    expect(resolveScheme('warsztat', 'default', undefined).cssVars['--badge-text']).toBe(colors.lime)
+    expect(resolveScheme('warsztat', 'default', undefined).cssVars['--badge-fill']).toBe(colors.lime)
+    expect(resolveScheme('warsztat', 'default', undefined).cssVars['--badge-text']).toBe(colors.limeText)
     expect(resolveScheme('warsztat', 'default', undefined).cssVars['--pill-fill']).toBe(colors.lime)
     expect(resolveScheme('warsztat', 'default', undefined).cssVars['--pill-text']).toBe(colors.limeText)
     expect(resolveScheme('rekrutacja', 'limonka', undefined).cssVars['--band']).toBe(colors.navy)
@@ -215,15 +239,22 @@ describe('resolveScheme — z akcentem', () => {
     expect(resolveScheme('rekrutacja', 'czern', 'zloty').sygnet).toBe('zloty')
   })
 
-  it('Konferencja/Warsztat default: header/pill śledzą akcent, line/badge stałe na jasnym tle', () => {
+  it('Konferencja default: header śledzi akcent, line/footer-badge stałe na jasnym tle', () => {
     const kon = resolveScheme('konferencja', 'default', 'pomaranczowy')
     expect(kon.cssVars['--header-badge']).toBe(colors.coral)
     expect(kon.cssVars['--line-first']).toBe(colors.navy)      // jasne tło → stałe, nie akcent
     expect(kon.cssVars['--footer-badge']).toBe(colors.navy)
+  })
+
+  it('Warsztat: pill i badge (skrzynka nad tytułem) śledzą akcent na każdym tle', () => {
     const wa = resolveScheme('warsztat', 'default', 'pomaranczowy')
     expect(wa.cssVars['--pill-fill']).toBe(colors.coral)
-    expect(wa.cssVars['--badge-fill']).toBe(colors.navy)       // jasne tło → stałe, nie akcent
-    expect(wa.cssVars['--badge-text']).toBe(colors.lime)
+    expect(wa.cssVars['--pill-text']).toBe(colors.cream)
+    expect(wa.cssVars['--badge-fill']).toBe(colors.coral)
+    expect(wa.cssVars['--badge-text']).toBe(colors.cream)
+    const zl = resolveScheme('warsztat', 'default', 'zloty')
+    expect(zl.cssVars['--badge-fill']).toBe(colors.gold)
+    expect(zl.cssVars['--badge-text']).toBe(colors.ink)        // tekst pod kolor własnego tła plakietki
   })
 
   it('Rekrutacja limonka × akcent: badgeColor = tło strony (limonka)', () => {
