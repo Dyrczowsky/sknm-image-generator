@@ -48,6 +48,10 @@ const ogloszenie: LayoutSchemes = {
            sygnet: 'granat', logoVariant: 'light' },
   szary: { pageBg: colors.paper, pageText: colors.slate, accent: colors.grayDark,
            sygnet: 'szary', logoVariant: 'light' },
+  // Okazjonalny — paleta Gali (ink + złoto/srebro), do rzadszych, bardziej
+  // uroczystych okazji. Oś ograniczona do metalu; `accent`/`sygnet` liczy recepta.
+  okazjonalny: { pageBg: colors.ink, pageText: colors.goldPanelText, logoVariant: 'dark',
+                 accents: ['zloty', 'srebrny'], defaultAccent: 'zloty' },
 }
 
 // Gala — jeden schemat `default` (ink + złoto). Recepta `gala` mapuje akcent
@@ -78,6 +82,10 @@ const gosc: LayoutSchemes = {
            accents: 'all', defaultAccent: 'zolty' },
   szary: { pageBg: colors.paper, pageText: colors.slate, accent: colors.grayDark,
            dateBg: colors.grayDark, dateText: colors.cream },
+  // Okazjonalny — paleta Gali (ink + złoto/srebro). `accent`/`dateBg`/`dateText`
+  // i `sygnetBg` (metal) liczy recepta.
+  okazjonalny: { pageBg: colors.ink, pageText: colors.goldPanelText, mutedText: colors.creamMuted,
+                 logoVariant: 'dark', accents: ['zloty', 'srebrny'], defaultAccent: 'zloty' },
 }
 
 // Data — liczba jako grafika. Etykieta miesiąca jest koralowa we wszystkich
@@ -93,10 +101,10 @@ const data: LayoutSchemes = {
   czern: { pageBg: colors.black, pageText: colors.cream, mutedText: colors.creamMuted,
            title: colors.cream, tri1: colors.lime, tri2: colors.coral, tri3: colors.cream,
            sygnet: 'negatywny', logoVariant: 'dark' },
-  okazjonalnyZloty: { pageBg: colors.black, pageText: colors.cream, mutedText: colors.creamMuted,
+  okazjonalnyZloty: { pageBg: colors.ink, pageText: colors.goldPanelText, mutedText: colors.creamMuted,
            title: colors.cream, tri1: colors.gold, tri2: colors.coral, tri3: colors.cream,
            sygnet: 'zloty', logoVariant: 'dark' },
-  okazjonalnySrebrny: { pageBg: colors.black, pageText: colors.cream, mutedText: colors.creamMuted,
+  okazjonalnySrebrny: { pageBg: colors.ink, pageText: colors.goldPanelText, mutedText: colors.creamMuted,
            title: colors.cream, tri1: colors.silver, tri2: colors.coral, tri3: colors.cream,
            sygnet: 'srebrny', logoVariant: 'dark' },
   szary: { pageBg: colors.paper, pageText: colors.slate, title: colors.slate,
@@ -126,6 +134,11 @@ const wyklad: LayoutSchemes = {
            speaker: colors.lime, chips: colors.lime,
            washTop: 'rgba(255,255,255,.04)', wedgeBr: '#1E1E1E', wedgeBl: '#0A0A0A',
            sygnet: 'negatywny', accents: 'all', defaultAccent: 'zolty' },
+  // Okazjonalny — paleta Gali (ink + złoto/srebro). `badgeFill`/`badgeText`/
+  // `speaker`/`chips`/`sygnet` liczy recepta.
+  okazjonalny: { pageBg: colors.ink, pageText: colors.goldPanelText,
+                 washTop: 'rgba(255,255,255,.04)', wedgeBr: colors.inkPanel, wedgeBl: '#0E0F1E',
+                 accents: ['zloty', 'srebrny'], defaultAccent: 'zloty' },
 }
 
 // Konferencja — nagłówkowa banda + lista programu. `panel`/`panelText` to pas
@@ -155,6 +168,14 @@ const konferencja: LayoutSchemes = {
     panel: colors.grayDark, headerBadge: colors.cream,
     lineFirst: colors.grayDark, footerBadge: colors.grayDark,
     sygnet: 'szary',
+  },
+  // Okazjonalny — paleta Gali (ink + złoto/srebro). Tło strony jest ciemne
+  // (`colors.ink` jest w `DARK_BGS`), więc recepta liczy `headerBadge`/
+  // `lineFirst`/`footerBadge` z akcentu tak jak dla `czern`.
+  okazjonalny: {
+    pageBg: colors.ink, pageText: colors.goldPanelText, mutedText: colors.creamMuted,
+    panel: colors.inkPanel, lineRest: 'rgba(244,242,237,.2)', logoVariant: 'dark',
+    accents: ['zloty', 'srebrny'], defaultAccent: 'zloty',
   },
 }
 
@@ -193,6 +214,12 @@ const rekrutacja: LayoutSchemes = {
     band: colors.grayDark, subColor: colors.textMuted, badgeColor: colors.cream,
     sygnet: 'szary',
   },
+  // Okazjonalny — paleta Gali (ink + złoto/srebro). `band`/`footerText`/
+  // `badgeColor`/`qr*`/`logoVariant`/`sygnet` liczy recepta.
+  okazjonalny: {
+    pageBg: colors.ink, pageText: colors.goldPanelText, subColor: colors.creamMuted,
+    accents: ['zloty', 'srebrny'], defaultAccent: 'zloty',
+  },
 }
 // Rekrutacja nie ma bloku `default` - bazą jest jej pierwszy schemat `limonka`
 // (patrz baseBlock), więc `czern`/`szary` dziedziczą wspólne role z niego.
@@ -229,6 +256,14 @@ const warsztat: LayoutSchemes = {
     title: colors.slate, badgeFill: colors.grayDark, badgeText: colors.cream,
     pillFill: colors.gray, pillText: colors.slate, slotBg: colors.paper,
     sygnet: 'szary',
+  },
+  // Okazjonalny — paleta Gali (ink + złoto/srebro). `badgeFill`/`badgeText`/
+  // `pillFill`/`pillText`/`sygnet` liczy recepta.
+  okazjonalny: {
+    pageBg: colors.ink, pageText: colors.goldPanelText, mutedText: colors.creamMuted,
+    title: colors.cream, slotBg: colors.ink,
+    qrBorder: 'rgba(244,242,237,.3)', qrText: 'rgba(244,242,237,.7)',
+    logoVariant: 'dark', accents: ['zloty', 'srebrny'], defaultAccent: 'zloty',
   },
 }
 
@@ -449,7 +484,11 @@ export const SCHEME_LABELS: Record<string, string> = {
   czern: 'Czerń',
   jasny: 'Jasny',
   szary: 'Szary',
-  // używane wyłącznie przez layout „Data" (ma osobne schematy złoto/srebro):
+  // używane wyłącznie przez layout „Data" (ma osobne schematy złoto/srebro,
+  // bez oś akcentu):
   okazjonalnyZloty: 'Okazjonalny złoty',
   okazjonalnySrebrny: 'Okazjonalny srebrny',
+  // pozostałe layouty: jeden schemat „Okazjonalny" (paleta Gali), złoto/srebro
+  // wybierane osią akcentu:
+  okazjonalny: 'Okazjonalny',
 }

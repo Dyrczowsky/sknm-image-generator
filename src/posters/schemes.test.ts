@@ -33,8 +33,8 @@ describe('resolveScheme — baza (bez akcentu)', () => {
     delete schemes.__probe
   })
 
-  it('Ogłoszenie: default + czern + jasny + szary', () => {
-    expect(schemesFor('ogloszenie')).toEqual(['default', 'czern', 'jasny', 'szary'])
+  it('Ogłoszenie: default + czern + jasny + szary + okazjonalny', () => {
+    expect(schemesFor('ogloszenie')).toEqual(['default', 'czern', 'jasny', 'szary', 'okazjonalny'])
     const d = resolveScheme('ogloszenie', undefined)
     expect(d.cssVars['--page-bg']).toBe(colors.navy)
     expect(d.cssVars['--accent']).toBe(colors.lime)
@@ -58,10 +58,13 @@ describe('resolveScheme — baza (bez akcentu)', () => {
     expect(schemesFor('data')).toEqual(['default', 'czern', 'okazjonalnyZloty', 'okazjonalnySrebrny', 'szary'])
     expect(resolveScheme('data', 'okazjonalnyZloty').cssVars['--tri1']).toBe(colors.gold)
     expect(resolveScheme('data', 'okazjonalnyZloty').sygnet).toBe('zloty')
+    // Paleta dopasowana do Gali (ink, nie czerń).
+    expect(resolveScheme('data', 'okazjonalnyZloty').cssVars['--page-bg']).toBe(colors.ink)
+    expect(resolveScheme('data', 'okazjonalnySrebrny').cssVars['--page-bg']).toBe(colors.ink)
   })
 
-  it('Rekrutacja: baza limonka, klucze limonka/czern/szary', () => {
-    expect(schemesFor('rekrutacja')).toEqual(['limonka', 'czern', 'szary'])
+  it('Rekrutacja: baza limonka, klucze limonka/czern/szary/okazjonalny', () => {
+    expect(schemesFor('rekrutacja')).toEqual(['limonka', 'czern', 'szary', 'okazjonalny'])
     expect(resolveScheme('rekrutacja', 'limonka').cssVars['--band']).toBe(colors.navy)
     expect(resolveScheme('rekrutacja', 'czern').cssVars['--band']).toBe(colors.lime)   // żółty wbudowany
   })
@@ -71,6 +74,19 @@ describe('resolveScheme — baza (bez akcentu)', () => {
       expect(schemesFor(l), l).not.toContain('jasny')
     }
     expect(schemesFor('ogloszenie')).toContain('jasny')
+  })
+
+  it('Okazjonalny (paleta Gali) — obecny na 6 layoutach, tło ink, oś tylko złoto/srebro', () => {
+    for (const l of ['ogloszenie', 'gosc', 'wyklad', 'konferencja', 'rekrutacja', 'warsztat']) {
+      expect(schemesFor(l), l).toContain('okazjonalny')
+      expect(resolveScheme(l, 'okazjonalny').cssVars['--page-bg'], l).toBe(colors.ink)
+      expect(accentsFor(l, 'okazjonalny'), l).toEqual(['zloty', 'srebrny'])
+      expect(defaultAccentFor(l, 'okazjonalny'), l).toBe('zloty')
+      expect(resolveScheme(l, 'okazjonalny').sygnet, l).toBe('zloty')
+      expect(resolveScheme(l, 'okazjonalny', 'srebrny').sygnet, l).toBe('srebrny')
+    }
+    // Data nie ma osi — jej para „okazjonalny*" to osobne, stałe schematy (bez zmian).
+    expect(schemesFor('data')).not.toContain('okazjonalny')
   })
 })
 
@@ -112,7 +128,7 @@ describe('oś akcentu — dostępność per schemat', () => {
     }
   })
   it('Wykład: brak schematów „szary"/„jasny", brak akcentu „granatowy" na „Granat" (default)', () => {
-    expect(schemesFor('wyklad')).toEqual(['default', 'czern'])
+    expect(schemesFor('wyklad')).toEqual(['default', 'czern', 'okazjonalny'])
     expect(accentsFor('wyklad', 'default')).toEqual(['zolty', 'pomaranczowy'])
     expect(accentAllowed('wyklad', 'default', 'granatowy')).toBe(false)
   })
@@ -159,6 +175,31 @@ describe('resolveScheme — z akcentem', () => {
     // „Szary" zostaje bez osi — literał w bloku.
     expect(accentsFor('gosc', 'szary')).toEqual([])
     expect(resolveScheme('gosc', 'szary', undefined).cssVars['--date-bg']).toBe(colors.grayDark)
+  })
+
+  it('Okazjonalny: wartości złota/srebra na wybranych layoutach', () => {
+    const goscZl = resolveScheme('gosc', 'okazjonalny', 'zloty')
+    expect(goscZl.cssVars['--date-bg']).toBe(colors.gold)
+    expect(goscZl.cssVars['--date-text']).toBe(colors.ink)
+    expect(goscZl.cssVars['--sygnet-bg']).toBe(colors.navy)
+    const goscSr = resolveScheme('gosc', 'okazjonalny', 'srebrny')
+    expect(goscSr.cssVars['--date-bg']).toBe(colors.silver)
+
+    const wykladZl = resolveScheme('wyklad', 'okazjonalny', 'zloty')
+    expect(wykladZl.cssVars['--badge-fill']).toBe(colors.gold)
+    expect(wykladZl.cssVars['--badge-text']).toBe(colors.cream)
+
+    const konfZl = resolveScheme('konferencja', 'okazjonalny', 'zloty')
+    expect(konfZl.cssVars['--header-badge']).toBe(colors.gold)
+    expect(konfZl.cssVars['--line-first']).toBe(colors.gold)   // ink jest w DARK_BGS
+
+    const warZl = resolveScheme('warsztat', 'okazjonalny', 'zloty')
+    expect(warZl.cssVars['--badge-fill']).toBe(colors.gold)
+    expect(warZl.cssVars['--pill-fill']).toBe(colors.gold)
+
+    const rekZl = resolveScheme('rekrutacja', 'okazjonalny', 'zloty')
+    expect(rekZl.cssVars['--band']).toBe(colors.gold)
+    expect(rekZl.cssVars['--badge-color']).toBe(colors.ink)   // = tło strony (ink)
   })
 
   it('granatowy na czerni (ciemne tło) → navyLight', () => {
