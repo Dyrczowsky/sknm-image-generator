@@ -218,12 +218,6 @@ const rekrutacja: LayoutSchemes = {
     band: colors.grayDark, subColor: colors.textMuted, badgeColor: colors.cream,
     sygnet: 'szary',
   },
-  // Okazjonalny — paleta Gali (ink + złoto/srebro). `band`/`footerText`/
-  // `badgeColor`/`qr*`/`logoVariant`/`sygnet` liczy recepta.
-  okazjonalny: {
-    pageBg: colors.ink, pageText: colors.goldPanelText, subColor: colors.creamMuted,
-    accents: ['zloty', 'srebrny'], defaultAccent: 'zloty',
-  },
 }
 // Rekrutacja nie ma bloku `default` - bazą jest jej pierwszy schemat `limonka`
 // (patrz baseBlock), więc `czern`/`szary` dziedziczą wspólne role z niego.

@@ -63,8 +63,8 @@ describe('resolveScheme — baza (bez akcentu)', () => {
     expect(resolveScheme('data', 'okazjonalnySrebrny').cssVars['--page-bg']).toBe(colors.ink)
   })
 
-  it('Rekrutacja: baza limonka, klucze limonka/czern/szary/okazjonalny', () => {
-    expect(schemesFor('rekrutacja')).toEqual(['limonka', 'czern', 'szary', 'okazjonalny'])
+  it('Rekrutacja: baza limonka, klucze limonka/czern/szary', () => {
+    expect(schemesFor('rekrutacja')).toEqual(['limonka', 'czern', 'szary'])
     expect(resolveScheme('rekrutacja', 'limonka').cssVars['--band']).toBe(colors.navy)
     expect(resolveScheme('rekrutacja', 'czern').cssVars['--band']).toBe(colors.lime)   // żółty wbudowany
   })
@@ -76,8 +76,8 @@ describe('resolveScheme — baza (bez akcentu)', () => {
     expect(schemesFor('ogloszenie')).toContain('jasny')
   })
 
-  it('Okazjonalny (paleta Gali) — obecny na 6 layoutach, tło ink, oś tylko złoto/srebro', () => {
-    for (const l of ['ogloszenie', 'gosc', 'wyklad', 'konferencja', 'rekrutacja', 'warsztat']) {
+  it('Okazjonalny (paleta Gali) — obecny na 5 layoutach, tło ink, oś tylko złoto/srebro', () => {
+    for (const l of ['ogloszenie', 'gosc', 'wyklad', 'konferencja', 'warsztat']) {
       expect(schemesFor(l), l).toContain('okazjonalny')
       expect(resolveScheme(l, 'okazjonalny').cssVars['--page-bg'], l).toBe(colors.ink)
       expect(accentsFor(l, 'okazjonalny'), l).toEqual(['zloty', 'srebrny'])
@@ -87,6 +87,8 @@ describe('resolveScheme — baza (bez akcentu)', () => {
     }
     // Data nie ma osi — jej para „okazjonalny*" to osobne, stałe schematy (bez zmian).
     expect(schemesFor('data')).not.toContain('okazjonalny')
+    // Rekrutacja: usunięty (zbyt duża powierzchnia jednolitego złota, słaby kontrast z logo PK).
+    expect(schemesFor('rekrutacja')).not.toContain('okazjonalny')
   })
 })
 
@@ -196,10 +198,6 @@ describe('resolveScheme — z akcentem', () => {
     const warZl = resolveScheme('warsztat', 'okazjonalny', 'zloty')
     expect(warZl.cssVars['--badge-fill']).toBe(colors.gold)
     expect(warZl.cssVars['--pill-fill']).toBe(colors.gold)
-
-    const rekZl = resolveScheme('rekrutacja', 'okazjonalny', 'zloty')
-    expect(rekZl.cssVars['--band']).toBe(colors.gold)
-    expect(rekZl.cssVars['--badge-color']).toBe(colors.ink)   // = tło strony (ink)
   })
 
   it('granatowy na czerni (ciemne tło) → navyLight', () => {
