@@ -13,7 +13,7 @@ import { LogoRow } from './blocks/LogoRow'
 import type { PosterProps } from '../types'
 
 // GOŚĆ — zdjęcie + pas
-export function PosterGosc({ data, scheme, accent }: PosterProps) {
+export function PosterGosc({ data, scheme, accent, lang }: PosterProps) {
   const { title, speaker, event_date, event_time, location, badge, graphics, showPkLogo, qrUrl, photos, hidden, fx } = withPlaceholders(data)
   const s = resolveScheme('gosc', scheme, accent)
   const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
@@ -35,14 +35,14 @@ export function PosterGosc({ data, scheme, accent }: PosterProps) {
           <div style={{ position: 'absolute', top: -56, right: 72, background: boxBg, color: boxText, padding: '18px 26px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <div style={{ fontSize: 64, fontWeight: 800, lineHeight: 0.9, ...fx('event_date') }}>{getDay(event_date)}</div>
             <div style={{ font: `700 22px ${fontMono}`, letterSpacing: '.12em' }}>
-              <span style={fx('event_date')}>{getMonthShort(event_date, { upperCase: true })}</span>
+              <span style={fx('event_date')}>{getMonthShort(event_date, { upperCase: true, lang })}</span>
               {event_time && !hidden('event_time') && <> <span>{event_time}</span></>}
             </div>
           </div>
         )}
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 820 }}>
-          <Badge color={textColor} style={fx('badge')}>{badge || 'SEMINARIUM SKNM'}</Badge>
+          <Badge color={textColor} style={fx('badge')}>{badge || (lang === 'en' ? 'SKNM SEMINAR' : 'SEMINARIUM SKNM')}</Badge>
           <div style={{ fontSize: 82, fontWeight: 800, lineHeight: 0.98, letterSpacing: '-.03em', fontKerning: 'none', ...fx('title') }}>
             {title}
           </div>
@@ -55,7 +55,7 @@ export function PosterGosc({ data, scheme, accent }: PosterProps) {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24 }}>
-          <div style={{ fontSize: 22, fontWeight: 600, color: textColor }}>Wstęp wolny · sknm.pk.edu.pl</div>
+          <div style={{ fontSize: 22, fontWeight: 600, color: textColor }}>{lang === 'en' ? 'Free entry · sknm.pk.edu.pl' : 'Wstęp wolny · sknm.pk.edu.pl'}</div>
           <LogoRow minHeight={QR_SLOT_H}>
             <QrSlot value={qrUrl} />
             <LogoSlots slots={slots} variant={s.logoVariant} />

@@ -17,7 +17,7 @@ const DEFAULT_AGENDA: ListItem[] = [
 ]
 
 // KONFERENCJA — nagłówek + lista programu
-export function PosterKonferencja({ data, scheme, accent }: PosterProps) {
+export function PosterKonferencja({ data, scheme, accent, lang }: PosterProps) {
   const { title, event_date, location, badge, badge2, graphics, showPkLogo, qrUrl, lists, hidden, fx } = withPlaceholders(data)
   const agenda = lists.agenda?.length ? lists.agenda : DEFAULT_AGENDA
   const s = resolveScheme('konferencja', scheme, accent)
@@ -27,12 +27,12 @@ export function PosterKonferencja({ data, scheme, accent }: PosterProps) {
     <PosterFrame vars={s.cssVars}>
       <div style={{ background: 'var(--panel)', color: 'var(--panel-text)', padding: '56px 72px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: 32 }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          <Badge color="var(--header-badge)" style={fx('badge')}>{badge || 'SEMINARIUM SKNM'}</Badge>
+          <Badge color="var(--header-badge)" style={fx('badge')}>{badge || (lang === 'en' ? 'SKNM SEMINAR' : 'SEMINARIUM SKNM')}</Badge>
           <div style={{ fontSize: 76, fontWeight: 800, lineHeight: 0.96, letterSpacing: '-.03em', fontKerning: 'none', ...fx('title') }}>
             {title}
           </div>
           <div style={{ fontSize: 28, fontWeight: 600 }}>
-            <span style={fx('event_date')}>{formatFullDate(event_date)}</span>
+            <span style={fx('event_date')}>{formatFullDate(event_date, lang)}</span>
             {!hidden('event_date') && !hidden('location') && <span>{' · '}</span>}
             <span style={fx('location')}>{location}</span>
           </div>
@@ -68,7 +68,7 @@ export function PosterKonferencja({ data, scheme, accent }: PosterProps) {
 
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24 }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <Badge color="var(--footer-badge)" style={{ font: `700 20px ${fontMono}`, letterSpacing: '.12em', ...fx('badge2') }}>{badge2 || 'WIĘCEJ INFORMACJI'}</Badge>
+            <Badge color="var(--footer-badge)" style={{ font: `700 20px ${fontMono}`, letterSpacing: '.12em', ...fx('badge2') }}>{badge2 || (lang === 'en' ? 'MORE INFORMATION' : 'WIĘCEJ INFORMACJI')}</Badge>
             <div style={{ fontSize: 24, fontWeight: 600, color: 'var(--muted-text)' }}>sknm.pk.edu.pl</div>
           </div>
           <LogoRow minHeight={QR_SLOT_H}>

@@ -13,7 +13,7 @@ import { LogoRow } from './blocks/LogoRow'
 import type { PosterProps } from '../types'
 
 // DATA — liczba jako grafika
-export function PosterData({ data, scheme, accent }: PosterProps) {
+export function PosterData({ data, scheme, accent, lang }: PosterProps) {
   const { title, subtitle, event_date, event_time, location, graphics, showPkLogo, qrUrl, photos, hidden, fx } = withPlaceholders(data)
   const s = resolveScheme('data', scheme, accent)
   const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
@@ -21,7 +21,7 @@ export function PosterData({ data, scheme, accent }: PosterProps) {
   return (
     <PosterFrame vars={s.cssVars} padding={72}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-        <BrandingText lines={['WYDARZENIE', 'SKNM · PK']} style={{ textAlign: 'left' }} />
+        <BrandingText lines={lang === 'en' ? ['EVENT', 'SKNM · PK'] : ['WYDARZENIE', 'SKNM · PK']} style={{ textAlign: 'left' }} />
         <img src={sygnetByName[s.sygnet ?? 'negatywny']} alt="SKNM" style={{ width: 132, display: 'block' }} />
       </div>
 
@@ -31,7 +31,7 @@ export function PosterData({ data, scheme, accent }: PosterProps) {
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8, paddingLeft: 28, paddingTop: 40 }}>
           <div style={{ fontSize: 96, fontWeight: 800, lineHeight: 0.9, color: 'var(--month-color)', letterSpacing: '-.03em', ...fx('event_date') }}>
-            {getMonthShort(event_date, { upperCase: true })}
+            {getMonthShort(event_date, { upperCase: true, lang })}
           </div>
           <div style={{ font: `700 26px ${fontMono}`, letterSpacing: '.1em', ...fx('event_time') }}>{event_time}</div>
         </div>

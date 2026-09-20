@@ -12,7 +12,7 @@ import type { PosterProps } from '../types'
 // OGŁOSZENIE — wyśrodkowany cytat/komunikat, bez zdjęcia i bez daty.
 // Jedyny szablon bez narożnikowego stosu informacji — do krótkich ogłoszeń,
 // cytatów i podziękowań.
-export function PosterOgloszenie({ data, scheme, accent }: PosterProps) {
+export function PosterOgloszenie({ data, scheme, accent, lang }: PosterProps) {
   const { title, subtitle, graphics, showPkLogo, qrUrl, fx } = withPlaceholders(data)
   const s = resolveScheme('ogloszenie', scheme, accent)
   const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
@@ -21,7 +21,7 @@ export function PosterOgloszenie({ data, scheme, accent }: PosterProps) {
     <PosterFrame vars={s.cssVars} padding={72}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <img src={sygnetByName[s.sygnet ?? 'negatywny']} alt="SKNM" style={{ width: 132, display: 'block' }} />
-        <BrandingText lines={['SKNM', 'POLITECHNIKA', 'KRAKOWSKA']} opacity={0.85} />
+        <BrandingText lines={lang === 'en' ? ['SKNM', 'KRAKOW UNIVERSITY', 'OF TECHNOLOGY'] : ['SKNM', 'POLITECHNIKA', 'KRAKOWSKA']} opacity={0.85} />
       </div>
 
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center', gap: 32 }}>

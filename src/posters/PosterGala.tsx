@@ -13,7 +13,7 @@ import { LogoRow } from './blocks/LogoRow'
 import type { PosterProps } from '../types'
 
 // GALA — złoto na grafitowym
-export function PosterGala({ data, scheme, accent }: PosterProps) {
+export function PosterGala({ data, scheme, accent, lang }: PosterProps) {
   const { title, subtitle, event_date, event_time, location, badge, graphics, showPkLogo, qrUrl, hidden, fx } = withPlaceholders(data)
   const s = resolveScheme('gala', scheme, accent)
   const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
@@ -25,11 +25,11 @@ export function PosterGala({ data, scheme, accent }: PosterProps) {
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', position: 'relative', zIndex: 1 }}>
         <img src={sygnetByName[s.sygnet ?? 'negatywny']} alt="SKNM" style={{ width: 132, display: 'block' }} />
-        <BrandingText lines={['STUDENCKIE KOŁO', 'NAUKOWE MATEMATYKÓW', 'POLITECHNIKI KRAKOWSKIEJ']} color="var(--gold)" />
+        <BrandingText lines={lang === 'en' ? ['STUDENT SCIENCE CLUB', 'OF MATHEMATICS', 'KRAKOW UNIVERSITY OF TECHNOLOGY'] : ['STUDENCKIE KOŁO', 'NAUKOWE MATEMATYKÓW', 'POLITECHNIKI KRAKOWSKIEJ']} color="var(--gold)" />
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 30, position: 'relative', zIndex: 1 }}>
-        <Badge color="var(--gold)" style={{ font: `700 24px ${fontMono}`, letterSpacing: '.2em', ...fx('badge') }}>{badge || 'GALA SKNM'}</Badge>
+        <Badge color="var(--gold)" style={{ font: `700 24px ${fontMono}`, letterSpacing: '.2em', ...fx('badge') }}>{badge || (lang === 'en' ? 'SKNM GALA' : 'GALA SKNM')}</Badge>
         <div style={{ fontSize: 126, fontWeight: 800, lineHeight: 0.94, letterSpacing: '-.035em', fontKerning: 'none', ...fx('title') }}>
           {title}
         </div>
@@ -40,7 +40,7 @@ export function PosterGala({ data, scheme, accent }: PosterProps) {
 
       <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 32, position: 'relative', zIndex: 1 }}>
         <div style={{ display: 'flex', gap: 20, alignItems: 'flex-end' }}>
-          <BigDateNumber event_date={event_date} color="var(--gold)" style={fx('event_date')} />
+          <BigDateNumber event_date={event_date} color="var(--gold)" style={fx('event_date')} lang={lang} />
           <InfoLine
             parts={[
               { text: event_time, hidden: hidden('event_time') },

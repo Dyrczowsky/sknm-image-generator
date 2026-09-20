@@ -13,7 +13,7 @@ import { LogoRow } from './blocks/LogoRow'
 import type { PosterProps } from '../types'
 
 // REKRUTACJA — wzór z sygnetu
-export function PosterRekrutacja({ data, scheme, accent }: PosterProps) {
+export function PosterRekrutacja({ data, scheme, accent, lang }: PosterProps) {
   const { title, subtitle, event_date, event_time, location, badge, graphics, showPkLogo, qrUrl, hidden, fx } = withPlaceholders(data)
   const s = resolveScheme('rekrutacja', scheme, accent)
   const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
@@ -22,7 +22,7 @@ export function PosterRekrutacja({ data, scheme, accent }: PosterProps) {
     <PosterFrame vars={s.cssVars} padding={72}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', position: 'relative' }}>
         <img src={sygnetByName[s.sygnet ?? 'negatywny']} alt="SKNM" style={{ width: 132, display: 'block' }} />
-        <BrandingText lines={['STUDENCKIE KOŁO', 'NAUKOWE MATEMATYKÓW', 'POLITECHNIKI KRAKOWSKIEJ']} />
+        <BrandingText lines={lang === 'en' ? ['STUDENT SCIENCE CLUB', 'OF MATHEMATICS', 'KRAKOW UNIVERSITY OF TECHNOLOGY'] : ['STUDENCKIE KOŁO', 'NAUKOWE MATEMATYKÓW', 'POLITECHNIKI KRAKOWSKIEJ']} />
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 26, position: 'relative', maxWidth: 900 }}>
@@ -46,10 +46,10 @@ export function PosterRekrutacja({ data, scheme, accent }: PosterProps) {
         }}
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <Badge color="var(--badge-color)" style={{ font: `700 26px ${fontMono}`, letterSpacing: '.1em', ...fx('badge') }}>{badge || 'SPOTKANIE ORGANIZACYJNE'}</Badge>
+          <Badge color="var(--badge-color)" style={{ font: `700 26px ${fontMono}`, letterSpacing: '.1em', ...fx('badge') }}>{badge || (lang === 'en' ? 'KICK-OFF MEETING' : 'SPOTKANIE ORGANIZACYJNE')}</Badge>
           <InfoLine
             parts={[
-              { text: `${getDay(event_date)} ${getMonthShort(event_date)}`, hidden: hidden('event_date') },
+              { text: `${getDay(event_date)} ${getMonthShort(event_date, { lang })}`, hidden: hidden('event_date') },
               { text: event_time, hidden: hidden('event_time') },
               { text: location, hidden: hidden('location') },
             ]}
