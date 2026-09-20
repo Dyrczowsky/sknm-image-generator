@@ -12,7 +12,7 @@ import type { FormValues } from '../types'
 const emptyForm: FormValues = {
   title: '', subtitle: '', speaker: '', event_date: '', event_time: '',
   location: '', badge: '', badge2: '', visibility: {}, graphics: [],
-  showPkLogo: false, qrUrl: '', colors: {}, photos: {}, lists: {},
+  showPkLogo: false, qrUrl: '', photos: {}, lists: {},
 }
 
 const ctx = (over: Partial<BugContextInput> = {}): BugContextInput => ({

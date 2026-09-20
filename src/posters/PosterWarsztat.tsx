@@ -21,16 +21,16 @@ function Pill({ children, style }: { children: ReactNode; style?: CSSProperties 
 }
 
 // WARSZTAT — skos
-export function PosterWarsztat({ data, scheme }: PosterProps) {
+export function PosterWarsztat({ data, scheme, accent, lang }: PosterProps) {
   const { title, subtitle, event_date, event_time, location, badge, graphics, showPkLogo, qrUrl, photos, fx } = withPlaceholders(data)
   const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
 
   const pills = [
     { text: event_time, style: fx('event_time') },
-    { text: `${getDay(event_date)} ${getMonthShort(event_date)}`, style: fx('event_date') },
+    { text: `${getDay(event_date)} ${getMonthShort(event_date, { lang })}`, style: fx('event_date') },
     { text: location, style: fx('location') },
   ]
-  const s = resolveScheme('warsztat', scheme)
+  const s = resolveScheme('warsztat', scheme, accent)
 
   return (
     <PosterFrame vars={s.cssVars}>
@@ -45,7 +45,7 @@ export function PosterWarsztat({ data, scheme }: PosterProps) {
         <img src={sygnetByName[s.sygnet ?? 'negatywny']} alt="SKNM" style={{ width: 132, display: 'block' }} />
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 22, maxWidth: 600 }}>
-          <Badge background="var(--badge-fill)" color="var(--badge-text)" style={{ padding: '10px 16px', ...fx('badge') }}>{badge || 'WARSZTATY'}</Badge>
+          <Badge background="var(--badge-fill)" color="var(--badge-text)" style={{ padding: '10px 16px', ...fx('badge') }}>{badge || (lang === 'en' ? 'WORKSHOP' : 'WARSZTATY')}</Badge>
           <div style={{ fontSize: 104, fontWeight: 800, lineHeight: 0.94, letterSpacing: '-.035em', color: 'var(--title)', fontKerning: 'none', ...fx('title') }}>
             {title}
           </div>

@@ -8,7 +8,7 @@ w rejestrze, w `schemes.ts`, w bazie i w URL-u podglądu. Komponenty to
 
 ## 1. Komponent plakatu — `src/posters/PosterPiknik.tsx`
 
-Plakat dostaje `PosterProps` (`{ data, scheme }`), uzupełnia dane placeholderami
+Plakat dostaje `PosterProps` (`{ data, scheme, accent, lang }`), uzupełnia dane placeholderami
 i rozwiązuje schemat kolorów. Kontener to zawsze `PosterFrame` (1080×1080).
 
 ```tsx
@@ -22,9 +22,9 @@ import { QR_SLOT_H } from './theme'
 import { sygnetByName } from './logos'
 import type { PosterProps } from '../types'
 
-export function PosterPiknik({ data, scheme }: PosterProps) {
+export function PosterPiknik({ data, scheme, accent, lang }: PosterProps) {
   const { title, subtitle, event_date, location, graphics, showPkLogo, qrUrl } = withPlaceholders(data)
-  const s = resolveScheme('piknik', scheme)
+  const s = resolveScheme('piknik', scheme, accent)
   // null = domyślne logo PK (fallback), string = hurtowo wgrana grafika
   const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
 
@@ -129,14 +129,18 @@ const piknik: LayoutSchemes = {
   },
   // kolejne warianty nadpisują tylko różnice; kolejność kluczy = kolejność
   // swatchy na pasku kolorystyki:
-  czernZolta: { pageBg: colors.black, pageText: colors.cream, accent: colors.lime,
-                sygnet: 'negatywny', logoVariant: 'dark' },
+  czern: { pageBg: colors.black, pageText: colors.cream, accent: colors.lime,
+           sygnet: 'negatywny', logoVariant: 'dark' },
 }
 ```
 
 Kolor `colors.gold` w schemacie łączymy **wyłącznie** z sygnetem `'zloty'`,
 a `colors.silver` z `'srebrny'` (schematy „okazjonalny złoty" / „okazjonalny
 srebrny"). W innych wariantach akcent to `lime` / `coral` / `navy`.
+
+Nowy layout może dodać wpis w `accentRecipes` (mapa `(accent, ctx) => nadpisania
+ról akcentowych`) albo zostawić go `undefined` — wtedy kontrolka akcentu jest dla
+tego layoutu wyłączona (jak `data`).
 
 Zarejestruj blok:
 
@@ -150,11 +154,10 @@ To wszystko — pasek kolorystyki w generatorze budowany jest wprost z tego blok
 (`schemesFor(poster_key)`), `registry.ts` nie trzyma listy schematów. Layout
 z jednym schematem nie pokazuje paska.
 
-Jeśli używasz nazwy wariantu spoza `default / limonka / czernZolta /
-czernPomaranczowa / czernGranatowa / okazjonalnyZloty / okazjonalnySrebrny /
-jasny / szary` (goła `czern` też istnieje, ale tylko dla layoutu `data`),
-dopisz jej podpis do `SCHEME_LABELS` na dole `schemes.ts` (bez wpisu swatch
-pokaże surowy klucz).
+Jeśli używasz nazwy wariantu spoza `default / limonka / czern / jasny / szary`
+(layout `data` ma dodatkowo `okazjonalnyZloty` / `okazjonalnySrebrny`), dopisz
+jej podpis do `SCHEME_LABELS` na dole `schemes.ts` (bez wpisu swatch pokaże
+surowy klucz).
 
 Więcej o rolach, `resolveScheme` i konwencji `camelCase → --kebab`:
 [dodawanie-schematu-kolorow.md](./dodawanie-schematu-kolorow.md).
@@ -195,7 +198,7 @@ npm test
 
 Podgląd z danymi przykładowymi (dev):
 `http://localhost:5173/sknm-image-generator/poster/piknik`
-oraz `.../poster/piknik/czernZolta`.
+oraz `.../poster/piknik/czern`.
 
 Potem uruchom `npm run dev`, wybierz "Piknik" w generatorze i zweryfikuj podgląd
 na żywo oraz eksport PNG ("Pobierz PNG").

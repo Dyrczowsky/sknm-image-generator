@@ -105,12 +105,62 @@ Przykład: dodajemy wariant `morski` do Wykładu.
 
 Rekrutacja nie ma klucza `default` - jej blokiem bazowym jest **pierwszy
 schemat** (`limonka`), bo `resolveScheme` bierze `layout.default ?? layout[
-pierwszy klucz]`. Dzięki temu `czernZolta`/`okazjonalnyZloty`/... dziedziczą
-wspólne role (`footerText`, `qrBorder`, ...) wprost z `limonka` i nie trzeba
-żadnego aliasu.
+pierwszy klucz]`. Dzięki temu `czern`/`jasny`/`szary` dziedziczą wspólne role
+(`footerText`, `qrBorder`, ...) wprost z `limonka` i nie trzeba żadnego aliasu.
 
 Stosuj ten wzorzec, gdy "domyślny" wygląd layoutu ma własną nazwę na pasku
 kolorystyki: napisz go jako pełny pierwszy blok, reszta podaje tylko różnice.
+
+## D. Oś akcentu (`resolveScheme(layout, name, accent?)`)
+
+Część layoutów ma dziś jeden „ciemny" schemat `czern` (z wbudowanym żółtym
+akcentem), a pozostałe warianty akcentu (pomarańczowy / granatowy / okazjonalny
+złoty / okazjonalny srebrny) dokłada **oś akcentu** — trzeci, opcjonalny
+argument `resolveScheme`:
+
+```ts
+resolveScheme('wyklad', 'czern', 'pomaranczowy') // czerń + koralowy akcent
+```
+
+Sygnatura jest wstecznie zgodna — bez `accent` resolver działa jak wcześniej
+(dla schematu z osią renderuje jego `defaultAccent`).
+
+**Który schemat ma oś akcentu — decyduje sam blok schematu**, dwoma polami:
+
+```ts
+czern: { pageBg: colors.black, /* ...role... */,
+         accents: 'all',          // 'all' = wszystkie 5, albo np. ['zolty','pomaranczowy','granatowy']
+         defaultAccent: 'zolty' }  // renderowany, gdy użytkownik nic nie wybrał
+
+jasny: { pageBg: colors.paper /* ... */ }   // brak `accents` → schemat STAŁY, kontrolka wyłączona
+```
+
+- **`accents?: AccentName[] | 'all'`** w bloku — obecność = schemat parametryzowany
+  osią; wartość = dozwolone akcenty (kolejność = kolejność kropek). Pole **nie
+  jest dziedziczone z bazy** — każdy schemat deklaruje samodzielnie.
+- **`defaultAccent?: AccentName`** w bloku — „Domyślny" w kontrolce.
+- **`accentRecipes[layout]`** — funkcja `(accent, ctx) => nadpisania ról`. `ctx`
+  to blok już scalony (baza + nazwany schemat), więc recepta może zależeć od tła
+  (np. „granatowy" daje `navyLight` na ciemnym tle, `navy` na jasnym). Recepta
+  nadpisuje tylko role akcentowe danego layoutu; dla metalu (`zloty`/`srebrny`)
+  dokłada `sygnet`. Brak recepty (`data`) → layout w ogóle nie ma osi.
+- **`layoutHasAccentAxis(layout)`** — czy layout ma jakąkolwiek oś (istnieje
+  recepta). Fałsz → kontrolka akcentu w ogóle się nie pokazuje.
+- **`accentsFor(layout, scheme?)`** / **`defaultAccentFor(layout, scheme?)`** —
+  odczyt deklaracji z bloku schematu.
+- **`accentAllowed(layout, scheme, accent)`** — `App` używa, żeby „przypiąć"
+  zapisany akcent do „Domyślny" przy zawężeniu listy (zmiana schematu/szablonu).
+- **`ACCENT_NAMES` / `ACCENT_LABELS` / `ACCENT_DOT`** — kolejność, polskie
+  podpisy i kolor kropki-podglądu w kontrolce.
+
+Żeby usunąć cały schemat z layoutu — skasuj jego blok w `LayoutSchemes`.
+
+Role kolorów są typowane (`Role` w `schemes.ts`) — literówka w kluczu bloku
+(`qrBrdr` zamiast `qrBorder`) to błąd kompilacji; nową rolę dopisz do `Role`.
+
+Niezmiennik: po nałożeniu akcentu `colors.gold` w `cssVars` występuje wyłącznie
+z sygnetem `'zloty'`, a `colors.silver` z `'srebrny'` — recepty są tak napisane,
+że zachodzi to „z konstrukcji".
 
 ## Checklist
 

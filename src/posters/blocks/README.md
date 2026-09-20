@@ -26,8 +26,8 @@ bespoke divy — to jest ta część designu, której świadomie nie uogólniamy
 | Blok | Do czego | Przykład |
 |---|---|---|
 | `PosterFrame` | Kontener 1080×1080 z tłem/kolorem/paddingiem, domyślnie flex-column + space-between | `<PosterFrame vars={s.cssVars} padding={72}>` |
-| `Badge` | Plakietka mono z letter-spacingiem — z `background` to wypełniona pigułka, bez niego sam kolorowy napis | `<Badge background="var(--badge-fill)" color="var(--badge-text)">WYKŁAD OTWARTY</Badge>` |
-| `BigDateNumber` | Duży "dzień + miesiąc" w jednej linii (np. "12 LIS") | `<BigDateNumber event_date={event_date} color="var(--gold)" />` |
+| `Badge` | Plakietka mono z letter-spacingiem — z `background` to wypełniona pigułka, bez niego sam kolorowy napis. Treść zwykle zależy od `lang` (`badge || (lang === 'en' ? '...' : 'WYKŁAD OTWARTY')`) | `<Badge background="var(--badge-fill)" color="var(--badge-text)">WYKŁAD OTWARTY</Badge>` |
+| `BigDateNumber` | Duży "dzień + miesiąc" w jednej linii (np. "12 LIS" / "12 NOV"), przyjmuje opcjonalny `lang` | `<BigDateNumber event_date={event_date} color="var(--gold)" lang={lang} />` |
 | `InfoLine` | Łączy części (godzina/lokalizacja/cokolwiek) separatorem, opcjonalna druga linia | `<InfoLine parts={[event_time, location]} secondLine={subtitle} />` |
 | `BrandingText` | Pionowy blok tekstu mono w rogu (np. nazwa koła/uczelni), domyślnie wyrównany do prawej | `<BrandingText lines={['SKNM', 'POLITECHNIKA', 'KRAKOWSKA']} />` |
 | `LogoRow` | Stopka w prawym dolnym rogu (ujednolicona pozycja logo we wszystkich szablonach): sam wysuwa się o pole ochronne, wyrównuje do dołu, `flex-wrap` na nadmiar. `minHeight={QR_SLOT_H}` rezerwuje kod QR | `<LogoRow minHeight={QR_SLOT_H}><QrSlot .../><LogoSlots .../></LogoRow>` |

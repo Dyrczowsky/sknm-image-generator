@@ -13,20 +13,20 @@ import { LogoRow } from './blocks/LogoRow'
 import type { PosterProps } from '../types'
 
 // WYKŁAD — typografia
-export function PosterWyklad({ data, scheme }: PosterProps) {
+export function PosterWyklad({ data, scheme, accent, lang }: PosterProps) {
   const { title, subtitle, speaker, event_date, event_time, location, badge, graphics, showPkLogo, qrUrl, hidden, fx } = withPlaceholders(data)
-  const s = resolveScheme('wyklad', scheme)
+  const s = resolveScheme('wyklad', scheme, accent)
   const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
 
   return (
     <PosterFrame vars={s.cssVars} padding={72}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', position: 'relative', zIndex: 1 }}>
         <img src={sygnetByName[s.sygnet ?? 'negatywny']} alt="SKNM" style={{ width: 132, display: 'block' }} />
-        <BrandingText lines={['SKNM', 'POLITECHNIKA', 'KRAKOWSKA']} opacity={0.85} />
+        <BrandingText lines={lang === 'en' ? ['SKNM', 'KRAKOW UNIVERSITY', 'OF TECHNOLOGY'] : ['SKNM', 'POLITECHNIKA', 'KRAKOWSKA']} opacity={0.85} />
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 28, position: 'relative', zIndex: 1 }}>
-        <Badge background="var(--badge-fill)" color="var(--badge-text)" style={{ fontSize: 24, ...fx('badge') }}>{badge || 'WYKŁAD OTWARTY'}</Badge>
+        <Badge background="var(--badge-fill)" color="var(--badge-text)" style={{ fontSize: 24, ...fx('badge') }}>{badge || (lang === 'en' ? 'OPEN LECTURE' : 'WYKŁAD OTWARTY')}</Badge>
         <div style={{ fontSize: 120, fontWeight: 800, lineHeight: 0.94, letterSpacing: '-.035em', fontKerning: 'none', ...fx('title') }}>
           {title}
         </div>
@@ -35,7 +35,7 @@ export function PosterWyklad({ data, scheme }: PosterProps) {
 
       <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24, position: 'relative', zIndex: 1 }}>
         <div style={{ display: 'flex', gap: 24, alignItems: 'flex-end' }}>
-          <BigDateNumber event_date={event_date} style={fx('event_date')} />
+          <BigDateNumber event_date={event_date} style={fx('event_date')} lang={lang} />
           <InfoLine
             parts={[
               { text: event_time, hidden: hidden('event_time') },

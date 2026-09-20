@@ -26,7 +26,7 @@ src/
 │   ├── PosterWyklad...    8 komponentów layoutów (style inline, patrz stylowanie.md)
 │   ├── blocks/           współdzielone bloki plakatu (PosterFrame, Badge, LogoRow, ...)
 │   ├── theme.ts          tokeny wizualne plakatów (kolory, typografia)
-│   ├── schemes.ts        schematy kolorów per layout + resolveScheme() + schemesFor()
+│   ├── schemes.ts        schematy kolorów per layout + resolveScheme() + schemesFor() + oś akcentu (accentsFor)
 │   ├── fallback.ts       PLACEHOLDERS + withPlaceholders() (dane przykładowe)
 │   ├── logos.ts          warianty sygnetu SKNM i logo PK
 │   └── export.ts         downloadPosterAsPng() - html-to-image + formaty eksportu
@@ -66,21 +66,18 @@ widoczności.
 
 ## Schematy kolorów (skrót)
 
-`Component` woła `resolveScheme(layoutKey, schemeName)` → `{ cssVars, sygnet, logoVariant }`.
+`Component` woła `resolveScheme(layoutKey, schemeName, accent?)` → `{ cssVars, sygnet, logoVariant }`.
 `cssVars` (np. `--page-bg`, `--accent`) są rozlewane na `PosterFrame`, a każdy potomek
 używa `var(--rola)` w stylu inline. Szczegóły: [dodawanie-schematu-kolorow.md](./dodawanie-schematu-kolorow.md).
 
-## Nadpisania kolorów per szablon
+### Oś akcentu
 
-Poza schematem użytkownik może nadpisać wybrane kolory pojedynczych elementów.
-Stan siedzi w `FormValues.colors` (mapa `FormColorField` → hex, pusty wpis =
-wartość ze schematu), sterowany klockiem `forms/ColorField.tsx` (próbnik +
-„Wyczyść"). Plakat bierze wartość z fallbackiem: `co.goscBoxBg || colors.coral`.
-Obecnie tylko Gość (`goscBoxBg`, `goscBoxText`, `goscTextColor`). Niezapisywane
-w draftcie - jak grafiki stopki.
-
-Kolor kodu QR NIE jest tu - idzie wyłącznie ze schematu (rola `qr`, fallback
-`var(--page-text)`), bez kontrolki w edytorze.
+Trzeci parametr `resolveScheme` to `accent` (`AccentName`). Recepty per layout w
+`schemes.ts` (`accentRecipes`) nakładają nadpisania ról „akcentowych" nad scalonym
+schematem. Który schemat ma oś akcentu — mówi sam blok schematu (pola `accents` /
+`defaultAccent`); `accentsFor(layoutKey, scheme)` je odczytuje, `data` (brak
+recepty) nie ma osi w ogóle. Wybór jest kodowany w kolumnie `color_scheme` jako
+`schemat~akcent` (helpery `encodeScheme`/`decodeScheme` w `utils/colorScheme.ts`).
 
 ## Baza / wersjonowanie
 

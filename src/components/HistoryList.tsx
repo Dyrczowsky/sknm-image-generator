@@ -1,7 +1,8 @@
 import { posterRegistry } from '../posters/registry'
-import { SCHEME_LABELS } from '../posters/schemes'
+import { ACCENT_LABELS, SCHEME_LABELS } from '../posters/schemes'
+import { decodeScheme } from '../utils/colorScheme'
 import { PosterScaled } from './PosterScaled'
-import type { HistoryRow } from '../types'
+import type { HistoryRow, PosterLang } from '../types'
 
 const THUMB_SIZE = 120
 
@@ -9,9 +10,10 @@ interface HistoryListProps {
   entries: HistoryRow[]
   onRestore: (entry: HistoryRow) => void
   onDelete: (id: number) => void
+  lang?: PosterLang
 }
 
-export function HistoryList({ entries, onRestore, onDelete }: HistoryListProps) {
+export function HistoryList({ entries, onRestore, onDelete, lang }: HistoryListProps) {
   if (entries.length === 0) {
     return <p className="text-muted">Brak wygenerowanych obrazów.</p>
   }
@@ -24,6 +26,7 @@ export function HistoryList({ entries, onRestore, onDelete }: HistoryListProps) 
       {entries.map((entry) => {
         const poster = entry.template_poster_key ? posterRegistry[entry.template_poster_key] : null
         const Component = poster?.Component
+        const { scheme: entryScheme, accent: entryAccent } = decodeScheme(entry.color_scheme)
 
         return (
           <li
@@ -33,7 +36,7 @@ export function HistoryList({ entries, onRestore, onDelete }: HistoryListProps) 
             <div className="flex-none overflow-hidden rounded-md shadow-[0_1px_2px_rgba(0,0,0,0.12)]">
               {Component ? (
                 <PosterScaled size={THUMB_SIZE}>
-                  <Component data={entry} scheme={entry.color_scheme ?? undefined} />
+                  <Component data={entry} scheme={entryScheme} accent={entryAccent} lang={lang} />
                 </PosterScaled>
               ) : (
                 <div className="bg-border" style={{ width: THUMB_SIZE, height: THUMB_SIZE }} />
@@ -45,7 +48,7 @@ export function HistoryList({ entries, onRestore, onDelete }: HistoryListProps) 
               <span className="truncate">{[entry.event_date, entry.event_time, entry.location].filter(Boolean).join(' • ')}</span>
               <span className="truncate text-[0.8rem] text-muted">
                 {entry.template_name ?? 'usunięty szablon'}
-                {entry.color_scheme && ` · ${SCHEME_LABELS[entry.color_scheme] ?? entry.color_scheme}`}
+                {entryScheme && ` · ${SCHEME_LABELS[entryScheme] ?? entryScheme}${entryAccent ? ` / ${ACCENT_LABELS[entryAccent]}` : ''}`}
                 {' — '}{entry.created_at}
               </span>
             </div>
