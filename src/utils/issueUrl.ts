@@ -1,4 +1,4 @@
-import type { FormValues } from '../types'
+import type { FormValues, PosterLang } from '../types'
 
 export const TICKET_REPO = 'Dyrczowsky/sknm-image-generator'
 export const TICKET_EMAIL = 'dyrczkuba@gmail.com'
@@ -16,7 +16,7 @@ export interface BugContextInput {
   posterKey?: string
   schemeKey?: string
   schemeLabel?: string
-  lang?: string
+  lang?: PosterLang
   form: FormValues
   appUrl: string
   userAgent: string

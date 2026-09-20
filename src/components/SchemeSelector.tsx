@@ -77,7 +77,7 @@ export function SchemeSelector({
                   className={`flex h-7 w-7 cursor-pointer items-center justify-center rounded-full border-2 ${
                     isSelected ? 'border-accent' : 'border-transparent'
                   }`}
-                  onClick={() => onSelectAccent(a)}
+                  onClick={() => onSelectAccent(a === defaultAcc ? undefined : a)}
                 >
                   <span className="block h-4 w-4 rounded-full ring-1 ring-black/10" style={{ background: ACCENT_DOT[a] }} />
                 </button>
