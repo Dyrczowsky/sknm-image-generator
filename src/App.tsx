@@ -8,7 +8,7 @@ import { addHistoryEntry, deleteHistoryEntry, listHistory } from './db/history'
 import { posterRegistry } from './posters/registry'
 import { schemesFor, SCHEME_LABELS, accentAllowed } from './posters/schemes'
 import { MAX_GRAPHICS } from './posters/theme'
-import { downloadPosterAsPng } from './posters/export'
+import { downloadPoster } from './posters/export'
 import { EXPORT_FORMATS } from './posters/formats'
 import { TemplateSelector } from './components/TemplateSelector'
 import { SchemeSelector } from './components/SchemeSelector'
@@ -375,8 +375,8 @@ function App() {
 
   const handleDownload = async () => {
     if (!selectedTemplate || !posterRef.current || !dbRef.current) return
-    const filename = `${form.title || 'plakat'}.png`.trim().replace(/\s+/g, '_')
-    await downloadPosterAsPng(posterRef.current, filename, exportFormat)
+    const basename = (form.title || 'plakat').trim().replace(/\s+/g, '_')
+    await downloadPoster(posterRef.current, basename, { formatKey: exportFormat, orientation: 'portrait', fileType: 'png' })
     await addHistoryEntry(dbRef.current, { ...form, template_id: selectedTemplateId, color_scheme: encodeScheme(selectedScheme, selectedAccent) })
     setHistory(listHistory(dbRef.current))
   }
