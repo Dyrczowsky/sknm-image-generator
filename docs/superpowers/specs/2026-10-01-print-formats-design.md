@@ -72,7 +72,10 @@ these known fixed-size parts need shape-aware values:
 | Gala | bottom-right panel | height scales | width scales |
 | Warsztat | right photo panel `height: 1080` | full frame height | width scales with frame width |
 | Gość | photo `height: 600` | photo height scales with frame height | photo beside the text rather than above |
-| Data, Konferencja, Ogłoszenie, Rekrutacja | — | verify only | verify only |
+| Konferencja | agenda row padding | rows get more padding (short agendas otherwise leave half the page empty) | unchanged |
+| Rekrutacja | title block `maxWidth: 900` | unchanged | width scales with frame width |
+| Komunikat | text block `maxWidth: 860` | unchanged | width scales with frame width |
+| Data, Ogłoszenie | — | verify only | verify only |
 
 Rule for tweaks: derive from `usePosterShape()` (`width`/`height`), never
 branch on the paper size. Font sizes are **not** changed per shape — the

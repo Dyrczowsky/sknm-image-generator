@@ -10,6 +10,7 @@ import { PosterFrame } from './blocks/PosterFrame'
 import { Badge } from './blocks/Badge'
 import { InfoLine } from './blocks/InfoLine'
 import { LogoRow } from './blocks/LogoRow'
+import { usePosterShape } from './shape'
 import type { PosterProps } from '../types'
 
 // GOŚĆ — zdjęcie + pas
@@ -22,24 +23,41 @@ export function PosterGosc({ data, scheme, accent, lang }: PosterProps) {
   const boxText = 'var(--date-text)'
   const textColor = 'var(--accent)'
 
+  const { shape, height } = usePosterShape()
+  // Poziom: zdjęcie obok tekstu zamiast nad nim - pas 1528×600 zostawiałby
+  // na tekst za mało wysokości.
+  const side = shape === 'landscape'
+  const photoH = Math.round((height * 600) / 1080)
+  const showDate = !hidden('event_date') || !hidden('event_time')
+  const dateBox = showDate && (
+    <div
+      style={{
+        background: boxBg, color: boxText, padding: '18px 26px', display: 'flex', flexDirection: 'column', alignItems: 'center',
+        ...(side ? { alignSelf: 'flex-end' } : { position: 'absolute', top: -56, right: 72 }),
+      }}
+    >
+      <div style={{ fontSize: 64, fontWeight: 800, lineHeight: 0.9, ...fx('event_date') }}>{getDay(event_date)}</div>
+      <div style={{ font: `700 22px ${fontMono}`, letterSpacing: '.12em' }}>
+        <span style={fx('event_date')}>{getMonthShort(event_date, { upperCase: true, lang })}</span>
+        {event_time && !hidden('event_time') && <> <span>{event_time}</span></>}
+      </div>
+    </div>
+  )
+
   return (
-    <PosterFrame vars={s.cssVars}>
-      <PhotoGallery photos={photos.photo} label={<>zdjęcie prelegenta<br />1080 × 600</>} style={{ height: 600 }}>
+    <PosterFrame vars={s.cssVars} style={side ? { flexDirection: 'row' } : undefined}>
+      <PhotoGallery
+        photos={photos.photo}
+        label={<>zdjęcie prelegenta<br />{side ? '640 × 1080' : `1080 × ${photoH}`}</>}
+        style={side ? { width: 640, height: '100%', flex: '0 0 auto' } : { height: photoH }}
+      >
         <div style={{ position: 'absolute', top: 0, left: 0, width: 420, height: 420, background: 'var(--sygnet-bg, var(--accent))', clipPath: 'polygon(0 0,100% 0,0 100%)', display: 'flex', alignItems: 'flex-start', padding: '72px 0 0 72px', boxSizing: 'border-box' }}>
           <img src={sygnetByName[s.sygnet ?? 'negatywny']} alt="SKNM" style={{ width: 132, display: 'block' }} />
         </div>
       </PhotoGallery>
 
-      <div style={{ flex: 1, padding: '56px 72px 72px', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', position: 'relative' }}>
-        {(!hidden('event_date') || !hidden('event_time')) && (
-          <div style={{ position: 'absolute', top: -56, right: 72, background: boxBg, color: boxText, padding: '18px 26px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <div style={{ fontSize: 64, fontWeight: 800, lineHeight: 0.9, ...fx('event_date') }}>{getDay(event_date)}</div>
-            <div style={{ font: `700 22px ${fontMono}`, letterSpacing: '.12em' }}>
-              <span style={fx('event_date')}>{getMonthShort(event_date, { upperCase: true, lang })}</span>
-              {event_time && !hidden('event_time') && <> <span>{event_time}</span></>}
-            </div>
-          </div>
-        )}
+      <div style={{ flex: 1, padding: side ? 72 : '56px 72px 72px', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', position: 'relative' }}>
+        {dateBox}
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 820 }}>
           <Badge color={textColor} style={fx('badge')}>{badge || (lang === 'en' ? 'SKNM SEMINAR' : 'SEMINARIUM SKNM')}</Badge>

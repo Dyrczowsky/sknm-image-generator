@@ -10,17 +10,19 @@ import { BigDateNumber } from './blocks/BigDateNumber'
 import { InfoLine } from './blocks/InfoLine'
 import { BrandingText } from './blocks/BrandingText'
 import { LogoRow } from './blocks/LogoRow'
+import { usePosterShape } from './shape'
 import type { PosterProps } from '../types'
 
 // GALA — złoto na grafitowym
 export function PosterGala({ data, scheme, accent, lang }: PosterProps) {
   const { title, subtitle, event_date, event_time, location, badge, graphics, showPkLogo, qrUrl, hidden, fx, titleScale, textScale } = withPlaceholders(data)
   const s = resolveScheme('gala', scheme, accent)
+  const { kx, ky } = usePosterShape()
   const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
 
   return (
     <PosterFrame vars={s.cssVars} padding={72}>
-      <div style={{ position: 'absolute', bottom: 0, right: 0, width: 880, height: 700, background: 'var(--panel-br)', clipPath: 'polygon(100% 0,100% 100%,0 100%)' }} />
+      <div style={{ position: 'absolute', bottom: 0, right: 0, width: 880 * kx, height: 700 * ky, background: 'var(--panel-br)', clipPath: 'polygon(100% 0,100% 100%,0 100%)' }} />
       <div style={{ position: 'absolute', top: 232, left: 0, right: 0, height: 1, background: `linear-gradient(to right, transparent 0, var(--gold) 18%, var(--gold) 82%, transparent 100%)` }} />
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', position: 'relative', zIndex: 1 }}>

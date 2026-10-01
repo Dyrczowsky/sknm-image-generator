@@ -10,12 +10,14 @@ import { Badge } from './blocks/Badge'
 import { InfoLine } from './blocks/InfoLine'
 import { BrandingText } from './blocks/BrandingText'
 import { LogoRow } from './blocks/LogoRow'
+import { usePosterShape } from './shape'
 import type { PosterProps } from '../types'
 
 // REKRUTACJA — wzór z sygnetu
 export function PosterRekrutacja({ data, scheme, accent, lang }: PosterProps) {
   const { title, subtitle, event_date, event_time, location, badge, graphics, showPkLogo, qrUrl, hidden, fx, titleScale, textScale } = withPlaceholders(data)
   const s = resolveScheme('rekrutacja', scheme, accent)
+  const { kx } = usePosterShape()
   const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
 
   return (
@@ -25,7 +27,7 @@ export function PosterRekrutacja({ data, scheme, accent, lang }: PosterProps) {
         <BrandingText lines={lang === 'en' ? ['STUDENT SCIENCE CLUB', 'OF MATHEMATICS', 'KRAKOW UNIVERSITY OF TECHNOLOGY'] : ['STUDENCKIE KOŁO', 'NAUKOWE MATEMATYKÓW', 'POLITECHNIKI KRAKOWSKIEJ']} />
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 26, position: 'relative', maxWidth: 900 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 26, position: 'relative', maxWidth: 900 * kx }}>
         <div style={{ fontSize: 150 * titleScale, fontWeight: 800, lineHeight: 0.88, letterSpacing: '-.045em', fontKerning: 'none', ...fx('title') }}>
           {title}
         </div>
