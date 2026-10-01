@@ -7,6 +7,7 @@ import { resolveScheme } from './schemes'
 import { PosterFrame } from './blocks/PosterFrame'
 import { Badge } from './blocks/Badge'
 import { BigDateNumber } from './blocks/BigDateNumber'
+import { InfoLine } from './blocks/InfoLine'
 import { BrandingText } from './blocks/BrandingText'
 import { LogoRow } from './blocks/LogoRow'
 import { usePosterShape } from './shape'
@@ -14,10 +15,10 @@ import type { PosterProps } from '../types'
 
 // KOMUNIKAT ROZSZERZONY — tło z klinami i stosem trójkątów jak Wykład, ale
 // z prawdziwym akapitem treści (`body`) pod nagłówkiem. Plakietka, trójkąty
-// i podpis niosą kolor akcentu; data w stopce jest opcjonalna (checkbox
+// i podpis niosą kolor akcentu; data i sala w stopce są opcjonalne (checkbox
 // widoczności) — do dłuższych komunikatów, regulaminów, relacji.
 export function PosterKomunikat({ data, scheme, accent, lang }: PosterProps) {
-  const { title, subtitle, body, badge, event_date, graphics, showPkLogo, qrUrl, fx, titleScale, textScale } = withPlaceholders(data)
+  const { title, subtitle, body, badge, event_date, location, graphics, showPkLogo, qrUrl, hidden, fx, titleScale, textScale } = withPlaceholders(data)
   const s = resolveScheme('komunikat', scheme, accent)
   const { kx, ky } = usePosterShape()
   const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
@@ -45,7 +46,11 @@ export function PosterKomunikat({ data, scheme, accent, lang }: PosterProps) {
       <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24, position: 'relative', zIndex: 1 }}>
         <div style={{ display: 'flex', gap: 24, alignItems: 'flex-end' }}>
           <BigDateNumber event_date={event_date} style={fx('event_date')} lang={lang} />
-          <div style={{ font: `700 20px ${fontMono}`, letterSpacing: '.12em', opacity: 0.85, paddingBottom: 10 }}>sknm.pk.edu.pl</div>
+          {/* Sala obok daty, jak w Wykładzie; pod nią adres strony. */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4, paddingBottom: 10 }}>
+            <InfoLine parts={[{ text: location, hidden: hidden('location') }]} style={{ whiteSpace: 'nowrap' }} />
+            <div style={{ font: `700 20px ${fontMono}`, letterSpacing: '.12em', opacity: 0.85 }}>sknm.pk.edu.pl</div>
+          </div>
         </div>
         <LogoRow minHeight={QR_SLOT_H}>
           <QrSlot value={qrUrl} />

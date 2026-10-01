@@ -5,7 +5,7 @@ import { GraphicsField } from './GraphicsField'
 import { TitleTextScaleFields } from './TitleTextScaleFields'
 
 // Formularz Komunikatu rozszerzonego - etykieta, nagłówek, akapit treści
-// (`body`), podpis i opcjonalna data (bez godziny i lokalizacji).
+// (`body`), podpis oraz opcjonalne data i sala (bez godziny).
 export function FormKomunikat({ value, onFieldChange, onVisibilityChange, onGraphicsAdd, onGraphicRemove, onGraphicMove, onShowPkChange, onQrUrlChange, onTitleScaleChange, onTextScaleChange, onScaleLinkedChange }: FormProps) {
   const vis = { visibility: value.visibility, onVisibilityChange }
   const gfx = { value, onGraphicsAdd, onGraphicRemove, onGraphicMove, onShowPkChange, onQrUrlChange }
@@ -18,6 +18,7 @@ export function FormKomunikat({ value, onFieldChange, onVisibilityChange, onGrap
       <FormField name="body" {...vis} type="textarea" label="Treść komunikatu" placeholder={PLACEHOLDERS.body} value={value.body} onChange={(v) => onFieldChange('body', v)} />
       <FormField name="subtitle" {...vis} type="text" label="Podpis / źródło (opcjonalnie)" value={value.subtitle} onChange={(v) => onFieldChange('subtitle', v)} />
       <FormField name="event_date" {...vis} type="date" label="Data" placeholder={PLACEHOLDERS.event_date} value={value.event_date} onChange={(v) => onFieldChange('event_date', v)} />
+      <FormField name="location" {...vis} type="text" label="Sala / miejsce" placeholder={PLACEHOLDERS.location} value={value.location} onChange={(v) => onFieldChange('location', v)} />
 
       <GraphicsField {...gfx} />
     </form>
