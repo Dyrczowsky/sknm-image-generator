@@ -536,7 +536,9 @@ function App() {
             )}
           </section>
 
-          <section className={`${panel} min-[900px]:sticky min-[900px]:top-5 min-[900px]:[grid-area:preview]`}>
+          {/* Podgląd w pionie (A4/A3/A2) bywa wyższy niż okno - przypięty panel
+              przewija się wtedy w sobie, żeby kolorystyka i akcent były osiągalne. */}
+          <section className={`${panel} min-[900px]:sticky min-[900px]:top-5 min-[900px]:max-h-[calc(100vh-2.5rem)] min-[900px]:overflow-y-auto min-[900px]:[grid-area:preview]`}>
             <h2 className={panelHeading}>Podgląd</h2>
             <PosterPreview posterRef={posterRef} Component={selectedPoster?.Component} data={form} scheme={selectedScheme} accent={selectedAccent} lang={lang} shape={shapeFor(exportFormat, orientation)} />
             <SchemeSelector
