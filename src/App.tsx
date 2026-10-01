@@ -14,6 +14,7 @@ import { TemplateSelector } from './components/TemplateSelector'
 import { SchemeSelector } from './components/SchemeSelector'
 import { LangToggle } from './components/LangToggle'
 import { SegmentedToggle } from './components/SegmentedToggle'
+import { CollapsiblePanel } from './components/CollapsiblePanel'
 import { PosterPreview } from './components/PosterPreview'
 import { HistoryList } from './components/HistoryList'
 import { TicketDialog } from './components/TicketDialog'
@@ -21,6 +22,8 @@ import { FloatingReportButton } from './components/FloatingReportButton'
 import { SiteFooter } from './components/SiteFooter'
 import { encodeScheme, decodeScheme } from './utils/colorScheme'
 import type { BugContextInput } from './utils/issueUrl'
+import { COLLAPSED_STORAGE_KEY, parseCollapsed } from './utils/collapsedPanels'
+import type { CollapsedPanels, PanelKey } from './utils/collapsedPanels'
 
 const LANG_STORAGE_KEY = 'sknm-poster-lang'
 
@@ -39,6 +42,14 @@ function loadStoredLang(): PosterLang {
     return localStorage.getItem(LANG_STORAGE_KEY) === 'en' ? 'en' : 'pl'
   } catch {
     return 'pl'
+  }
+}
+
+function loadStoredCollapsed(): CollapsedPanels {
+  try {
+    return parseCollapsed(localStorage.getItem(COLLAPSED_STORAGE_KEY))
+  } catch {
+    return parseCollapsed(null)
   }
 }
 
@@ -83,6 +94,8 @@ function App() {
   const [selectedScheme, setSelectedScheme] = useState<string | undefined>(undefined)
   const [selectedAccent, setSelectedAccent] = useState<AccentName | undefined>(undefined)
   const [lang, setLang] = useState<PosterLang>(loadStoredLang)
+  const [collapsed, setCollapsed] = useState<CollapsedPanels>(loadStoredCollapsed)
+  const togglePanel = (key: PanelKey) => setCollapsed((prev) => ({ ...prev, [key]: !prev[key] }))
   const [form, setForm] = useState<FormValues>(EMPTY_FORM)
   const [history, setHistory] = useState<HistoryRow[]>([])
   const [exportFormat, setExportFormat] = useState('square')
@@ -150,6 +163,14 @@ function App() {
       // localStorage niedostępny (np. tryb prywatny) — język zostaje tylko w pamięci sesji.
     }
   }, [lang])
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(COLLAPSED_STORAGE_KEY, JSON.stringify(collapsed))
+    } catch {
+      // localStorage niedostępny — stan paneli zostaje tylko w pamięci sesji.
+    }
+  }, [collapsed])
 
   const persistDraft = useCallback(
     (
@@ -433,15 +454,28 @@ function App() {
 
         {/* Do 900px sekcje płyną jedna pod drugą w kolejności DOM. Od 900px
             grid-template-areas robi dwie kolumny: lewa to szablon/formularz/
-            akcje/historia, prawa to przypięty (sticky) podgląd. */}
-        <div className="flex flex-col min-[900px]:mt-5 min-[900px]:grid min-[900px]:grid-cols-[1fr_460px] min-[900px]:items-start min-[900px]:gap-6 min-[900px]:[grid-template-areas:'template_preview''form_preview''actions_preview''history_preview']">
-          <section className={`${panel} min-[900px]:[grid-area:template]`}>
-            <h2 className={panelHeading}>1. Wybierz szablon</h2>
+            akcje/historia, prawa to przypięty (sticky) podgląd. Nadmiar wysokości
+            podglądu bierze ostatni wiersz (1fr) - inaczej zwinięte panele
+            rozjeżdżałyby się, bo grid dzieli go równo między wiersze. */}
+        <div className="flex flex-col min-[900px]:mt-5 min-[900px]:grid min-[900px]:grid-cols-[1fr_460px] min-[900px]:grid-rows-[auto_auto_auto_1fr] min-[900px]:items-start min-[900px]:gap-6 min-[900px]:[grid-template-areas:'template_preview''form_preview''actions_preview''history_preview']">
+          <CollapsiblePanel
+            id="template"
+            title="1. Wybierz szablon"
+            summary={selectedTemplate?.name}
+            open={!collapsed.template}
+            onToggle={() => togglePanel('template')}
+            className={`${panel} min-[900px]:[grid-area:template]`}
+          >
             <TemplateSelector templates={templates} selectedId={selectedTemplateId} onSelect={handleSelectTemplate} lang={lang} />
-          </section>
+          </CollapsiblePanel>
 
-          <section className={`${panel} min-[900px]:[grid-area:form]`}>
-            <h2 className={panelHeading}>2. Uzupełnij dane</h2>
+          <CollapsiblePanel
+            id="form"
+            title="2. Uzupełnij dane"
+            open={!collapsed.form}
+            onToggle={() => togglePanel('form')}
+            className={`${panel} min-[900px]:[grid-area:form]`}
+          >
             {SelectedForm && (
               <SelectedForm
                 value={form}
@@ -463,7 +497,7 @@ function App() {
                 onScaleLinkedChange={handleScaleLinkedChange}
               />
             )}
-          </section>
+          </CollapsiblePanel>
 
           <section className={`${panel} flex flex-wrap items-center gap-3 min-[900px]:[grid-area:actions]`}>
             <select
@@ -516,10 +550,15 @@ function App() {
             />
           </section>
 
-          <section className={`${panel} min-[900px]:[grid-area:history]`}>
-            <h2 className={panelHeading}>Historia</h2>
+          <CollapsiblePanel
+            id="history"
+            title="Historia"
+            open={!collapsed.history}
+            onToggle={() => togglePanel('history')}
+            className={`${panel} min-[900px]:[grid-area:history]`}
+          >
             <HistoryList entries={history} onRestore={handleRestoreHistoryEntry} onDelete={handleDeleteHistoryEntry} lang={lang} />
-          </section>
+          </CollapsiblePanel>
         </div>
         <SiteFooter onRequestClick={() => setTicket('request')} />
       </main>
