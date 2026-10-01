@@ -1,18 +1,6 @@
 import { toPng } from 'html-to-image'
 
-export interface ExportFormat {
-  label: string
-  width: number
-  height: number
-}
-
-// Formaty eksportu. Plakat sam w sobie jest zawsze renderowany jako 1080x1080
-// (patrz PosterFrame) - formaty inne niż `square` dokładają tło wokół niego,
-// zamiast przebudowywać layout każdego szablonu.
-export const EXPORT_FORMATS: Record<string, ExportFormat> = {
-  square: { label: 'Kwadrat · 1080×1080', width: 1080, height: 1080 },
-  story: { label: 'Story · 1080×1920', width: 1080, height: 1920 },
-}
+import { EXPORT_FORMATS } from './formats'
 
 function loadImage(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
@@ -55,7 +43,7 @@ async function compositeOnCanvas(posterDataUrl: string, width: number, height: n
 export async function downloadPosterAsPng(node: HTMLElement, filename: string, formatKey = 'square'): Promise<void> {
   const format = EXPORT_FORMATS[formatKey] ?? EXPORT_FORMATS.square
   const posterDataUrl = await toPng(node, { width: 1080, height: 1080, pixelRatio: 1 })
-  const dataUrl = await compositeOnCanvas(posterDataUrl, format.width, format.height)
+  const dataUrl = await compositeOnCanvas(posterDataUrl, format.width ?? 1080, format.height ?? 1080)
 
   const link = document.createElement('a')
   link.href = dataUrl
