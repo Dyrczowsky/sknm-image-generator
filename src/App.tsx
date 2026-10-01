@@ -48,7 +48,7 @@ const EMPTY_FORM: FormValues = {
   lists: {},
   titleScale: 1,
   textScale: 1,
-  scaleLinked: false,
+  scaleLinked: true,
 }
 
 // Domyślny schemat kolorów danego layoutu = pierwszy schemat z `schemes.ts`.
@@ -105,7 +105,7 @@ function App() {
           lists: {},
           titleScale: 1,
           textScale: 1,
-          scaleLinked: false,
+          scaleLinked: true,
         })
       }
       setSelectedTemplateId(initialTemplateId)
@@ -336,7 +336,7 @@ function App() {
       lists: {},
       titleScale: 1,
       textScale: 1,
-      scaleLinked: false,
+      scaleLinked: true,
     }
     setForm(next)
     const templateId = entry.template_id ?? selectedTemplateId
