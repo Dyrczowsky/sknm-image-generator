@@ -190,6 +190,27 @@ It appends the extension (`.png` / `.pdf`). Social formats ignore
   button: `Zapisano w 200 dpi — przeglądarka nie obsłużyła 300 dpi.`
 - The live preview uses `shapeFor(exportFormat, orientation)`.
 
+## Collapsible creator panels
+
+Independent of the print work, but shipped with it: the long panels of the
+creator can be rolled up so the format controls and preview stay reachable
+on small screens.
+
+- **Collapsible:** `1. Wybierz szablon`, `2. Uzupełnij dane`, `Historia`.
+  **Not collapsible:** the actions row and `Podgląd`.
+- New component `src/components/CollapsiblePanel.tsx`
+  (`title`, `open`, `onToggle`, `className`, `children`). It renders the
+  existing `<section>` + heading styles; the heading becomes a full-width
+  `<button aria-expanded aria-controls>` with a chevron on the right that
+  rotates when open. Collapsed content is unmounted from layout with
+  `hidden` (form state lives in `App`, so nothing is lost).
+- State: `collapsed: Record<'template' | 'form' | 'history', boolean>` in
+  `App.tsx`, all open by default, persisted to `localStorage` under
+  `sknm-collapsed-panels` (read once on mount with a try/catch fallback,
+  like `sknm-poster-lang`).
+- A collapsed `1. Wybierz szablon` shows the selected template's name next
+  to the heading, so the current choice stays visible.
+
 ## Out of scope
 
 - Bleed and crop marks.
