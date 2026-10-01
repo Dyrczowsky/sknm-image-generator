@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { Database } from 'sql.js'
-import type { AccentName, FormValues, FormTextField, HistoryRow, PosterLang, TemplateRow } from './types'
+import type { AccentName, FileType, FormValues, FormTextField, HistoryRow, Orientation, PosterLang, TemplateRow } from './types'
 import { getDb } from './db/client'
 import { listTemplates } from './db/templates'
 import { getDraft, saveDraft, parseVisibility } from './db/drafts'
@@ -9,10 +9,11 @@ import { posterRegistry } from './posters/registry'
 import { schemesFor, SCHEME_LABELS, accentAllowed } from './posters/schemes'
 import { MAX_GRAPHICS } from './posters/theme'
 import { downloadPoster } from './posters/export'
-import { EXPORT_FORMATS } from './posters/formats'
+import { EXPORT_FORMATS, isPrintFormat, shapeFor } from './posters/formats'
 import { TemplateSelector } from './components/TemplateSelector'
 import { SchemeSelector } from './components/SchemeSelector'
 import { LangToggle } from './components/LangToggle'
+import { SegmentedToggle } from './components/SegmentedToggle'
 import { PosterPreview } from './components/PosterPreview'
 import { HistoryList } from './components/HistoryList'
 import { TicketDialog } from './components/TicketDialog'
@@ -22,6 +23,16 @@ import { encodeScheme, decodeScheme } from './utils/colorScheme'
 import type { BugContextInput } from './utils/issueUrl'
 
 const LANG_STORAGE_KEY = 'sknm-poster-lang'
+
+const ORIENTATION_OPTIONS = [
+  { value: 'portrait', label: 'Pion' },
+  { value: 'landscape', label: 'Poziom' },
+] as const
+
+const FILE_TYPE_OPTIONS = [
+  { value: 'png', label: 'PNG' },
+  { value: 'pdf', label: 'PDF' },
+] as const
 
 function loadStoredLang(): PosterLang {
   try {
@@ -75,6 +86,14 @@ function App() {
   const [form, setForm] = useState<FormValues>(EMPTY_FORM)
   const [history, setHistory] = useState<HistoryRow[]>([])
   const [exportFormat, setExportFormat] = useState('square')
+  // Orientacja strony i typ pliku dotyczą tylko formatów papierowych
+  // (A4/A3/A2). Sesyjne, jak `exportFormat` - bez zapisu do draftu.
+  const [orientation, setOrientation] = useState<Orientation>('portrait')
+  const [fileType, setFileType] = useState<FileType>('png')
+  const [exporting, setExporting] = useState(false)
+  const [exportNote, setExportNote] = useState<string | null>(null)
+  const printFormat = isPrintFormat(exportFormat)
+  const effectiveFileType: FileType = printFormat ? fileType : 'png'
   const [ticket, setTicket] = useState<null | 'bug' | 'request'>(null)
 
   useEffect(() => {
@@ -374,11 +393,20 @@ function App() {
   }
 
   const handleDownload = async () => {
-    if (!selectedTemplate || !posterRef.current || !dbRef.current) return
+    if (!selectedTemplate || !posterRef.current || !dbRef.current || exporting) return
     const basename = (form.title || 'plakat').trim().replace(/\s+/g, '_')
-    await downloadPoster(posterRef.current, basename, { formatKey: exportFormat, orientation: 'portrait', fileType: 'png' })
-    await addHistoryEntry(dbRef.current, { ...form, template_id: selectedTemplateId, color_scheme: encodeScheme(selectedScheme, selectedAccent) })
-    setHistory(listHistory(dbRef.current))
+    setExporting(true)
+    setExportNote(null)
+    try {
+      const { dpi } = await downloadPoster(posterRef.current, basename, { formatKey: exportFormat, orientation, fileType: effectiveFileType })
+      if (dpi !== undefined && dpi < 300) setExportNote(`Zapisano w ${dpi} dpi — przeglądarka nie obsłużyła 300 dpi.`)
+      await addHistoryEntry(dbRef.current, { ...form, template_id: selectedTemplateId, color_scheme: encodeScheme(selectedScheme, selectedAccent) })
+      setHistory(listHistory(dbRef.current))
+    } catch {
+      setExportNote('Nie udało się wygenerować pliku. Spróbuj mniejszego formatu.')
+    } finally {
+      setExporting(false)
+    }
   }
 
   const shell = 'mx-auto max-w-[720px] px-4 pt-8 pb-16 min-[900px]:max-w-[1240px]'
@@ -437,11 +465,14 @@ function App() {
             )}
           </section>
 
-          <section className={`${panel} flex gap-3 min-[900px]:[grid-area:actions]`}>
+          <section className={`${panel} flex flex-wrap items-center gap-3 min-[900px]:[grid-area:actions]`}>
             <select
               className="rounded-lg border border-field-border bg-field px-3.5 py-[11px] text-[0.9rem] text-fg"
               value={exportFormat}
-              onChange={(e) => setExportFormat(e.target.value)}
+              onChange={(e) => {
+                setExportFormat(e.target.value)
+                setExportNote(null)
+              }}
               aria-label="Format eksportu"
             >
               {Object.entries(EXPORT_FORMATS).map(([key, format]) => (
@@ -450,18 +481,30 @@ function App() {
                 </option>
               ))}
             </select>
+            {printFormat && (
+              <>
+                <SegmentedToggle value={orientation} onChange={setOrientation} options={ORIENTATION_OPTIONS} ariaLabel="Orientacja" />
+                <SegmentedToggle value={fileType} onChange={setFileType} options={FILE_TYPE_OPTIONS} ariaLabel="Typ pliku" />
+              </>
+            )}
             <button
               type="button"
-              className="cursor-pointer rounded-lg bg-accent px-[18px] py-[11px] text-[0.95rem] font-medium text-white transition-[background-color,transform] hover:bg-accent-hover active:scale-[0.98]"
+              className="cursor-pointer rounded-lg bg-accent px-[18px] py-[11px] text-[0.95rem] font-medium text-white transition-[background-color,transform] hover:bg-accent-hover active:scale-[0.98] disabled:cursor-wait disabled:opacity-60"
               onClick={handleDownload}
+              disabled={exporting}
             >
-              Pobierz PNG
+              {exporting ? 'Generowanie…' : `Pobierz ${effectiveFileType.toUpperCase()}`}
             </button>
+            {exportNote && (
+              <p className="basis-full text-[0.85rem] text-muted" role="status">
+                {exportNote}
+              </p>
+            )}
           </section>
 
           <section className={`${panel} min-[900px]:sticky min-[900px]:top-5 min-[900px]:[grid-area:preview]`}>
             <h2 className={panelHeading}>Podgląd</h2>
-            <PosterPreview posterRef={posterRef} Component={selectedPoster?.Component} data={form} scheme={selectedScheme} accent={selectedAccent} lang={lang} />
+            <PosterPreview posterRef={posterRef} Component={selectedPoster?.Component} data={form} scheme={selectedScheme} accent={selectedAccent} lang={lang} shape={shapeFor(exportFormat, orientation)} />
             <SchemeSelector
               poster={selectedPoster}
               posterKey={selectedTemplate?.poster_key}
