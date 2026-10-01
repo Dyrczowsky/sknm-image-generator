@@ -1,4 +1,4 @@
-import { fontMono, QR_SLOT_H } from './theme'
+import { fontMono, QR_SLOT_H, typography } from './theme'
 import { sygnetByName } from './logos'
 import { resolveScheme } from './schemes'
 import { LogoSlots } from './blocks/LogoSlots'
@@ -14,7 +14,7 @@ import type { PosterProps } from '../types'
 
 // DATA — liczba jako grafika
 export function PosterData({ data, scheme, accent, lang }: PosterProps) {
-  const { title, subtitle, event_date, event_time, location, graphics, showPkLogo, qrUrl, photos, hidden, fx } = withPlaceholders(data)
+  const { title, subtitle, event_date, event_time, location, graphics, showPkLogo, qrUrl, photos, hidden, fx, titleScale, textScale } = withPlaceholders(data)
   const s = resolveScheme('data', scheme, accent)
   const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
 
@@ -45,11 +45,12 @@ export function PosterData({ data, scheme, accent, lang }: PosterProps) {
           labelStyle={{ font: `400 18px ${fontMono}` }}
         />
         <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-          <div style={{ fontSize: 60, fontWeight: 800, lineHeight: 1, letterSpacing: '-.02em', color: 'var(--title)', fontKerning: 'none', ...fx('title') }}>
+          <div style={{ fontSize: 60 * titleScale, fontWeight: 800, lineHeight: 1, letterSpacing: '-.02em', color: 'var(--title)', fontKerning: 'none', ...fx('title') }}>
             {title}
           </div>
           <InfoLine
             parts={[{ text: subtitle, hidden: hidden('subtitle') }]}
+            partsStyle={{ fontSize: typography.body.fontSize * textScale }}
             secondLine={location}
             secondLineHidden={hidden('location')}
             style={{ color: 'var(--muted-text)', maxWidth: '24ch' }}

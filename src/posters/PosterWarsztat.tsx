@@ -22,7 +22,7 @@ function Pill({ children, style }: { children: ReactNode; style?: CSSProperties 
 
 // WARSZTAT — skos
 export function PosterWarsztat({ data, scheme, accent, lang }: PosterProps) {
-  const { title, subtitle, event_date, event_time, location, badge, graphics, showPkLogo, qrUrl, photos, fx } = withPlaceholders(data)
+  const { title, subtitle, event_date, event_time, location, badge, graphics, showPkLogo, qrUrl, photos, fx, titleScale, textScale } = withPlaceholders(data)
   const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
 
   const pills = [
@@ -46,11 +46,11 @@ export function PosterWarsztat({ data, scheme, accent, lang }: PosterProps) {
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 22, maxWidth: 600 }}>
           <Badge background="var(--badge-fill)" color="var(--badge-text)" style={{ padding: '10px 16px', ...fx('badge') }}>{badge || (lang === 'en' ? 'WORKSHOP' : 'WARSZTATY')}</Badge>
-          <div style={{ fontSize: 104, fontWeight: 800, lineHeight: 0.94, letterSpacing: '-.035em', color: 'var(--title)', fontKerning: 'none', ...fx('title') }}>
+          <div style={{ fontSize: 104 * titleScale, fontWeight: 800, lineHeight: 0.94, letterSpacing: '-.035em', color: 'var(--title)', fontKerning: 'none', ...fx('title') }}>
             {title}
           </div>
           {subtitle && (
-            <div style={{ fontSize: 32, fontWeight: 500, lineHeight: 1.4, color: 'var(--muted-text)', ...fx('subtitle') }}>{subtitle}</div>
+            <div style={{ fontSize: 32 * textScale, fontWeight: 500, lineHeight: 1.4, color: 'var(--muted-text)', ...fx('subtitle') }}>{subtitle}</div>
           )}
         </div>
 

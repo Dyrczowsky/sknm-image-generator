@@ -6,6 +6,7 @@ import { PosterGosc } from './PosterGosc'
 import { PosterOgloszenie } from './PosterOgloszenie'
 import { PosterWyklad } from './PosterWyklad'
 import { PosterKonferencja } from './PosterKonferencja'
+import { PosterKomunikat } from './PosterKomunikat'
 import { FormWarsztat } from '../forms/FormWarsztat'
 import { FormRekrutacja } from '../forms/FormRekrutacja'
 import { FormData } from '../forms/FormData'
@@ -14,6 +15,7 @@ import { FormGosc } from '../forms/FormGosc'
 import { FormOgloszenie } from '../forms/FormOgloszenie'
 import { FormWyklad } from '../forms/FormWyklad'
 import { FormKonferencja } from '../forms/FormKonferencja'
+import { FormKomunikat } from '../forms/FormKomunikat'
 import type { RegistryEntry } from '../types'
 
 // Każdy wpis to `{ name, Component, Form }`:
@@ -38,4 +40,5 @@ export const posterRegistry: Record<string, RegistryEntry> = {
   gosc: { name: 'Gość', Component: PosterGosc, Form: FormGosc },
   gala: { name: 'Gala', Component: PosterGala, Form: FormGala },
   ogloszenie: { name: 'Ogłoszenie', Component: PosterOgloszenie, Form: FormOgloszenie },
+  komunikat: { name: 'Komunikat rozszerzony', Component: PosterKomunikat, Form: FormKomunikat },
 }

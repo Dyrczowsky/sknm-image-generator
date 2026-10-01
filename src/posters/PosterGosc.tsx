@@ -14,7 +14,7 @@ import type { PosterProps } from '../types'
 
 // GOŚĆ — zdjęcie + pas
 export function PosterGosc({ data, scheme, accent, lang }: PosterProps) {
-  const { title, speaker, event_date, event_time, location, badge, graphics, showPkLogo, qrUrl, photos, hidden, fx } = withPlaceholders(data)
+  const { title, speaker, event_date, event_time, location, badge, graphics, showPkLogo, qrUrl, photos, hidden, fx, titleScale } = withPlaceholders(data)
   const s = resolveScheme('gosc', scheme, accent)
   const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
 
@@ -43,7 +43,7 @@ export function PosterGosc({ data, scheme, accent, lang }: PosterProps) {
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 820 }}>
           <Badge color={textColor} style={fx('badge')}>{badge || (lang === 'en' ? 'SKNM SEMINAR' : 'SEMINARIUM SKNM')}</Badge>
-          <div style={{ fontSize: 82, fontWeight: 800, lineHeight: 0.98, letterSpacing: '-.03em', fontKerning: 'none', ...fx('title') }}>
+          <div style={{ fontSize: 82 * titleScale, fontWeight: 800, lineHeight: 0.98, letterSpacing: '-.03em', fontKerning: 'none', ...fx('title') }}>
             {title}
           </div>
           <InfoLine

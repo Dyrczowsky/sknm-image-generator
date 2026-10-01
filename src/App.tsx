@@ -39,12 +39,16 @@ const EMPTY_FORM: FormValues = {
   location: '',
   badge: '',
   badge2: '',
+  body: '',
   visibility: {},
   graphics: [],
   showPkLogo: true,
   qrUrl: '',
   photos: {},
   lists: {},
+  titleScale: 1,
+  textScale: 1,
+  scaleLinked: false,
 }
 
 // Domyślny schemat kolorów danego layoutu = pierwszy schemat z `schemes.ts`.
@@ -92,12 +96,16 @@ function App() {
           location: draft.location ?? '',
           badge: draft.badge ?? '',
           badge2: draft.badge2 ?? '',
+          body: draft.body ?? '',
           visibility: parseVisibility(draft.visibility),
           graphics: [],
           showPkLogo: true,
           qrUrl: '',
           photos: {},
           lists: {},
+          titleScale: 1,
+          textScale: 1,
+          scaleLinked: false,
         })
       }
       setSelectedTemplateId(initialTemplateId)
@@ -260,6 +268,21 @@ function App() {
     })
   }
 
+  // Suwaki rozmiaru tytułu/pozostałego tekstu - sesyjne, celowo bez
+  // persistDraft (jak grafiki/zdjęcia/listy - resetują się po odświeżeniu
+  // strony).
+  const handleTitleScaleChange = (value: number) => {
+    setForm((prev) => ({ ...prev, titleScale: value }))
+  }
+
+  const handleTextScaleChange = (value: number) => {
+    setForm((prev) => ({ ...prev, textScale: value }))
+  }
+
+  const handleScaleLinkedChange = (value: boolean) => {
+    setForm((prev) => ({ ...prev, scaleLinked: value }))
+  }
+
   const handleListItemRemove = (fieldKey: string, index: number) => {
     setForm((prev) => {
       const list = prev.lists[fieldKey] ?? []
@@ -304,12 +327,16 @@ function App() {
       location: entry.location ?? '',
       badge: '',
       badge2: '',
+      body: '',
       visibility: {},
       graphics: [],
       showPkLogo: true,
       qrUrl: '',
       photos: {},
       lists: {},
+      titleScale: 1,
+      textScale: 1,
+      scaleLinked: false,
     }
     setForm(next)
     const templateId = entry.template_id ?? selectedTemplateId
@@ -402,6 +429,9 @@ function App() {
                 onListItemAdd={handleListItemAdd}
                 onListItemChange={handleListItemChange}
                 onListItemRemove={handleListItemRemove}
+                onTitleScaleChange={handleTitleScaleChange}
+                onTextScaleChange={handleTextScaleChange}
+                onScaleLinkedChange={handleScaleLinkedChange}
               />
             )}
           </section>

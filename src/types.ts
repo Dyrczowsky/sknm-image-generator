@@ -9,7 +9,7 @@ export type ListItem = Record<string, string>
 export type FormTextField =
   | 'title' | 'subtitle' | 'speaker'
   | 'event_date' | 'event_time' | 'location'
-  | 'badge' | 'badge2'
+  | 'badge' | 'badge2' | 'body'
 
 // Widoczność pól tekstowych na plakacie. Brak klucza / `true` = widoczne;
 // `false` = ukryte przez `opacity: 0` (element zostaje w layoucie, żeby nie
@@ -25,6 +25,8 @@ export interface FormValues {
   location: string
   badge: string
   badge2: string
+  // Dłuższy akapit treści (np. szablon „Komunikat rozszerzony").
+  body: string
   visibility: FieldVisibility
   // Grafiki/logotypy w stopce (data URL-e), w kolejności wyświetlania.
   graphics: string[]
@@ -34,6 +36,13 @@ export interface FormValues {
   qrUrl: string
   photos: Record<string, PhotoValue[]>
   lists: Record<string, ListItem[]>
+  // Mnożnik rozmiaru tytułu/pozostałego tekstu (suwaki w formularzu) - 1 =
+  // domyślny rozmiar szablonu. Celowo NIE są zapisywane do draftu (sesyjne,
+  // jak grafiki). `scaleLinked` - czy suwaki są spięte (przesunięcie
+  // jednego ustawia oba na ten sam procent).
+  titleScale: number
+  textScale: number
+  scaleLinked: boolean
 }
 
 // --- Wiersze SQLite (sql.js) ---
@@ -49,6 +58,7 @@ export interface DraftRow {
   location: string | null
   badge: string | null
   badge2: string | null
+  body: string | null
   visibility: string | null
   color_scheme: string | null
   template_id: number | null
@@ -98,6 +108,9 @@ export interface FormProps {
   onGraphicMove: (index: number, dir: -1 | 1) => void
   onShowPkChange: (value: boolean) => void
   onQrUrlChange: (value: string) => void
+  onTitleScaleChange: (value: number) => void
+  onTextScaleChange: (value: number) => void
+  onScaleLinkedChange: (value: boolean) => void
   onPhotoAdd: (fieldKey: string, src: string | null) => void
   onPhotoChangeAt: (fieldKey: string, index: number, src: string | null) => void
   onPhotoPositionChangeAt: (fieldKey: string, index: number, partial: { x?: number; y?: number }) => void

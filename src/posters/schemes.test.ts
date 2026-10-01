@@ -304,6 +304,44 @@ describe('resolveScheme — z akcentem', () => {
     expect(rek.cssVars['--badge-color']).toBe(colors.lime)
   })
 
+  it('Komunikat: tło z klinami jak Wykład + oś akcentu (accent/badgeText)', () => {
+    expect(schemesFor('komunikat')).toEqual(['default', 'czern', 'szary', 'okazjonalny'])
+    expect(layoutHasAccentAxis('komunikat')).toBe(true)
+    expect(accentsFor('komunikat', 'default')).toEqual(['zolty', 'pomaranczowy'])
+    expect(accentsFor('komunikat', 'czern')).toEqual(ACCENT_NAMES)
+    expect(accentsFor('komunikat', 'szary')).toEqual([])
+    expect(accentsFor('komunikat', 'okazjonalny')).toEqual(['zloty', 'srebrny'])
+    // kliny identyczne z Wykładem na wspólnych schematach
+    for (const name of [undefined, 'czern', 'okazjonalny']) {
+      const k = resolveScheme('komunikat', name).cssVars
+      const w = resolveScheme('wyklad', name).cssVars
+      for (const v of ['--page-bg', '--wash-top', '--wedge-br', '--wedge-bl'] as const) {
+        expect(k[v], `${name}/${v}`).toBe(w[v])
+      }
+    }
+    // „Domyślny" = to, co blok ma wpisane
+    const d = resolveScheme('komunikat', 'default', undefined)
+    expect(d.cssVars['--accent']).toBe(colors.lime)
+    expect(d.cssVars['--badge-text']).toBe(colors.limeText)
+    const cz = resolveScheme('komunikat', 'czern', undefined)
+    expect(cz.cssVars['--accent']).toBe(colors.lime)
+    expect(cz.cssVars['--badge-text']).toBe(colors.limeText)
+    // akcenty
+    const pom = resolveScheme('komunikat', 'default', 'pomaranczowy')
+    expect(pom.cssVars['--accent']).toBe(colors.coral)
+    expect(pom.cssVars['--badge-text']).toBe(colors.cream)
+    const zl = resolveScheme('komunikat', 'okazjonalny', undefined)
+    expect(zl.cssVars['--accent']).toBe(colors.gold)
+    expect(zl.cssVars['--badge-text']).toBe(colors.cream)
+    expect(zl.sygnet).toBe('zloty')
+    const sr = resolveScheme('komunikat', 'okazjonalny', 'srebrny')
+    expect(sr.cssVars['--accent']).toBe(colors.silver)
+    expect(sr.cssVars['--badge-text']).toBe(colors.ink)
+    expect(sr.sygnet).toBe('srebrny')
+    // „Szary" stały — ignoruje akcent
+    expect(resolveScheme('komunikat', 'szary', 'zolty').cssVars['--accent']).toBe(colors.grayDark)
+  })
+
   it('data ignoruje akcent (brak recepty)', () => {
     const a = resolveScheme('data', 'czern', 'zloty')
     const b = resolveScheme('data', 'czern', undefined)

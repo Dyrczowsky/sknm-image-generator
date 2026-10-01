@@ -12,6 +12,7 @@ export const DEFAULT_TEMPLATES: ReadonlyArray<{ name: string; poster_key: string
   { name: 'Rekrutacja', poster_key: 'rekrutacja' },
   { name: 'Gala', poster_key: 'gala' },
   { name: 'Ogłoszenie', poster_key: 'ogloszenie' },
+  { name: 'Komunikat rozszerzony', poster_key: 'komunikat' },
 ]
 
 // Podbijaj przy każdej zmianie kształtu tabel wymagającej świeżego startu.
@@ -22,7 +23,8 @@ export const DEFAULT_TEMPLATES: ReadonlyArray<{ name: string; poster_key: string
 // v5: oś akcentu — usunięte klucze czernZolta/czernPomaranczowa/czernGranatowa/
 //     okazjonalnyZloty/okazjonalnySrebrny z większości layoutów; stare
 //     color_scheme w draftcie/historii przestały pasować.
-export const SCHEMA_VERSION = 5
+// v6: kolumna draft.body (akapit treści szablonu „Komunikat rozszerzony").
+export const SCHEMA_VERSION = 6
 
 // Zgoda właściciela: dane lokalne (IndexedDB) można wyczyścić. Zamiast
 // ostrożnej migracji kluczy `1b-czern` → layout+scheme po prostu zrzucamy
@@ -68,6 +70,7 @@ export function createSchema(db: Database): void {
       location TEXT,
       badge TEXT,
       badge2 TEXT,
+      body TEXT,
       visibility TEXT,
       color_scheme TEXT,
       template_id INTEGER,

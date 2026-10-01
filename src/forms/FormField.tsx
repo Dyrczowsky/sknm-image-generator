@@ -13,13 +13,17 @@ interface FormFieldProps {
   onVisibilityChange?: (name: FormTextField, visible: boolean) => void
 }
 
-// Pojedyncze pole tekstowe/data/godzina - lekki wrapper na <label><input>,
-// współdzielony przez formularze w tym folderze (patrz też ImageUpload dla
-// logo/zdjęć). Checkbox przy etykiecie steruje `visibility` - odznaczenie
-// ukrywa dane pole na plakacie (opacity: 0), nie usuwając go z layoutu.
+// Pojedyncze pole tekstowe/data/godzina/akapit - lekki wrapper na
+// <label><input>/<textarea>, współdzielony przez formularze w tym folderze
+// (patrz też ImageUpload dla logo/zdjęć). Checkbox przy etykiecie steruje
+// `visibility` - odznaczenie ukrywa dane pole na plakacie (opacity: 0), nie
+// usuwając go z layoutu. `type="textarea"` renderuje wieloliniowe pole -
+// do dłuższych akapitów (np. szablon „Komunikat rozszerzony").
 export function FormField({ type, label, placeholder, value, onChange, name, visibility, onVisibilityChange }: FormFieldProps) {
   const showToggle = name !== undefined && onVisibilityChange !== undefined
   const visible = name === undefined || visibility?.[name] !== false
+  const fieldClass =
+    'rounded-lg border border-field-border bg-field px-3 py-[9px] text-base text-fg transition-[border-color,box-shadow] focus:border-accent focus:outline-none focus:shadow-[0_0_0_3px_var(--color-accent-soft)]'
 
   return (
     <div className="flex flex-col gap-1.5 text-[0.9rem]">
@@ -35,14 +39,25 @@ export function FormField({ type, label, placeholder, value, onChange, name, vis
         )}
         <span className={visible ? undefined : 'text-muted'}>{label}</span>
       </span>
-      <input
-        className="rounded-lg border border-field-border bg-field px-3 py-[9px] text-base text-fg transition-[border-color,box-shadow] focus:border-accent focus:outline-none focus:shadow-[0_0_0_3px_var(--color-accent-soft)]"
-        type={type}
-        placeholder={placeholder}
-        value={value ?? ''}
-        aria-label={typeof label === 'string' ? label : undefined}
-        onChange={(e) => onChange(e.target.value)}
-      />
+      {type === 'textarea' ? (
+        <textarea
+          className={`${fieldClass} resize-y`}
+          rows={5}
+          placeholder={placeholder}
+          value={value ?? ''}
+          aria-label={typeof label === 'string' ? label : undefined}
+          onChange={(e) => onChange(e.target.value)}
+        />
+      ) : (
+        <input
+          className={fieldClass}
+          type={type}
+          placeholder={placeholder}
+          value={value ?? ''}
+          aria-label={typeof label === 'string' ? label : undefined}
+          onChange={(e) => onChange(e.target.value)}
+        />
+      )}
     </div>
   )
 }

@@ -14,7 +14,7 @@ import type { PosterProps } from '../types'
 
 // GALA — złoto na grafitowym
 export function PosterGala({ data, scheme, accent, lang }: PosterProps) {
-  const { title, subtitle, event_date, event_time, location, badge, graphics, showPkLogo, qrUrl, hidden, fx } = withPlaceholders(data)
+  const { title, subtitle, event_date, event_time, location, badge, graphics, showPkLogo, qrUrl, hidden, fx, titleScale, textScale } = withPlaceholders(data)
   const s = resolveScheme('gala', scheme, accent)
   const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
 
@@ -30,11 +30,11 @@ export function PosterGala({ data, scheme, accent, lang }: PosterProps) {
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 30, position: 'relative', zIndex: 1 }}>
         <Badge color="var(--gold)" style={{ font: `700 24px ${fontMono}`, letterSpacing: '.2em', ...fx('badge') }}>{badge || (lang === 'en' ? 'SKNM GALA' : 'GALA SKNM')}</Badge>
-        <div style={{ fontSize: 126, fontWeight: 800, lineHeight: 0.94, letterSpacing: '-.035em', fontKerning: 'none', ...fx('title') }}>
+        <div style={{ fontSize: 126 * titleScale, fontWeight: 800, lineHeight: 0.94, letterSpacing: '-.035em', fontKerning: 'none', ...fx('title') }}>
           {title}
         </div>
         {subtitle && (
-          <div style={{ fontSize: 34, fontWeight: 500, lineHeight: 1.4, color: 'var(--muted-text)', maxWidth: '26ch', ...fx('subtitle') }}>{subtitle}</div>
+          <div style={{ fontSize: 34 * textScale, fontWeight: 500, lineHeight: 1.4, color: 'var(--muted-text)', maxWidth: '26ch', ...fx('subtitle') }}>{subtitle}</div>
         )}
       </div>
 

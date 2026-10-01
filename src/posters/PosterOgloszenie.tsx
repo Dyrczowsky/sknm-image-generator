@@ -13,7 +13,7 @@ import type { PosterProps } from '../types'
 // Jedyny szablon bez narożnikowego stosu informacji — do krótkich ogłoszeń,
 // cytatów i podziękowań.
 export function PosterOgloszenie({ data, scheme, accent, lang }: PosterProps) {
-  const { title, subtitle, graphics, showPkLogo, qrUrl, fx } = withPlaceholders(data)
+  const { title, subtitle, graphics, showPkLogo, qrUrl, fx, titleScale, textScale } = withPlaceholders(data)
   const s = resolveScheme('ogloszenie', scheme, accent)
   const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
 
@@ -29,11 +29,11 @@ export function PosterOgloszenie({ data, scheme, accent, lang }: PosterProps) {
           <div style={{ width: 46, height: 40, background: 'var(--accent)', clipPath: 'polygon(0 0,100% 0,50% 100%)' }} />
           <div style={{ width: 46, height: 40, background: 'var(--accent)', clipPath: 'polygon(0 0,100% 0,50% 100%)' }} />
         </div>
-        <div style={{ fontSize: 72, fontWeight: 800, lineHeight: 1.08, letterSpacing: '-.02em', maxWidth: '18ch', textWrap: 'balance', fontKerning: 'none', ...fx('title') }}>
+        <div style={{ fontSize: 72 * titleScale, fontWeight: 800, lineHeight: 1.08, letterSpacing: '-.02em', maxWidth: '18ch', textWrap: 'balance', fontKerning: 'none', ...fx('title') }}>
           {title}
         </div>
         {subtitle && (
-          <div style={{ font: `700 24px ${fontMono}`, letterSpacing: '.1em', color: 'var(--accent)', ...fx('subtitle') }}>— {subtitle.toUpperCase()}</div>
+          <div style={{ font: `700 ${24 * textScale}px ${fontMono}`, letterSpacing: '.1em', color: 'var(--accent)', ...fx('subtitle') }}>— {subtitle.toUpperCase()}</div>
         )}
       </div>
 

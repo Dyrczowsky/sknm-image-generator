@@ -54,6 +54,34 @@ const ogloszenie: LayoutSchemes = {
                  accents: ['zloty', 'srebrny'], defaultAccent: 'zloty' },
 }
 
+// Komunikat rozszerzony — tło z klinami jak Wykład (`washTop`/`wedgeBr`/
+// `wedgeBl`, te same wartości na wspólnych schematach) + akapit treści w
+// `mutedText`. Jedna rola `accent` niesie naraz wypełnienie plakietki, stos
+// trójkątów i podpis; `badgeText` to tekst na plakietce. Oś akcentu jak w
+// Wykładzie (bez `granatowy` na granatowym `default`). `szary` zostaje stały
+// (bez osi) — jego kliny to ton ciemniejszy od papieru.
+const komunikat: LayoutSchemes = {
+  default: {
+    pageBg: colors.navy, pageText: colors.cream, mutedText: colors.creamMuted,
+    accent: colors.lime, badgeText: colors.limeText,
+    washTop: 'rgba(255,255,255,.055)', wedgeBr: colors.navyLight, wedgeBl: colors.navyDark,
+    sygnet: 'negatywny', logoVariant: 'dark',
+    accents: ['zolty', 'pomaranczowy'], defaultAccent: 'zolty',
+  },
+  czern: { pageBg: colors.black, accent: colors.lime, badgeText: colors.limeText,
+           washTop: 'rgba(255,255,255,.04)', wedgeBr: '#1E1E1E', wedgeBl: '#0A0A0A',
+           sygnet: 'negatywny', accents: 'all', defaultAccent: 'zolty' },
+  szary: { pageBg: colors.paper, pageText: colors.slate, mutedText: colors.textMuted,
+           accent: colors.grayDark, badgeText: colors.cream,
+           washTop: 'rgba(0,0,0,.04)', wedgeBr: colors.creamMuted, wedgeBl: colors.placeholderBg,
+           sygnet: 'szary', logoVariant: 'light' },
+  // Okazjonalny — paleta Gali (ink + złoto/srebro). `accent`/`badgeText`/
+  // `sygnet` liczy recepta.
+  okazjonalny: { pageBg: colors.ink, pageText: colors.goldPanelText,
+                 washTop: 'rgba(255,255,255,.04)', wedgeBr: colors.inkPanel, wedgeBl: '#0E0F1E',
+                 accents: ['zloty', 'srebrny'], defaultAccent: 'zloty' },
+}
+
 // Gala — jeden schemat `default` (ink + złoto). Recepta `gala` mapuje akcent
 // na rolę `gold` (i przełącza sygnet). Brak swatcha — tylko oś akcentu.
 const gala: LayoutSchemes = {
@@ -321,6 +349,12 @@ const accentRecipes: Record<string, AccentRecipe | undefined> = {
     return { badgeFill: c, badgeText: t, speaker: c, chips: c, ...accentSygnet(a) }
   },
 
+  // Tekst plakietki dobierany jak w Wykładzie.
+  komunikat: (a, ctx) => {
+    const t = a === 'zloty' ? colors.cream : a === 'srebrny' ? colors.ink : accentText(a)
+    return { accent: accentColor(a, ctx), badgeText: t, ...accentSygnet(a) }
+  },
+
   // `headerBadge` (w panelu, zawsze ciemnym) niesie akcent niezależnie od tła
   // strony. `lineFirst`/`footerBadge` niosą akcent tylko na ciemnym tle strony
   // (jak `czern`) — na jasnym tle (`default`) zostają stałym granatem, bo
@@ -432,7 +466,7 @@ export const ACCENT_DOT: Record<AccentName, string> = {
   srebrny: colors.silver,
 }
 
-export const schemes: Record<string, LayoutSchemes> = { ogloszenie, gala, gosc, data, wyklad, konferencja, rekrutacja, warsztat }
+export const schemes: Record<string, LayoutSchemes> = { ogloszenie, gala, gosc, data, wyklad, konferencja, rekrutacja, warsztat, komunikat }
 
 // camelCase → --kebab; layout może dodać dowolną rolę bez zmiany resolvera.
 const roleToVar = (k: string): `--${string}` => `--${k.replace(/[A-Z]/g, (m) => `-${m.toLowerCase()}`)}`
