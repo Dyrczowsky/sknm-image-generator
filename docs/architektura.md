@@ -85,3 +85,41 @@ recepty) nie ma osi w ogóle. Wybór jest kodowany w kolumnie `color_scheme` jak
   `resetIfStale()` zrzuca wtedy tabele (dane lokalne są uznane za jednorazowe).
 - `syncTemplates()` dogrywa brakujące wpisy z `DEFAULT_TEMPLATES` po `poster_key`
   przy każdym starcie - nowy szablon pojawia się automatycznie także w istniejących bazach.
+
+## Kształty i formaty eksportu
+
+Plakat renderuje się w jednym z trzech kształtów (`src/posters/shape.ts`):
+
+| Kształt | Układ (px) | Kiedy |
+|---|---|---|
+| `square` | 1080 × 1080 | Kwadrat, Story, wszystkie miniatury |
+| `portrait` | 1080 × 1528 | A4/A3/A2 w pionie |
+| `landscape` | 1528 × 1080 | A4/A3/A2 w poziomie |
+
+Kształt niesie kontekst Reacta (`PosterShapeContext`), ustawiany przez
+`PosterScaled`; `PosterFrame` i szablony czytają go przez `usePosterShape()`.
+Bez providera obowiązuje kwadrat. Format papieru (A4/A3/A2) nie zmienia
+układu — tylko rozdzielczość eksportu (`src/posters/formats.ts`).
+
+Eksport (`src/posters/export.ts`):
+
+- **Kwadrat / Story** — PNG z układu 1080×1080, jak dotychczas.
+- **A4 / A3 / A2** — rasteryzacja do rozmiaru papieru w px przy 300 dpi;
+  gdy przeglądarka nie udźwignie canvasu, drabinka schodzi na 200 i 150 dpi
+  (`dpiLadder.ts`), a kreator pokazuje, która rozdzielczość się udała.
+- **PNG** — RGB. **PDF** — zawsze CMYK: piksele przeliczone w `cmyk.ts`,
+  spakowane natywnym `CompressionStream('deflate')` i osadzone jako jeden
+  obraz na stronie o wymiarach papieru (`pdf.ts`, bez biblioteki).
+
+**Ograniczenie CMYK:** konwersja jest „urządzeniowa", bez profilu ICC, więc
+nasycone kolory marki (limonka, koral, granat) wychodzą w druku wyraźnie
+bardziej matowo niż na ekranie. Tekst w PDF nie jest zaznaczalny (to obraz).
+Bez spadów i znaczników cięcia.
+
+## Zwijane panele kreatora
+
+Panele „1. Wybierz szablon", „2. Uzupełnij dane" i „Historia" to
+`CollapsiblePanel` — zwinięta treść dostaje `hidden` (nie jest odmontowana,
+więc stan formularza zostaje). Stan zwinięcia leży w `localStorage` pod
+`sknm-collapsed-panels` (`src/utils/collapsedPanels.ts`); zepsuty wpis =
+wszystko rozwinięte.
