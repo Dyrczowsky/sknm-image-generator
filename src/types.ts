@@ -97,6 +97,12 @@ export interface ResolvedScheme {
 // opcjonalne i null-tolerancyjne. HistoryRow wpasowuje się tu strukturalnie
 // (pola tekstowe pokrywają się, nadmiarowe kolumny nie przeszkadzają).
 export type RawPosterData = { [K in keyof FormValues]?: FormValues[K] | null }
+// Kształt renderowanego plakatu. `square` to format social i wszystkie
+// miniatury; `portrait`/`landscape` to proporcja papieru A (1:√2).
+export type PosterShape = 'square' | 'portrait' | 'landscape'
+export type Orientation = 'portrait' | 'landscape'
+export type FileType = 'png' | 'pdf'
+
 export interface PosterProps { data: RawPosterData; scheme?: string; accent?: AccentName; lang?: PosterLang }
 
 export interface FormProps {

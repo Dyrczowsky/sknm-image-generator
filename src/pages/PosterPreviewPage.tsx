@@ -1,15 +1,17 @@
 import { posterRegistry } from '../posters/registry'
 import { withPlaceholders } from '../posters/fallback'
 import { PosterScaled } from '../components/PosterScaled'
+import type { PosterShape } from '../types'
 
 // Podgląd pojedynczego szablonu pod /poster/:id, wypełniony danymi
 // przykładowymi - przydatne do szybkiego sprawdzenia wyglądu szablonu.
 interface PosterPreviewPageProps {
   posterKey: string
   scheme?: string
+  shape?: PosterShape
 }
 
-export function PosterPreviewPage({ posterKey, scheme }: PosterPreviewPageProps) {
+export function PosterPreviewPage({ posterKey, scheme, shape }: PosterPreviewPageProps) {
   const poster = posterRegistry[posterKey]
 
   const shell = 'mx-auto max-w-[720px] px-4 pt-8 pb-16 min-[900px]:max-w-[1240px]'
@@ -32,7 +34,7 @@ export function PosterPreviewPage({ posterKey, scheme }: PosterPreviewPageProps)
       <a className={backLink} href={import.meta.env.BASE_URL}>← Wróć do generatora</a>
       <h1 className="mb-2 text-[1.6rem] font-bold">Podgląd szablonu: {name}{scheme ? ` · ${scheme}` : ''}</h1>
       <div className="overflow-hidden rounded-[10px] border border-border shadow-[0_4px_16px_rgba(0,0,0,0.12)] w-fit">
-        <PosterScaled size={600}>
+        <PosterScaled size={600} shape={shape}>
           <Component data={data} scheme={scheme} />
         </PosterScaled>
       </div>

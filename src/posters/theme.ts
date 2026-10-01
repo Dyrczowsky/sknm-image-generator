@@ -65,9 +65,8 @@ export const typography = {
   },
 }
 
+// Wymiary ramki nadaje PosterFrame z kształtu (patrz shape.ts).
 export const posterBaseStyle: CSSProperties = {
-  width: 1080,
-  height: 1080,
   position: 'relative',
   overflow: 'hidden',
   boxSizing: 'border-box',
