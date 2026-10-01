@@ -9,6 +9,7 @@ import { Badge } from './blocks/Badge'
 import { BigDateNumber } from './blocks/BigDateNumber'
 import { BrandingText } from './blocks/BrandingText'
 import { LogoRow } from './blocks/LogoRow'
+import { usePosterShape } from './shape'
 import type { PosterProps } from '../types'
 
 // KOMUNIKAT ROZSZERZONY — tło z klinami i stosem trójkątów jak Wykład, ale
@@ -18,6 +19,7 @@ import type { PosterProps } from '../types'
 export function PosterKomunikat({ data, scheme, accent, lang }: PosterProps) {
   const { title, subtitle, body, badge, event_date, graphics, showPkLogo, qrUrl, fx, titleScale, textScale } = withPlaceholders(data)
   const s = resolveScheme('komunikat', scheme, accent)
+  const { kx, ky } = usePosterShape()
   const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
 
   return (
@@ -27,7 +29,7 @@ export function PosterKomunikat({ data, scheme, accent, lang }: PosterProps) {
         <BrandingText lines={lang === 'en' ? ['SKNM', 'KRAKOW UNIVERSITY', 'OF TECHNOLOGY'] : ['SKNM', 'POLITECHNIKA', 'KRAKOWSKA']} opacity={0.85} />
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 26, maxWidth: 860, position: 'relative', zIndex: 1 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 26, maxWidth: 860 * kx, position: 'relative', zIndex: 1 }}>
         <Badge background="var(--accent)" color="var(--badge-text)" style={{ fontSize: 24, ...fx('badge') }}>{badge || (lang === 'en' ? 'ANNOUNCEMENT' : 'KOMUNIKAT')}</Badge>
         <div style={{ fontSize: 68 * titleScale, fontWeight: 800, lineHeight: 1.05, letterSpacing: '-.02em', fontKerning: 'none', ...fx('title') }}>
           {title}
@@ -51,9 +53,9 @@ export function PosterKomunikat({ data, scheme, accent, lang }: PosterProps) {
         </LogoRow>
       </div>
 
-      <div style={{ position: 'absolute', top: 0, right: 0, width: 700, height: 600, background: 'var(--wash-top)', clipPath: 'polygon(0 0,100% 0,100% 100%)' }} />
-      <div style={{ position: 'absolute', bottom: 0, right: 0, width: 920, height: 780, background: 'var(--wedge-br)', opacity: 0.42, clipPath: 'polygon(100% 0,100% 100%,0 100%)' }} />
-      <div style={{ position: 'absolute', bottom: 0, left: 0, width: 520, height: 300, background: 'var(--wedge-bl)', clipPath: 'polygon(0 100%,0 0,100% 100%)' }} />
+      <div style={{ position: 'absolute', top: 0, right: 0, width: 700 * kx, height: 600 * ky, background: 'var(--wash-top)', clipPath: 'polygon(0 0,100% 0,100% 100%)' }} />
+      <div style={{ position: 'absolute', bottom: 0, right: 0, width: 920 * kx, height: 780 * ky, background: 'var(--wedge-br)', opacity: 0.42, clipPath: 'polygon(100% 0,100% 100%,0 100%)' }} />
+      <div style={{ position: 'absolute', bottom: 0, left: 0, width: 520 * kx, height: 300 * ky, background: 'var(--wedge-bl)', clipPath: 'polygon(0 100%,0 0,100% 100%)' }} />
       <div style={{ position: 'absolute', left: 18, bottom: 72, display: 'flex', flexDirection: 'column', gap: 12 }}>
         <div style={{ width: 38, height: 32, background: 'var(--accent)', clipPath: 'polygon(0 0,100% 0,50% 100%)' }} />
         <div style={{ width: 38, height: 32, background: 'var(--accent)', clipPath: 'polygon(0 0,100% 0,50% 100%)', opacity: 0.66 }} />

@@ -214,3 +214,11 @@ oraz `.../poster/piknik/czern`.
 
 Potem uruchom `npm run dev`, wybierz "Piknik" w generatorze i zweryfikuj podgląd
 na żywo oraz eksport PNG ("Pobierz PNG").
+
+Szablon musi wyglądać dobrze w **trzech kształtach**. Otwórz
+`/poster/<klucz>?shape=portrait` i `/poster/<klucz>?shape=landscape`
+(bez parametru — kwadrat). Elementy o stałych wymiarach w px (kliny,
+zdjęcia, pasy) skaluj przez `usePosterShape()` z `src/posters/shape.ts`
+(`kx`/`ky` = ile razy ramka jest szersza/wyższa od kwadratu) — nie
+wpisuj `1080` na sztywno i nie rozgałęziaj po formacie papieru. W kreatorze
+sprawdź też eksport A4 w pionie i poziomie (PNG i PDF).

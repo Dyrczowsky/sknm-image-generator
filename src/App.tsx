@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { Database } from 'sql.js'
-import type { AccentName, FormValues, FormTextField, HistoryRow, PosterLang, TemplateRow } from './types'
+import type { AccentName, FileType, FormValues, FormTextField, HistoryRow, Orientation, PosterLang, TemplateRow } from './types'
 import { getDb } from './db/client'
 import { listTemplates } from './db/templates'
 import { getDraft, saveDraft, parseVisibility } from './db/drafts'
@@ -8,10 +8,13 @@ import { addHistoryEntry, deleteHistoryEntry, listHistory } from './db/history'
 import { posterRegistry } from './posters/registry'
 import { schemesFor, SCHEME_LABELS, accentAllowed } from './posters/schemes'
 import { MAX_GRAPHICS } from './posters/theme'
-import { downloadPosterAsPng, EXPORT_FORMATS } from './posters/export'
+import { downloadPoster } from './posters/export'
+import { EXPORT_FORMATS, isPrintFormat, shapeFor } from './posters/formats'
 import { TemplateSelector } from './components/TemplateSelector'
 import { SchemeSelector } from './components/SchemeSelector'
 import { LangToggle } from './components/LangToggle'
+import { SegmentedToggle } from './components/SegmentedToggle'
+import { CollapsiblePanel } from './components/CollapsiblePanel'
 import { PosterPreview } from './components/PosterPreview'
 import { HistoryList } from './components/HistoryList'
 import { TicketDialog } from './components/TicketDialog'
@@ -19,14 +22,34 @@ import { FloatingReportButton } from './components/FloatingReportButton'
 import { SiteFooter } from './components/SiteFooter'
 import { encodeScheme, decodeScheme } from './utils/colorScheme'
 import type { BugContextInput } from './utils/issueUrl'
+import { COLLAPSED_STORAGE_KEY, parseCollapsed } from './utils/collapsedPanels'
+import type { CollapsedPanels, PanelKey } from './utils/collapsedPanels'
 
 const LANG_STORAGE_KEY = 'sknm-poster-lang'
+
+const ORIENTATION_OPTIONS = [
+  { value: 'portrait', label: 'Pion' },
+  { value: 'landscape', label: 'Poziom' },
+] as const
+
+const FILE_TYPE_OPTIONS = [
+  { value: 'png', label: 'PNG' },
+  { value: 'pdf', label: 'PDF' },
+] as const
 
 function loadStoredLang(): PosterLang {
   try {
     return localStorage.getItem(LANG_STORAGE_KEY) === 'en' ? 'en' : 'pl'
   } catch {
     return 'pl'
+  }
+}
+
+function loadStoredCollapsed(): CollapsedPanels {
+  try {
+    return parseCollapsed(localStorage.getItem(COLLAPSED_STORAGE_KEY))
+  } catch {
+    return parseCollapsed(null)
   }
 }
 
@@ -48,7 +71,7 @@ const EMPTY_FORM: FormValues = {
   lists: {},
   titleScale: 1,
   textScale: 1,
-  scaleLinked: false,
+  scaleLinked: true,
 }
 
 // Domyślny schemat kolorów danego layoutu = pierwszy schemat z `schemes.ts`.
@@ -71,9 +94,19 @@ function App() {
   const [selectedScheme, setSelectedScheme] = useState<string | undefined>(undefined)
   const [selectedAccent, setSelectedAccent] = useState<AccentName | undefined>(undefined)
   const [lang, setLang] = useState<PosterLang>(loadStoredLang)
+  const [collapsed, setCollapsed] = useState<CollapsedPanels>(loadStoredCollapsed)
+  const togglePanel = (key: PanelKey) => setCollapsed((prev) => ({ ...prev, [key]: !prev[key] }))
   const [form, setForm] = useState<FormValues>(EMPTY_FORM)
   const [history, setHistory] = useState<HistoryRow[]>([])
   const [exportFormat, setExportFormat] = useState('square')
+  // Orientacja strony i typ pliku dotyczą tylko formatów papierowych
+  // (A4/A3/A2). Sesyjne, jak `exportFormat` - bez zapisu do draftu.
+  const [orientation, setOrientation] = useState<Orientation>('portrait')
+  const [fileType, setFileType] = useState<FileType>('png')
+  const [exporting, setExporting] = useState(false)
+  const [exportNote, setExportNote] = useState<string | null>(null)
+  const printFormat = isPrintFormat(exportFormat)
+  const effectiveFileType: FileType = printFormat ? fileType : 'png'
   const [ticket, setTicket] = useState<null | 'bug' | 'request'>(null)
 
   useEffect(() => {
@@ -105,7 +138,7 @@ function App() {
           lists: {},
           titleScale: 1,
           textScale: 1,
-          scaleLinked: false,
+          scaleLinked: true,
         })
       }
       setSelectedTemplateId(initialTemplateId)
@@ -130,6 +163,14 @@ function App() {
       // localStorage niedostępny (np. tryb prywatny) — język zostaje tylko w pamięci sesji.
     }
   }, [lang])
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(COLLAPSED_STORAGE_KEY, JSON.stringify(collapsed))
+    } catch {
+      // localStorage niedostępny — stan paneli zostaje tylko w pamięci sesji.
+    }
+  }, [collapsed])
 
   const persistDraft = useCallback(
     (
@@ -336,7 +377,7 @@ function App() {
       lists: {},
       titleScale: 1,
       textScale: 1,
-      scaleLinked: false,
+      scaleLinked: true,
     }
     setForm(next)
     const templateId = entry.template_id ?? selectedTemplateId
@@ -373,11 +414,20 @@ function App() {
   }
 
   const handleDownload = async () => {
-    if (!selectedTemplate || !posterRef.current || !dbRef.current) return
-    const filename = `${form.title || 'plakat'}.png`.trim().replace(/\s+/g, '_')
-    await downloadPosterAsPng(posterRef.current, filename, exportFormat)
-    await addHistoryEntry(dbRef.current, { ...form, template_id: selectedTemplateId, color_scheme: encodeScheme(selectedScheme, selectedAccent) })
-    setHistory(listHistory(dbRef.current))
+    if (!selectedTemplate || !posterRef.current || !dbRef.current || exporting) return
+    const basename = (form.title || 'plakat').trim().replace(/\s+/g, '_')
+    setExporting(true)
+    setExportNote(null)
+    try {
+      const { dpi } = await downloadPoster(posterRef.current, basename, { formatKey: exportFormat, orientation, fileType: effectiveFileType })
+      if (dpi !== undefined && dpi < 300) setExportNote(`Zapisano w ${dpi} dpi — przeglądarka nie obsłużyła 300 dpi.`)
+      await addHistoryEntry(dbRef.current, { ...form, template_id: selectedTemplateId, color_scheme: encodeScheme(selectedScheme, selectedAccent) })
+      setHistory(listHistory(dbRef.current))
+    } catch {
+      setExportNote('Nie udało się wygenerować pliku. Spróbuj mniejszego formatu.')
+    } finally {
+      setExporting(false)
+    }
   }
 
   const shell = 'mx-auto max-w-[720px] px-4 pt-8 pb-16 min-[900px]:max-w-[1240px]'
@@ -404,15 +454,28 @@ function App() {
 
         {/* Do 900px sekcje płyną jedna pod drugą w kolejności DOM. Od 900px
             grid-template-areas robi dwie kolumny: lewa to szablon/formularz/
-            akcje/historia, prawa to przypięty (sticky) podgląd. */}
-        <div className="flex flex-col min-[900px]:mt-5 min-[900px]:grid min-[900px]:grid-cols-[1fr_460px] min-[900px]:items-start min-[900px]:gap-6 min-[900px]:[grid-template-areas:'template_preview''form_preview''actions_preview''history_preview']">
-          <section className={`${panel} min-[900px]:[grid-area:template]`}>
-            <h2 className={panelHeading}>1. Wybierz szablon</h2>
+            akcje/historia, prawa to przypięty (sticky) podgląd. Nadmiar wysokości
+            podglądu bierze ostatni wiersz (1fr) - inaczej zwinięte panele
+            rozjeżdżałyby się, bo grid dzieli go równo między wiersze. */}
+        <div className="flex flex-col min-[900px]:mt-5 min-[900px]:grid min-[900px]:grid-cols-[1fr_460px] min-[900px]:grid-rows-[auto_auto_auto_1fr] min-[900px]:items-start min-[900px]:gap-6 min-[900px]:[grid-template-areas:'template_preview''form_preview''actions_preview''history_preview']">
+          <CollapsiblePanel
+            id="template"
+            title="1. Wybierz szablon"
+            summary={selectedTemplate?.name}
+            open={!collapsed.template}
+            onToggle={() => togglePanel('template')}
+            className={`${panel} min-[900px]:[grid-area:template]`}
+          >
             <TemplateSelector templates={templates} selectedId={selectedTemplateId} onSelect={handleSelectTemplate} lang={lang} />
-          </section>
+          </CollapsiblePanel>
 
-          <section className={`${panel} min-[900px]:[grid-area:form]`}>
-            <h2 className={panelHeading}>2. Uzupełnij dane</h2>
+          <CollapsiblePanel
+            id="form"
+            title="2. Uzupełnij dane"
+            open={!collapsed.form}
+            onToggle={() => togglePanel('form')}
+            className={`${panel} min-[900px]:[grid-area:form]`}
+          >
             {SelectedForm && (
               <SelectedForm
                 value={form}
@@ -434,13 +497,16 @@ function App() {
                 onScaleLinkedChange={handleScaleLinkedChange}
               />
             )}
-          </section>
+          </CollapsiblePanel>
 
-          <section className={`${panel} flex gap-3 min-[900px]:[grid-area:actions]`}>
+          <section className={`${panel} flex flex-wrap items-center gap-3 min-[900px]:[grid-area:actions]`}>
             <select
               className="rounded-lg border border-field-border bg-field px-3.5 py-[11px] text-[0.9rem] text-fg"
               value={exportFormat}
-              onChange={(e) => setExportFormat(e.target.value)}
+              onChange={(e) => {
+                setExportFormat(e.target.value)
+                setExportNote(null)
+              }}
               aria-label="Format eksportu"
             >
               {Object.entries(EXPORT_FORMATS).map(([key, format]) => (
@@ -449,18 +515,32 @@ function App() {
                 </option>
               ))}
             </select>
+            {printFormat && (
+              <>
+                <SegmentedToggle value={orientation} onChange={setOrientation} options={ORIENTATION_OPTIONS} ariaLabel="Orientacja" />
+                <SegmentedToggle value={fileType} onChange={setFileType} options={FILE_TYPE_OPTIONS} ariaLabel="Typ pliku" />
+              </>
+            )}
             <button
               type="button"
-              className="cursor-pointer rounded-lg bg-accent px-[18px] py-[11px] text-[0.95rem] font-medium text-white transition-[background-color,transform] hover:bg-accent-hover active:scale-[0.98]"
+              className="cursor-pointer rounded-lg bg-accent px-[18px] py-[11px] text-[0.95rem] font-medium text-white transition-[background-color,transform] hover:bg-accent-hover active:scale-[0.98] disabled:cursor-wait disabled:opacity-60"
               onClick={handleDownload}
+              disabled={exporting}
             >
-              Pobierz PNG
+              {exporting ? 'Generowanie…' : `Pobierz ${effectiveFileType.toUpperCase()}`}
             </button>
+            {exportNote && (
+              <p className="basis-full text-[0.85rem] text-muted" role="status">
+                {exportNote}
+              </p>
+            )}
           </section>
 
-          <section className={`${panel} min-[900px]:sticky min-[900px]:top-5 min-[900px]:[grid-area:preview]`}>
+          {/* Podgląd w pionie (A4/A3/A2) bywa wyższy niż okno - przypięty panel
+              przewija się wtedy w sobie, żeby kolorystyka i akcent były osiągalne. */}
+          <section className={`${panel} min-[900px]:sticky min-[900px]:top-5 min-[900px]:max-h-[calc(100vh-2.5rem)] min-[900px]:overflow-y-auto min-[900px]:[grid-area:preview]`}>
             <h2 className={panelHeading}>Podgląd</h2>
-            <PosterPreview posterRef={posterRef} Component={selectedPoster?.Component} data={form} scheme={selectedScheme} accent={selectedAccent} lang={lang} />
+            <PosterPreview posterRef={posterRef} Component={selectedPoster?.Component} data={form} scheme={selectedScheme} accent={selectedAccent} lang={lang} shape={shapeFor(exportFormat, orientation)} />
             <SchemeSelector
               poster={selectedPoster}
               posterKey={selectedTemplate?.poster_key}
@@ -472,10 +552,15 @@ function App() {
             />
           </section>
 
-          <section className={`${panel} min-[900px]:[grid-area:history]`}>
-            <h2 className={panelHeading}>Historia</h2>
+          <CollapsiblePanel
+            id="history"
+            title="Historia"
+            open={!collapsed.history}
+            onToggle={() => togglePanel('history')}
+            className={`${panel} min-[900px]:[grid-area:history]`}
+          >
             <HistoryList entries={history} onRestore={handleRestoreHistoryEntry} onDelete={handleDeleteHistoryEntry} lang={lang} />
-          </section>
+          </CollapsiblePanel>
         </div>
         <SiteFooter onRequestClick={() => setTicket('request')} />
       </main>

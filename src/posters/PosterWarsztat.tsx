@@ -10,6 +10,7 @@ import { PosterFrame } from './blocks/PosterFrame'
 import { Badge } from './blocks/Badge'
 import { LogoRow } from './blocks/LogoRow'
 import type { CSSProperties, ReactNode } from 'react'
+import { usePosterShape } from './shape'
 import type { PosterProps } from '../types'
 
 function Pill({ children, style }: { children: ReactNode; style?: CSSProperties }) {
@@ -31,14 +32,15 @@ export function PosterWarsztat({ data, scheme, accent, lang }: PosterProps) {
     { text: location, style: fx('location') },
   ]
   const s = resolveScheme('warsztat', scheme, accent)
+  const { kx } = usePosterShape()
 
   return (
     <PosterFrame vars={s.cssVars}>
       <PhotoGallery
         photos={photos.photo}
         label={<>zdjęcie<br />z warsztatów</>}
-        style={{ position: 'absolute', top: 0, right: 0, width: 660, height: 1080, clipPath: 'polygon(38% 0,100% 0,100% 100%,0 100%)' }}
-        placeholderStyle={{ paddingLeft: 180 }}
+        style={{ position: 'absolute', top: 0, right: 0, width: 660 * kx, height: '100%', clipPath: 'polygon(38% 0,100% 0,100% 100%,0 100%)' }}
+        placeholderStyle={{ paddingLeft: 180 * kx }}
       />
 
       <div style={{ position: 'absolute', inset: 72, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>

@@ -10,12 +10,15 @@ const path = window.location.pathname.startsWith(base)
   ? window.location.pathname.slice(base.length - 1)
   : window.location.pathname
 const posterMatch = path.match(/^\/poster\/([^/]+)(?:\/([^/]+))?\/?$/)
+// `?shape=portrait|landscape` - podgląd szablonu w kształcie papieru.
+const shapeParam = new URLSearchParams(window.location.search).get('shape')
+const previewShape = shapeParam === 'portrait' || shapeParam === 'landscape' ? shapeParam : 'square'
 
 const rootEl = document.getElementById('root')
 if (!rootEl) throw new Error('brak #root')
 
 createRoot(rootEl).render(
   <StrictMode>
-    {posterMatch ? <PosterPreviewPage posterKey={posterMatch[1]} scheme={posterMatch[2]} /> : <App />}
+    {posterMatch ? <PosterPreviewPage posterKey={posterMatch[1]} scheme={posterMatch[2]} shape={previewShape} /> : <App />}
   </StrictMode>,
 )

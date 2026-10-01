@@ -10,12 +10,14 @@ import { BigDateNumber } from './blocks/BigDateNumber'
 import { InfoLine } from './blocks/InfoLine'
 import { BrandingText } from './blocks/BrandingText'
 import { LogoRow } from './blocks/LogoRow'
+import { usePosterShape } from './shape'
 import type { PosterProps } from '../types'
 
 // WYKŁAD — typografia
 export function PosterWyklad({ data, scheme, accent, lang }: PosterProps) {
   const { title, subtitle, speaker, event_date, event_time, location, badge, graphics, showPkLogo, qrUrl, hidden, fx, titleScale, textScale } = withPlaceholders(data)
   const s = resolveScheme('wyklad', scheme, accent)
+  const { kx, ky } = usePosterShape()
   const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
 
   return (
@@ -53,9 +55,9 @@ export function PosterWyklad({ data, scheme, accent, lang }: PosterProps) {
         </LogoRow>
       </div>
 
-      <div style={{ position: 'absolute', top: 0, right: 0, width: 700, height: 600, background: 'var(--wash-top)', clipPath: 'polygon(0 0,100% 0,100% 100%)' }} />
-      <div style={{ position: 'absolute', bottom: 0, right: 0, width: 920, height: 780, background: 'var(--wedge-br)', opacity: 0.42, clipPath: 'polygon(100% 0,100% 100%,0 100%)' }} />
-      <div style={{ position: 'absolute', bottom: 0, left: 0, width: 520, height: 300, background: 'var(--wedge-bl)', clipPath: 'polygon(0 100%,0 0,100% 100%)' }} />
+      <div style={{ position: 'absolute', top: 0, right: 0, width: 700 * kx, height: 600 * ky, background: 'var(--wash-top)', clipPath: 'polygon(0 0,100% 0,100% 100%)' }} />
+      <div style={{ position: 'absolute', bottom: 0, right: 0, width: 920 * kx, height: 780 * ky, background: 'var(--wedge-br)', opacity: 0.42, clipPath: 'polygon(100% 0,100% 100%,0 100%)' }} />
+      <div style={{ position: 'absolute', bottom: 0, left: 0, width: 520 * kx, height: 300 * ky, background: 'var(--wedge-bl)', clipPath: 'polygon(0 100%,0 0,100% 100%)' }} />
       <div style={{ position: 'absolute', left: 18, bottom: 72, display: 'flex', flexDirection: 'column', gap: 12 }}>
         <div style={{ width: 38, height: 32, background: 'var(--chips)', clipPath: 'polygon(0 0,100% 0,50% 100%)' }} />
         <div style={{ width: 38, height: 32, background: 'var(--chips)', clipPath: 'polygon(0 0,100% 0,50% 100%)', opacity: 0.66 }} />

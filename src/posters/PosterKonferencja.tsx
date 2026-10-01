@@ -8,6 +8,7 @@ import { formatFullDate } from '../utils/formatDate'
 import { PosterFrame } from './blocks/PosterFrame'
 import { Badge } from './blocks/Badge'
 import { LogoRow } from './blocks/LogoRow'
+import { usePosterShape } from './shape'
 import type { ListItem, PosterProps } from '../types'
 
 const DEFAULT_AGENDA: ListItem[] = [
@@ -21,6 +22,10 @@ export function PosterKonferencja({ data, scheme, accent, lang }: PosterProps) {
   const { title, event_date, location, badge, badge2, graphics, showPkLogo, qrUrl, lists, hidden, fx, titleScale } = withPlaceholders(data)
   const agenda = lists.agenda?.length ? lists.agenda : DEFAULT_AGENDA
   const s = resolveScheme('konferencja', scheme, accent)
+  // W pionie wiersze programu dostają więcej oddechu, żeby krótka lista nie
+  // zostawiała pustej połowy strony (kwadrat/poziom: ky = 1 → 22px jak dotąd).
+  const { ky } = usePosterShape()
+  const rowPad = Math.round(22 * ky ** 3)
   const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
 
   return (
@@ -49,7 +54,7 @@ export function PosterKonferencja({ data, scheme, accent, lang }: PosterProps) {
                 display: 'grid',
                 gridTemplateColumns: '140px 1fr',
                 gap: 24,
-                padding: '22px 0',
+                padding: `${rowPad}px 0`,
                 borderTop: `2px solid ${i === 0 ? 'var(--line-first)' : 'var(--line-rest)'}`,
                 alignItems: 'baseline',
               }}
