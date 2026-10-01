@@ -26,8 +26,8 @@ export function parseVisibility(raw: string | null | undefined): FieldVisibility
 
 export async function saveDraft(db: Database, draft: DraftInput): Promise<void> {
   db.run(
-    `INSERT INTO draft (id, title, subtitle, speaker, event_date, event_time, location, badge, badge2, visibility, color_scheme, template_id, updated_at)
-     VALUES (1, :title, :subtitle, :speaker, :event_date, :event_time, :location, :badge, :badge2, :visibility, :color_scheme, :template_id, datetime('now'))
+    `INSERT INTO draft (id, title, subtitle, speaker, event_date, event_time, location, badge, badge2, body, visibility, color_scheme, template_id, updated_at)
+     VALUES (1, :title, :subtitle, :speaker, :event_date, :event_time, :location, :badge, :badge2, :body, :visibility, :color_scheme, :template_id, datetime('now'))
      ON CONFLICT(id) DO UPDATE SET
        title = excluded.title,
        subtitle = excluded.subtitle,
@@ -37,6 +37,7 @@ export async function saveDraft(db: Database, draft: DraftInput): Promise<void> 
        location = excluded.location,
        badge = excluded.badge,
        badge2 = excluded.badge2,
+       body = excluded.body,
        visibility = excluded.visibility,
        color_scheme = excluded.color_scheme,
        template_id = excluded.template_id,
@@ -50,6 +51,7 @@ export async function saveDraft(db: Database, draft: DraftInput): Promise<void> 
       ':location': draft.location ?? '',
       ':badge': draft.badge ?? '',
       ':badge2': draft.badge2 ?? '',
+      ':body': draft.body ?? '',
       ':visibility': JSON.stringify(draft.visibility ?? {}),
       ':color_scheme': draft.color_scheme ?? null,
       ':template_id': draft.template_id ?? null,

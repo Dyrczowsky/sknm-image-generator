@@ -24,7 +24,7 @@ export interface BugContextInput {
 }
 
 const TEXT_FIELDS = [
-  'title', 'subtitle', 'speaker', 'event_date', 'event_time', 'location', 'badge', 'badge2',
+  'title', 'subtitle', 'speaker', 'event_date', 'event_time', 'location', 'badge', 'badge2', 'body',
 ] as const
 
 function trimTrailingHighSurrogate(s: string): string {

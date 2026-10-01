@@ -19,6 +19,7 @@ export const PLACEHOLDERS = {
   title: 'To jest tytuł przykładowego referatu',
   speaker: 'dr Marcin Skrzyński',
   location: 'sala 304/12',
+  body: 'Tu wpisujesz pełną treść komunikatu — szczegóły wydarzenia, zasady, podziękowania albo informację, której nie da się zmieścić w jednej linijce tytułu. Akapit sam przełamuje się do kolejnych wierszy.',
   get event_date() {
     return todayIso()
   },
@@ -38,11 +39,16 @@ export function withPlaceholders(data: RawPosterData) {
     location: data.location || PLACEHOLDERS.location,
     badge: data.badge,
     badge2: data.badge2,
+    body: data.body || PLACEHOLDERS.body,
     graphics: data.graphics ?? [],
     showPkLogo: data.showPkLogo ?? true,
     qrUrl: data.qrUrl ?? '',
     photos: data.photos ?? {},
     lists: data.lists ?? {},
+    // Mnożnik rozmiaru tytułu/pozostałego tekstu z suwaków w formularzu;
+    // 1 = rozmiar domyślny.
+    titleScale: data.titleScale ?? 1,
+    textScale: data.textScale ?? 1,
     // `true` gdy użytkownik wyłączył widoczność danego pola.
     hidden: (name: FormTextField): boolean => visibility[name] === false,
     // Styl do rozlania na element pola: ukryte pole dostaje `display: none`

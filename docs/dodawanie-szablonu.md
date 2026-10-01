@@ -103,6 +103,8 @@ export function FormPiknik({ value, onFieldChange, onVisibilityChange, onGraphic
 Dostępne klocki:
 
 - `FormField` — pojedyncze `<label><input>` (`type` = `text` / `date` / `time`)
+  albo, dla dłuższego akapitu (np. treść komunikatu), `<label><textarea>`
+  (`type="textarea"`) — patrz `FormKomunikat.tsx` i pole `body`.
 - `GraphicsField` — checkbox „Dodaj logo PK" + hurtowe wgrywanie grafik stopki
   (miniatury, kolejność strzałkami, usuwanie) + pole „Kod QR" (link). Stan w
   `value.graphics` / `value.showPkLogo` / `value.qrUrl`. Po stronie plakatu:
@@ -111,6 +113,16 @@ Dostępne klocki:
 - `PhotoGalleryField` — galeria 0..N zdjęć z kadrowaniem, klucz w `value.photos`
 - lista powtarzalna (jak program konferencji) — patrz `FormKonferencja.tsx`,
   używa `onListItemAdd` / `onListItemChange` / `onListItemRemove` i `value.lists`
+- `TitleTextScaleFields` — para suwaków (70%-130%, mnożniki `value.titleScale` /
+  `value.textScale`) ze spinaczem pośrodku (`value.scaleLinked` — spięte
+  suwaki jeżdżą razem, na ten sam procent). Dodaj na górze formularza
+  (`const scale = { titleScale: value.titleScale, textScale: value.textScale, linked: value.scaleLinked, onTitleScaleChange, onTextScaleChange, onLinkedChange: onScaleLinkedChange }`,
+  `<TitleTextScaleFields {...scale} />`) i w komponencie plakatu pomnóż
+  `fontSize` tytułu przez `titleScale` (`fontSize: 96 * titleScale`), a
+  podtytułu/treści przez `textScale` (`fontSize: 32 * textScale`) — jeśli
+  podtytuł jedzie przez `InfoLine`, użyj `partsStyle`/`secondLineStyle`
+  zamiast przestylowywać cały wiersz (patrz `PosterWyklad.tsx`/`PosterData.tsx`).
+  Oba suwaki są sesyjne — nie zapisują się do draftu.
 
 Stan formularza jest globalny — nie każdy layout musi używać wszystkich pól.
 

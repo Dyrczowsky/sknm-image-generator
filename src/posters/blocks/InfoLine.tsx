@@ -11,8 +11,15 @@ type RawPart = string | null | undefined | false | InfoLinePart
 
 interface InfoLineProps {
   parts: ReadonlyArray<RawPart>
+  // Styl tylko na `parts` (np. suwak rozmiaru tekstu, gdy to pole niesie
+  // podtytuł - patrz PosterData, gdzie `subtitle` jedzie w `parts`, nie w
+  // `secondLine`). Domyślnie dziedziczy ze `style` na kontenerze.
+  partsStyle?: CSSProperties
   secondLine?: ReactNode
   secondLineHidden?: boolean
+  // Styl tylko na `secondLine` (np. PosterWyklad, gdzie `subtitle` jedzie
+  // jako `secondLine`, a `parts` to godzina/lokalizacja).
+  secondLineStyle?: CSSProperties
   separator?: string
   style?: CSSProperties
 }
@@ -26,22 +33,26 @@ function normalize(part: RawPart): InfoLinePart {
 // elementy są w całości pomijane - nie renderują się i nie zajmują miejsca,
 // a osierocone separatory nie powstają. Gdy nie ma nic do pokazania, blok
 // zwraca `null`.
-export function InfoLine({ parts, secondLine, secondLineHidden, separator = ' · ', style }: InfoLineProps) {
+export function InfoLine({ parts, partsStyle, secondLine, secondLineHidden, secondLineStyle, separator = ' · ', style }: InfoLineProps) {
   const visible = parts.map(normalize).filter((p) => Boolean(p.text) && !p.hidden)
   const showSecond = Boolean(secondLine) && !secondLineHidden
   if (visible.length === 0 && !showSecond) return null
   return (
     <div style={{ ...typography.body, ...style }}>
-      {visible.map((part, i) => (
-        <Fragment key={i}>
-          {i > 0 && <span>{separator}</span>}
-          <span>{part.text}</span>
-        </Fragment>
-      ))}
+      {visible.length > 0 && (
+        <span style={partsStyle}>
+          {visible.map((part, i) => (
+            <Fragment key={i}>
+              {i > 0 && <span>{separator}</span>}
+              <span>{part.text}</span>
+            </Fragment>
+          ))}
+        </span>
+      )}
       {showSecond && (
         <>
           {visible.length > 0 && <br />}
-          <span>{secondLine}</span>
+          <span style={secondLineStyle}>{secondLine}</span>
         </>
       )}
     </div>

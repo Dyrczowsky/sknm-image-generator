@@ -18,7 +18,7 @@ const DEFAULT_AGENDA: ListItem[] = [
 
 // KONFERENCJA — nagłówek + lista programu
 export function PosterKonferencja({ data, scheme, accent, lang }: PosterProps) {
-  const { title, event_date, location, badge, badge2, graphics, showPkLogo, qrUrl, lists, hidden, fx } = withPlaceholders(data)
+  const { title, event_date, location, badge, badge2, graphics, showPkLogo, qrUrl, lists, hidden, fx, titleScale } = withPlaceholders(data)
   const agenda = lists.agenda?.length ? lists.agenda : DEFAULT_AGENDA
   const s = resolveScheme('konferencja', scheme, accent)
   const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
@@ -28,7 +28,7 @@ export function PosterKonferencja({ data, scheme, accent, lang }: PosterProps) {
       <div style={{ background: 'var(--panel)', color: 'var(--panel-text)', padding: '56px 72px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: 32 }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <Badge color="var(--header-badge)" style={fx('badge')}>{badge || (lang === 'en' ? 'SKNM SEMINAR' : 'SEMINARIUM SKNM')}</Badge>
-          <div style={{ fontSize: 76, fontWeight: 800, lineHeight: 0.96, letterSpacing: '-.03em', fontKerning: 'none', ...fx('title') }}>
+          <div style={{ fontSize: 76 * titleScale, fontWeight: 800, lineHeight: 0.96, letterSpacing: '-.03em', fontKerning: 'none', ...fx('title') }}>
             {title}
           </div>
           <div style={{ fontSize: 28, fontWeight: 600 }}>
