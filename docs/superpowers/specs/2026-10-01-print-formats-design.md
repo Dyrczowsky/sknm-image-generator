@@ -36,10 +36,10 @@ The paper size only changes the **output resolution**, never the layout.
 
 - New type `PosterShape = 'square' | 'portrait' | 'landscape'` in
   `src/types.ts`.
-- New module `src/posters/shape.tsx`:
+- New module `src/posters/shape.ts`:
   - `SHAPE_SIZE: Record<PosterShape, { width: number; height: number }>`
   - `PosterShapeContext` (default `'square'`)
-  - `usePosterShape(): { shape, width, height }`
+  - `usePosterShape(): { shape, width, height, kx, ky }` (`kx`/`ky` = frame width/height relative to 1080)
 - The shape travels by **React context**, not as a prop: `PosterFrame` and
   any template that needs a shape-specific tweak read it with
   `usePosterShape()`. Everything that does not provide the context
@@ -68,13 +68,11 @@ these known fixed-size parts need shape-aware values:
 
 | Template | Part | Portrait | Landscape |
 |---|---|---|---|
-| Warsztat | right panel `height: 1080` | full frame height | full frame height (already) |
-| Gość | photo `height: 600` | taller photo | photo beside the text rather than above |
-| Rekrutacja | zigzag band | band keeps its height, anchored to bottom | band stretched to full width |
-| Data | giant day number | scale up with free height | unchanged |
-| Wykład, Komunikat | wedges with fixed px sizes | scale wedge heights with frame height | scale wedge widths with frame width |
-| Konferencja | header band + agenda | agenda gets the extra height | agenda in the wider column |
-| Gala, Ogłoszenie | centred content | verify only | verify only |
+| Wykład, Komunikat | corner wedges with fixed px sizes | heights scale with frame height | widths scale with frame width |
+| Gala | bottom-right panel | height scales | width scales |
+| Warsztat | right photo panel `height: 1080` | full frame height | width scales with frame width |
+| Gość | photo `height: 600` | photo height scales with frame height | photo beside the text rather than above |
+| Data, Konferencja, Ogłoszenie, Rekrutacja | — | verify only | verify only |
 
 Rule for tweaks: derive from `usePosterShape()` (`width`/`height`), never
 branch on the paper size. Font sizes are **not** changed per shape — the
@@ -83,7 +81,7 @@ and the live preview shows the chosen shape.
 
 ## Export formats
 
-`EXPORT_FORMATS` in `src/posters/export.ts` grows a print variant:
+`EXPORT_FORMATS` moves to a DOM-free `src/posters/formats.ts` (so it is unit-testable) and grows a print variant:
 
 ```ts
 interface ExportFormat {
@@ -222,7 +220,7 @@ on small screens.
 ## Testing
 
 - **Unit (vitest):**
-  - `export.test.ts` — `shapeFor`, `pixelSize`, `pageSizePt` for every
+  - `formats.test.ts` — `shapeFor`, `pixelSize`, `pageSizePt` for every
     format × orientation.
   - `cmyk.test.ts` — white, black, pure R/G/B, a mid grey; output length.
   - `pdf.test.ts` — header/trailer present, `MediaBox` matches the paper,
