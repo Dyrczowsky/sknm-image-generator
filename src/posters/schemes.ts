@@ -228,6 +228,7 @@ const rekrutacja: LayoutSchemes = {
   limonka: {
     pageBg: colors.lime, pageText: colors.limeText,
     band: colors.navy, subColor: colors.navyDark, footerText: colors.cream,
+    qr: colors.cream,
     badgeColor: colors.lime,
     qrBorder: 'rgba(244,242,237,.55)', qrText: 'rgba(244,242,237,.75)',
     sygnet: 'granat', logoVariant: 'dark',
@@ -236,6 +237,7 @@ const rekrutacja: LayoutSchemes = {
   czern: {
     pageBg: colors.black, pageText: colors.cream,
     band: colors.lime, subColor: colors.creamMuted, footerText: colors.limeText,
+    qr: colors.limeText,
     badgeColor: colors.black,
     qrBorder: 'rgba(18,18,18,.4)', qrText: 'rgba(18,18,18,.6)',
     sygnet: 'negatywny', logoVariant: 'light',
@@ -388,9 +390,12 @@ const accentRecipes: Record<string, AccentRecipe | undefined> = {
     // CIEMNE na to — dostaje traktowanie jak `granatowy` (logo negatywne,
     // jasny QR-obrys), inaczej niż jasne srebro.
     const lightBand = a === 'zolty' || a === 'pomaranczowy' || a === 'srebrny'
+    const footerText = a === 'srebrny' || a === 'zloty' ? colors.ink : lightBand ? colors.limeText : colors.cream
     return {
       band: c,
-      footerText: a === 'srebrny' || a === 'zloty' ? colors.ink : lightBand ? colors.limeText : colors.cream,
+      footerText,
+      // QR leży na bandzie, więc ma ten sam kolor co tekst stopki.
+      qr: footerText,
       // "wycięcie" plakietki w kolorze tła strony — na jasnym tle (limonka)
       // daje limonkę, na ciemnym (czern) daje czerń, jak dotychczas.
       badgeColor: a === 'srebrny' ? colors.ink : (ctx.pageBg ?? colors.cream),
