@@ -156,6 +156,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+      issues: write
       actions: write
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -167,3 +168,25 @@ jobs:
       # A merge made with GITHUB_TOKEN does not trigger push workflows, so start the deploy.
       - name: Deploy
         run: gh workflow run deploy.yml --ref main
+      # Nor does it close the issue through "Closes #N", so answer and close it here.
+      - name: Reply and close issue
+        run: |
+          gh issue close "$ISSUE" --reason completed \
+            --comment "Zgłoszenie zostało rozwiązane w #$PR. Zmiana jest już scalona i za kilka minut będzie widoczna na stronie. Jeśli problem nadal występuje, otwórz nowe zgłoszenie."
+
+  # Tells the reporter when the change was written but did not pass the checks or the merge.
+  report-failure:
+    needs: [implement, check, merge]
+    if: failure() && needs.implement.outputs.pr != ''
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      PR: ${{ needs.implement.outputs.pr }}
+      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+    steps:
+      - name: Comment on issue
+        run: |
+          gh issue comment "$ISSUE" \
+            --body "Automatyczna poprawka (#$PR) nie przeszła sprawdzenia i nie została wdrożona. Zgłoszenie pozostaje otwarte do ręcznej obsługi. Szczegóły: $RUN_URL"
