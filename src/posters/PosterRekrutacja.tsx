@@ -59,7 +59,9 @@ export function PosterRekrutacja({ data, scheme, accent, lang }: PosterProps) {
             ]}
             style={{ fontSize: 36, fontWeight: 800, lineHeight: 1.05, fontKerning: 'none', whiteSpace: 'nowrap' }}
           />
-          <div style={{ fontSize: 26, fontWeight: 500, opacity: 0.85 }}>sknm.pk.edu.pl · @sknm.pk</div>
+          <div style={{ fontSize: 26, fontWeight: 500, opacity: 0.85 }}>
+            sknm.pk.edu.pl{hidden('speaker') ? '' : ` · ${data.speaker || '@sknm.pk'}`}
+          </div>
         </div>
         <LogoRow minHeight={QR_SLOT_H}>
           <QrSlot value={qrUrl} />
