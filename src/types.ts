@@ -74,6 +74,8 @@ export interface HistoryEntry {
   event_time: string
   location: string
   color_scheme: string | null
+  // Pełny snapshot edytora (surowy jsonb); null w starych wpisach sprzed snapshotów.
+  snapshot: unknown
 }
 
 export type NewHistoryEntry = Omit<HistoryEntry, 'id' | 'created_at'>

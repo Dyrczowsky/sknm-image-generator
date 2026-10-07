@@ -4,6 +4,9 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 import type { Note } from '../notes/remoteNotes'
 import type { Notes } from '../notes/useNotes'
+import { EMPTY_FORM } from '../editor/formState'
+import { DEFAULT_EXPORT_SETTINGS } from '../posters/formats'
+import type { EditorSnapshot } from '../snapshot/snapshot'
 import type { HistoryEntry } from '../types'
 import { HistoryList } from './HistoryList'
 import { NotesPanel } from './NotesPanel'
@@ -74,7 +77,7 @@ describe('NotesPanel', () => {
 describe('HistoryList', () => {
   const entry = (overrides: Partial<HistoryEntry>): HistoryEntry => ({
     id: 1, created_at: new Date(2031, 2, 4, 9, 5).toISOString(), poster_key: 'wyklad',
-    title: 'Mój wykład', subtitle: '', speaker: '', event_date: '2031-03-10', event_time: '17:30', location: 'sala 1', color_scheme: 'czern~zloty',
+    title: 'Mój wykład', subtitle: '', speaker: '', event_date: '2031-03-10', event_time: '17:30', location: 'sala 1', color_scheme: 'czern~zloty', snapshot: null,
     ...overrides,
   })
   const render = (entries: HistoryEntry[]) => renderToStaticMarkup(h(HistoryList, { entries, onRestore: noop, onDelete: noop, lang: 'pl' }))
@@ -97,5 +100,33 @@ describe('HistoryList', () => {
     expect(html).toContain('(bez tytułu)')
     expect(html).toContain('piknik')
     expect(html).toContain('bg-border')
+  })
+
+  const snapshot = (export_: Partial<EditorSnapshot['export']>): EditorSnapshot => ({
+    v: 1, poster_key: 'wyklad', color_scheme: null, lang: 'pl', export: { ...DEFAULT_EXPORT_SETTINGS, ...export_ },
+    form: { ...EMPTY_FORM, graphics: [], photos: {}, title: 'Mój wykład' },
+  })
+
+  it('wpis bez snapshotu: kwadratowa miniatura właściwego layoutu', () => {
+    const html = render([entry({ snapshot: null })])
+    expect(html).toContain('width:120px;height:120px')
+    expect(html).toContain('Mój wykład')
+    expect(html).not.toContain('bg-border')
+  })
+
+  it('snapshot z medium banner: miniatura banera', () => {
+    const html = render([entry({ snapshot: snapshot({ medium: 'banner', format: 'fbCover' }) })])
+    expect(html).toContain('width:120px;height:45.6')
+    expect(html).toContain('width:1640px;height:624px')
+  })
+
+  it('snapshot A4 poziomo: ok. 120×85 px', () => {
+    const html = render([entry({ snapshot: snapshot({ format: 'a4', orientation: 'landscape' }) })])
+    expect(html).toContain('width:120px;height:84.8')
+  })
+
+  it('snapshot nieczytelny (nieznana wersja): wraca do wąskich kolumn', () => {
+    const html = render([entry({ snapshot: { v: 99 } })])
+    expect(html).toContain('width:120px;height:120px')
   })
 })

@@ -3,6 +3,8 @@ import type { Session } from '../supabase/useSession'
 interface AuthControlProps {
   session: Session
   onSignInClick: () => void
+  // Wylogowanie idzie przez kopię roboczą: otwarty projekt jest najpierw zapisywany.
+  onSignOut: () => void
 }
 
 const BUTTON = 'cursor-pointer rounded-lg border border-field-border px-3 py-1.5 text-[0.8rem] font-semibold text-fg transition-colors hover:border-accent hover:text-accent'
@@ -10,7 +12,7 @@ const BUTTON = 'cursor-pointer rounded-lg border border-field-border px-3 py-1.5
 // Stan logowania w nagłówku: przycisk „Zaloguj" albo adres zalogowanej osoby
 // i „Wyloguj". Bez konfiguracji Supabase (i w trakcie odczytu sesji) nic nie
 // rysuje.
-export function AuthControl({ session, onSignInClick }: AuthControlProps) {
+export function AuthControl({ session, onSignInClick, onSignOut }: AuthControlProps) {
   if (session.status === 'unconfigured' || session.status === 'loading') return null
   if (session.status === 'signedOut') {
     return (
@@ -24,7 +26,7 @@ export function AuthControl({ session, onSignInClick }: AuthControlProps) {
       <span className="max-w-[200px] truncate text-[0.8rem] text-muted" title={session.email ?? undefined}>
         {session.email}
       </span>
-      <button type="button" className={BUTTON} onClick={() => void session.signOut()}>
+      <button type="button" className={BUTTON} onClick={onSignOut}>
         Wyloguj
       </button>
     </div>

@@ -83,6 +83,9 @@ async function resolve(ref: string, client: SupabaseClient | null, deps: AssetDe
       // Brak pliku, brak dostępu albo brak sieci - grafika zostaje nierozwiązana.
       return false
     }
+    // Nazwa to skrót treści, ale Storage tego nie pilnuje - każdy członek może
+    // wgrać dowolne bajty pod cudzą nazwą. Plik o innym skrócie odrzucamy.
+    if ((await refFor(await blob.arrayBuffer(), mimeOfRef(ref))) !== ref) return false
     // Pobrana grafika jest już w Storage i w bibliotece, więc `kind` i `name`
     // nie będą nigdzie użyte; wpis służy tylko jako lokalna kopia bajtów.
     await deps.local.put(ref, { blob, remote: true, kind: 'photo', name: '' })
@@ -123,9 +126,15 @@ export async function ensureUploaded(
   }
 }
 
-// Usuwa lokalne kopie grafik, których nie ma na liście.
+// Usuwa lokalne kopie grafik, których nie ma na liście - ale tylko te, które
+// są już w Storage. Niewgrana grafika może należeć do roboczej wersji w innej
+// karcie i nie ma jej skąd odtworzyć.
 export async function gcLocal(keepRefs: string[], deps: AssetDeps = defaultDeps): Promise<void> {
   const keep = new Set(keepRefs)
   const stale = (await deps.local.refs()).filter((ref) => !keep.has(ref))
-  await Promise.all(stale.map((ref) => deps.local.remove(ref)))
+  await Promise.all(
+    stale.map(async (ref) => {
+      if ((await deps.local.get(ref))?.remote) await deps.local.remove(ref)
+    }),
+  )
 }

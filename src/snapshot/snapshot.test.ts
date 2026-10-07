@@ -485,6 +485,7 @@ describe('snapshotFromLegacyHistory', () => {
     id: 12,
     created_at: '2031-01-02T03:04:05Z',
     poster_key: 'warsztat',
+    snapshot: null,
     title: 'Stary tytuł',
     subtitle: 'Stary podtytuł',
     speaker: 'Jan Kowalski',

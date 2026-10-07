@@ -1,9 +1,14 @@
+import { useEffect, useState } from 'react'
 import type { ChangeEvent } from 'react'
 import type { FormProps } from '../types'
+import { useAssetLibraryContext } from '../assets/AssetLibraryContext'
+import { importImage } from '../assets/assets'
+import { srcOf } from '../assets/registry'
+import { LogoPicker } from '../components/LogoPicker'
 import { CHECKBOX, COMPACT_INPUT, FILE_PICKER, FILE_PICKER_INPUT, FORM_SECTION, IMAGE_THUMB, IMAGE_THUMB_IMG } from '../components/styles'
 import { addGraphics, moveGraphic, removeGraphic, setQrUrl, setShowPkLogo } from '../editor/formState'
 import { MAX_GRAPHICS } from '../posters/theme'
-import { IMAGE_ACCEPT, readAsDataUrl } from '../utils/readAsDataUrl'
+import { IMAGE_ACCEPT } from '../utils/readAsDataUrl'
 
 const ROW_BUTTON = 'flex-none rounded-lg border border-field-border bg-transparent py-[6px] text-[0.8rem] text-muted transition-[border-color,color]'
 const MOVE_BUTTON = `${ROW_BUTTON} px-2 enabled:hover:border-accent enabled:hover:text-accent disabled:opacity-40`
@@ -15,12 +20,40 @@ const REMOVE_BUTTON = `${ROW_BUTTON} px-3 hover:border-danger hover:text-danger`
 export function GraphicsField({ value, onChange }: FormProps) {
   const { graphics, showPkLogo, qrUrl } = value
   const full = graphics.length >= MAX_GRAPHICS
+  const library = useAssetLibraryContext()
+  const [pickerOpen, setPickerOpen] = useState(false)
+  // Wymusza ponowne narysowanie po wczytaniu miniatur do rejestru.
+  const [, setHydrated] = useState(0)
+  const logos = library?.items.filter((asset) => asset.kind === 'logo') ?? []
+
+  const logoRefs = logos.map((asset) => asset.ref).join(',')
+  const loadThumbs = library?.loadThumbs
+
+  // Miniatury dociągamy po otwarciu i ponownie, gdy lista biblioteki się zmieni
+  // (np. wczytała się dopiero po otwarciu).
+  useEffect(() => {
+    if (!pickerOpen || !loadThumbs || !logoRefs) return
+    let active = true
+    void loadThumbs(logoRefs.split(',')).then(() => active && setHydrated((n) => n + 1))
+    return () => {
+      active = false
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `loadThumbs` zmienia się co render
+  }, [pickerOpen, logoRefs])
+
+  const togglePicker = () => setPickerOpen((open) => !open)
+
+  const pickLogo = (ref: string) => {
+    const src = srcOf(ref)
+    if (!src) return
+    onChange((form) => (form.graphics.includes(src) ? form : addGraphics([src])(form)))
+  }
 
   const handleFiles = async (e: ChangeEvent<HTMLInputElement>) => {
     const files = [...(e.target.files ?? [])]
     e.target.value = ''
     if (files.length === 0) return
-    onChange(addGraphics(await Promise.all(files.map(readAsDataUrl))))
+    onChange(addGraphics(await Promise.all(files.map((file) => importImage(file, 'logo')))))
   }
 
   return (
@@ -52,13 +85,23 @@ export function GraphicsField({ value, onChange }: FormProps) {
         </ul>
       )}
 
-      {full ? (
-        <p className="m-0 text-[0.8rem] text-muted">Maksymalnie {MAX_GRAPHICS} grafiki.</p>
-      ) : (
-        <label className={`relative w-fit ${FILE_PICKER}`}>
-          {graphics.length === 0 ? 'Wgraj grafiki' : `Dodaj kolejne (${graphics.length}/${MAX_GRAPHICS})`}
-          <input className={FILE_PICKER_INPUT} type="file" multiple accept={IMAGE_ACCEPT} onChange={handleFiles} />
-        </label>
+      <div className="flex flex-wrap items-center gap-2">
+        {full ? (
+          <p className="m-0 text-[0.8rem] text-muted">Maksymalnie {MAX_GRAPHICS} grafiki.</p>
+        ) : (
+          <label className={`relative w-fit ${FILE_PICKER}`}>
+            {graphics.length === 0 ? 'Wgraj grafiki' : `Dodaj kolejne (${graphics.length}/${MAX_GRAPHICS})`}
+            <input className={FILE_PICKER_INPUT} type="file" multiple accept={IMAGE_ACCEPT} onChange={handleFiles} />
+          </label>
+        )}
+        {library && (
+          <button type="button" className={FILE_PICKER} aria-expanded={pickerOpen} onClick={togglePicker}>
+            Z biblioteki
+          </button>
+        )}
+      </div>
+      {library && pickerOpen && (
+        <LogoPicker logos={logos} thumbOf={srcOf} remaining={MAX_GRAPHICS - graphics.length} onPick={pickLogo} />
       )}
 
       <label className="mt-1 flex flex-col gap-1.5">

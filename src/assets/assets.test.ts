@@ -124,6 +124,17 @@ describe('hydrate', () => {
     expect(storageCalls).toHaveLength(1)
   })
 
+  it('plik w Storage o innej treści niż jego nazwa → odrzucony i niezapisany', async () => {
+    const { deps, local } = setup()
+    const podmieniony = new Blob([new Uint8Array([1, 2, 3])], { type: 'image/png' })
+    const { client } = fakeSupabase({}, { download: { data: podmieniony } })
+    const ref = await pngRef()
+
+    expect(await hydrate([ref], client, deps)).toEqual([ref])
+    expect(srcOf(ref)).toBeUndefined()
+    expect(await local.get(ref)).toBeUndefined()
+  })
+
   it('nigdzie nie ma → zwraca nazwę jako nierozwiązaną', async () => {
     const { deps, map } = setup()
     const { client } = fakeSupabase({}, { download: { error: { message: 'Object not found', status: 400, statusCode: '404' } } })
@@ -219,15 +230,23 @@ describe('ensureUploaded', () => {
 })
 
 describe('gcLocal', () => {
-  it('usuwa lokalne grafiki spoza listy, cudzych kluczy nie rusza', async () => {
+  it('usuwa wgrane grafiki spoza listy, cudzych kluczy nie rusza', async () => {
     const { deps, local, map } = setup()
     map.set('sknm-workspace', {})
     const keep = await pngRef()
-    await local.put(keep, asset())
-    await local.put(MISSING, asset())
+    await local.put(keep, asset({ remote: true }))
+    await local.put(MISSING, asset({ remote: true }))
 
     await gcLocal([keep], deps)
     expect(await local.refs()).toEqual([keep])
     expect(map.has('sknm-workspace')).toBe(true)
+  })
+
+  it('niewgranej grafiki nie usuwa - może jej potrzebować inna karta', async () => {
+    const { deps, local } = setup()
+    await local.put(MISSING, asset({ remote: false }))
+
+    await gcLocal([], deps)
+    expect(await local.refs()).toEqual([MISSING])
   })
 })
