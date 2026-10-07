@@ -36,9 +36,9 @@ import type { RegistryEntry } from '../types'
 //   src/posters/banners/); te same propsy, ten sam klucz schematów kolorów.
 //   Baner niesie stałą nazwę koła, nie dane wydarzenia. `bannerPhoto` - baner
 //   ma miejsce na zdjęcie (formularz banera pokaże wtedy galerię).
-// - `Form` - jawnie napisany komponent formularza (patrz src/forms/), renderowany
-//   po wybraniu danego layoutu. Dane formularza (App.jsx) są globalne i
-//   przeżywają zmianę layoutu - zmienia się tylko to, który komponent je edytuje.
+// - `Form` - formularz layoutu: lista pól na wspólnym `PosterForm` (patrz src/forms/), renderowany
+//   po wybraniu danego layoutu. Dane formularza (editor/useEditor.ts) są globalne
+//   i przeżywają zmianę layoutu - zmienia się tylko to, który komponent je edytuje.
 //
 // Lista schematów kolorów NIE jest tutaj - wynika wprost z `schemes.ts`
 // (`schemesFor(poster_key)`, kolejność = kolejność zapisu w bloku layoutu).

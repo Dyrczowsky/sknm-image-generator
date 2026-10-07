@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { getDay, getMonthShort, formatFullDate } from './formatDate'
+import { getDay, getMonthShort, formatFullDate, formatTimestamp } from './formatDate'
 
 describe('getDay', () => {
   it('nie zależy od języka', () => {
@@ -36,5 +36,15 @@ describe('formatFullDate', () => {
   })
   it('pusta data → pusty string', () => {
     expect(formatFullDate('', 'en')).toBe('')
+  })
+})
+
+describe('formatTimestamp', () => {
+  it('pokazuje znacznik ISO w czasie lokalnym, z zerami wiodącymi', () => {
+    const local = new Date(2031, 2, 4, 9, 5)
+    expect(formatTimestamp(local.toISOString())).toBe('2031-03-04 09:05')
+  })
+  it('nieprawidłowy znacznik → pusty string', () => {
+    expect(formatTimestamp('bzdura')).toBe('')
   })
 })

@@ -44,7 +44,7 @@ Klucz roli w `schemes.ts` jest w `camelCase`; resolver zamienia go na `--kebab`:
 | `accent` | `var(--accent)` |
 
 `sygnet` i `logoVariant` **nie** są zmiennymi CSS — resolver zwraca je osobno
-(`s.sygnet`, `s.logoVariant`), komponent podaje je do `sygnetByName[...]` i `LogoSlot`.
+(`sygnet`, `logoVariant`), komponent podaje je do bloków `Sygnet` i `FooterLogos`.
 
 ### `⚠️` Każda rola musi być w `default`
 

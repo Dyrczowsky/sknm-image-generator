@@ -1,3 +1,4 @@
+import { FORM_TEXT_FIELDS } from '../types'
 import type { FormValues, PosterLang } from '../types'
 
 export const TICKET_REPO = 'Dyrczowsky/sknm-image-generator'
@@ -23,10 +24,6 @@ export interface BugContextInput {
   version: string
 }
 
-const TEXT_FIELDS = [
-  'title', 'subtitle', 'speaker', 'event_date', 'event_time', 'location', 'badge', 'badge2', 'body',
-] as const
-
 function trimTrailingHighSurrogate(s: string): string {
   return /[\uD800-\uDBFF]$/.test(s) ? s.slice(0, -1) : s
 }
@@ -37,18 +34,39 @@ function stripLoneSurrogates(s: string): string {
   return s.replace(/\p{Surrogate}/gu, '')
 }
 
+// Lista po przecinku albo pauza, gdy nie ma nic do wypisania.
+const listOrDash = (parts: string[]): string => (parts.length ? parts.join(', ') : '—')
+
+// Buduje URL z `body`, a gdy wychodzi dłuższy niż `maxLength`, przycina treść
+// (po `step` znaków naraz) i dokleja `mark` - informację, że resztę trzeba
+// dopisać ręcznie. Limit dotyczy długości PO zakodowaniu znaków.
+function fitUrl(build: (body: string) => string, body: string, limits: { maxLength: number; mark: string; step: number }): string {
+  const url = build(body)
+  if (url.length <= limits.maxLength) return url
+
+  const room = limits.maxLength - build('').length - encodeURIComponent(limits.mark).length
+  if (room <= 0) return build('')
+  let sliced = body
+  while (sliced.length > 0 && encodeURIComponent(sliced).length > room) {
+    sliced = trimTrailingHighSurrogate(sliced.slice(0, Math.max(0, sliced.length - limits.step)))
+  }
+  return build(sliced + limits.mark)
+}
+
 function fieldsSummary(form: FormValues): string {
-  const parts = TEXT_FIELDS
-    .filter((k) => typeof form[k] === 'string' && form[k].trim() !== '')
-    .map((k) => `${k}="${form[k]}"`)
-  return parts.length ? parts.join(', ') : '—'
+  return listOrDash(
+    FORM_TEXT_FIELDS
+      .filter((name) => typeof form[name] === 'string' && form[name].trim() !== '')
+      .map((name) => `${name}="${form[name]}"`),
+  )
 }
 
 function hiddenSummary(form: FormValues): string {
-  const hidden = Object.entries(form.visibility ?? {})
-    .filter(([, visible]) => visible === false)
-    .map(([k]) => k)
-  return hidden.length ? hidden.join(', ') : '—'
+  return listOrDash(
+    Object.entries(form.visibility ?? {})
+      .filter(([, visible]) => visible === false)
+      .map(([name]) => name),
+  )
 }
 
 function attachmentsSummary(form: FormValues): string {
@@ -59,10 +77,10 @@ function attachmentsSummary(form: FormValues): string {
   if (photos) parts.push(`zdjęcia ×${photos}`)
   const lists = Object.entries(form.lists ?? {})
     .filter(([, arr]) => arr.length > 0)
-    .map(([k, arr]) => `${k} ×${arr.length}`)
+    .map(([name, arr]) => `${name} ×${arr.length}`)
   if (lists.length) parts.push(`listy: ${lists.join(', ')}`)
   if (form.showPkLogo) parts.push('logo PK')
-  return parts.length ? parts.join(', ') : '—'
+  return listOrDash(parts)
 }
 
 export function formatBugContext(input: BugContextInput): string {
@@ -89,7 +107,7 @@ export function formatBugContext(input: BugContextInput): string {
 }
 
 function issueTitle(userText: string): string {
-  const firstLine = userText.split('\n').map((l) => l.trim()).find((l) => l !== '')
+  const firstLine = userText.split('\n').map((line) => line.trim()).find((line) => line !== '')
   if (!firstLine) return 'Zgłoszenie błędu'
   const room = TITLE_MAX - TITLE_PREFIX.length
   const body = firstLine.length > room ? `${trimTrailingHighSurrogate(firstLine.slice(0, room - 1))}…` : firstLine
@@ -110,16 +128,7 @@ export function buildBugIssueUrl(args: {
   const build = (body: string) =>
     `${base}?title=${encodeURIComponent(title)}&labels=bug&body=${encodeURIComponent(body)}`
 
-  const url = build(fullBody)
-  if (url.length <= MAX_ISSUE_URL) return url
-
-  const room = MAX_ISSUE_URL - build('').length - encodeURIComponent(TRUNCATION_MARK).length
-  if (room <= 0) return build('')
-  let sliced = fullBody
-  while (sliced.length > 0 && encodeURIComponent(sliced).length > room) {
-    sliced = trimTrailingHighSurrogate(sliced.slice(0, Math.max(0, sliced.length - 64)))
-  }
-  return build(sliced + TRUNCATION_MARK)
+  return fitUrl(build, fullBody, { maxLength: MAX_ISSUE_URL, mark: TRUNCATION_MARK, step: 64 })
 }
 
 export interface PosterRequestInput {
@@ -140,7 +149,7 @@ export function buildPosterRequestMailto(input: PosterRequestInput): string {
     ? `${trimTrailingHighSurrogate(event.slice(0, SUBJECT_EVENT_MAX - 1).trimEnd())}…`
     : event
   const subject = `Zapotrzebowanie na plakat: ${eventForSubject}`
-  const linesFull = [
+  const lines = [
     `Wydarzenie: ${event}`,
     eventDate ? `Data wydarzenia: ${eventDate}` : null,
     neededBy ? `Plakat potrzebny do: ${neededBy}` : null,
@@ -149,19 +158,9 @@ export function buildPosterRequestMailto(input: PosterRequestInput): string {
     details,
     '',
     `Kontakt: ${contact}`,
-  ].filter((l): l is string => l !== null)
+  ].filter((line): line is string => line !== null)
   const build = (body: string) =>
     `mailto:${TICKET_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
 
-  const fullBody = linesFull.join('\n')
-  const url = build(fullBody)
-  if (url.length <= MAX_MAILTO_URL) return url
-
-  const room = MAX_MAILTO_URL - build('').length - encodeURIComponent(MAILTO_MARK).length
-  if (room <= 0) return build('')
-  let sliced = fullBody
-  while (sliced.length > 0 && encodeURIComponent(sliced).length > room) {
-    sliced = trimTrailingHighSurrogate(sliced.slice(0, Math.max(0, sliced.length - 32)))
-  }
-  return build(sliced + MAILTO_MARK)
+  return fitUrl(build, lines.join('\n'), { maxLength: MAX_MAILTO_URL, mark: MAILTO_MARK, step: 32 })
 }

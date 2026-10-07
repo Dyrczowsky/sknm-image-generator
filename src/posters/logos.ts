@@ -7,7 +7,7 @@ import sygnetCzarny from '../assets/brand/sknm/sygnet_czarny.svg'
 import sygnetSrebrny from '../assets/brand/sknm/sygnet_srebrny.svg'
 import type { SygnetName } from '../types'
 
-// Wybór sygnetu po nazwie roli ze schematu (patrz schemes.js).
+// Wybór sygnetu po nazwie roli ze schematu (patrz schemes.ts).
 export const sygnetByName: Record<SygnetName, string> = {
   negatywny: sygnetNegatywny,
   granat: sygnetGranat,

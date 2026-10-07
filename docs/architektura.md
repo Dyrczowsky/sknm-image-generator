@@ -4,54 +4,88 @@
 
 ```
 src/
-├── App.tsx              stan edytora (formularz, wybrany szablon, schemat), spina całość
+├── App.tsx              układ strony edytora; spina hooki stanu z komponentami
 ├── main.tsx             bootstrap + prosty routing: App albo PosterPreviewPage
 ├── index.css            wejście Tailwind + tokeny kolorów aplikacji (patrz stylowanie.md)
+├── types.ts             wspólne typy (FormValues, FormUpdate, PosterProps, wiersze bazy, ...)
+│
+├── editor/             stan edytora
+│   ├── useEditor.ts       lokalna baza, szablony, formularz, kolorystyka + autozapis draftu
+│   ├── usePosterExport.ts zakładka, format, orientacja, typ pliku i sam eksport
+│   └── formState.ts       EMPTY_FORM + czyste przekształcenia formularza (setField, addGraphics, ...)
 │
 ├── components/          elementy UI edytora
 │   ├── TemplateSelector   zakładki „Social media" / „Baner" + kafelki layoutów
 │   ├── SchemeSelector     pasek wyboru kolorystyki (renderowany pod podglądem)
-│   ├── PosterPreview      podgląd na żywo (ref do eksportu PNG)
-│   ├── PosterScaled       plakat 1080×1080 przeskalowany CSS transform do podglądu
-│   ├── ImageUpload        uniwersalne pole na grafikę (logo / zdjęcie z kadrowaniem)
-│   └── HistoryList        lista wygenerowanych grafik
+│   ├── ExportBar          format eksportu, orientacja, typ pliku, przycisk „Pobierz"
+│   ├── PosterPreview      podgląd na żywo (ref do eksportu)
+│   ├── PosterScaled       plakat w rozmiarze układu przeskalowany CSS transform do podglądu
+│   ├── ImageUpload        pole na grafikę z podglądem (zdjęcie z kadrowaniem)
+│   ├── HistoryList        wspólna historia wygenerowanych grafik
+│   ├── NotesPanel         wspólna lista zadań
+│   ├── RemotePanel        rama paneli z danymi z Supabase (logowanie / ładowanie / błąd)
+│   ├── AuthControl/Dialog logowanie w nagłówku
+│   ├── TicketDialog       modal zgłoszeń (błąd / zapotrzebowanie na plakat)
+│   └── styles.ts          klasy Tailwinda powtarzane w kilku komponentach
 │
-├── forms/              po jednym komponencie formularza na layout (FormWyklad, FormGala, ...)
-│   ├── FormField          wrapper <label><input> + checkbox widoczności pola
-│   ├── LogoField          slot logo (checkbox + upload), opakowuje ImageUpload
+├── forms/              formularze layoutów
+│   ├── PosterForm         wspólny szkielet: suwaki, pola, grafiki + QR, galeria zdjęć
+│   ├── fields.ts          FieldSpec + gotowe pola (FIELDS, badgeField)
+│   ├── FormWyklad...      po jednym pliku na layout: lista pól dla PosterForm
+│   ├── FormBanner         wspólny formularz zakładki „Baner"
+│   ├── FormField          pole tekstowe + checkbox widoczności
+│   ├── GraphicsField      logo PK, grafiki stopki, link do kodu QR
 │   └── PhotoGalleryField  galeria 0..N zdjęć, opakowuje ImageUpload
 │
 ├── posters/           renderowanie plakatów
 │   ├── registry.ts       poster_key → { name, Component, Banner, Form }
-│   ├── PosterWyklad...    8 komponentów layoutów (style inline, patrz stylowanie.md)
-│   ├── banners/          banerowe wersje layoutów (BannerWyklad, ...), stała treść (copy.ts), stopka
-│   ├── blocks/           współdzielone bloki plakatu (PosterFrame, Badge, LogoRow, ...)
+│   ├── PosterWyklad...    9 komponentów layoutów (style inline, patrz stylowanie.md)
+│   ├── banners/          banerowe wersje layoutów (BannerWyklad, ...) + wspólna stopka (common.tsx)
+│   ├── blocks/           współdzielone bloki plakatu (PosterFrame, Sygnet, Badge, FooterLogos, ...)
+│   ├── copy.ts           wbudowany tekst PL/EN (nazwa koła, branding, domyślne plakietki)
 │   ├── theme.ts          tokeny wizualne plakatów (kolory, typografia)
 │   ├── schemes.ts        schematy kolorów per layout + resolveScheme() + schemesFor() + oś akcentu (accentsFor)
 │   ├── fallback.ts       PLACEHOLDERS + withPlaceholders() (dane przykładowe)
 │   ├── logos.ts          warianty sygnetu SKNM i logo PK
-│   └── export.ts         downloadPosterAsPng() - html-to-image + formaty eksportu
+│   ├── shape.ts          kształty plakatu (kwadrat, papier, banery) + kontekst kształtu
+│   ├── formats.ts        formaty eksportu (social, papier, banery)
+│   └── export.ts         downloadPoster() - html-to-image, drabinka dpi, PNG/PDF
 │
-└── db/                warstwa SQLite (sql.js) w przeglądarce
-    ├── client.ts         pojedyncza instancja bazy, zapis do IndexedDB
-    ├── schema.ts         DEFAULT_TEMPLATES, CREATE TABLE, syncTemplates()
-    ├── templates.ts      listTemplates()
-    ├── drafts.ts         zapis/odczyt roboczej wersji formularza
-    └── history.ts        wpisy historii wygenerowanych grafik
+├── supabase/          klient Supabase, sesja (useSession), listy z serwera (useRemoteList)
+├── history/           wspólna historia: zapytania + useHistory
+├── notes/             wspólne notatki: zapytania + useNotes
+│
+├── db/                lokalna baza SQLite (sql.js) w przeglądarce: szablony i draft
+│   ├── client.ts         pojedyncza instancja bazy, zapis do IndexedDB
+│   ├── schema.ts         DEFAULT_TEMPLATES, CREATE TABLE, syncTemplates()
+│   ├── templates.ts      listTemplates()
+│   └── drafts.ts         zapis/odczyt roboczej wersji formularza
+│
+└── utils/             drobne narzędzia (daty, kodowanie kolorystyki, URL-e zgłoszeń, hooki)
 ```
 
 ## Przepływ danych
 
-1. `App` przy starcie woła `getDb()` → `listTemplates()` + `getDraft()` i ustawia stan.
-2. Zmiana pola formularza → `setForm()` + `persistDraft()` (debounce 400 ms → tabela `draft`).
-3. Wybrany szablon (`selectedTemplateId`) + rejestr → `selectedPoster` = `{ Component, Form }`.
+1. `useEditor()` przy starcie woła `getDb()` → `listTemplates()` + `getDraft()` i ustawia stan.
+2. Formularz zgłasza zmianę jako przekształcenie (`onChange(setField('title', v))`,
+   funkcje z `editor/formState.ts`), a edytor podaje je do `setForm`. Draft zapisuje
+   się sam: `useEditor` porównuje zserializowaną treść draftu i po 400 ms bez zmian
+   woła `saveDraft()` (tabela `draft`). Do draftu trafiają pola tekstowe, widoczność,
+   szablon i kolorystyka; grafiki, zdjęcia, listy i suwaki są sesyjne.
+3. Wybrany szablon + rejestr → `poster` = `{ Component, Banner, Form }`.
    - `Form` renderuje się w panelu "2. Uzupełnij dane".
    - `Component` renderuje się w `PosterPreview` z tymi samymi danymi (`form`) i `scheme`.
    - Pasek kolorystyki: `schemesFor(poster_key)` z `schemes.ts` (kolejność = kolejność
-     zapisu; layout z jednym schematem nie pokazuje paska).
+     zapisu; layout z jednym schematem nie pokazuje paska). Zmiana szablonu lub
+     schematu przechodzi przez `fitColorsToLayout()` (`utils/colorScheme.ts`), które
+     dobiera domyślny schemat i odpina niedozwolony akcent.
 4. Dane formularza są **globalne** i przeżywają zmianę layoutu - zmienia się tylko,
    który `Form` je edytuje i który `Component` je rysuje.
-5. "Pobierz PNG" → `downloadPosterAsPng(posterRef.current, ...)` + `addHistoryEntry()`.
+5. "Pobierz" → `usePosterExport().download()` → `downloadPoster(posterRef.current, ...)`,
+   a po udanym zapisie pliku - jeśli użytkownik jest zalogowany - `useHistory().record()`
+   dopisuje wpis do wspólnej historii w Supabase.
+
+Logowanie, wspólna historia i notatki: [supabase.md](./supabase.md).
 
 ## Widoczność pól
 
@@ -124,7 +158,7 @@ Bez spadów i znaczników cięcia.
 ## Zakładki: Social media / Baner
 
 Panel „1. Wybierz szablon" ma dwie zakładki (`Medium` = `social` | `banner`,
-stan sesyjny w `App`, domyślnie `social`). Baner to **ten sam szablon w innym
+stan sesyjny w `usePosterExport`, domyślnie `social`). Baner to **ten sam szablon w innym
 medium**, nie osobny wpis: rejestr trzyma przy każdym layoucie drugi komponent
 (`Banner`, pliki w `src/posters/banners/`). Zmiana zakładki zostawia wybrany
 layout, dane formularza, kolorystykę i akcent - zmienia się komponent, kształt
@@ -132,7 +166,7 @@ i lista formatów eksportu (`formatsFor(medium)` w `formats.ts`). Banery wołaj�
 `resolveScheme` z tym samym kluczem co plakat, więc nie mają własnych schematów.
 
 Baner to wizytówka koła, nie plakat wydarzenia: niesie **stałą treść** z
-`banners/copy.ts` (`bannerCopy(lang)` - pełna nazwa koła „Studenckie Koło Naukowe
+`posters/copy.ts` (`CLUB_NAME[lang]` - pełna nazwa koła „Studenckie Koło Naukowe
 Matematyków Politechniki Krakowskiej", zawsze w całości, bez haseł i opisów) i nie czyta
 tytułu, prelegenta ani daty z formularza. Z danych formularza bierze tylko
 logotypy, kod QR, zdjęcia i suwaki rozmiaru. Dlatego zakładka „Baner" ma jeden

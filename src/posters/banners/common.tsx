@@ -1,18 +1,19 @@
 import type { CSSProperties } from 'react'
-import { LOGO_CLEAR } from '../theme'
-import { LogoRow } from '../blocks/LogoRow'
-import { LogoSlots } from '../blocks/LogoSlots'
-import { QrSlot } from '../blocks/QrSlot'
+import { FooterLogos } from '../blocks/FooterLogos'
+import type { LogoSlotSource } from '../blocks/LogoSlots'
+import { Triangle } from '../blocks/Triangle'
+import { TITLE_TRACKING } from '../theme'
 import type { LogoVariant } from '../../types'
 
 // Skala banera (wysokość układu 624 px): sygnet i kod QR są mniejsze niż na
 // plakacie 1080 px, logotypy zostają na LOGO_HEIGHT (to ich minimum).
 export const BANNER_SYGNET_W = 88
 export const BANNER_QR = 72
-// Światło między literami nazwy koła. Plakaty ściskają tytuły mocniej
-// (-.035em), ale w długiej nazwie litery zaczynały się wtedy stykać.
-export const NAME_TRACKING = '-.008em'
-export const BANNER_QR_H = BANNER_QR + LOGO_CLEAR * 2
+// Światło między literami nazwy koła - to samo co w tytułach plakatów.
+export const NAME_TRACKING = TITLE_TRACKING
+
+// Poniżej tej szerokości marginesu stos trójkątów by się nie zmieścił.
+const MIN_CHIPS_MARGIN = 120
 
 interface MarginChipsProps {
   // Szerokość bocznego marginesu poza bezpieczną kolumną (0 = brak marginesu).
@@ -24,11 +25,11 @@ interface MarginChipsProps {
 // trójkątów (motyw sygnetu). Marginesy są przycinane na telefonie, więc nie
 // niosą treści; w banerze bez marginesu (wydarzenie) dekoracja znika.
 export function MarginChips({ margin, colors }: MarginChipsProps) {
-  if (margin < 120) return null
+  if (margin < MIN_CHIPS_MARGIN) return null
   const stack = (side: 'left' | 'right') => (
     <div style={{ position: 'absolute', top: 0, bottom: 0, [side]: 0, width: margin, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 18 }}>
-      {colors.map((background, i) => (
-        <div key={i} style={{ width: 84, height: 70, background, clipPath: 'polygon(0 0,100% 0,50% 100%)' }} />
+      {colors.map((color, i) => (
+        <Triangle key={i} width={84} height={70} color={color} />
       ))}
     </div>
   )
@@ -42,22 +43,19 @@ export function MarginChips({ margin, colors }: MarginChipsProps) {
 
 interface BannerLogosProps {
   qrUrl: string
-  slots: (string | null)[]
+  slots: LogoSlotSource[]
   variant?: LogoVariant
   slotStyle?: CSSProperties
   style?: CSSProperties
 }
 
-// Stopka banera: kod QR maksymalnie w lewo, logotypy w prawym dolnym rogu -
-// ten sam komplet co w plakatach (LogoRow + QrSlot + LogoSlots). Wrapper
-// jest flexem, bo LogoRow ma `flex: 1` i w kolumnie rozciągałby się w pionie.
+// Stopka banera: ten sam komplet co w plakatach (FooterLogos), z mniejszym
+// kodem QR. Wrapper jest flexem, bo FooterLogos ma `flex: 1` i w kolumnie
+// rozciągałby się w pionie.
 export function BannerLogos({ qrUrl, slots, variant, slotStyle, style }: BannerLogosProps) {
   return (
     <div style={{ display: 'flex', flex: 1, minWidth: 0, ...style }}>
-      <LogoRow minHeight={BANNER_QR_H}>
-        <QrSlot value={qrUrl} size={BANNER_QR} />
-        <LogoSlots slots={slots} variant={variant} slotStyle={slotStyle} />
-      </LogoRow>
+      <FooterLogos qrUrl={qrUrl} slots={slots} variant={variant} qrSize={BANNER_QR} slotStyle={slotStyle} />
     </div>
   )
 }

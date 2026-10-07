@@ -1,15 +1,16 @@
 import type { CSSProperties } from 'react'
 import type { FormTextField, RawPosterData } from '../types'
+import type { LogoSlotSource } from './blocks/LogoSlots'
+
+const pad = (n: number) => String(n).padStart(2, '0')
 
 function todayIso(): string {
   const d = new Date()
-  const pad = (n: number) => String(n).padStart(2, '0')
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
 }
 
 function nowTime(): string {
   const d = new Date()
-  const pad = (n: number) => String(n).padStart(2, '0')
   return `${pad(d.getHours())}:${pad(d.getMinutes())}`
 }
 
@@ -28,8 +29,22 @@ export const PLACEHOLDERS = {
   },
 }
 
+// Wartość przykładowa pola formularza; `undefined`, gdy pole jej nie ma.
+export function placeholderFor(name: FormTextField): string | undefined {
+  return (PLACEHOLDERS as Partial<Record<FormTextField, string>>)[name]
+}
+
+// Puste dane plakatu - miniatury i podglądy szablonów rysują same placeholdery.
+export const SAMPLE_DATA: RawPosterData = {}
+
+// Dane plakatu gotowe do rysowania: puste pola dostają wartości przykładowe,
+// brakujące kolekcje - puste domyślne, a do tego helpery widoczności pól.
 export function withPlaceholders(data: RawPosterData) {
   const visibility = data.visibility ?? {}
+  const graphics = data.graphics ?? []
+  const showPkLogo = data.showPkLogo ?? true
+  // Stopka: domyślne logo PK (`null`), a za nim wgrane grafiki.
+  const logoSlots: LogoSlotSource[] = showPkLogo ? [null, ...graphics] : graphics
   return {
     title: data.title || PLACEHOLDERS.title,
     subtitle: data.subtitle,
@@ -40,8 +55,7 @@ export function withPlaceholders(data: RawPosterData) {
     badge: data.badge,
     badge2: data.badge2,
     body: data.body || PLACEHOLDERS.body,
-    graphics: data.graphics ?? [],
-    showPkLogo: data.showPkLogo ?? true,
+    logoSlots,
     qrUrl: data.qrUrl ?? '',
     photos: data.photos ?? {},
     lists: data.lists ?? {},
@@ -53,7 +67,7 @@ export function withPlaceholders(data: RawPosterData) {
     hidden: (name: FormTextField): boolean => visibility[name] === false,
     // Styl do rozlania na element pola: ukryte pole dostaje `display: none`
     // (znika z układu, plakat sam się przekłada - flexowa konstrukcja bloków
-    // domyka lukę zamiast zostawiać puste miejsce po `opacity: 0`).
+    // domyka lukę zamiast zostawiać puste miejsce).
     fx: (name: FormTextField): CSSProperties | undefined =>
       visibility[name] === false ? { display: 'none' } : undefined,
   }

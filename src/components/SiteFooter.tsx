@@ -1,3 +1,5 @@
+import { SITE_URL } from '../posters/copy'
+
 interface SiteFooterProps {
   onRequestClick: () => void
 }
@@ -7,7 +9,7 @@ interface SiteFooterProps {
 export function SiteFooter({ onRequestClick }: SiteFooterProps) {
   return (
     <footer className="mt-10 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-t border-border pt-6 pb-4 text-sm text-muted">
-      <span>sknm.pk.edu.pl</span>
+      <span>{SITE_URL}</span>
       <button
         type="button"
         onClick={onRequestClick}

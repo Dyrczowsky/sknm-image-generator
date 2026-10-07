@@ -2,7 +2,7 @@ import { createRequire } from 'node:module'
 import { describe, expect, it } from 'vitest'
 import initSqlJs, { type Database } from 'sql.js'
 import { rowsFromExec } from './utils'
-import { createSchema, resetIfStale, SCHEMA_VERSION } from './schema'
+import { createSchema, dropLegacyHistory, resetIfStale, SCHEMA_VERSION } from './schema'
 
 const require = createRequire(import.meta.url)
 const wasmPath = require.resolve('sql.js/dist/sql-wasm.wasm')
@@ -38,6 +38,32 @@ describe('rowsFromExec', () => {
       db.exec('SELECT name, poster_key FROM templates')
     )
     expect(rows).toEqual([{ name: 'Wykład', poster_key: 'wyklad' }])
+    db.close()
+  })
+})
+
+describe('dropLegacyHistory', () => {
+  const tables = (db: Database) =>
+    rowsFromExec<{ name: string }>(db.exec("SELECT name FROM sqlite_master WHERE type = 'table'")).map((row) => row.name)
+
+  it('usuwa starą tabelę historii i zostawia draft oraz szablony', () => {
+    const db = freshDb()
+    createSchema(db)
+    db.run('CREATE TABLE generated_images (id INTEGER PRIMARY KEY, title TEXT)')
+    db.run("INSERT INTO draft (id, title) VALUES (1, 'Mój draft')")
+
+    expect(dropLegacyHistory(db)).toBe(true)
+    expect(tables(db)).not.toContain('generated_images')
+    expect(tables(db)).toEqual(expect.arrayContaining(['draft', 'templates']))
+    expect(rowsFromExec<{ title: string }>(db.exec('SELECT title FROM draft'))).toEqual([{ title: 'Mój draft' }])
+    db.close()
+  })
+
+  it('bez starej tabeli nic nie robi', () => {
+    const db = freshDb()
+    createSchema(db)
+    expect(tables(db)).not.toContain('generated_images')
+    expect(dropLegacyHistory(db)).toBe(false)
     db.close()
   })
 })

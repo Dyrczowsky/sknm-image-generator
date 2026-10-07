@@ -1,15 +1,14 @@
-import { colors, fontMono, QR_SLOT_H } from './theme'
-import { sygnetByName } from './logos'
-import { resolveScheme } from './schemes'
-import { LogoSlots } from './blocks/LogoSlots'
-import { QrSlot } from './blocks/QrSlot'
-import { withPlaceholders } from './fallback'
-import { formatFullDate } from '../utils/formatDate'
-import { PosterFrame } from './blocks/PosterFrame'
-import { Badge } from './blocks/Badge'
-import { LogoRow } from './blocks/LogoRow'
-import { usePosterShape } from './shape'
 import type { ListItem, PosterProps } from '../types'
+import { formatFullDate } from '../utils/formatDate'
+import { DEFAULT_BADGE, SITE_URL } from './copy'
+import { withPlaceholders } from './fallback'
+import { resolveScheme } from './schemes'
+import { usePosterShape } from './shape'
+import { colors, fontMono, TITLE_TRACKING } from './theme'
+import { Badge } from './blocks/Badge'
+import { FooterLogos } from './blocks/FooterLogos'
+import { PosterFrame } from './blocks/PosterFrame'
+import { Sygnet } from './blocks/Sygnet'
 
 const DEFAULT_AGENDA: ListItem[] = [
   { time: '09:30', title: 'Otwarcie i wykład plenarny', subtitle: 'prof. dr hab. Jan Nowak' },
@@ -18,22 +17,21 @@ const DEFAULT_AGENDA: ListItem[] = [
 ]
 
 // KONFERENCJA — nagłówek + lista programu
-export function PosterKonferencja({ data, scheme, accent, lang }: PosterProps) {
-  const { title, event_date, location, badge, badge2, graphics, showPkLogo, qrUrl, lists, hidden, fx, titleScale } = withPlaceholders(data)
+export function PosterKonferencja({ data, scheme, accent, lang = 'pl' }: PosterProps) {
+  const { title, event_date, location, badge, badge2, logoSlots, qrUrl, lists, hidden, fx, titleScale } = withPlaceholders(data)
   const agenda = lists.agenda?.length ? lists.agenda : DEFAULT_AGENDA
-  const s = resolveScheme('konferencja', scheme, accent)
+  const { cssVars, sygnet, logoVariant } = resolveScheme('konferencja', scheme, accent)
   // W pionie wiersze programu dostają więcej oddechu, żeby krótka lista nie
   // zostawiała pustej połowy strony (kwadrat/poziom: ky = 1 → 22px jak dotąd).
   const { ky } = usePosterShape()
   const rowPad = Math.round(22 * ky ** 3)
-  const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
 
   return (
-    <PosterFrame vars={s.cssVars}>
+    <PosterFrame vars={cssVars}>
       <div style={{ background: 'var(--panel)', color: 'var(--panel-text)', padding: '56px 72px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: 32 }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          <Badge color="var(--header-badge)" style={fx('badge')}>{badge || (lang === 'en' ? 'SKNM SEMINAR' : 'SEMINARIUM SKNM')}</Badge>
-          <div style={{ fontSize: 76 * titleScale, fontWeight: 800, lineHeight: 0.96, letterSpacing: '-.03em', fontKerning: 'none', ...fx('title') }}>
+          <Badge color="var(--header-badge)" style={fx('badge')}>{badge || DEFAULT_BADGE.seminarium[lang]}</Badge>
+          <div style={{ fontSize: 76 * titleScale, fontWeight: 800, lineHeight: 0.96, letterSpacing: TITLE_TRACKING, fontKerning: 'none', ...fx('title') }}>
             {title}
           </div>
           <div style={{ fontSize: 28, fontWeight: 600 }}>
@@ -42,7 +40,7 @@ export function PosterKonferencja({ data, scheme, accent, lang }: PosterProps) {
             <span style={fx('location')}>{location}</span>
           </div>
         </div>
-        <img src={sygnetByName[s.sygnet ?? 'negatywny']} alt="SKNM" style={{ width: 132, display: 'block', flex: '0 0 auto', alignSelf: 'flex-start', marginTop: 16 }} />
+        <Sygnet name={sygnet} style={{ flex: '0 0 auto', alignSelf: 'flex-start', marginTop: 16 }} />
       </div>
 
       <div style={{ flex: 1, padding: '48px 72px 72px', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
@@ -59,6 +57,7 @@ export function PosterKonferencja({ data, scheme, accent, lang }: PosterProps) {
                 alignItems: 'baseline',
               }}
             >
+              {/* Etykiety godzin są koralowe we wszystkich schematach - literał, nie rola. */}
               <div style={{ font: `700 26px ${fontMono}`, color: colors.coral }}>{item.time}</div>
               <div>
                 <div style={{ fontSize: 36, fontWeight: 700, lineHeight: 1.15, fontKerning: 'none' }}>{item.title}</div>
@@ -68,18 +67,15 @@ export function PosterKonferencja({ data, scheme, accent, lang }: PosterProps) {
               </div>
             </div>
           ))}
-          <div style={{ borderTop: `2px solid var(--line-rest)` }} />
+          <div style={{ borderTop: '2px solid var(--line-rest)' }} />
         </div>
 
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24 }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <Badge color="var(--footer-badge)" style={{ font: `700 20px ${fontMono}`, letterSpacing: '.12em', ...fx('badge2') }}>{badge2 || (lang === 'en' ? 'MORE INFORMATION' : 'WIĘCEJ INFORMACJI')}</Badge>
-            <div style={{ fontSize: 24, fontWeight: 600, color: 'var(--muted-text)' }}>sknm.pk.edu.pl</div>
+            <Badge color="var(--footer-badge)" style={{ font: `700 20px ${fontMono}`, letterSpacing: '.12em', ...fx('badge2') }}>{badge2 || DEFAULT_BADGE.wiecejInformacji[lang]}</Badge>
+            <div style={{ fontSize: 24, fontWeight: 600, color: 'var(--muted-text)' }}>{SITE_URL}</div>
           </div>
-          <LogoRow minHeight={QR_SLOT_H}>
-            <QrSlot value={qrUrl} />
-            <LogoSlots slots={slots} variant={s.logoVariant} />
-          </LogoRow>
+          <FooterLogos qrUrl={qrUrl} slots={logoSlots} variant={logoVariant} />
         </div>
       </div>
     </PosterFrame>

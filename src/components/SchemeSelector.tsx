@@ -1,12 +1,12 @@
 import { ACCENT_DOT, ACCENT_LABELS, ACCENT_NAMES, SCHEME_LABELS, accentsFor, defaultAccentFor, layoutHasAccentAxis, schemesFor } from '../posters/schemes'
+import { SAMPLE_DATA } from '../posters/fallback'
 import { PosterScaled } from './PosterScaled'
-import type { AccentName, PosterLang, RawPosterData, RegistryEntry } from '../types'
+import type { AccentName, PosterLang, RegistryEntry } from '../types'
 
 const SWATCH_SIZE = 64
-const THUMB_DATA: RawPosterData = {}
 
 interface SchemeSelectorProps {
-  poster: RegistryEntry | null
+  poster: RegistryEntry | undefined
   posterKey: string | undefined
   selectedScheme: string | undefined
   onSelectScheme: (name: string) => void
@@ -29,7 +29,7 @@ export function SchemeSelector({
   const showAccent = layoutHasAccentAxis(posterKey)
   const accents = accentsFor(posterKey, selectedScheme)
   const accentEnabled = accents.length > 0
-  const defaultAcc = defaultAccentFor(posterKey, selectedScheme)
+  const defaultAccent = defaultAccentFor(posterKey, selectedScheme)
 
   return (
     <div className="mt-[18px] flex flex-col gap-3 border-t border-border pt-[18px]">
@@ -48,7 +48,7 @@ export function SchemeSelector({
               >
                 <div className="overflow-hidden rounded-[5px] shadow-[0_1px_2px_rgba(0,0,0,0.12)]">
                   <PosterScaled size={SWATCH_SIZE}>
-                    <SwatchComponent data={THUMB_DATA} scheme={name} lang={lang} />
+                    <SwatchComponent data={SAMPLE_DATA} scheme={name} lang={lang} />
                   </PosterScaled>
                 </div>
                 <span>{SCHEME_LABELS[name] ?? name}</span>
@@ -64,22 +64,22 @@ export function SchemeSelector({
             Akcent{!accentEnabled && ' — ten schemat nie ma wariantów akcentu'}
           </span>
           <div className={`flex flex-wrap items-center gap-2 ${accentEnabled ? '' : 'pointer-events-none opacity-40'}`}>
-            {(accentEnabled ? accents : ACCENT_NAMES).map((a) => {
-              const isSelected = (selectedAccent ?? defaultAcc) === a
+            {(accentEnabled ? accents : ACCENT_NAMES).map((accent) => {
+              const isSelected = (selectedAccent ?? defaultAccent) === accent
               return (
                 <button
-                  key={a}
+                  key={accent}
                   type="button"
                   disabled={!accentEnabled}
-                  title={a === defaultAcc ? `${ACCENT_LABELS[a]} (domyślny)` : ACCENT_LABELS[a]}
-                  aria-label={ACCENT_LABELS[a]}
+                  title={accent === defaultAccent ? `${ACCENT_LABELS[accent]} (domyślny)` : ACCENT_LABELS[accent]}
+                  aria-label={ACCENT_LABELS[accent]}
                   aria-pressed={isSelected}
                   className={`flex h-7 w-7 cursor-pointer items-center justify-center rounded-full border-2 ${
                     isSelected ? 'border-accent' : 'border-transparent'
                   }`}
-                  onClick={() => onSelectAccent(a === defaultAcc ? undefined : a)}
+                  onClick={() => onSelectAccent(accent === defaultAccent ? undefined : accent)}
                 >
-                  <span className="block h-4 w-4 rounded-full ring-1 ring-black/10" style={{ background: ACCENT_DOT[a] }} />
+                  <span className="block h-4 w-4 rounded-full ring-1 ring-black/10" style={{ background: ACCENT_DOT[accent] }} />
                 </button>
               )
             })}

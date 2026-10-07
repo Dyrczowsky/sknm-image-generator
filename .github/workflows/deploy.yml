@@ -33,6 +33,10 @@ jobs:
         run: npm test
       - name: Build
         run: npm run build
+        env:
+          # Publiczne z założenia (klucz anon) - dostępu pilnuje RLS w bazie.
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact

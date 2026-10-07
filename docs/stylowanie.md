@@ -44,7 +44,8 @@ w `:root`, a że `@theme inline` trzyma w utilities `var(--...)`, nie ma potrzeb
 - Nowy element UI stylujesz **klasami Tailwinda w JSX**. Nie twórz plików `.css`.
 - Kolory bierz z tokenów powyżej, nie z literałów hex (wyjątek: `danger`, jak w kodzie).
 - Dłuższy, powtarzalny zestaw klas wyciągnij do stałej w komponencie
-  (np. `const panel = '...'` w `App.tsx`, `actionButton` w `HistoryList.tsx`) -
+  (np. `PANEL` w `App.tsx`, `actionButton` w `HistoryList.tsx`), a gdy powtarza się
+  w kilku plikach - do `src/components/styles.ts` -
   nie do `@apply`.
 - Wartości spoza skali podawaj arbitralnie: `py-[9px]`, `rounded-[10px]`,
   `min-[900px]:...`, `[grid-area:preview]`.

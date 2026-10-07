@@ -1,38 +1,36 @@
-import { fontMono, QR_SLOT_H } from './theme'
-import { sygnetByName } from './logos'
-import { LogoSlots } from './blocks/LogoSlots'
-import { QrSlot } from './blocks/QrSlot'
+import type { PosterProps } from '../types'
+import { BRANDING_FULL, DEFAULT_BADGE } from './copy'
 import { withPlaceholders } from './fallback'
 import { resolveScheme } from './schemes'
-import { PosterFrame } from './blocks/PosterFrame'
+import { usePosterShape } from './shape'
+import { fontMono, TITLE_TRACKING } from './theme'
 import { Badge } from './blocks/Badge'
 import { BigDateNumber } from './blocks/BigDateNumber'
-import { InfoLine } from './blocks/InfoLine'
 import { BrandingText } from './blocks/BrandingText'
-import { LogoRow } from './blocks/LogoRow'
-import { usePosterShape } from './shape'
-import type { PosterProps } from '../types'
+import { FooterLogos } from './blocks/FooterLogos'
+import { InfoLine } from './blocks/InfoLine'
+import { PosterFrame } from './blocks/PosterFrame'
+import { Sygnet } from './blocks/Sygnet'
 
 // GALA — złoto na grafitowym
-export function PosterGala({ data, scheme, accent, lang }: PosterProps) {
-  const { title, subtitle, event_date, event_time, location, badge, graphics, showPkLogo, qrUrl, hidden, fx, titleScale, textScale } = withPlaceholders(data)
-  const s = resolveScheme('gala', scheme, accent)
+export function PosterGala({ data, scheme, accent, lang = 'pl' }: PosterProps) {
+  const { title, subtitle, event_date, event_time, location, badge, logoSlots, qrUrl, hidden, fx, titleScale, textScale } = withPlaceholders(data)
+  const { cssVars, sygnet, logoVariant } = resolveScheme('gala', scheme, accent)
   const { kx, ky } = usePosterShape()
-  const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
 
   return (
-    <PosterFrame vars={s.cssVars} padding={72}>
+    <PosterFrame vars={cssVars} padding={72}>
       <div style={{ position: 'absolute', bottom: 0, right: 0, width: 880 * kx, height: 700 * ky, background: 'var(--panel-br)', clipPath: 'polygon(100% 0,100% 100%,0 100%)' }} />
-      <div style={{ position: 'absolute', top: 232, left: 0, right: 0, height: 1, background: `linear-gradient(to right, transparent 0, var(--gold) 18%, var(--gold) 82%, transparent 100%)` }} />
+      <div style={{ position: 'absolute', top: 232, left: 0, right: 0, height: 1, background: 'linear-gradient(to right, transparent 0, var(--gold) 18%, var(--gold) 82%, transparent 100%)' }} />
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', position: 'relative', zIndex: 1 }}>
-        <img src={sygnetByName[s.sygnet ?? 'negatywny']} alt="SKNM" style={{ width: 132, display: 'block' }} />
-        <BrandingText lines={lang === 'en' ? ['STUDENT SCIENCE CLUB', 'OF MATHEMATICS', 'KRAKOW UNIVERSITY OF TECHNOLOGY'] : ['STUDENCKIE KOŁO', 'NAUKOWE MATEMATYKÓW', 'POLITECHNIKI KRAKOWSKIEJ']} color="var(--gold)" />
+        <Sygnet name={sygnet} />
+        <BrandingText lines={BRANDING_FULL[lang]} color="var(--gold)" />
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 30, position: 'relative', zIndex: 1 }}>
-        <Badge color="var(--gold)" style={{ font: `700 24px ${fontMono}`, letterSpacing: '.2em', ...fx('badge') }}>{badge || (lang === 'en' ? 'SKNM GALA' : 'GALA SKNM')}</Badge>
-        <div style={{ fontSize: 126 * titleScale, fontWeight: 800, lineHeight: 0.94, letterSpacing: '-.035em', fontKerning: 'none', ...fx('title') }}>
+        <Badge color="var(--gold)" style={{ font: `700 24px ${fontMono}`, letterSpacing: '.2em', ...fx('badge') }}>{badge || DEFAULT_BADGE.gala[lang]}</Badge>
+        <div style={{ fontSize: 126 * titleScale, fontWeight: 800, lineHeight: 0.94, letterSpacing: TITLE_TRACKING, fontKerning: 'none', ...fx('title') }}>
           {title}
         </div>
         {subtitle && (
@@ -51,10 +49,7 @@ export function PosterGala({ data, scheme, accent, lang }: PosterProps) {
             style={{ paddingBottom: 10, whiteSpace: 'nowrap' }}
           />
         </div>
-        <LogoRow minHeight={QR_SLOT_H}>
-          <QrSlot value={qrUrl} />
-          <LogoSlots slots={slots} variant={s.logoVariant} />
-        </LogoRow>
+        <FooterLogos qrUrl={qrUrl} slots={logoSlots} variant={logoVariant} />
       </div>
     </PosterFrame>
   )

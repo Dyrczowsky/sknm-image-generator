@@ -13,6 +13,12 @@ dist-ssr
 *.local
 *.tsbuildinfo
 
+# Pliki środowiska z prawdziwymi wartościami - nigdy do repozytorium.
+# Wzór bez wartości: .env.example
+.env
+.env.*
+!.env.example
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

@@ -1,41 +1,30 @@
-import { QR_SLOT_H } from './theme'
-import { sygnetByName } from './logos'
-import { LogoSlots } from './blocks/LogoSlots'
-import { QrSlot } from './blocks/QrSlot'
-import { PhotoGallery } from './PhotoGallery'
+import type { PosterProps } from '../types'
+import { getDay, getMonthShort } from '../utils/formatDate'
+import { DEFAULT_BADGE } from './copy'
 import { withPlaceholders } from './fallback'
 import { resolveScheme } from './schemes'
-import { getDay, getMonthShort } from '../utils/formatDate'
-import { PosterFrame } from './blocks/PosterFrame'
-import { Badge } from './blocks/Badge'
-import { LogoRow } from './blocks/LogoRow'
-import type { CSSProperties, ReactNode } from 'react'
 import { usePosterShape } from './shape'
-import type { PosterProps } from '../types'
-
-function Pill({ children, style }: { children: ReactNode; style?: CSSProperties }) {
-  return (
-    <div style={{ background: 'var(--pill-fill)', color: 'var(--pill-text)', fontSize: 28, fontWeight: 700, padding: '12px 20px', ...style }}>
-      {children}
-    </div>
-  )
-}
+import { TITLE_TRACKING } from './theme'
+import { Badge } from './blocks/Badge'
+import { FooterLogos } from './blocks/FooterLogos'
+import { PosterFrame } from './blocks/PosterFrame'
+import { Sygnet } from './blocks/Sygnet'
+import { PhotoGallery } from './PhotoGallery'
 
 // WARSZTAT — skos
-export function PosterWarsztat({ data, scheme, accent, lang }: PosterProps) {
-  const { title, subtitle, event_date, event_time, location, badge, graphics, showPkLogo, qrUrl, photos, fx, titleScale, textScale } = withPlaceholders(data)
-  const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
+export function PosterWarsztat({ data, scheme, accent, lang = 'pl' }: PosterProps) {
+  const { title, subtitle, event_date, event_time, location, badge, logoSlots, qrUrl, photos, fx, titleScale, textScale } = withPlaceholders(data)
+  const { cssVars, sygnet, logoVariant } = resolveScheme('warsztat', scheme, accent)
+  const { kx } = usePosterShape()
 
   const pills = [
     { text: event_time, style: fx('event_time') },
     { text: `${getDay(event_date)} ${getMonthShort(event_date, { lang })}`, style: fx('event_date') },
     { text: location, style: fx('location') },
   ]
-  const s = resolveScheme('warsztat', scheme, accent)
-  const { kx } = usePosterShape()
 
   return (
-    <PosterFrame vars={s.cssVars}>
+    <PosterFrame vars={cssVars}>
       <PhotoGallery
         photos={photos.photo}
         label={<>zdjęcie<br />z warsztatów</>}
@@ -44,11 +33,11 @@ export function PosterWarsztat({ data, scheme, accent, lang }: PosterProps) {
       />
 
       <div style={{ position: 'absolute', inset: 72, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-        <img src={sygnetByName[s.sygnet ?? 'negatywny']} alt="SKNM" style={{ width: 132, display: 'block' }} />
+        <Sygnet name={sygnet} />
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 22, maxWidth: 600 }}>
-          <Badge background="var(--badge-fill)" color="var(--badge-text)" style={{ padding: '10px 16px', ...fx('badge') }}>{badge || (lang === 'en' ? 'WORKSHOP' : 'WARSZTATY')}</Badge>
-          <div style={{ fontSize: 104 * titleScale, fontWeight: 800, lineHeight: 0.94, letterSpacing: '-.035em', color: 'var(--title)', fontKerning: 'none', ...fx('title') }}>
+          <Badge background="var(--badge-fill)" color="var(--badge-text)" style={{ padding: '10px 16px', ...fx('badge') }}>{badge || DEFAULT_BADGE.warsztat[lang]}</Badge>
+          <div style={{ fontSize: 104 * titleScale, fontWeight: 800, lineHeight: 0.94, letterSpacing: TITLE_TRACKING, color: 'var(--title)', fontKerning: 'none', ...fx('title') }}>
             {title}
           </div>
           {subtitle && (
@@ -58,16 +47,17 @@ export function PosterWarsztat({ data, scheme, accent, lang }: PosterProps) {
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 26 }}>
           <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
-            {pills.map((p, i) => <Pill key={i} style={p.style}>{p.text}</Pill>)}
+            {pills.map((pill, i) => (
+              <div key={i} style={{ background: 'var(--pill-fill)', color: 'var(--pill-text)', fontSize: 28, fontWeight: 700, padding: '12px 20px', ...pill.style }}>
+                {pill.text}
+              </div>
+            ))}
           </div>
           {/* Stopka jak w pozostałych szablonach: QR maksymalnie w lewo, logo
               w prawym dolnym rogu. Logo leży na zdjęciu, więc każdy slot
               dostaje tło `slot-bg` - czytelną kartę pod znakiem. */}
           <div style={{ display: 'flex' }}>
-            <LogoRow minHeight={QR_SLOT_H}>
-              <QrSlot value={qrUrl} />
-              <LogoSlots slots={slots} variant={s.logoVariant} slotStyle={{ background: 'var(--slot-bg)' }} />
-            </LogoRow>
+            <FooterLogos qrUrl={qrUrl} slots={logoSlots} variant={logoVariant} slotStyle={{ background: 'var(--slot-bg)' }} />
           </div>
         </div>
       </div>

@@ -1,62 +1,44 @@
-import type { ReactNode } from 'react'
-import type { FieldVisibility, FormTextField } from '../types'
+import type { FormProps } from '../types'
+import { CHECKBOX } from '../components/styles'
+import { setField, setFieldVisible } from '../editor/formState'
+import { placeholderFor } from '../posters/fallback'
+import type { FieldSpec } from './fields'
 
-interface FormFieldProps {
-  type: string
-  label: ReactNode
-  placeholder?: string
-  value: string
-  onChange: (value: string) => void
-  // Podane razem → przy etykiecie pojawia się checkbox widoczności pola.
-  name?: FormTextField
-  visibility?: FieldVisibility
-  onVisibilityChange?: (name: FormTextField, visible: boolean) => void
+const FIELD_CLASS =
+  'rounded-lg border border-field-border bg-field px-3 py-[9px] text-base text-fg transition-[border-color,box-shadow] focus:border-accent focus:outline-none focus:shadow-[0_0_0_3px_var(--color-accent-soft)]'
+
+interface FormFieldProps extends FormProps {
+  field: FieldSpec
 }
 
-// Pojedyncze pole tekstowe/data/godzina/akapit - lekki wrapper na
-// <label><input>/<textarea>, współdzielony przez formularze w tym folderze
-// (patrz też ImageUpload dla logo/zdjęć). Checkbox przy etykiecie steruje
-// `visibility` - odznaczenie ukrywa dane pole na plakacie (opacity: 0), nie
-// usuwając go z layoutu. `type="textarea"` renderuje wieloliniowe pole -
-// do dłuższych akapitów (np. szablon „Komunikat rozszerzony").
-export function FormField({ type, label, placeholder, value, onChange, name, visibility, onVisibilityChange }: FormFieldProps) {
-  const showToggle = name !== undefined && onVisibilityChange !== undefined
-  const visible = name === undefined || visibility?.[name] !== false
-  const fieldClass =
-    'rounded-lg border border-field-border bg-field px-3 py-[9px] text-base text-fg transition-[border-color,box-shadow] focus:border-accent focus:outline-none focus:shadow-[0_0_0_3px_var(--color-accent-soft)]'
+// Pojedyncze pole tekstowe/data/godzina/akapit. Checkbox przy etykiecie
+// steruje widocznością pola na plakacie - odznaczone pole znika z układu.
+export function FormField({ field, value, onChange }: FormFieldProps) {
+  const { name, label, type = 'text' } = field
+  const visible = value.visibility[name] !== false
+  const input = {
+    placeholder: field.placeholder ?? placeholderFor(name),
+    value: value[name],
+    'aria-label': label,
+    onChange: (e: { target: { value: string } }) => onChange(setField(name, e.target.value)),
+  }
 
   return (
     <div className="flex flex-col gap-1.5 text-[0.9rem]">
       <span className="flex items-center gap-2">
-        {showToggle && (
-          <input
-            type="checkbox"
-            className="h-[15px] w-[15px] flex-none cursor-pointer accent-accent"
-            checked={visible}
-            onChange={(e) => onVisibilityChange(name, e.target.checked)}
-            aria-label={typeof label === 'string' ? `Pokaż na plakacie: ${label}` : 'Pokaż pole na plakacie'}
-          />
-        )}
+        <input
+          type="checkbox"
+          className={CHECKBOX}
+          checked={visible}
+          onChange={(e) => onChange(setFieldVisible(name, e.target.checked))}
+          aria-label={`Pokaż na plakacie: ${label}`}
+        />
         <span className={visible ? undefined : 'text-muted'}>{label}</span>
       </span>
       {type === 'textarea' ? (
-        <textarea
-          className={`${fieldClass} resize-y`}
-          rows={5}
-          placeholder={placeholder}
-          value={value ?? ''}
-          aria-label={typeof label === 'string' ? label : undefined}
-          onChange={(e) => onChange(e.target.value)}
-        />
+        <textarea className={`${FIELD_CLASS} resize-y`} rows={5} {...input} />
       ) : (
-        <input
-          className={fieldClass}
-          type={type}
-          placeholder={placeholder}
-          value={value ?? ''}
-          aria-label={typeof label === 'string' ? label : undefined}
-          onChange={(e) => onChange(e.target.value)}
-        />
+        <input className={FIELD_CLASS} type={type} {...input} />
       )}
     </div>
   )
