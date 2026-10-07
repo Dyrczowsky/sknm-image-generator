@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { EXPORT_FORMATS, isPrintFormat, pageSizePt, pixelSize, shapeFor } from './formats'
+import { DEFAULT_FORMAT, EXPORT_FORMATS, formatsFor, isPrintFormat, pageSizePt, pixelSize, shapeFor } from './formats'
+import { SHAPE_SIZE } from './shape'
 
 const paper = (key: string) => {
   const p = EXPORT_FORMATS[key].paper
@@ -8,8 +9,30 @@ const paper = (key: string) => {
 }
 
 describe('formaty eksportu', () => {
-  it('klucze i kolejność: social, potem papier', () => {
-    expect(Object.keys(EXPORT_FORMATS)).toEqual(['square', 'story', 'a4', 'a3', 'a2'])
+  it('klucze i kolejność: social, papier, potem banery', () => {
+    expect(Object.keys(EXPORT_FORMATS)).toEqual(['square', 'story', 'a4', 'a3', 'a2', 'fbCover', 'fbEvent'])
+  })
+
+  it('formatsFor: zakładka widzi tylko swoje formaty', () => {
+    expect(formatsFor('social').map(([k]) => k)).toEqual(['square', 'story', 'a4', 'a3', 'a2'])
+    expect(formatsFor('banner').map(([k]) => k)).toEqual(['fbCover', 'fbEvent'])
+    expect(EXPORT_FORMATS[DEFAULT_FORMAT.social].medium).toBe('social')
+    expect(EXPORT_FORMATS[DEFAULT_FORMAT.banner].medium).toBe('banner')
+  })
+
+  it('banery: własny kształt niezależny od orientacji, nie są drukiem', () => {
+    expect(shapeFor('fbCover', 'portrait')).toBe('cover')
+    expect(shapeFor('fbEvent', 'landscape')).toBe('event')
+    expect(isPrintFormat('fbCover')).toBe(false)
+  })
+
+  it('banery: układ ma proporcję formatu (rasteryzacja bez zniekształceń)', () => {
+    for (const key of ['fbCover', 'fbEvent']) {
+      const f = EXPORT_FORMATS[key]
+      const layout = SHAPE_SIZE[f.shape ?? 'square']
+      const scale = (f.height ?? 0) / layout.height
+      expect(Math.abs(layout.width * scale - (f.width ?? 0))).toBeLessThan(1)
+    }
   })
 
   it('isPrintFormat', () => {

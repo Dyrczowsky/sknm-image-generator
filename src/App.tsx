@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { Database } from 'sql.js'
-import type { AccentName, FileType, FormValues, FormTextField, HistoryRow, Orientation, PosterLang, TemplateRow } from './types'
+import type { AccentName, FileType, FormValues, FormTextField, HistoryRow, Medium, Orientation, PosterLang, TemplateRow } from './types'
 import { getDb } from './db/client'
 import { listTemplates } from './db/templates'
 import { getDraft, saveDraft, parseVisibility } from './db/drafts'
@@ -9,7 +9,10 @@ import { posterRegistry } from './posters/registry'
 import { schemesFor, SCHEME_LABELS, accentAllowed } from './posters/schemes'
 import { MAX_GRAPHICS } from './posters/theme'
 import { downloadPoster } from './posters/export'
-import { EXPORT_FORMATS, isPrintFormat, shapeFor } from './posters/formats'
+import { DEFAULT_FORMAT, formatsFor, isPrintFormat, shapeFor } from './posters/formats'
+import { SHAPE_SIZE } from './posters/shape'
+import { useElementWidth } from './utils/useElementWidth'
+import { FormBanner } from './forms/FormBanner'
 import { TemplateSelector } from './components/TemplateSelector'
 import { SchemeSelector } from './components/SchemeSelector'
 import { LangToggle } from './components/LangToggle'
@@ -26,6 +29,11 @@ import { COLLAPSED_STORAGE_KEY, parseCollapsed } from './utils/collapsedPanels'
 import type { CollapsedPanels, PanelKey } from './utils/collapsedPanels'
 
 const LANG_STORAGE_KEY = 'sknm-poster-lang'
+
+// Górne granice podglądu banera (px na ekranie): szerokość i wysokość -
+// wyższy baner wydarzenia nie może wypchnąć kolorystyki poza okno.
+const BANNER_PREVIEW_MAX_W = 1100
+const BANNER_PREVIEW_MAX_H = 460
 
 const ORIENTATION_OPTIONS = [
   { value: 'portrait', label: 'Pion' },
@@ -98,7 +106,10 @@ function App() {
   const togglePanel = (key: PanelKey) => setCollapsed((prev) => ({ ...prev, [key]: !prev[key] }))
   const [form, setForm] = useState<FormValues>(EMPTY_FORM)
   const [history, setHistory] = useState<HistoryRow[]>([])
-  const [exportFormat, setExportFormat] = useState('square')
+  // Zakładka wyboru szablonu: grafika social/druk albo baner. Sesyjna, jak
+  // `exportFormat` - po odświeżeniu wraca „Social media".
+  const [medium, setMedium] = useState<Medium>('social')
+  const [exportFormat, setExportFormat] = useState(DEFAULT_FORMAT.social)
   // Orientacja strony i typ pliku dotyczą tylko formatów papierowych
   // (A4/A3/A2). Sesyjne, jak `exportFormat` - bez zapisu do draftu.
   const [orientation, setOrientation] = useState<Orientation>('portrait')
@@ -107,6 +118,16 @@ function App() {
   const [exportNote, setExportNote] = useState<string | null>(null)
   const printFormat = isPrintFormat(exportFormat)
   const effectiveFileType: FileType = printFormat ? fileType : 'png'
+  const banner = medium === 'banner'
+  const shape = shapeFor(exportFormat, orientation)
+  // Baner jest szeroki i niski - podgląd zajmuje wtedy całą szerokość
+  // kreatora, a jego rozmiar idzie za szerokością panelu.
+  const [previewBoxRef, previewBoxWidth] = useElementWidth<HTMLDivElement>()
+  const shapeSize = SHAPE_SIZE[shape]
+  const bannerPreviewSize =
+    previewBoxWidth > 0
+      ? Math.min(previewBoxWidth, BANNER_PREVIEW_MAX_W, Math.round((BANNER_PREVIEW_MAX_H * shapeSize.width) / shapeSize.height))
+      : undefined
   const [ticket, setTicket] = useState<null | 'bug' | 'request'>(null)
 
   useEffect(() => {
@@ -342,6 +363,15 @@ function App() {
     persistDraft(form, id, nextScheme, undefined)
   }
 
+  // Zmiana zakładki zostawia szablon, dane i kolorystykę - zmienia się tylko
+  // komponent (plakat/baner) i lista formatów eksportu.
+  const handleMediumChange = (next: Medium) => {
+    if (next === medium) return
+    setMedium(next)
+    setExportFormat(DEFAULT_FORMAT[next])
+    setExportNote(null)
+  }
+
   const handleSelectScheme = (name: string) => {
     setSelectedScheme(name)
     // Nowy schemat może zawężać listę akcentów — „przypnij" niedozwolony.
@@ -400,6 +430,25 @@ function App() {
   const selectedTemplate = templates.find((t) => t.id === selectedTemplateId)
   const selectedPoster = selectedTemplate ? posterRegistry[selectedTemplate.poster_key] : null
   const SelectedForm = selectedPoster?.Form
+  const formProps = {
+    value: form,
+    onFieldChange: handleFieldChange,
+    onVisibilityChange: handleVisibilityChange,
+    onGraphicsAdd: handleGraphicsAdd,
+    onGraphicRemove: handleGraphicRemove,
+    onGraphicMove: handleGraphicMove,
+    onShowPkChange: handleShowPkChange,
+    onQrUrlChange: handleQrUrlChange,
+    onPhotoAdd: handlePhotoAdd,
+    onPhotoChangeAt: handlePhotoChangeAt,
+    onPhotoPositionChangeAt: handlePhotoPositionChangeAt,
+    onListItemAdd: handleListItemAdd,
+    onListItemChange: handleListItemChange,
+    onListItemRemove: handleListItemRemove,
+    onTitleScaleChange: handleTitleScaleChange,
+    onTextScaleChange: handleTextScaleChange,
+    onScaleLinkedChange: handleScaleLinkedChange,
+  }
 
   const bugContext: BugContextInput = {
     templateName: selectedTemplate?.name,
@@ -457,7 +506,11 @@ function App() {
             akcje/historia, prawa to przypięty (sticky) podgląd. Nadmiar wysokości
             podglądu bierze ostatni wiersz (1fr) - inaczej zwinięte panele
             rozjeżdżałyby się, bo grid dzieli go równo między wiersze. */}
-        <div className="flex flex-col min-[900px]:mt-5 min-[900px]:grid min-[900px]:grid-cols-[1fr_460px] min-[900px]:grid-rows-[auto_auto_auto_1fr] min-[900px]:items-start min-[900px]:gap-6 min-[900px]:[grid-template-areas:'template_preview''form_preview''actions_preview''history_preview']">
+        <div className={`flex flex-col min-[900px]:mt-5 min-[900px]:grid min-[900px]:grid-cols-[1fr_460px] min-[900px]:items-start min-[900px]:gap-6 ${
+          banner
+            ? "min-[900px]:grid-rows-[auto_auto_auto_auto_1fr] min-[900px]:[grid-template-areas:'preview_preview''template_template''form_form''actions_actions''history_history']"
+            : "min-[900px]:grid-rows-[auto_auto_auto_1fr] min-[900px]:[grid-template-areas:'template_preview''form_preview''actions_preview''history_preview']"
+        }`}>
           <CollapsiblePanel
             id="template"
             title="1. Wybierz szablon"
@@ -466,7 +519,15 @@ function App() {
             onToggle={() => togglePanel('template')}
             className={`${panel} min-[900px]:[grid-area:template]`}
           >
-            <TemplateSelector templates={templates} selectedId={selectedTemplateId} onSelect={handleSelectTemplate} lang={lang} />
+            <TemplateSelector
+              templates={templates}
+              selectedId={selectedTemplateId}
+              onSelect={handleSelectTemplate}
+              medium={medium}
+              onMediumChange={handleMediumChange}
+              bannerShape={shape}
+              lang={lang}
+            />
           </CollapsiblePanel>
 
           <CollapsiblePanel
@@ -476,27 +537,11 @@ function App() {
             onToggle={() => togglePanel('form')}
             className={`${panel} min-[900px]:[grid-area:form]`}
           >
-            {SelectedForm && (
-              <SelectedForm
-                value={form}
-                onFieldChange={handleFieldChange}
-                onVisibilityChange={handleVisibilityChange}
-                onGraphicsAdd={handleGraphicsAdd}
-                onGraphicRemove={handleGraphicRemove}
-                onGraphicMove={handleGraphicMove}
-                onShowPkChange={handleShowPkChange}
-                onQrUrlChange={handleQrUrlChange}
-                onPhotoAdd={handlePhotoAdd}
-                onPhotoChangeAt={handlePhotoChangeAt}
-                onPhotoPositionChangeAt={handlePhotoPositionChangeAt}
-                onListItemAdd={handleListItemAdd}
-                onListItemChange={handleListItemChange}
-                onListItemRemove={handleListItemRemove}
-                onTitleScaleChange={handleTitleScaleChange}
-                onTextScaleChange={handleTextScaleChange}
-                onScaleLinkedChange={handleScaleLinkedChange}
-              />
-            )}
+            {/* Baner ma wspólny, krótki formularz - dane wydarzenia zostają
+                w stanie i wracają po przejściu na „Social media". */}
+            {banner
+              ? selectedPoster && <FormBanner {...formProps} photo={selectedPoster.bannerPhoto} />
+              : SelectedForm && <SelectedForm {...formProps} />}
           </CollapsiblePanel>
 
           <section className={`${panel} flex flex-wrap items-center gap-3 min-[900px]:[grid-area:actions]`}>
@@ -509,7 +554,7 @@ function App() {
               }}
               aria-label="Format eksportu"
             >
-              {Object.entries(EXPORT_FORMATS).map(([key, format]) => (
+              {formatsFor(medium).map(([key, format]) => (
                 <option key={key} value={key}>
                   {format.label}
                 </option>
@@ -537,10 +582,26 @@ function App() {
           </section>
 
           {/* Podgląd w pionie (A4/A3/A2) bywa wyższy niż okno - przypięty panel
-              przewija się wtedy w sobie, żeby kolorystyka i akcent były osiągalne. */}
-          <section className={`${panel} min-[900px]:sticky min-[900px]:top-5 min-[900px]:max-h-[calc(100vh-2.5rem)] min-[900px]:overflow-y-auto min-[900px]:[grid-area:preview]`}>
+              przewija się wtedy w sobie, żeby kolorystyka i akcent były osiągalne.
+              Baner: panel idzie na górę, na całą szerokość, bez przypinania. */}
+          <section
+            className={`${panel} min-[900px]:[grid-area:preview] ${
+              banner ? '' : 'min-[900px]:sticky min-[900px]:top-5 min-[900px]:max-h-[calc(100vh-2.5rem)] min-[900px]:overflow-y-auto'
+            }`}
+          >
             <h2 className={panelHeading}>Podgląd</h2>
-            <PosterPreview posterRef={posterRef} Component={selectedPoster?.Component} data={form} scheme={selectedScheme} accent={selectedAccent} lang={lang} shape={shapeFor(exportFormat, orientation)} />
+            <div ref={previewBoxRef}>
+              <PosterPreview
+                posterRef={posterRef}
+                Component={banner ? selectedPoster?.Banner : selectedPoster?.Component}
+                data={form}
+                scheme={selectedScheme}
+                accent={selectedAccent}
+                lang={lang}
+                shape={shape}
+                size={banner ? bannerPreviewSize : undefined}
+              />
+            </div>
             <SchemeSelector
               poster={selectedPoster}
               posterKey={selectedTemplate?.poster_key}
