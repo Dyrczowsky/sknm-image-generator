@@ -1,4 +1,3 @@
-import { fontMono } from '../theme'
 import { sygnetByName } from '../logos'
 import { withPlaceholders } from '../fallback'
 import { resolveScheme } from '../schemes'
@@ -22,25 +21,24 @@ export function BannerWyklad({ data, scheme, accent, lang }: PosterProps) {
     <PosterFrame vars={s.cssVars} style={{ padding: `${padY}px ${padX}px` }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', position: 'relative', zIndex: 1 }}>
         <img src={sygnetByName[s.sygnet ?? 'negatywny']} alt="SKNM" style={{ width: BANNER_SYGNET_W, display: 'block' }} />
-        <BrandingText lines={['SKNM', ...copy.university.toUpperCase().split(' ')]} opacity={0.85} style={{ fontSize: 18 }} />
+        <BrandingText lines={[BANNER_SITE.toUpperCase()]} opacity={0.85} style={{ fontSize: 18 }} />
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14, position: 'relative', zIndex: 1 }}>
-        <div style={{ fontSize: 84 * titleScale, lineHeight: 0.94, maxWidth: 900, fontWeight: 800, letterSpacing: '-.035em', fontKerning: 'none', textWrap: 'balance' }}>
+        <div style={{ fontSize: 68 * titleScale, lineHeight: 0.96, maxWidth: 960, fontWeight: 800, letterSpacing: '-.035em', fontKerning: 'none', textWrap: 'balance' }}>
           {copy.name}
         </div>
-        <div style={{ fontSize: 28 * textScale, fontWeight: 600, color: 'var(--speaker)' }}>{copy.university}</div>
+        <div style={{ fontSize: 23 * textScale, fontWeight: 600, lineHeight: 1.3, color: 'var(--speaker)', maxWidth: 760 }}>{copy.tagline}</div>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24, position: 'relative', zIndex: 1 }}>
-        <div style={{ font: `700 16px ${fontMono}`, letterSpacing: '.12em', opacity: 0.85, paddingBottom: 6 }}>{BANNER_SITE}</div>
+      <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-end', gap: 24, position: 'relative', zIndex: 1 }}>
         <BannerLogos qrUrl={qrUrl} slots={slots} variant={s.logoVariant} />
       </div>
 
       <div style={{ position: 'absolute', top: 0, right: 0, width: 700 * kx, height: 600 * ky, background: 'var(--wash-top)', clipPath: 'polygon(0 0,100% 0,100% 100%)' }} />
       <div style={{ position: 'absolute', bottom: 0, right: 0, width: 920 * kx, height: 780 * ky, background: 'var(--wedge-br)', opacity: 0.42, clipPath: 'polygon(100% 0,100% 100%,0 100%)' }} />
       <div style={{ position: 'absolute', bottom: 0, left: 0, width: 520 * kx, height: 300 * ky, background: 'var(--wedge-bl)', clipPath: 'polygon(0 100%,0 0,100% 100%)' }} />
-      <div style={{ position: 'absolute', left: padX - 36, bottom: padY + 150, display: 'flex', flexDirection: 'column', gap: 8 }}>
+      <div style={{ position: 'absolute', left: padX - 36, bottom: padY, display: 'flex', flexDirection: 'column', gap: 8 }}>
         <div style={{ width: 24, height: 20, background: 'var(--chips)', clipPath: 'polygon(0 0,100% 0,50% 100%)' }} />
         <div style={{ width: 24, height: 20, background: 'var(--chips)', clipPath: 'polygon(0 0,100% 0,50% 100%)', opacity: 0.66 }} />
         <div style={{ width: 24, height: 20, background: 'var(--chips)', clipPath: 'polygon(0 0,100% 0,50% 100%)', opacity: 0.33 }} />

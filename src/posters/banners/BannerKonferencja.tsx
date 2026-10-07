@@ -27,10 +27,9 @@ export function BannerKonferencja({ data, scheme, accent, lang }: PosterProps) {
         <img src={sygnetByName[s.sygnet ?? 'negatywny']} alt="SKNM" style={{ width: BANNER_SYGNET_W, display: 'block' }} />
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <Badge color="var(--header-badge)" style={{ fontSize: 18 }}>SKNM</Badge>
-          <div style={{ fontSize: 56 * titleScale, lineHeight: 0.98, fontWeight: 800, letterSpacing: '-.035em', fontKerning: 'none', textWrap: 'balance' }}>
+          <div style={{ fontSize: 46 * titleScale, lineHeight: 1, fontWeight: 800, letterSpacing: '-.035em', fontKerning: 'none', textWrap: 'balance' }}>
             {copy.name}
           </div>
-          <div style={{ fontSize: 22 * textScale, fontWeight: 600 }}>{copy.university}</div>
         </div>
       </div>
 

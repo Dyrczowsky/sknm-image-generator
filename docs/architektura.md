@@ -132,7 +132,8 @@ i lista formatów eksportu (`formatsFor(medium)` w `formats.ts`). Banery wołaj�
 `resolveScheme` z tym samym kluczem co plakat, więc nie mają własnych schematów.
 
 Baner to wizytówka koła, nie plakat wydarzenia: niesie **stałą treść** z
-`banners/copy.ts` (`bannerCopy(lang)` - nazwa koła, uczelnia, hasło) i nie czyta
+`banners/copy.ts` (`bannerCopy(lang)` - pełna nazwa koła „Studenckie Koło Naukowe
+Matematyków Politechniki Krakowskiej", zawsze w całości, oraz hasło) i nie czyta
 tytułu, prelegenta ani daty z formularza. Z danych formularza bierze tylko
 logotypy, kod QR, zdjęcia i suwaki rozmiaru. Dlatego zakładka „Baner" ma jeden
 wspólny formularz `forms/FormBanner.tsx` zamiast formularza layoutu; dane

@@ -46,10 +46,10 @@ export function BannerGosc({ data, scheme, accent, lang }: PosterProps) {
         <Badge color={textColor} style={{ fontSize: 18, paddingTop: 6 }}>SKNM</Badge>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          <div style={{ fontSize: 68 * titleScale, lineHeight: 0.98, fontWeight: 800, letterSpacing: '-.035em', fontKerning: 'none', textWrap: 'balance' }}>
+          <div style={{ fontSize: 54 * titleScale, lineHeight: 1, fontWeight: 800, letterSpacing: '-.035em', fontKerning: 'none', textWrap: 'balance' }}>
             {copy.name}
           </div>
-          <div style={{ fontSize: 28 * textScale, fontWeight: 500, color: 'var(--muted-text)' }}>{copy.university}</div>
+          <div style={{ fontSize: 22 * textScale, fontWeight: 500, lineHeight: 1.35, color: 'var(--muted-text)' }}>{copy.tagline}</div>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24 }}>

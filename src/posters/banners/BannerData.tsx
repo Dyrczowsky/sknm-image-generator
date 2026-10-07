@@ -1,4 +1,3 @@
-import { fontMono } from '../theme'
 import { sygnetByName } from '../logos'
 import { resolveScheme } from '../schemes'
 import { withPlaceholders } from '../fallback'
@@ -27,10 +26,10 @@ export function BannerData({ data, scheme, accent, lang }: PosterProps) {
       <div style={{ display: 'flex', alignItems: 'center', gap: 40, margin: '-20px 0 -4px' }}>
         <div style={{ fontSize: 230, fontWeight: 800, lineHeight: 0.8, letterSpacing: '-.06em', flex: '0 0 auto' }}>SKNM</div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 50 * titleScale, fontWeight: 800, lineHeight: 0.98, color: 'var(--month-color)', letterSpacing: '-.03em', fontKerning: 'none' }}>
+          <div style={{ fontSize: 44 * titleScale, fontWeight: 800, lineHeight: 1, color: 'var(--month-color)', letterSpacing: '-.03em', fontKerning: 'none' }}>
             {copy.name}
           </div>
-          <div style={{ font: `700 ${20 * textScale}px ${fontMono}`, letterSpacing: '.1em' }}>{copy.university.toUpperCase()}</div>
+          <div style={{ fontSize: 20 * textScale, fontWeight: 500, lineHeight: 1.35, color: 'var(--muted-text)' }}>{copy.tagline}</div>
         </div>
       </div>
 

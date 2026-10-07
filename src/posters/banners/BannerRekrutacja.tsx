@@ -3,7 +3,6 @@ import { sygnetByName } from '../logos'
 import { withPlaceholders } from '../fallback'
 import { resolveScheme } from '../schemes'
 import { PosterFrame } from '../blocks/PosterFrame'
-import { BrandingText } from '../blocks/BrandingText'
 import { useBannerLayout } from '../shape'
 import { BANNER_SYGNET_W, BannerLogos } from './common'
 import { BANNER_SITE, bannerCopy } from './copy'
@@ -35,11 +34,10 @@ export function BannerRekrutacja({ data, scheme, accent, lang }: PosterProps) {
     <PosterFrame vars={s.cssVars} style={{ padding: `${padY}px ${padX}px` }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', position: 'relative' }}>
         <img src={sygnetByName[s.sygnet ?? 'negatywny']} alt="SKNM" style={{ width: BANNER_SYGNET_W, display: 'block' }} />
-        <BrandingText lines={['SKNM', ...copy.university.toUpperCase().split(' ')]} style={{ fontSize: 18 }} />
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14, position: 'relative' }}>
-        <div style={{ fontSize: 82 * titleScale, fontWeight: 800, lineHeight: 0.9, letterSpacing: '-.045em', fontKerning: 'none', textWrap: 'balance' }}>
+        <div style={{ fontSize: 66 * titleScale, fontWeight: 800, lineHeight: 0.94, letterSpacing: '-.045em', fontKerning: 'none', textWrap: 'balance' }}>
           {copy.name}
         </div>
         <div style={{ fontSize: 24 * textScale, fontWeight: 600, lineHeight: 1.3, color: 'var(--sub-color)', maxWidth: 900 }}>{copy.tagline}</div>

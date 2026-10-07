@@ -19,19 +19,18 @@ export function BannerOgloszenie({ data, scheme, accent, lang }: PosterProps) {
   return (
     <PosterFrame vars={s.cssVars} style={{ padding: `${padY}px ${padX}px` }}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center', gap: 20 }}>
-        <img src={sygnetByName[s.sygnet ?? 'negatywny']} alt="SKNM" style={{ width: 104, display: 'block' }} />
-        <div style={{ fontSize: 70 * titleScale, fontWeight: 800, lineHeight: 1.02, letterSpacing: '-.02em', maxWidth: '22ch', textWrap: 'balance', fontKerning: 'none' }}>
+        <img src={sygnetByName[s.sygnet ?? 'negatywny']} alt="SKNM" style={{ width: 92, display: 'block' }} />
+        <div style={{ fontSize: 58 * titleScale, fontWeight: 800, lineHeight: 1.04, letterSpacing: '-.02em', maxWidth: '30ch', textWrap: 'balance', fontKerning: 'none' }}>
           {copy.name}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
           <div style={{ width: 26, height: 22, background: 'var(--accent)', clipPath: 'polygon(0 0,100% 0,50% 100%)' }} />
-          <div style={{ font: `700 ${19 * textScale}px ${fontMono}`, letterSpacing: '.1em', color: 'var(--accent)' }}>{copy.university.toUpperCase()}</div>
+          <div style={{ font: `700 ${19 * textScale}px ${fontMono}`, letterSpacing: '.1em', color: 'var(--accent)' }}>{BANNER_SITE.toUpperCase()}</div>
           <div style={{ width: 26, height: 22, background: 'var(--accent)', clipPath: 'polygon(0 0,100% 0,50% 100%)' }} />
         </div>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24 }}>
-        <div style={{ font: `700 16px ${fontMono}`, letterSpacing: '.12em', opacity: 0.85, paddingBottom: 6 }}>{BANNER_SITE}</div>
+      <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-end', gap: 24 }}>
         <BannerLogos qrUrl={qrUrl} slots={slots} variant={s.logoVariant} />
       </div>
     </PosterFrame>
