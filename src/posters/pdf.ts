@@ -3,11 +3,11 @@ export interface PdfImage {
   heightPx: number
   widthPt: number
   heightPt: number
-  // Bajty CMYK (4 na piksel) już spakowane zlib/deflate - patrz export.ts.
+  // Bajty RGB (3 na piksel) już spakowane zlib/deflate - patrz export.ts.
   imageData: Uint8Array
 }
 
-// Jednostronicowy PDF 1.4 z jednym obrazem CMYK rozciągniętym na całą stronę.
+// Jednostronicowy PDF 1.4 z jednym obrazem RGB rozciągniętym na całą stronę.
 // Pisany ręcznie, żeby nie dokładać biblioteki: 5 obiektów (katalog, drzewo
 // stron, strona, obraz, strumień treści), tabela xref i trailer. Cały tekst
 // struktury to ASCII, więc długość stringa = liczba bajtów.
@@ -41,7 +41,7 @@ export function buildPdf({ widthPx, heightPx, widthPt, heightPt, imageData }: Pd
   push(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${w} ${h}] /Resources << /XObject << /Im0 4 0 R >> >> /Contents 5 0 R >>\nendobj\n`)
 
   startObj(4)
-  push(`<< /Type /XObject /Subtype /Image /Width ${widthPx} /Height ${heightPx} /ColorSpace /DeviceCMYK /BitsPerComponent 8 /Filter /FlateDecode /Length ${imageData.length} >>\nstream\n`)
+  push(`<< /Type /XObject /Subtype /Image /Width ${widthPx} /Height ${heightPx} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /FlateDecode /Length ${imageData.length} >>\nstream\n`)
   push(imageData)
   push('\nendstream\nendobj\n')
 

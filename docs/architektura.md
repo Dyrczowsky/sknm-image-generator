@@ -146,13 +146,16 @@ Eksport (`src/posters/export.ts`):
 - **A4 / A3 / A2** — rasteryzacja do rozmiaru papieru w px przy 300 dpi;
   gdy przeglądarka nie udźwignie canvasu, drabinka schodzi na 200 i 150 dpi
   (`dpiLadder.ts`), a kreator pokazuje, która rozdzielczość się udała.
-- **PNG** — RGB. **PDF** — zawsze CMYK: piksele przeliczone w `cmyk.ts`,
-  spakowane natywnym `CompressionStream('deflate')` i osadzone jako jeden
-  obraz na stronie o wymiarach papieru (`pdf.ts`, bez biblioteki).
+- **PNG** i **PDF** — RGB (sRGB), te same kolory co w podglądzie. PDF: piksele
+  bez alfy (`rgb.ts`), spakowane natywnym `CompressionStream('deflate')`
+  i osadzone jako jeden obraz na stronie o wymiarach papieru (`pdf.ts`, bez
+  biblioteki).
 
-**Ograniczenie CMYK:** konwersja jest „urządzeniowa", bez profilu ICC, więc
-nasycone kolory marki (limonka, koral, granat) wychodzą w druku wyraźnie
-bardziej matowo niż na ekranie. Tekst w PDF nie jest zaznaczalny (to obraz).
+**Kolory w druku:** PDF nie jest w CMYK. Przeliczenie robi drukarnia własnym
+profilem - wcześniejsza konwersja po naszej stronie, bez profilu ICC, dawała
+wyraźnie zmatowiałe kolory już w samym pliku. Najbardziej nasycone kolory
+marki (limonka) leżą poza gamutem CMYK, więc w druku i tak wyjdą nieco
+spokojniej niż na ekranie. Tekst w PDF nie jest zaznaczalny (to obraz).
 Bez spadów i znaczników cięcia.
 
 ## Zakładki: Social media / Baner
