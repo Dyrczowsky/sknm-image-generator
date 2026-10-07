@@ -18,9 +18,9 @@ describe('buildPdf', () => {
     expect(build().text).toContain('/MediaBox [0 0 595.28 841.89]')
   })
 
-  it('obraz: DeviceCMYK, 8 bitów, Flate, wymiary w px, długość strumienia', () => {
+  it('obraz: DeviceRGB, 8 bitów, Flate, wymiary w px, długość strumienia', () => {
     const { text } = build()
-    expect(text).toContain('/Subtype /Image /Width 2480 /Height 3508 /ColorSpace /DeviceCMYK /BitsPerComponent 8 /Filter /FlateDecode /Length 5')
+    expect(text).toContain('/Subtype /Image /Width 2480 /Height 3508 /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /FlateDecode /Length 5')
   })
 
   it('bajty obrazu trafiają do pliku bez zmian', () => {

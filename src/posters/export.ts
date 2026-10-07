@@ -1,10 +1,10 @@
 import { toCanvas, toPng } from 'html-to-image'
 import type { FileType, Orientation, PosterShape } from '../types'
-import { rgbaToCmyk } from './cmyk'
 import { DPI_LADDER, withDpiLadder } from './dpiLadder'
 import { EXPORT_FORMATS, pageSizePt, pixelSize } from './formats'
 import type { PaperSize } from './formats'
 import { buildPdf } from './pdf'
+import { rgbaToRgb } from './rgb'
 import { SHAPE_SIZE } from './shape'
 
 interface Size {
@@ -115,7 +115,7 @@ async function deflate(bytes: Uint8Array<ArrayBuffer>): Promise<Uint8Array<Array
 
 async function canvasToPdfBlob(canvas: HTMLCanvasElement, paper: PaperSize, orientation: Orientation): Promise<Blob> {
   const rgba = context2d(canvas).getImageData(0, 0, canvas.width, canvas.height).data
-  const imageData = await deflate(rgbaToCmyk(rgba))
+  const imageData = await deflate(rgbaToRgb(rgba))
   const page = pageSizePt(paper, orientation)
   const pdf = buildPdf({ widthPx: canvas.width, heightPx: canvas.height, widthPt: page.width, heightPt: page.height, imageData })
   return new Blob([pdf], { type: 'application/pdf' })
