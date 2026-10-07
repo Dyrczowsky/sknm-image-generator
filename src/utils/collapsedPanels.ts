@@ -1,8 +1,8 @@
-export type PanelKey = 'template' | 'form' | 'history' | 'notes'
+export type PanelKey = 'template' | 'form' | 'history' | 'notes' | 'projects'
 export type CollapsedPanels = Record<PanelKey, boolean>
 
 export const COLLAPSED_STORAGE_KEY = 'sknm-collapsed-panels'
-export const ALL_OPEN: CollapsedPanels = { template: false, form: false, history: false, notes: false }
+export const ALL_OPEN: CollapsedPanels = { template: false, form: false, history: false, notes: false, projects: false }
 
 // Odczyt stanu zwinięcia paneli z localStorage. Cokolwiek nieoczekiwanego
 // (brak wpisu, zepsuty JSON, zły typ) → panel rozwinięty.
@@ -17,6 +17,7 @@ export function parseCollapsed(raw: string | null): CollapsedPanels {
       form: record.form === true,
       history: record.history === true,
       notes: record.notes === true,
+      projects: record.projects === true,
     }
   } catch {
     return { ...ALL_OPEN }

@@ -1,6 +1,7 @@
 import { useRef } from 'react'
 import type { ChangeEvent, PointerEvent } from 'react'
-import { IMAGE_ACCEPT, readAsDataUrl } from '../utils/readAsDataUrl'
+import { importImage } from '../assets/assets'
+import { IMAGE_ACCEPT } from '../utils/readAsDataUrl'
 import { FILE_PICKER, FILE_PICKER_INPUT, IMAGE_THUMB, IMAGE_THUMB_IMG } from './styles'
 
 // Kadr zdjęcia: pozycja wycinka w procentach (0-100) w obu osiach.
@@ -54,7 +55,7 @@ export function ImageUpload({ label, hint, value, onChange, position, onPosition
   const handleFile = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     e.target.value = ''
-    if (file) onChange(await readAsDataUrl(file))
+    if (file) onChange(await importImage(file, 'photo'))
   }
 
   const handlePointerDown = (e: PointerEvent<HTMLDivElement>) => {
