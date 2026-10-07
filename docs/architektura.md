@@ -133,7 +133,7 @@ i lista formatów eksportu (`formatsFor(medium)` w `formats.ts`). Banery wołaj�
 
 Baner to wizytówka koła, nie plakat wydarzenia: niesie **stałą treść** z
 `banners/copy.ts` (`bannerCopy(lang)` - pełna nazwa koła „Studenckie Koło Naukowe
-Matematyków Politechniki Krakowskiej", zawsze w całości, oraz hasło) i nie czyta
+Matematyków Politechniki Krakowskiej", zawsze w całości, bez haseł i opisów) i nie czyta
 tytułu, prelegenta ani daty z formularza. Z danych formularza bierze tylko
 logotypy, kod QR, zdjęcia i suwaki rozmiaru. Dlatego zakładka „Baner" ma jeden
 wspólny formularz `forms/FormBanner.tsx` zamiast formularza layoutu; dane

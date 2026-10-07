@@ -5,13 +5,13 @@ import { resolveScheme } from '../schemes'
 import { PosterFrame } from '../blocks/PosterFrame'
 import { Badge } from '../blocks/Badge'
 import { useBannerLayout, usePosterShape } from '../shape'
-import { BANNER_SYGNET_W, BannerLogos } from './common'
+import { BANNER_SYGNET_W, BannerLogos, NAME_TRACKING } from './common'
 import { BANNER_SITE, bannerCopy } from './copy'
 import type { PosterProps } from '../../types'
 
-// KOMUNIKAT ROZSZERZONY (baner) — nazwa koła po lewej, hasło akapitem po prawej.
+// KOMUNIKAT ROZSZERZONY (baner) — nazwa koła na tle klinów w kolorze akcentu.
 export function BannerKomunikat({ data, scheme, accent, lang }: PosterProps) {
-  const { graphics, showPkLogo, qrUrl, titleScale, textScale } = withPlaceholders(data)
+  const { graphics, showPkLogo, qrUrl, titleScale } = withPlaceholders(data)
   const s = resolveScheme('komunikat', scheme, accent)
   const copy = bannerCopy(lang)
   const { kx, ky } = usePosterShape()
@@ -20,19 +20,18 @@ export function BannerKomunikat({ data, scheme, accent, lang }: PosterProps) {
 
   return (
     <PosterFrame vars={s.cssVars} style={{ padding: `${padY}px ${padX}px`, flexDirection: 'row', gap: 56 }}>
-      <div style={{ flex: '0 0 50%', minWidth: 0, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: 16, position: 'relative', zIndex: 1 }}>
+      <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: 16, position: 'relative', zIndex: 1 }}>
         <img src={sygnetByName[s.sygnet ?? 'negatywny']} alt="SKNM" style={{ width: BANNER_SYGNET_W, display: 'block' }} />
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <Badge background="var(--accent)" color="var(--badge-text)" style={{ fontSize: 18, padding: '8px 14px' }}>SKNM</Badge>
-          <div style={{ fontSize: 50 * titleScale, lineHeight: 1.02, fontWeight: 800, letterSpacing: '-.035em', fontKerning: 'none', textWrap: 'balance' }}>
+          <div style={{ fontSize: 62 * titleScale, lineHeight: 1, fontWeight: 800, letterSpacing: NAME_TRACKING, fontKerning: 'none', textWrap: 'balance' }}>
             {copy.name}
           </div>
         </div>
         <div style={{ font: `700 16px ${fontMono}`, letterSpacing: '.12em', opacity: 0.85, paddingBottom: 6 }}>{BANNER_SITE}</div>
       </div>
 
-      <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', gap: 40, position: 'relative', zIndex: 1 }}>
-        <div style={{ fontSize: 27 * textScale, fontWeight: 500, lineHeight: 1.45, color: 'var(--muted-text)' }}>{copy.tagline}</div>
+      <div style={{ flex: '0 0 auto', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', position: 'relative', zIndex: 1 }}>
         <BannerLogos qrUrl={qrUrl} slots={slots} variant={s.logoVariant} style={{ flex: '0 0 auto' }} />
       </div>
 

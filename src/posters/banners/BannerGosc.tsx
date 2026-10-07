@@ -5,7 +5,7 @@ import { withPlaceholders } from '../fallback'
 import { PosterFrame } from '../blocks/PosterFrame'
 import { Badge } from '../blocks/Badge'
 import { BANNER_PAD, useBannerLayout } from '../shape'
-import { BANNER_SYGNET_W, BannerLogos } from './common'
+import { BANNER_SYGNET_W, BannerLogos, NAME_TRACKING } from './common'
 import { BANNER_SITE, bannerCopy } from './copy'
 import type { PosterProps } from '../../types'
 
@@ -15,7 +15,7 @@ const PHOTO_W = 360
 
 // GOŚĆ (baner) — zdjęcie na całą wysokość po lewej, nazwa koła po prawej.
 export function BannerGosc({ data, scheme, accent, lang }: PosterProps) {
-  const { graphics, showPkLogo, qrUrl, photos, titleScale, textScale } = withPlaceholders(data)
+  const { graphics, showPkLogo, qrUrl, photos, titleScale } = withPlaceholders(data)
   const s = resolveScheme('gosc', scheme, accent)
   const copy = bannerCopy(lang)
   const { padX, padY, height } = useBannerLayout()
@@ -46,10 +46,9 @@ export function BannerGosc({ data, scheme, accent, lang }: PosterProps) {
         <Badge color={textColor} style={{ fontSize: 18, paddingTop: 6 }}>SKNM</Badge>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          <div style={{ fontSize: 54 * titleScale, lineHeight: 1, fontWeight: 800, letterSpacing: '-.035em', fontKerning: 'none', textWrap: 'balance' }}>
+          <div style={{ fontSize: 58 * titleScale, lineHeight: 1, fontWeight: 800, letterSpacing: NAME_TRACKING, fontKerning: 'none', textWrap: 'balance' }}>
             {copy.name}
           </div>
-          <div style={{ fontSize: 22 * textScale, fontWeight: 500, lineHeight: 1.35, color: 'var(--muted-text)' }}>{copy.tagline}</div>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24 }}>

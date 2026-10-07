@@ -6,7 +6,7 @@ import { PosterFrame } from '../blocks/PosterFrame'
 import { Badge } from '../blocks/Badge'
 import { BrandingText } from '../blocks/BrandingText'
 import { useBannerLayout, usePosterShape } from '../shape'
-import { BANNER_SYGNET_W, BannerLogos } from './common'
+import { BANNER_SYGNET_W, BannerLogos, NAME_TRACKING } from './common'
 import { BANNER_SITE, bannerCopy } from './copy'
 import type { PosterProps } from '../../types'
 
@@ -31,7 +31,7 @@ export function BannerGala({ data, scheme, accent, lang }: PosterProps) {
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16, position: 'relative', zIndex: 1 }}>
         <Badge color="var(--gold)" style={{ font: `700 ${18 * textScale}px ${fontMono}`, letterSpacing: '.2em' }}>SKNM</Badge>
-        <div style={{ fontSize: 66 * titleScale, lineHeight: 0.98, maxWidth: 1000, fontWeight: 800, letterSpacing: '-.035em', fontKerning: 'none', textWrap: 'balance' }}>
+        <div style={{ fontSize: 66 * titleScale, lineHeight: 0.98, maxWidth: 1000, fontWeight: 800, letterSpacing: NAME_TRACKING, fontKerning: 'none', textWrap: 'balance' }}>
           {copy.name}
         </div>
       </div>

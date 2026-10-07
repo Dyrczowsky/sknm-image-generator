@@ -4,7 +4,7 @@ import { withPlaceholders } from '../fallback'
 import { resolveScheme } from '../schemes'
 import { PosterFrame } from '../blocks/PosterFrame'
 import { useBannerLayout } from '../shape'
-import { BANNER_SYGNET_W, BannerLogos } from './common'
+import { BANNER_SYGNET_W, BannerLogos, NAME_TRACKING } from './common'
 import { BANNER_SITE, bannerCopy } from './copy'
 import type { PosterProps } from '../../types'
 
@@ -15,7 +15,7 @@ const SLANT = 170
 
 // WARSZTAT (baner) — skośne zdjęcie przy prawej krawędzi, nazwa koła po lewej.
 export function BannerWarsztat({ data, scheme, accent, lang }: PosterProps) {
-  const { graphics, showPkLogo, qrUrl, photos, titleScale, textScale } = withPlaceholders(data)
+  const { graphics, showPkLogo, qrUrl, photos, titleScale } = withPlaceholders(data)
   const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
   const s = resolveScheme('warsztat', scheme, accent)
   const copy = bannerCopy(lang)
@@ -34,11 +34,10 @@ export function BannerWarsztat({ data, scheme, accent, lang }: PosterProps) {
       <div style={{ position: 'absolute', inset: `${padY}px ${padX}px`, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: 16 }}>
         <img src={sygnetByName[s.sygnet ?? 'negatywny']} alt="SKNM" style={{ width: BANNER_SYGNET_W, display: 'block' }} />
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 640 }}>
-          <div style={{ fontSize: 56 * titleScale, lineHeight: 0.98, color: 'var(--title)', fontWeight: 800, letterSpacing: '-.035em', fontKerning: 'none', textWrap: 'balance' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 660 }}>
+          <div style={{ fontSize: 54 * titleScale, lineHeight: 0.98, color: 'var(--title)', fontWeight: 800, letterSpacing: NAME_TRACKING, fontKerning: 'none', textWrap: 'balance' }}>
             {copy.name}
           </div>
-          <div style={{ fontSize: 22 * textScale, fontWeight: 500, lineHeight: 1.35, color: 'var(--muted-text)' }}>{copy.tagline}</div>
         </div>
 
         {/* Pigułka i stopka w jednym rzędzie: logo leży na zdjęciu, więc slot

@@ -4,13 +4,13 @@ import { resolveScheme } from '../schemes'
 import { PosterFrame } from '../blocks/PosterFrame'
 import { BrandingText } from '../blocks/BrandingText'
 import { useBannerLayout, usePosterShape } from '../shape'
-import { BANNER_SYGNET_W, BannerLogos } from './common'
+import { BANNER_SYGNET_W, BannerLogos, NAME_TRACKING } from './common'
 import { BANNER_SITE, bannerCopy } from './copy'
 import type { PosterProps } from '../../types'
 
 // WYKŁAD (baner) — nazwa koła na tle klinów, stos trójkątów przy lewej krawędzi.
 export function BannerWyklad({ data, scheme, accent, lang }: PosterProps) {
-  const { graphics, showPkLogo, qrUrl, titleScale, textScale } = withPlaceholders(data)
+  const { graphics, showPkLogo, qrUrl, titleScale } = withPlaceholders(data)
   const s = resolveScheme('wyklad', scheme, accent)
   const copy = bannerCopy(lang)
   const { kx, ky } = usePosterShape()
@@ -25,10 +25,9 @@ export function BannerWyklad({ data, scheme, accent, lang }: PosterProps) {
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14, position: 'relative', zIndex: 1 }}>
-        <div style={{ fontSize: 68 * titleScale, lineHeight: 0.96, maxWidth: 960, fontWeight: 800, letterSpacing: '-.035em', fontKerning: 'none', textWrap: 'balance' }}>
+        <div style={{ fontSize: 76 * titleScale, lineHeight: 0.96, maxWidth: 960, fontWeight: 800, letterSpacing: NAME_TRACKING, fontKerning: 'none', textWrap: 'balance' }}>
           {copy.name}
         </div>
-        <div style={{ fontSize: 23 * textScale, fontWeight: 600, lineHeight: 1.3, color: 'var(--speaker)', maxWidth: 760 }}>{copy.tagline}</div>
       </div>
 
       <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-end', gap: 24, position: 'relative', zIndex: 1 }}>

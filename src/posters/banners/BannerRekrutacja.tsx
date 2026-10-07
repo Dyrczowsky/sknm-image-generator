@@ -4,7 +4,7 @@ import { withPlaceholders } from '../fallback'
 import { resolveScheme } from '../schemes'
 import { PosterFrame } from '../blocks/PosterFrame'
 import { useBannerLayout } from '../shape'
-import { BANNER_SYGNET_W, BannerLogos } from './common'
+import { BANNER_SYGNET_W, BannerLogos, NAME_TRACKING } from './common'
 import { BANNER_SITE, bannerCopy } from './copy'
 import type { PosterProps } from '../../types'
 
@@ -24,7 +24,7 @@ function zigzag(width: number): string {
 
 // REKRUTACJA (baner) — duża nazwa koła z hasłem, pas z zygzakiem wzdłuż dołu.
 export function BannerRekrutacja({ data, scheme, accent, lang }: PosterProps) {
-  const { graphics, showPkLogo, qrUrl, titleScale, textScale } = withPlaceholders(data)
+  const { graphics, showPkLogo, qrUrl, titleScale } = withPlaceholders(data)
   const s = resolveScheme('rekrutacja', scheme, accent)
   const copy = bannerCopy(lang)
   const { padX, padY, width } = useBannerLayout()
@@ -37,10 +37,9 @@ export function BannerRekrutacja({ data, scheme, accent, lang }: PosterProps) {
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14, position: 'relative' }}>
-        <div style={{ fontSize: 66 * titleScale, fontWeight: 800, lineHeight: 0.94, letterSpacing: '-.045em', fontKerning: 'none', textWrap: 'balance' }}>
+        <div style={{ fontSize: 72 * titleScale, fontWeight: 800, lineHeight: 0.94, letterSpacing: NAME_TRACKING, fontKerning: 'none', textWrap: 'balance' }}>
           {copy.name}
         </div>
-        <div style={{ fontSize: 24 * textScale, fontWeight: 600, lineHeight: 1.3, color: 'var(--sub-color)', maxWidth: 900 }}>{copy.tagline}</div>
       </div>
 
       {/* Pas + stopka jako jedna bryła, jak w wersji kwadratowej - tylko niższa. */}
