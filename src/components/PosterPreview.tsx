@@ -5,7 +5,8 @@ import { PosterScaled } from './PosterScaled'
 const PREVIEW_SIZE = 420
 
 interface PosterPreviewProps {
-  posterRef: RefObject<HTMLDivElement | null>
+  // Ref do węzła plakatu w pełnej rozdzielczości (źródło eksportu).
+  posterRef?: RefObject<HTMLDivElement | null>
   Component?: ComponentType<PosterProps>
   data: RawPosterData
   scheme?: string

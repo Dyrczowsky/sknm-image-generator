@@ -1,27 +1,24 @@
-import { sygnetByName } from '../logos'
-import { resolveScheme } from '../schemes'
-import { PhotoGallery } from '../PhotoGallery'
-import { withPlaceholders } from '../fallback'
-import { PosterFrame } from '../blocks/PosterFrame'
-import { Badge } from '../blocks/Badge'
-import { BANNER_PAD, useBannerLayout } from '../shape'
-import { BANNER_SYGNET_W, BannerLogos, NAME_TRACKING } from './common'
-import { BANNER_SITE, bannerCopy } from './copy'
 import type { PosterProps } from '../../types'
+import { CLUB_NAME, SITE_URL } from '../copy'
+import { withPlaceholders } from '../fallback'
+import { resolveScheme } from '../schemes'
+import { BANNER_PAD, useBannerLayout } from '../shape'
+import { Badge } from '../blocks/Badge'
+import { PosterFrame } from '../blocks/PosterFrame'
+import { Sygnet } from '../blocks/Sygnet'
+import { PhotoGallery } from '../PhotoGallery'
+import { BANNER_SYGNET_W, BannerLogos, NAME_TRACKING } from './common'
 
 // Szerokość zdjęcia wewnątrz bezpiecznej kolumny; na okładce strony zdjęcie
 // dodatkowo wychodzi na lewy margines aż do krawędzi.
 const PHOTO_W = 360
 
 // GOŚĆ (baner) — zdjęcie na całą wysokość po lewej, nazwa koła po prawej.
-export function BannerGosc({ data, scheme, accent, lang }: PosterProps) {
-  const { graphics, showPkLogo, qrUrl, photos, titleScale } = withPlaceholders(data)
-  const s = resolveScheme('gosc', scheme, accent)
-  const copy = bannerCopy(lang)
+export function BannerGosc({ data, scheme, accent, lang = 'pl' }: PosterProps) {
+  const { logoSlots, qrUrl, photos, titleScale } = withPlaceholders(data)
+  const { cssVars, sygnet, logoVariant } = resolveScheme('gosc', scheme, accent)
   const { padX, padY, height } = useBannerLayout()
-  const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
 
-  const textColor = 'var(--accent)'
   // Trójkąt z sygnetem rośnie razem z marginesem, żeby sygnet został
   // w bezpiecznej kolumnie, a nie w przycinanym rogu.
   const bleed = padX - BANNER_PAD
@@ -29,7 +26,7 @@ export function BannerGosc({ data, scheme, accent, lang }: PosterProps) {
   const triH = Math.min(height, Math.round(300 + bleed * 1.45))
 
   return (
-    <PosterFrame vars={s.cssVars} style={{ flexDirection: 'row' }}>
+    <PosterFrame vars={cssVars} style={{ flexDirection: 'row' }}>
       <PhotoGallery
         photos={photos.photo}
         label={<>zdjęcie</>}
@@ -38,22 +35,22 @@ export function BannerGosc({ data, scheme, accent, lang }: PosterProps) {
         labelStyle={{ fontSize: 18 }}
       >
         <div style={{ position: 'absolute', top: 0, left: 0, width: triW, height: triH, background: 'var(--sygnet-bg, var(--accent))', clipPath: 'polygon(0 0,100% 0,0 100%)', display: 'flex', alignItems: 'flex-start', padding: `${padY}px 0 0 ${padX}px`, boxSizing: 'border-box' }}>
-          <img src={sygnetByName[s.sygnet ?? 'negatywny']} alt="SKNM" style={{ width: BANNER_SYGNET_W, display: 'block' }} />
+          <Sygnet name={sygnet} width={BANNER_SYGNET_W} />
         </div>
       </PhotoGallery>
 
       <div style={{ flex: 1, minWidth: 0, padding: `${padY}px ${padX}px ${padY}px ${BANNER_PAD}px`, boxSizing: 'border-box', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: 16 }}>
-        <Badge color={textColor} style={{ fontSize: 18, paddingTop: 6 }}>SKNM</Badge>
+        <Badge color="var(--accent)" style={{ fontSize: 18, paddingTop: 6 }}>SKNM</Badge>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <div style={{ fontSize: 58 * titleScale, lineHeight: 1, fontWeight: 800, letterSpacing: NAME_TRACKING, fontKerning: 'none', textWrap: 'balance' }}>
-            {copy.name}
+            {CLUB_NAME[lang]}
           </div>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24 }}>
-          <div style={{ fontSize: 20, fontWeight: 600, color: textColor, paddingBottom: 6 }}>{BANNER_SITE}</div>
-          <BannerLogos qrUrl={qrUrl} slots={slots} variant={s.logoVariant} />
+          <div style={{ fontSize: 20, fontWeight: 600, color: 'var(--accent)', paddingBottom: 6 }}>{SITE_URL}</div>
+          <BannerLogos qrUrl={qrUrl} slots={logoSlots} variant={logoVariant} />
         </div>
       </div>
     </PosterFrame>

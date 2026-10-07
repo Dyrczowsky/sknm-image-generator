@@ -1,21 +1,21 @@
 import type { PosterLang } from '../types'
 
-const MONTHS_GENITIVE = [
-  'stycznia', 'lutego', 'marca', 'kwietnia', 'maja', 'czerwca',
-  'lipca', 'sierpnia', 'września', 'października', 'listopada', 'grudnia',
-]
+// Miesiąc w pełnej dacie: po polsku w dopełniaczu („18 kwietnia").
+const MONTHS_FULL: Record<PosterLang, string[]> = {
+  pl: [
+    'stycznia', 'lutego', 'marca', 'kwietnia', 'maja', 'czerwca',
+    'lipca', 'sierpnia', 'września', 'października', 'listopada', 'grudnia',
+  ],
+  en: [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December',
+  ],
+}
 
-const MONTHS_SHORT = [
-  'sty', 'lut', 'mar', 'kwi', 'maj', 'cze',
-  'lip', 'sie', 'wrz', 'paź', 'lis', 'gru',
-]
-
-const MONTHS_FULL_EN = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December',
-]
-
-const MONTHS_SHORT_EN = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+const MONTHS_SHORT: Record<PosterLang, string[]> = {
+  pl: ['sty', 'lut', 'mar', 'kwi', 'maj', 'cze', 'lip', 'sie', 'wrz', 'paź', 'lis', 'gru'],
+  en: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+}
 
 interface ParsedDate { year: number; month: number; day: number }
 
@@ -36,7 +36,7 @@ export function getDay(isoDate: string): string {
 export function getMonthShort(isoDate: string, { upperCase = false, lang = 'pl' }: { upperCase?: boolean; lang?: PosterLang } = {}): string {
   const d = parseDate(isoDate)
   if (!d) return ''
-  const name = lang === 'en' ? MONTHS_SHORT_EN[d.month - 1] : MONTHS_SHORT[d.month - 1]
+  const name = MONTHS_SHORT[lang][d.month - 1]
   return upperCase ? name.toUpperCase() : name
 }
 
@@ -45,6 +45,14 @@ export function getMonthShort(isoDate: string, { upperCase = false, lang = 'pl' 
 export function formatFullDate(isoDate: string, lang: PosterLang = 'pl'): string {
   const d = parseDate(isoDate)
   if (!d) return ''
-  const month = lang === 'en' ? MONTHS_FULL_EN[d.month - 1] : MONTHS_GENITIVE[d.month - 1]
-  return `${d.day} ${month} ${d.year}`
+  return `${d.day} ${MONTHS_FULL[lang][d.month - 1]} ${d.year}`
+}
+
+// "2026-10-07 11:30" - znacznik czasu ISO (np. z bazy) w czasie lokalnym.
+// Nieprawidłowy znacznik → pusty string.
+export function formatTimestamp(iso: string): string {
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return ''
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`
 }

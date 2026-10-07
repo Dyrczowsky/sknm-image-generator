@@ -2,7 +2,7 @@ import type { Database } from 'sql.js'
 import { rowsFromExec } from './utils'
 
 // Lista domyślnych szablonów synchronizowana do bazy przy każdym uruchomieniu
-// (patrz syncTemplates). `poster_key` odpowiada kluczowi w src/posters/registry.js.
+// (patrz syncTemplates). `poster_key` odpowiada kluczowi w src/posters/registry.ts.
 export const DEFAULT_TEMPLATES: ReadonlyArray<{ name: string; poster_key: string }> = [
   { name: 'Wykład', poster_key: 'wyklad' },
   { name: 'Gość', poster_key: 'gosc' },
@@ -38,25 +38,23 @@ export function resetIfStale(db: Database): boolean {
   return true
 }
 
+// Historia wygenerowanych grafik mieszkała kiedyś lokalnie w tabeli
+// `generated_images`; teraz jest wspólna, w Supabase (src/history/). Starą
+// tabelę usuwamy przy starcie - bez podbijania SCHEMA_VERSION, żeby nie
+// skasować przy okazji draftu. Zwraca `true`, gdy tabela istniała.
+export function dropLegacyHistory(db: Database): boolean {
+  const existing = rowsFromExec(db.exec("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'generated_images'"))
+  if (existing.length === 0) return false
+  db.run('DROP TABLE generated_images')
+  return true
+}
+
 export function createSchema(db: Database): void {
   db.run(`
     CREATE TABLE IF NOT EXISTS templates (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
       poster_key TEXT NOT NULL,
-      created_at TEXT NOT NULL DEFAULT (datetime('now'))
-    );
-
-    CREATE TABLE IF NOT EXISTS generated_images (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      template_id INTEGER REFERENCES templates(id),
-      title TEXT,
-      subtitle TEXT,
-      speaker TEXT,
-      event_date TEXT,
-      event_time TEXT,
-      location TEXT,
-      color_scheme TEXT,
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
 

@@ -1,36 +1,37 @@
-import { fontMono, QR_SLOT_H, typography } from './theme'
-import { sygnetByName } from './logos'
-import { resolveScheme } from './schemes'
-import { LogoSlots } from './blocks/LogoSlots'
-import { QrSlot } from './blocks/QrSlot'
-import { PhotoGallery } from './PhotoGallery'
-import { withPlaceholders } from './fallback'
-import { getDay, getMonthShort } from '../utils/formatDate'
-import { PosterFrame } from './blocks/PosterFrame'
-import { BrandingText } from './blocks/BrandingText'
-import { InfoLine } from './blocks/InfoLine'
-import { LogoRow } from './blocks/LogoRow'
 import type { PosterProps } from '../types'
+import { getDay, getMonthShort } from '../utils/formatDate'
+import { BRANDING_EVENT } from './copy'
+import { withPlaceholders } from './fallback'
+import { resolveScheme } from './schemes'
+import { fontMono, TITLE_TRACKING, typography } from './theme'
+import { BrandingText } from './blocks/BrandingText'
+import { FooterLogos } from './blocks/FooterLogos'
+import { InfoLine } from './blocks/InfoLine'
+import { PosterFrame } from './blocks/PosterFrame'
+import { Sygnet } from './blocks/Sygnet'
+import { Triangle } from './blocks/Triangle'
+import { PhotoGallery } from './PhotoGallery'
+
+const TRIANGLE_COLORS = ['var(--tri1)', 'var(--tri2)', 'var(--tri3)']
 
 // DATA — liczba jako grafika
-export function PosterData({ data, scheme, accent, lang }: PosterProps) {
-  const { title, subtitle, event_date, event_time, location, graphics, showPkLogo, qrUrl, photos, hidden, fx, titleScale, textScale } = withPlaceholders(data)
-  const s = resolveScheme('data', scheme, accent)
-  const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
+export function PosterData({ data, scheme, accent, lang = 'pl' }: PosterProps) {
+  const { title, subtitle, event_date, event_time, location, logoSlots, qrUrl, photos, hidden, fx, titleScale, textScale } = withPlaceholders(data)
+  const { cssVars, sygnet, logoVariant } = resolveScheme('data', scheme, accent)
 
   return (
-    <PosterFrame vars={s.cssVars} padding={72}>
+    <PosterFrame vars={cssVars} padding={72}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-        <BrandingText lines={lang === 'en' ? ['EVENT', 'SKNM · PK'] : ['WYDARZENIE', 'SKNM · PK']} style={{ textAlign: 'left' }} />
-        <img src={sygnetByName[s.sygnet ?? 'negatywny']} alt="SKNM" style={{ width: 132, display: 'block' }} />
+        <BrandingText lines={BRANDING_EVENT[lang]} style={{ textAlign: 'left' }} />
+        <Sygnet name={sygnet} />
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', margin: '-40px 0' }}>
-        <div style={{ fontSize: 520, fontWeight: 800, lineHeight: 0.72, letterSpacing: '-.06em', ...fx('event_date') }}>
+        <div style={{ fontSize: 520, fontWeight: 800, lineHeight: 0.72, letterSpacing: '-.03em', ...fx('event_date') }}>
           {getDay(event_date)}
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8, paddingLeft: 28, paddingTop: 40 }}>
-          <div style={{ fontSize: 96, fontWeight: 800, lineHeight: 0.9, color: 'var(--month-color)', letterSpacing: '-.03em', ...fx('event_date') }}>
+          <div style={{ fontSize: 96, fontWeight: 800, lineHeight: 0.9, color: 'var(--month-color)', letterSpacing: TITLE_TRACKING, ...fx('event_date') }}>
             {getMonthShort(event_date, { upperCase: true, lang })}
           </div>
           <div style={{ font: `700 26px ${fontMono}`, letterSpacing: '.1em', ...fx('event_time') }}>{event_time}</div>
@@ -45,7 +46,7 @@ export function PosterData({ data, scheme, accent, lang }: PosterProps) {
           labelStyle={{ font: `400 18px ${fontMono}` }}
         />
         <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-          <div style={{ fontSize: 60 * titleScale, fontWeight: 800, lineHeight: 1, letterSpacing: '-.02em', color: 'var(--title)', fontKerning: 'none', ...fx('title') }}>
+          <div style={{ fontSize: 60 * titleScale, fontWeight: 800, lineHeight: 1, letterSpacing: TITLE_TRACKING, color: 'var(--title)', fontKerning: 'none', ...fx('title') }}>
             {title}
           </div>
           <InfoLine
@@ -60,14 +61,11 @@ export function PosterData({ data, scheme, accent, lang }: PosterProps) {
 
       <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24 }}>
         <div style={{ display: 'flex', gap: 6 }}>
-          <div style={{ width: 56, height: 44, background: 'var(--tri1)', clipPath: 'polygon(0 0,100% 0,50% 100%)' }} />
-          <div style={{ width: 56, height: 44, background: 'var(--tri2)', clipPath: 'polygon(0 0,100% 0,50% 100%)' }} />
-          <div style={{ width: 56, height: 44, background: 'var(--tri3)', clipPath: 'polygon(0 0,100% 0,50% 100%)' }} />
+          {TRIANGLE_COLORS.map((color) => (
+            <Triangle key={color} width={56} height={44} color={color} />
+          ))}
         </div>
-        <LogoRow minHeight={QR_SLOT_H}>
-          <QrSlot value={qrUrl} />
-          <LogoSlots slots={slots} variant={s.logoVariant} />
-        </LogoRow>
+        <FooterLogos qrUrl={qrUrl} slots={logoSlots} variant={logoVariant} />
       </div>
     </PosterFrame>
   )

@@ -1,8 +1,9 @@
+import { SAMPLE_DATA } from '../posters/fallback'
 import { posterRegistry } from '../posters/registry'
 import { isBannerShape } from '../posters/shape'
 import { PosterScaled } from './PosterScaled'
 import { SegmentedToggle } from './SegmentedToggle'
-import type { Medium, PosterLang, PosterShape, RawPosterData, TemplateRow } from '../types'
+import type { Medium, PosterLang, PosterShape, TemplateRow } from '../types'
 
 const THUMB_SIZE = 180
 // Miniatura banera jest szeroka i niska, więc dostaje większą szerokość.
@@ -28,11 +29,16 @@ interface TemplateSelectorProps {
 // Miniatury zawsze pokazują dane przykładowe (placeholder) - nie muszą się
 // aktualizować na żywo wraz z formularzem, to robi tylko duży podgląd.
 // Wybór kolorystyki jest osobno, pod podglądem (SchemeSelector).
-const THUMB_DATA: RawPosterData = {}
+// Kształt miniatur: kwadrat dla plakatów; dla banerów kształt wybranego
+// formatu, a gdy ten nie jest banerowy - okładka strony.
+function bannerThumbShape(medium: Medium, bannerShape: PosterShape): PosterShape {
+  if (medium !== 'banner') return 'square'
+  return isBannerShape(bannerShape) ? bannerShape : 'cover'
+}
 
 export function TemplateSelector({ templates, selectedId, onSelect, medium, onMediumChange, bannerShape, lang }: TemplateSelectorProps) {
   const banner = medium === 'banner'
-  const thumbShape: PosterShape = banner && isBannerShape(bannerShape) ? bannerShape : banner ? 'cover' : 'square'
+  const thumbShape = bannerThumbShape(medium, bannerShape)
   return (
     <div className="flex flex-col gap-3.5">
       <div>
@@ -55,7 +61,7 @@ export function TemplateSelector({ templates, selectedId, onSelect, medium, onMe
             >
               <div className="overflow-hidden rounded-md shadow-[0_1px_2px_rgba(0,0,0,0.12)]">
                 <PosterScaled size={banner ? BANNER_THUMB_SIZE : THUMB_SIZE} shape={thumbShape}>
-                  <Thumb data={THUMB_DATA} scheme={undefined} lang={lang} />
+                  <Thumb data={SAMPLE_DATA} lang={lang} />
                 </PosterScaled>
               </div>
               <span>{entry.name}</span>

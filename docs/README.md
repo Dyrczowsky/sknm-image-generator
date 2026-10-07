@@ -8,6 +8,7 @@ renderująca plakaty 1080×1080 i eksportująca je do PNG przez `html-to-image`.
 - [architektura.md](./architektura.md) - jak to jest poskładane (warstwy, przepływ danych, baza)
 - [stylowanie.md](./stylowanie.md) - Tailwind CSS w UI aplikacji + dlaczego plakaty mają style inline
 - [dodawanie-szablonu.md](./dodawanie-szablonu.md) - krok po kroku: nowy layout plakatu
+- [supabase.md](./supabase.md) - logowanie, wspólna historia i notatki: konfiguracja projektu i zmiennych
 - [dodawanie-schematu-kolorow.md](./dodawanie-schematu-kolorow.md) - krok po kroku: nowy schemat kolorów ("motyw") dla istniejącego layoutu
 
 ## Szybki start
@@ -23,4 +24,4 @@ npm run lint       # oxlint
 Podgląd pojedynczego szablonu z danymi przykładowymi (routing po ścieżce
 w `src/main.tsx`): `<BASE_URL>poster/<poster_key>` lub
 `<BASE_URL>poster/<poster_key>/<scheme>`, np. w dev:
-`http://localhost:5173/sknm-image-generator/poster/wyklad/czernZolta`.
+`http://localhost:5173/sknm-image-generator/poster/wyklad/czern`.

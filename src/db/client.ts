@@ -1,7 +1,7 @@
 import initSqlJs, { type Database } from 'sql.js'
 import sqlWasmUrl from 'sql.js/dist/sql-wasm.wasm?url'
 import { get, set } from 'idb-keyval'
-import { createSchema, syncTemplates, resetIfStale } from './schema'
+import { createSchema, dropLegacyHistory, resetIfStale, syncTemplates } from './schema'
 
 const DB_STORAGE_KEY = 'sknm-image-generator-db'
 
@@ -13,9 +13,10 @@ async function initDb(): Promise<Database> {
 
   const db = saved ? new SQL.Database(new Uint8Array(saved)) : new SQL.Database()
   const wiped = resetIfStale(db)
+  const droppedHistory = dropLegacyHistory(db)
   createSchema(db)
   const templatesChanged = syncTemplates(db)
-  if (!saved || wiped || templatesChanged) void persist(db)
+  if (!saved || wiped || droppedHistory || templatesChanged) void persist(db)
   return db
 }
 

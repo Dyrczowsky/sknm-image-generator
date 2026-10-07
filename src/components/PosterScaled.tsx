@@ -11,8 +11,9 @@ interface PosterScaledProps {
 }
 
 // Renderuje plakat w pełnym rozmiarze układu i pomniejsza go przez CSS
-// transform do `size` px szerokości. `innerRef` wskazuje na węzeł w pełnej
+// transform do `size` px szerokości. Ref wskazuje na węzeł w pełnej
 // rozdzielczości - to on jest przekazywany do html-to-image przy eksporcie.
+// Ustawia też kontekst kształtu, z którego korzystają plakaty.
 export const PosterScaled = forwardRef<HTMLDivElement, PosterScaledProps>(function PosterScaled({ size, shape = 'square', children }, innerRef) {
   const { width, height } = SHAPE_SIZE[shape]
   const scale = size / width

@@ -1,32 +1,23 @@
 import type { ComponentType } from 'react'
 
 // --- Dane formularza (stan edytora) ---
-export interface LogoSlotValue { enabled: boolean; src: string | null }
 export interface PhotoValue { src: string; x: number; y: number }
 export type ListItem = Record<string, string>
 
-// Pola tekstowe formularza — te, które faktycznie ustawia onFieldChange.
-export type FormTextField =
-  | 'title' | 'subtitle' | 'speaker'
-  | 'event_date' | 'event_time' | 'location'
-  | 'badge' | 'badge2' | 'body'
+// Pola tekstowe formularza - zapisywane w draftcie i sterowane checkboxem
+// widoczności.
+export const FORM_TEXT_FIELDS = [
+  'title', 'subtitle', 'speaker', 'event_date', 'event_time', 'location', 'badge', 'badge2', 'body',
+] as const
+export type FormTextField = (typeof FORM_TEXT_FIELDS)[number]
 
 // Widoczność pól tekstowych na plakacie. Brak klucza / `true` = widoczne;
-// `false` = ukryte przez `opacity: 0` (element zostaje w layoucie, żeby nie
-// rozsypać flexowej konstrukcji bloków plakatu).
+// `false` = ukryte przez `display: none` (pole znika z układu, patrz
+// `withPlaceholders` w posters/fallback.ts).
 export type FieldVisibility = Partial<Record<FormTextField, boolean>>
 
-export interface FormValues {
-  title: string
-  subtitle: string
-  speaker: string
-  event_date: string
-  event_time: string
-  location: string
-  badge: string
-  badge2: string
-  // Dłuższy akapit treści (np. szablon „Komunikat rozszerzony").
-  body: string
+export interface FormValues extends Record<FormTextField, string> {
+  // `body` to dłuższy akapit treści (np. szablon „Komunikat rozszerzony").
   visibility: FieldVisibility
   // Grafiki/logotypy w stopce (data URL-e), w kolejności wyświetlania.
   graphics: string[]
@@ -37,15 +28,18 @@ export interface FormValues {
   photos: Record<string, PhotoValue[]>
   lists: Record<string, ListItem[]>
   // Mnożnik rozmiaru tytułu/pozostałego tekstu (suwaki w formularzu) - 1 =
-  // domyślny rozmiar szablonu. Celowo NIE są zapisywane do draftu (sesyjne,
-  // jak grafiki). `scaleLinked` - czy suwaki są spięte (przesunięcie
-  // jednego ustawia oba na ten sam procent).
+  // domyślny rozmiar szablonu. `scaleLinked` - czy suwaki są spięte
+  // (przesunięcie jednego ustawia oba na ten sam procent).
   titleScale: number
   textScale: number
   scaleLinked: boolean
 }
 
-// --- Wiersze SQLite (sql.js) ---
+// Przekształcenie stanu formularza. Formularze zgłaszają zmiany jako takie
+// funkcje (gotowe są w editor/formState.ts), a edytor podaje je do `setForm`.
+export type FormUpdate = (form: FormValues) => FormValues
+
+// --- Wiersze lokalnej bazy SQLite (sql.js): szablony i draft ---
 export interface TemplateRow { id: number; name: string; poster_key: string }
 
 export interface DraftRow {
@@ -65,20 +59,24 @@ export interface DraftRow {
   updated_at: string | null
 }
 
-export interface HistoryRow {
+// --- Wspólna historia (Supabase, tabela `sknm_poster_history`) ---
+export interface HistoryEntry {
   id: number
-  title: string | null
-  subtitle: string | null
-  speaker: string | null
-  event_date: string | null
-  event_time: string | null
-  location: string | null
-  color_scheme: string | null
+  // Znacznik czasu ISO.
   created_at: string
-  template_id: number | null
-  template_name: string | null
-  template_poster_key: string | null
+  // Klucz layoutu z rejestru plakatów - wspólny dla wszystkich urządzeń
+  // (lokalne `templates.id` różnią się między przeglądarkami).
+  poster_key: string
+  title: string
+  subtitle: string
+  speaker: string
+  event_date: string
+  event_time: string
+  location: string
+  color_scheme: string | null
 }
+
+export type NewHistoryEntry = Omit<HistoryEntry, 'id' | 'created_at'>
 
 // --- Schematy kolorów ---
 export type SygnetName = 'negatywny' | 'granat' | 'zloty' | 'szary' | 'czarny' | 'srebrny'
@@ -94,7 +92,7 @@ export interface ResolvedScheme {
 
 // --- Propsy plakatów / formularzy / rejestru ---
 // `data` plakatu: fragment formularza (edytor / miniatury = {}), pola
-// opcjonalne i null-tolerancyjne. HistoryRow wpasowuje się tu strukturalnie
+// opcjonalne i null-tolerancyjne. HistoryEntry wpasowuje się tu strukturalnie
 // (pola tekstowe pokrywają się, nadmiarowe kolumny nie przeszkadzają).
 export type RawPosterData = { [K in keyof FormValues]?: FormValues[K] | null }
 // Kształt renderowanego plakatu. `square` to format social i wszystkie
@@ -110,22 +108,7 @@ export interface PosterProps { data: RawPosterData; scheme?: string; accent?: Ac
 
 export interface FormProps {
   value: FormValues
-  onFieldChange: (name: FormTextField, value: string) => void
-  onVisibilityChange: (name: FormTextField, visible: boolean) => void
-  onGraphicsAdd: (srcs: string[]) => void
-  onGraphicRemove: (index: number) => void
-  onGraphicMove: (index: number, dir: -1 | 1) => void
-  onShowPkChange: (value: boolean) => void
-  onQrUrlChange: (value: string) => void
-  onTitleScaleChange: (value: number) => void
-  onTextScaleChange: (value: number) => void
-  onScaleLinkedChange: (value: boolean) => void
-  onPhotoAdd: (fieldKey: string, src: string | null) => void
-  onPhotoChangeAt: (fieldKey: string, index: number, src: string | null) => void
-  onPhotoPositionChangeAt: (fieldKey: string, index: number, partial: { x?: number; y?: number }) => void
-  onListItemAdd: (fieldKey: string) => void
-  onListItemChange: (fieldKey: string, index: number, subKey: string, val: string) => void
-  onListItemRemove: (fieldKey: string, index: number) => void
+  onChange: (update: FormUpdate) => void
 }
 
 export interface RegistryEntry {

@@ -7,6 +7,37 @@ import type { PaperSize } from './formats'
 import { buildPdf } from './pdf'
 import { SHAPE_SIZE } from './shape'
 
+interface Size {
+  width: number
+  height: number
+}
+
+export interface DownloadOptions {
+  formatKey: string
+  orientation: Orientation
+  fileType: FileType
+}
+
+// Piksel tuż przy rogu plakatu: jego kolor to tło plakatu, a jego alfa mówi,
+// czy przeglądarka w ogóle coś narysowała.
+const CORNER = 4
+
+// Ile czasu przeglądarka ma na rozpoczęcie pobierania, zanim zwolnimy blob.
+const BLOB_URL_TTL_MS = 10_000
+
+function context2d(canvas: HTMLCanvasElement): CanvasRenderingContext2D {
+  const ctx = canvas.getContext('2d')
+  if (!ctx) throw new Error('brak kontekstu 2d')
+  return ctx
+}
+
+function createCanvas({ width, height }: Size): HTMLCanvasElement {
+  const canvas = document.createElement('canvas')
+  canvas.width = width
+  canvas.height = height
+  return canvas
+}
+
 function loadImage(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const img = new Image()
@@ -14,39 +45,6 @@ function loadImage(src: string): Promise<HTMLImageElement> {
     img.onerror = (e) => reject(e instanceof Error ? e : new Error('image load failed'))
     img.src = src
   })
-}
-
-// Centruje plakat na płótnie o zadanych wymiarach. Tło poza plakatem dostaje
-// kolor odczytany z jego własnego rogu, żeby dostawka nie wyglądała jak
-// przypadkowa biała ramka wokół kolorowych szablonów.
-async function compositeOnCanvas(posterDataUrl: string, width: number, height: number): Promise<string> {
-  const img = await loadImage(posterDataUrl)
-  if (width === img.width && height === img.height) return posterDataUrl
-
-  const srcCanvas = document.createElement('canvas')
-  srcCanvas.width = img.width
-  srcCanvas.height = img.height
-  const srcCtx = srcCanvas.getContext('2d')
-  if (!srcCtx) throw new Error('brak kontekstu 2d')
-  srcCtx.drawImage(img, 0, 0)
-  const [r, g, b, a] = srcCtx.getImageData(4, 4, 1, 1).data
-
-  const canvas = document.createElement('canvas')
-  canvas.width = width
-  canvas.height = height
-  const ctx = canvas.getContext('2d')
-  if (!ctx) throw new Error('brak kontekstu 2d')
-  ctx.fillStyle = `rgba(${r},${g},${b},${a / 255})`
-  ctx.fillRect(0, 0, width, height)
-  ctx.drawImage(img, (width - img.width) / 2, (height - img.height) / 2)
-
-  return canvas.toDataURL('image/png')
-}
-
-export interface DownloadOptions {
-  formatKey: string
-  orientation: Orientation
-  fileType: FileType
 }
 
 function saveAs(href: string, filename: string) {
@@ -59,27 +57,46 @@ function saveAs(href: string, filename: string) {
 function saveBlob(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob)
   saveAs(url, filename)
-  setTimeout(() => URL.revokeObjectURL(url), 10_000)
+  setTimeout(() => URL.revokeObjectURL(url), BLOB_URL_TTL_MS)
+}
+
+// Centruje plakat na płótnie o zadanych wymiarach. Tło poza plakatem dostaje
+// kolor odczytany z jego własnego rogu, żeby dostawka nie wyglądała jak
+// przypadkowa biała ramka wokół kolorowych szablonów.
+async function compositeOnCanvas(posterDataUrl: string, size: Size): Promise<string> {
+  const img = await loadImage(posterDataUrl)
+  if (size.width === img.width && size.height === img.height) return posterDataUrl
+
+  const source = context2d(createCanvas(img))
+  source.drawImage(img, 0, 0)
+  const [r, g, b, a] = source.getImageData(CORNER, CORNER, 1, 1).data
+
+  const canvas = createCanvas(size)
+  const ctx = context2d(canvas)
+  ctx.fillStyle = `rgba(${r},${g},${b},${a / 255})`
+  ctx.fillRect(0, 0, size.width, size.height)
+  ctx.drawImage(img, (size.width - img.width) / 2, (size.height - img.height) / 2)
+
+  return canvas.toDataURL('image/png')
 }
 
 // Rasteryzuje węzeł plakatu (w rozmiarze układu `shape`) do canvasu
-// o dokładnych wymiarach docelowych w px (papier albo baner). Za duży canvas przeglądarka oddaje
-// pusty (przezroczysty) - plakat jest nieprzezroczysty, więc alfa 0 w rogu
-// oznacza porażkę i rzucamy, żeby drabinka zeszła na niższe dpi.
-async function rasterise(node: HTMLElement, shape: PosterShape, px: { width: number; height: number }): Promise<HTMLCanvasElement> {
+// o dokładnych wymiarach docelowych w px (papier albo baner). Za duży canvas
+// przeglądarka oddaje pusty (przezroczysty) - plakat jest nieprzezroczysty,
+// więc alfa 0 w rogu oznacza porażkę i rzucamy, żeby drabinka zeszła na
+// niższe dpi.
+async function rasterise(node: HTMLElement, shape: PosterShape, target: Size): Promise<HTMLCanvasElement> {
   const layout = SHAPE_SIZE[shape]
   const canvas = await toCanvas(node, {
     width: layout.width,
     height: layout.height,
-    canvasWidth: px.width,
-    canvasHeight: px.height,
+    canvasWidth: target.width,
+    canvasHeight: target.height,
     pixelRatio: 1,
     skipAutoScale: true,
   })
-  const ctx = canvas.getContext('2d')
-  if (!ctx) throw new Error('brak kontekstu 2d')
-  if (canvas.width !== px.width || canvas.height !== px.height) throw new Error('canvas ma inny rozmiar niż żądany')
-  if (ctx.getImageData(4, 4, 1, 1).data[3] === 0) throw new Error('pusty canvas')
+  if (canvas.width !== target.width || canvas.height !== target.height) throw new Error('canvas ma inny rozmiar niż żądany')
+  if (context2d(canvas).getImageData(CORNER, CORNER, 1, 1).data[3] === 0) throw new Error('pusty canvas')
   return canvas
 }
 
@@ -97,41 +114,44 @@ async function deflate(bytes: Uint8Array<ArrayBuffer>): Promise<Uint8Array<Array
 }
 
 async function canvasToPdfBlob(canvas: HTMLCanvasElement, paper: PaperSize, orientation: Orientation): Promise<Blob> {
-  const ctx = canvas.getContext('2d')
-  if (!ctx) throw new Error('brak kontekstu 2d')
-  const rgba = ctx.getImageData(0, 0, canvas.width, canvas.height).data
+  const rgba = context2d(canvas).getImageData(0, 0, canvas.width, canvas.height).data
   const imageData = await deflate(rgbaToCmyk(rgba))
   const page = pageSizePt(paper, orientation)
   const pdf = buildPdf({ widthPx: canvas.width, heightPx: canvas.height, widthPt: page.width, heightPt: page.height, imageData })
   return new Blob([pdf], { type: 'application/pdf' })
 }
 
-// Pobiera plakat w wybranym formacie. Formaty social (kwadrat/story) to
-// zawsze PNG z układu 1080×1080 - `orientation`/`fileType` są ignorowane.
-// Banery (format z własnym `shape`) to PNG z układu banera, rasteryzowany
-// wprost do rozmiaru formatu. Formaty papierowe idą przez drabinkę dpi; zwracane `dpi` to rozdzielczość,
-// która faktycznie się udała.
+// Baner: PNG z układu banera, rasteryzowany wprost do rozmiaru formatu.
+async function downloadBanner(node: HTMLElement, basename: string, shape: PosterShape, size: Size) {
+  const canvas = await rasterise(node, shape, size)
+  saveBlob(await canvasToPngBlob(canvas), `${basename}.png`)
+}
+
+// Social (kwadrat/story): PNG z układu kwadratowego; format wyższy niż kwadrat
+// dostaje dostawkę w kolorze tła plakatu.
+async function downloadSocial(node: HTMLElement, basename: string, size: Size) {
+  const posterDataUrl = await toPng(node, { ...SHAPE_SIZE.square, pixelRatio: 1 })
+  saveAs(await compositeOnCanvas(posterDataUrl, size), `${basename}.png`)
+}
+
+// Papier: PNG albo PDF w rozmiarze strony, przez drabinkę dpi. Zwraca
+// rozdzielczość, która faktycznie się udała.
+async function downloadPrint(node: HTMLElement, basename: string, paper: PaperSize, { orientation, fileType }: DownloadOptions): Promise<number> {
+  const { dpi, result: blob } = await withDpiLadder(DPI_LADDER, async (attemptDpi) => {
+    const canvas = await rasterise(node, orientation, pixelSize(paper, orientation, attemptDpi))
+    return fileType === 'pdf' ? canvasToPdfBlob(canvas, paper, orientation) : canvasToPngBlob(canvas)
+  })
+  saveBlob(blob, `${basename}.${fileType}`)
+  return dpi
+}
+
+// Pobiera plakat w wybranym formacie. `orientation`/`fileType` dotyczą tylko
+// formatów papierowych - tylko dla nich wynik niesie `dpi`.
 export async function downloadPoster(node: HTMLElement, basename: string, opts: DownloadOptions): Promise<{ dpi?: number }> {
   const format = EXPORT_FORMATS[opts.formatKey] ?? EXPORT_FORMATS.square
-  const paper = format.paper
+  if (format.paper) return { dpi: await downloadPrint(node, basename, format.paper, opts) }
 
-  if (format.shape && format.width && format.height) {
-    const canvas = await rasterise(node, format.shape, { width: format.width, height: format.height })
-    saveBlob(await canvasToPngBlob(canvas), `${basename}.png`)
-    return {}
-  }
-
-  if (!paper) {
-    const posterDataUrl = await toPng(node, { width: 1080, height: 1080, pixelRatio: 1 })
-    const dataUrl = await compositeOnCanvas(posterDataUrl, format.width ?? 1080, format.height ?? 1080)
-    saveAs(dataUrl, `${basename}.png`)
-    return {}
-  }
-
-  const { dpi, result: blob } = await withDpiLadder(DPI_LADDER, async (d) => {
-    const canvas = await rasterise(node, opts.orientation, pixelSize(paper, opts.orientation, d))
-    return opts.fileType === 'pdf' ? canvasToPdfBlob(canvas, paper, opts.orientation) : canvasToPngBlob(canvas)
-  })
-  saveBlob(blob, `${basename}.${opts.fileType}`)
-  return { dpi }
+  if (format.shape) await downloadBanner(node, basename, format.shape, format)
+  else await downloadSocial(node, basename, format)
+  return {}
 }

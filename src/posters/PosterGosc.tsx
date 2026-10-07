@@ -1,27 +1,21 @@
-import { fontMono, QR_SLOT_H } from './theme'
-import { sygnetByName } from './logos'
-import { resolveScheme } from './schemes'
-import { LogoSlots } from './blocks/LogoSlots'
-import { QrSlot } from './blocks/QrSlot'
-import { PhotoGallery } from './PhotoGallery'
-import { withPlaceholders } from './fallback'
-import { getDay, getMonthShort } from '../utils/formatDate'
-import { PosterFrame } from './blocks/PosterFrame'
-import { Badge } from './blocks/Badge'
-import { InfoLine } from './blocks/InfoLine'
-import { LogoRow } from './blocks/LogoRow'
-import { usePosterShape } from './shape'
 import type { PosterProps } from '../types'
+import { getDay, getMonthShort } from '../utils/formatDate'
+import { DEFAULT_BADGE, FREE_ENTRY } from './copy'
+import { withPlaceholders } from './fallback'
+import { resolveScheme } from './schemes'
+import { usePosterShape } from './shape'
+import { fontMono, TITLE_TRACKING } from './theme'
+import { Badge } from './blocks/Badge'
+import { FooterLogos } from './blocks/FooterLogos'
+import { InfoLine } from './blocks/InfoLine'
+import { PosterFrame } from './blocks/PosterFrame'
+import { Sygnet } from './blocks/Sygnet'
+import { PhotoGallery } from './PhotoGallery'
 
 // GOŚĆ — zdjęcie + pas
-export function PosterGosc({ data, scheme, accent, lang }: PosterProps) {
-  const { title, speaker, event_date, event_time, location, badge, graphics, showPkLogo, qrUrl, photos, hidden, fx, titleScale } = withPlaceholders(data)
-  const s = resolveScheme('gosc', scheme, accent)
-  const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
-
-  const boxBg = 'var(--date-bg)'
-  const boxText = 'var(--date-text)'
-  const textColor = 'var(--accent)'
+export function PosterGosc({ data, scheme, accent, lang = 'pl' }: PosterProps) {
+  const { title, speaker, event_date, event_time, location, badge, logoSlots, qrUrl, photos, hidden, fx, titleScale } = withPlaceholders(data)
+  const { cssVars, sygnet, logoVariant } = resolveScheme('gosc', scheme, accent)
 
   const { shape, height } = usePosterShape()
   // Poziom: zdjęcie obok tekstu zamiast nad nim - pas 1528×600 zostawiałby
@@ -32,7 +26,7 @@ export function PosterGosc({ data, scheme, accent, lang }: PosterProps) {
   const dateBox = showDate && (
     <div
       style={{
-        background: boxBg, color: boxText, padding: '18px 26px', display: 'flex', flexDirection: 'column', alignItems: 'center',
+        background: 'var(--date-bg)', color: 'var(--date-text)', padding: '18px 26px', display: 'flex', flexDirection: 'column', alignItems: 'center',
         ...(side ? { alignSelf: 'flex-end' } : { position: 'absolute', top: -56, right: 72 }),
       }}
     >
@@ -45,14 +39,14 @@ export function PosterGosc({ data, scheme, accent, lang }: PosterProps) {
   )
 
   return (
-    <PosterFrame vars={s.cssVars} style={side ? { flexDirection: 'row' } : undefined}>
+    <PosterFrame vars={cssVars} style={side ? { flexDirection: 'row' } : undefined}>
       <PhotoGallery
         photos={photos.photo}
         label={<>zdjęcie prelegenta<br />{side ? '640 × 1080' : `1080 × ${photoH}`}</>}
         style={side ? { width: 640, height: '100%', flex: '0 0 auto' } : { height: photoH }}
       >
         <div style={{ position: 'absolute', top: 0, left: 0, width: 420, height: 420, background: 'var(--sygnet-bg, var(--accent))', clipPath: 'polygon(0 0,100% 0,0 100%)', display: 'flex', alignItems: 'flex-start', padding: '72px 0 0 72px', boxSizing: 'border-box' }}>
-          <img src={sygnetByName[s.sygnet ?? 'negatywny']} alt="SKNM" style={{ width: 132, display: 'block' }} />
+          <Sygnet name={sygnet} />
         </div>
       </PhotoGallery>
 
@@ -60,8 +54,8 @@ export function PosterGosc({ data, scheme, accent, lang }: PosterProps) {
         {dateBox}
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 820 }}>
-          <Badge color={textColor} style={fx('badge')}>{badge || (lang === 'en' ? 'SKNM SEMINAR' : 'SEMINARIUM SKNM')}</Badge>
-          <div style={{ fontSize: 82 * titleScale, fontWeight: 800, lineHeight: 0.98, letterSpacing: '-.03em', fontKerning: 'none', ...fx('title') }}>
+          <Badge color="var(--accent)" style={fx('badge')}>{badge || DEFAULT_BADGE.seminarium[lang]}</Badge>
+          <div style={{ fontSize: 82 * titleScale, fontWeight: 800, lineHeight: 0.98, letterSpacing: TITLE_TRACKING, fontKerning: 'none', ...fx('title') }}>
             {title}
           </div>
           <InfoLine
@@ -73,11 +67,8 @@ export function PosterGosc({ data, scheme, accent, lang }: PosterProps) {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24 }}>
-          <div style={{ fontSize: 22, fontWeight: 600, color: textColor }}>{lang === 'en' ? 'Free entry · sknm.pk.edu.pl' : 'Wstęp wolny · sknm.pk.edu.pl'}</div>
-          <LogoRow minHeight={QR_SLOT_H}>
-            <QrSlot value={qrUrl} />
-            <LogoSlots slots={slots} variant={s.logoVariant} />
-          </LogoRow>
+          <div style={{ fontSize: 22, fontWeight: 600, color: 'var(--accent)' }}>{FREE_ENTRY[lang]}</div>
+          <FooterLogos qrUrl={qrUrl} slots={logoSlots} variant={logoVariant} />
         </div>
       </div>
     </PosterFrame>

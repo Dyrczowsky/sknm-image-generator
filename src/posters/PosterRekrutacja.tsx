@@ -1,40 +1,40 @@
-import { fontMono, QR_SLOT_H } from './theme'
-import { sygnetByName } from './logos'
-import { LogoSlots } from './blocks/LogoSlots'
-import { QrSlot } from './blocks/QrSlot'
+import type { PosterProps } from '../types'
+import { getDay, getMonthShort } from '../utils/formatDate'
+import { BRANDING_FULL, DEFAULT_BADGE, RECRUITMENT_PITCH, SITE_URL, SOCIAL_HANDLE } from './copy'
 import { withPlaceholders } from './fallback'
 import { resolveScheme } from './schemes'
-import { getDay, getMonthShort } from '../utils/formatDate'
-import { PosterFrame } from './blocks/PosterFrame'
-import { Badge } from './blocks/Badge'
-import { InfoLine } from './blocks/InfoLine'
-import { BrandingText } from './blocks/BrandingText'
-import { LogoRow } from './blocks/LogoRow'
 import { usePosterShape } from './shape'
-import type { PosterProps } from '../types'
+import { fontMono, TITLE_TRACKING } from './theme'
+import { Badge } from './blocks/Badge'
+import { BrandingText } from './blocks/BrandingText'
+import { FooterLogos } from './blocks/FooterLogos'
+import { InfoLine } from './blocks/InfoLine'
+import { PosterFrame } from './blocks/PosterFrame'
+import { Sygnet } from './blocks/Sygnet'
+
+// Górna krawędź dolnej bandy: zygzak z sześciu zębów o głębokości 130 px.
+const BAND_ZIGZAG =
+  'polygon(0 130px,8.33% 0,16.66% 130px,25% 0,33.33% 130px,41.66% 0,50% 130px,58.33% 0,66.66% 130px,75% 0,83.33% 130px,91.66% 0,100% 130px,100% 100%,0 100%)'
 
 // REKRUTACJA — wzór z sygnetu
-export function PosterRekrutacja({ data, scheme, accent, lang }: PosterProps) {
-  const { title, subtitle, event_date, event_time, location, badge, graphics, showPkLogo, qrUrl, hidden, fx, titleScale, textScale } = withPlaceholders(data)
-  const s = resolveScheme('rekrutacja', scheme, accent)
+export function PosterRekrutacja({ data, scheme, accent, lang = 'pl' }: PosterProps) {
+  const { title, subtitle, event_date, event_time, location, badge, logoSlots, qrUrl, hidden, fx, titleScale, textScale } = withPlaceholders(data)
+  const { cssVars, sygnet, logoVariant } = resolveScheme('rekrutacja', scheme, accent)
   const { kx } = usePosterShape()
-  const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
 
   return (
-    <PosterFrame vars={s.cssVars} padding={72}>
+    <PosterFrame vars={cssVars} padding={72}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', position: 'relative' }}>
-        <img src={sygnetByName[s.sygnet ?? 'negatywny']} alt="SKNM" style={{ width: 132, display: 'block' }} />
-        <BrandingText lines={lang === 'en' ? ['STUDENT SCIENCE CLUB', 'OF MATHEMATICS', 'KRAKOW UNIVERSITY OF TECHNOLOGY'] : ['STUDENCKIE KOŁO', 'NAUKOWE MATEMATYKÓW', 'POLITECHNIKI KRAKOWSKIEJ']} />
+        <Sygnet name={sygnet} />
+        <BrandingText lines={BRANDING_FULL[lang]} />
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 26, position: 'relative', maxWidth: 900 * kx }}>
-        <div style={{ fontSize: 150 * titleScale, fontWeight: 800, lineHeight: 0.88, letterSpacing: '-.045em', fontKerning: 'none', ...fx('title') }}>
+        <div style={{ fontSize: 150 * titleScale, fontWeight: 800, lineHeight: 0.88, letterSpacing: TITLE_TRACKING, fontKerning: 'none', ...fx('title') }}>
           {title}
         </div>
         <div style={{ fontSize: 38 * textScale, fontWeight: 600, lineHeight: 1.3, color: 'var(--sub-color)', ...fx('subtitle') }}>
-          {subtitle || (lang === 'en'
-            ? 'Seminars, competitions, trips, and our own research projects. Every year of study, every faculty.'
-            : 'Seminaria, konkursy, wyjazdy i własne projekty badawcze. Każdy rok studiów, każdy wydział.')}
+          {subtitle || RECRUITMENT_PITCH[lang]}
         </div>
       </div>
 
@@ -45,12 +45,11 @@ export function PosterRekrutacja({ data, scheme, accent, lang }: PosterProps) {
           display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 32,
           position: 'relative', color: 'var(--footer-text)', background: 'var(--band)',
           margin: '0 -72px -72px', padding: '150px 72px 72px',
-          clipPath:
-            'polygon(0 130px,8.33% 0,16.66% 130px,25% 0,33.33% 130px,41.66% 0,50% 130px,58.33% 0,66.66% 130px,75% 0,83.33% 130px,91.66% 0,100% 130px,100% 100%,0 100%)',
+          clipPath: BAND_ZIGZAG,
         }}
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <Badge color="var(--badge-color)" style={{ font: `700 26px ${fontMono}`, letterSpacing: '.1em', ...fx('badge') }}>{badge || (lang === 'en' ? 'KICK-OFF MEETING' : 'SPOTKANIE ORGANIZACYJNE')}</Badge>
+          <Badge color="var(--badge-color)" style={{ font: `700 26px ${fontMono}`, letterSpacing: '.1em', ...fx('badge') }}>{badge || DEFAULT_BADGE.rekrutacja[lang]}</Badge>
           <InfoLine
             parts={[
               { text: `${getDay(event_date)} ${getMonthShort(event_date, { lang })}`, hidden: hidden('event_date') },
@@ -60,13 +59,10 @@ export function PosterRekrutacja({ data, scheme, accent, lang }: PosterProps) {
             style={{ fontSize: 36, fontWeight: 800, lineHeight: 1.05, fontKerning: 'none', whiteSpace: 'nowrap' }}
           />
           <div style={{ fontSize: 26, fontWeight: 500, opacity: 0.85 }}>
-            sknm.pk.edu.pl{hidden('speaker') ? '' : ` · ${data.speaker || '@sknm.pk'}`}
+            {SITE_URL}{hidden('speaker') ? '' : ` · ${data.speaker || SOCIAL_HANDLE}`}
           </div>
         </div>
-        <LogoRow minHeight={QR_SLOT_H}>
-          <QrSlot value={qrUrl} />
-          <LogoSlots slots={slots} variant={s.logoVariant} />
-        </LogoRow>
+        <FooterLogos qrUrl={qrUrl} slots={logoSlots} variant={logoVariant} />
       </div>
     </PosterFrame>
   )

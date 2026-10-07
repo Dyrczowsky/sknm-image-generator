@@ -1,3 +1,6 @@
+// Formaty grafik przyjmowane przez pola wgrywania (logotypy, zdjęcia).
+export const IMAGE_ACCEPT = '.svg,.png,.jpg,.jpeg,image/svg+xml,image/png,image/jpeg'
+
 // Czyta plik jako data URL (base64). Używane przy wgrywaniu grafik/zdjęć
 // w formularzu - plakat trzyma wtedy obraz jako string w stanie edytora.
 export function readAsDataUrl(file: File): Promise<string> {

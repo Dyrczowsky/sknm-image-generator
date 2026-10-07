@@ -1,12 +1,12 @@
-import { sygnetByName } from '../logos'
-import { PhotoGallery } from '../PhotoGallery'
+import type { PosterProps } from '../../types'
+import { CLUB_NAME, SITE_URL } from '../copy'
 import { withPlaceholders } from '../fallback'
 import { resolveScheme } from '../schemes'
-import { PosterFrame } from '../blocks/PosterFrame'
 import { useBannerLayout } from '../shape'
+import { PosterFrame } from '../blocks/PosterFrame'
+import { Sygnet } from '../blocks/Sygnet'
+import { PhotoGallery } from '../PhotoGallery'
 import { BANNER_SYGNET_W, BannerLogos, NAME_TRACKING } from './common'
-import { BANNER_SITE, bannerCopy } from './copy'
-import type { PosterProps } from '../../types'
 
 // Zdjęcie: tyle wchodzi w bezpieczną kolumnę (reszta to prawy margines),
 // a `SLANT` to poziomy bieg skosu lewej krawędzi.
@@ -14,15 +14,13 @@ const PHOTO_W = 440
 const SLANT = 170
 
 // WARSZTAT (baner) — skośne zdjęcie przy prawej krawędzi, nazwa koła po lewej.
-export function BannerWarsztat({ data, scheme, accent, lang }: PosterProps) {
-  const { graphics, showPkLogo, qrUrl, photos, titleScale } = withPlaceholders(data)
-  const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
-  const s = resolveScheme('warsztat', scheme, accent)
-  const copy = bannerCopy(lang)
+export function BannerWarsztat({ data, scheme, accent, lang = 'pl' }: PosterProps) {
+  const { logoSlots, qrUrl, photos, titleScale } = withPlaceholders(data)
+  const { cssVars, sygnet, logoVariant } = resolveScheme('warsztat', scheme, accent)
   const { padX, padY } = useBannerLayout()
 
   return (
-    <PosterFrame vars={s.cssVars}>
+    <PosterFrame vars={cssVars}>
       <PhotoGallery
         photos={photos.photo}
         label={<>zdjęcie</>}
@@ -32,19 +30,19 @@ export function BannerWarsztat({ data, scheme, accent, lang }: PosterProps) {
       />
 
       <div style={{ position: 'absolute', inset: `${padY}px ${padX}px`, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: 16 }}>
-        <img src={sygnetByName[s.sygnet ?? 'negatywny']} alt="SKNM" style={{ width: BANNER_SYGNET_W, display: 'block' }} />
+        <Sygnet name={sygnet} width={BANNER_SYGNET_W} />
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 660 }}>
           <div style={{ fontSize: 54 * titleScale, lineHeight: 0.98, color: 'var(--title)', fontWeight: 800, letterSpacing: NAME_TRACKING, fontKerning: 'none', textWrap: 'balance' }}>
-            {copy.name}
+            {CLUB_NAME[lang]}
           </div>
         </div>
 
         {/* Pigułka i stopka w jednym rzędzie: logo leży na zdjęciu, więc slot
             dostaje tło `slot-bg`, jak w wersji kwadratowej. */}
         <div style={{ display: 'flex', alignItems: 'flex-end', gap: 24 }}>
-          <div style={{ background: 'var(--pill-fill)', color: 'var(--pill-text)', fontSize: 22, fontWeight: 700, padding: '9px 15px', flex: '0 0 auto' }}>{BANNER_SITE}</div>
-          <BannerLogos qrUrl={qrUrl} slots={slots} variant={s.logoVariant} slotStyle={{ background: 'var(--slot-bg)' }} />
+          <div style={{ background: 'var(--pill-fill)', color: 'var(--pill-text)', fontSize: 22, fontWeight: 700, padding: '9px 15px', flex: '0 0 auto' }}>{SITE_URL}</div>
+          <BannerLogos qrUrl={qrUrl} slots={logoSlots} variant={logoVariant} slotStyle={{ background: 'var(--slot-bg)' }} />
         </div>
       </div>
     </PosterFrame>

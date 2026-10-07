@@ -1,12 +1,12 @@
-import { fontMono } from '../theme'
-import { sygnetByName } from '../logos'
+import type { PosterProps } from '../../types'
+import { CLUB_NAME, SITE_URL, SOCIAL_HANDLE } from '../copy'
 import { withPlaceholders } from '../fallback'
 import { resolveScheme } from '../schemes'
-import { PosterFrame } from '../blocks/PosterFrame'
 import { useBannerLayout } from '../shape'
+import { fontMono } from '../theme'
+import { PosterFrame } from '../blocks/PosterFrame'
+import { Sygnet } from '../blocks/Sygnet'
 import { BANNER_SYGNET_W, BannerLogos, NAME_TRACKING } from './common'
-import { BANNER_SITE, bannerCopy } from './copy'
-import type { PosterProps } from '../../types'
 
 // Zygzak pasa: głębokość zęba i jego przybliżona szerokość - liczba zębów
 // wynika z szerokości ramki, żeby wzór był równie gęsty w obu banerach.
@@ -22,23 +22,21 @@ function zigzag(width: number): string {
   return `polygon(${points.join(',')},100% 100%,0 100%)`
 }
 
-// REKRUTACJA (baner) — duża nazwa koła z hasłem, pas z zygzakiem wzdłuż dołu.
-export function BannerRekrutacja({ data, scheme, accent, lang }: PosterProps) {
-  const { graphics, showPkLogo, qrUrl, titleScale } = withPlaceholders(data)
-  const s = resolveScheme('rekrutacja', scheme, accent)
-  const copy = bannerCopy(lang)
+// REKRUTACJA (baner) — duża nazwa koła, pas z zygzakiem wzdłuż dołu.
+export function BannerRekrutacja({ data, scheme, accent, lang = 'pl' }: PosterProps) {
+  const { logoSlots, qrUrl, titleScale } = withPlaceholders(data)
+  const { cssVars, sygnet, logoVariant } = resolveScheme('rekrutacja', scheme, accent)
   const { padX, padY, width } = useBannerLayout()
-  const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
 
   return (
-    <PosterFrame vars={s.cssVars} style={{ padding: `${padY}px ${padX}px` }}>
+    <PosterFrame vars={cssVars} style={{ padding: `${padY}px ${padX}px` }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', position: 'relative' }}>
-        <img src={sygnetByName[s.sygnet ?? 'negatywny']} alt="SKNM" style={{ width: BANNER_SYGNET_W, display: 'block' }} />
+        <Sygnet name={sygnet} width={BANNER_SYGNET_W} />
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14, position: 'relative' }}>
         <div style={{ fontSize: 72 * titleScale, fontWeight: 800, lineHeight: 0.94, letterSpacing: NAME_TRACKING, fontKerning: 'none', textWrap: 'balance' }}>
-          {copy.name}
+          {CLUB_NAME[lang]}
         </div>
       </div>
 
@@ -51,8 +49,8 @@ export function BannerRekrutacja({ data, scheme, accent, lang }: PosterProps) {
           clipPath: zigzag(width),
         }}
       >
-        <div style={{ font: `700 19px ${fontMono}`, letterSpacing: '.1em', color: 'var(--badge-color)', paddingBottom: 8 }}>{BANNER_SITE} · @sknm.pk</div>
-        <BannerLogos qrUrl={qrUrl} slots={slots} variant={s.logoVariant} />
+        <div style={{ font: `700 19px ${fontMono}`, letterSpacing: '.1em', color: 'var(--badge-color)', paddingBottom: 8 }}>{`${SITE_URL} · ${SOCIAL_HANDLE}`}</div>
+        <BannerLogos qrUrl={qrUrl} slots={logoSlots} variant={logoVariant} />
       </div>
     </PosterFrame>
   )

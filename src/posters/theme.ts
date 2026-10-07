@@ -30,6 +30,11 @@ export const colors = {
 export const fontHeading = "Fieldwork, 'Hanken Grotesk', Helvetica, sans-serif"
 export const fontMono = "'Space Mono', monospace"
 
+// Światło między literami tytułów (kroju Fieldwork w grubości 800). Przy
+// ciaśniejszym ustawieniu (dawniej -.02em do -.045em) sąsiednie litery
+// zaczynały się stykać i nachodzić na siebie ("ck", "ko", "wsk").
+export const TITLE_TRACKING = '-.008em'
+
 // Wspólna skala typografii dla powtarzających się elementów (blocks/).
 // Pojedyncza zmiana tutaj propaguje się do wszystkich szablonów, które
 // używają danego bloku.
@@ -47,7 +52,7 @@ export const typography = {
     fontSize: 104,
     fontWeight: 800,
     lineHeight: 0.86,
-    letterSpacing: '-.04em',
+    letterSpacing: '-.02em',
   },
   bigMonth: {
     fontSize: 44,
@@ -73,19 +78,16 @@ export const posterBaseStyle: CSSProperties = {
   fontFamily: fontHeading,
 }
 
-// Wysokość grafiki logo w slocie (skala plakatu 1080px). Pole ochronne
+// Wysokość grafiki logo w stopce (skala plakatu 1080px). Pole ochronne
 // wokół grafiki i odstęp między dwiema grafikami = ¼ tej wysokości -
 // wgrywane pliki są bez własnego pola ochronnego, bierze je na siebie
-// padding wrappera (LogoSlot).
+// padding wrappera (LogoSlots).
 export const LOGO_HEIGHT = 48
 export const LOGO_CLEAR = Math.round(LOGO_HEIGHT / 4)
 
 // Ile grafik/logotypów mieści się w rzędzie stopki przy LOGO_HEIGHT.
 export const MAX_GRAPHICS = 4
 
-// Bok kwadratu kodu QR + pełna wysokość jego slotu (z polem ochronnym).
-// Rząd stopki rezerwuje `QR_SLOT_H` na stałe (minHeight), żeby wpisanie
-// linku nie rozpychało układu - QR pojawia się w miejscu, które i tak
-// jest już puste.
+// Bok kwadratu kodu QR w stopce plakatu (banery mają mniejszy, patrz
+// banners/common.tsx).
 export const QR_SIZE = 96
-export const QR_SLOT_H = QR_SIZE + LOGO_CLEAR * 2

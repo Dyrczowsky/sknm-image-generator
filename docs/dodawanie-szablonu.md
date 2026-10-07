@@ -12,25 +12,20 @@ Plakat dostaje `PosterProps` (`{ data, scheme, accent, lang }`), uzupełnia dane
 i rozwiązuje schemat kolorów. Kontener to zawsze `PosterFrame` (1080×1080).
 
 ```tsx
+import type { PosterProps } from '../types'
 import { withPlaceholders } from './fallback'
 import { resolveScheme } from './schemes'
+import { FooterLogos } from './blocks/FooterLogos'
 import { PosterFrame } from './blocks/PosterFrame'
-import { LogoRow } from './blocks/LogoRow'
-import { LogoSlots } from './blocks/LogoSlots'
-import { QrSlot } from './blocks/QrSlot'
-import { QR_SLOT_H } from './theme'
-import { sygnetByName } from './logos'
-import type { PosterProps } from '../types'
+import { Sygnet } from './blocks/Sygnet'
 
-export function PosterPiknik({ data, scheme, accent, lang }: PosterProps) {
-  const { title, subtitle, event_date, location, graphics, showPkLogo, qrUrl } = withPlaceholders(data)
-  const s = resolveScheme('piknik', scheme, accent)
-  // null = domyślne logo PK (fallback), string = hurtowo wgrana grafika
-  const slots: (string | null)[] = [...(showPkLogo ? [null] : []), ...graphics]
+export function PosterPiknik({ data, scheme, accent, lang = 'pl' }: PosterProps) {
+  const { title, subtitle, event_date, location, logoSlots, qrUrl } = withPlaceholders(data)
+  const { cssVars, sygnet, logoVariant } = resolveScheme('piknik', scheme, accent)
 
   return (
-    <PosterFrame vars={s.cssVars} padding={72}>
-      <img src={sygnetByName[s.sygnet ?? 'negatywny']} alt="SKNM" style={{ width: 132 }} />
+    <PosterFrame vars={cssVars} padding={72}>
+      <Sygnet name={sygnet} />
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
         <div style={{ fontSize: 96, fontWeight: 800, lineHeight: 0.95 }}>{title}</div>
@@ -39,12 +34,9 @@ export function PosterPiknik({ data, scheme, accent, lang }: PosterProps) {
       </div>
 
       {/* Stopka: logo PK w prawym dolnym rogu (ta sama pozycja we wszystkich
-          szablonach), kod QR odbity maksymalnie w lewo. `LogoRow` sam
-          wysuwa się o pole ochronne; `minHeight` rezerwuje miejsce na QR. */}
-      <LogoRow minHeight={QR_SLOT_H}>
-        <QrSlot value={qrUrl} />
-        <LogoSlots slots={slots} variant={s.logoVariant} />
-      </LogoRow>
+          szablonach), kod QR odbity maksymalnie w lewo. `logoSlots` to logo PK
+          (o ile włączone) i grafiki wgrane w formularzu. */}
+      <FooterLogos qrUrl={qrUrl} slots={logoSlots} variant={logoVariant} />
     </PosterFrame>
   )
 }
@@ -56,8 +48,11 @@ Reguły:
 - Każdy kolor sterowany schematem to rola CSS (`var(--page-bg)`, `var(--accent)`, ...).
   Kolor stały we wszystkich wariantach może zostać literałem w JSX (jak np. koralowa
   etykieta miesiąca w layoucie `data`).
-- Powtarzalne fragmenty (plakietka, rząd logo, linia info, wielka liczba dnia) bierz
-  z `src/posters/blocks/` zamiast pisać od zera.
+- Powtarzalne fragmenty (sygnet, plakietka, stopka z logo, linia info, wielka liczba
+  dnia, trójkąty, kliny) bierz z `src/posters/blocks/` zamiast pisać od zera.
+- Wbudowany tekst w dwóch językach (domyślna plakietka, linie brandingu, adres
+  strony) trzymaj w `src/posters/copy.ts` i wybieraj przez `[lang]`, np.
+  `{badge || DEFAULT_BADGE.piknik[lang]}`.
 - Wymiary i typografię trzymaj w skali z `src/posters/theme.ts`, gdzie pasuje.
 - **Widoczność pól:** dołóż `fx` (i `hidden`) z `withPlaceholders(data)` i rozlej
   `...fx('<pole>')` na element każdego pola tekstowego, np.
@@ -70,59 +65,55 @@ Reguły:
 
 ## 2. Formularz — `src/forms/FormPiknik.tsx`
 
-Formularz dostaje `FormProps` i decyduje, które pola pokazać. Kontener:
-`className="flex flex-col gap-3.5"`.
+Formularz layoutu to lista pól podana wspólnemu szkieletowi `PosterForm`, który
+sam dokłada suwaki rozmiaru, grafiki stopki z kodem QR i (opcjonalnie) galerię
+zdjęć.
 
 ```tsx
 import type { FormProps } from '../types'
-import { PLACEHOLDERS } from '../posters/fallback'
-import { FormField } from './FormField'
-import { GraphicsField } from './GraphicsField'
+import { FIELDS } from './fields'
+import type { FieldSpec } from './fields'
+import { PosterForm } from './PosterForm'
 
-export function FormPiknik({ value, onFieldChange, onVisibilityChange, onGraphicsAdd, onGraphicRemove, onGraphicMove, onShowPkChange }: FormProps) {
-  // `name` + `{...vis}` włączają checkbox widoczności przy etykiecie pola.
-  const vis = { visibility: value.visibility, onVisibilityChange }
-  const gfx = { value, onGraphicsAdd, onGraphicRemove, onGraphicMove, onShowPkChange }
-  return (
-    <form className="flex flex-col gap-3.5" onSubmit={(e) => e.preventDefault()}>
-      <FormField name="title" {...vis} type="text" label="Tytuł" placeholder={PLACEHOLDERS.title}
-        value={value.title} onChange={(v) => onFieldChange('title', v)} />
-      <FormField name="subtitle" {...vis} type="text" label="Podtytuł"
-        value={value.subtitle} onChange={(v) => onFieldChange('subtitle', v)} />
-      <FormField name="event_date" {...vis} type="date" label="Data"
-        value={value.event_date} onChange={(v) => onFieldChange('event_date', v)} />
-      <FormField name="location" {...vis} type="text" label="Lokalizacja" placeholder={PLACEHOLDERS.location}
-        value={value.location} onChange={(v) => onFieldChange('location', v)} />
+const PIKNIK_FIELDS: FieldSpec[] = [
+  FIELDS.title,
+  { name: 'subtitle', label: 'Podtytuł' },
+  FIELDS.date,
+  FIELDS.location,
+]
 
-      <GraphicsField {...gfx} />
-    </form>
-  )
+export function FormPiknik(props: FormProps) {
+  return <PosterForm {...props} fields={PIKNIK_FIELDS} />
 }
 ```
 
-Dostępne klocki:
+Z czego się składa:
 
-- `FormField` — pojedyncze `<label><input>` (`type` = `text` / `date` / `time`)
-  albo, dla dłuższego akapitu (np. treść komunikatu), `<label><textarea>`
-  (`type="textarea"`) — patrz `FormKomunikat.tsx` i pole `body`.
-- `GraphicsField` — checkbox „Dodaj logo PK" + hurtowe wgrywanie grafik stopki
-  (miniatury, kolejność strzałkami, usuwanie) + pole „Kod QR" (link). Stan w
-  `value.graphics` / `value.showPkLogo` / `value.qrUrl`. Po stronie plakatu:
-  `<LogoSlots slots={…} />` dla grafik, `<QrSlot value={qrUrl} />` dla kodu QR.
-  Cała trójka to jeden komplet propsów — patrz `const gfx = {…}` w każdym formularzu.
-- `PhotoGalleryField` — galeria 0..N zdjęć z kadrowaniem, klucz w `value.photos`
-- lista powtarzalna (jak program konferencji) — patrz `FormKonferencja.tsx`,
-  używa `onListItemAdd` / `onListItemChange` / `onListItemRemove` i `value.lists`
-- `TitleTextScaleFields` — para suwaków (70%-130%, mnożniki `value.titleScale` /
-  `value.textScale`) ze spinaczem pośrodku (`value.scaleLinked` — spięte
-  suwaki jeżdżą razem, na ten sam procent). Dodaj na górze formularza
-  (`const scale = { titleScale: value.titleScale, textScale: value.textScale, linked: value.scaleLinked, onTitleScaleChange, onTextScaleChange, onLinkedChange: onScaleLinkedChange }`,
-  `<TitleTextScaleFields {...scale} />`) i w komponencie plakatu pomnóż
-  `fontSize` tytułu przez `titleScale` (`fontSize: 96 * titleScale`), a
-  podtytułu/treści przez `textScale` (`fontSize: 32 * textScale`) — jeśli
-  podtytuł jedzie przez `InfoLine`, użyj `partsStyle`/`secondLineStyle`
-  zamiast przestylowywać cały wiersz (patrz `PosterWyklad.tsx`/`PosterData.tsx`).
-  Oba suwaki są sesyjne — nie zapisują się do draftu.
+- `FieldSpec` (`fields.ts`) — opis pola: `name` (klucz w `FormValues`), `label`,
+  `type` (`text` domyślnie / `date` / `time` / `textarea` dla dłuższego akapitu,
+  patrz `FormKomunikat.tsx`) i opcjonalny `placeholder`. Bez `placeholder` pole
+  pokazuje wartość przykładową z `PLACEHOLDERS` (`posters/fallback.ts`). Każde
+  pole ma checkbox widoczności.
+- `FIELDS` — gotowe pola o typowych podpisach (tytuł, podtytuł, prelegent, data,
+  godzina, lokalizacja); `badgeField(placeholder)` — pole plakietki, którego
+  placeholder to domyślna treść z `DEFAULT_BADGE` w `posters/copy.ts`.
+- `photoLabel="..."` na `PosterForm` — dokłada galerię 0..4 zdjęć z kadrowaniem
+  (`value.photos.photo`); po stronie plakatu `<PhotoGallery photos={photos.photo} />`.
+- `children` `PosterForm` — sekcje własne layoutu między polami a grafikami, np.
+  lista powtarzalna (program konferencji w `FormKonferencja.tsx`, `value.lists`).
+
+Formularz nie zmienia stanu sam: woła `onChange(przekształcenie)`, gdzie
+przekształcenia (`setField`, `addGraphics`, `addListItem`, ...) to czyste
+funkcje z `src/editor/formState.ts`. Nowy rodzaj zmiany = nowa funkcja tam
+(+ test w `formState.test.ts`).
+
+Suwaki rozmiaru (70%-130%, `value.titleScale` / `value.textScale`, spinacz
+`value.scaleLinked`) są w każdym formularzu. W komponencie plakatu pomnóż
+`fontSize` tytułu przez `titleScale` (`fontSize: 96 * titleScale`), a
+podtytułu/treści przez `textScale` — jeśli podtytuł jedzie przez `InfoLine`,
+użyj `partsStyle`/`secondLineStyle` zamiast przestylowywać cały wiersz (patrz
+`PosterWyklad.tsx`/`PosterData.tsx`). Suwaki, grafiki, zdjęcia i listy są
+sesyjne — do draftu trafiają tylko pola tekstowe i ich widoczność.
 
 Stan formularza jest globalny — nie każdy layout musi używać wszystkich pól.
 
@@ -158,7 +149,7 @@ Zarejestruj blok:
 
 ```ts
 export const schemes: Record<string, LayoutSchemes> = {
-  ogloszenie, gala, gosc, data, wyklad, konferencja, rekrutacja, warsztat, piknik,
+  ogloszenie, gala, gosc, data, wyklad, konferencja, rekrutacja, warsztat, komunikat, piknik,
 }
 ```
 
@@ -181,7 +172,7 @@ Każdy layout ma też szeroką wersję do zakładki „Baner" (okładka strony
 tymi samymi propsami (`PosterProps`), tym samym kluczem w `resolveScheme` i tymi
 samymi blokami, ale to **wizytówka koła, nie plakat**: zachowuje charakter
 layoutu (kliny, zygzak, zdjęcie...), a zamiast tytułu, prelegenta i daty pokazuje
-stałą treść z `bannerCopy(lang)` (`banners/copy.ts`). Najprościej skopiować
+stałą nazwę koła `CLUB_NAME[lang]` (`posters/copy.ts`). Najprościej skopiować
 najbliższy istniejący baner (np. `BannerOgloszenie.tsx`).
 
 Reguły:
@@ -192,11 +183,11 @@ Reguły:
   `PosterFrame` przez `style={{ padding: ... }}`. Tekst, logo i QR muszą zostać
   w środkowej kolumnie (między `padX` z lewej i z prawej); poza nią może wyjść
   tylko dekoracja i zdjęcia - Facebook przycina boki okładki na telefonie.
-- Stopka: `<BannerLogos qrUrl={qrUrl} slots={slots} variant={s.logoVariant} />`
-  z `banners/common.tsx` (mniejszy QR, ten sam układ co `LogoRow` w plakacie).
-  Sygnet ma szerokość `BANNER_SYGNET_W`.
-- Z `withPlaceholders(data)` bierz tylko `graphics`, `showPkLogo`, `qrUrl`,
-  `photos` oraz suwaki: nazwę koła mnóż przez `titleScale`, resztę tekstu przez
+- Stopka: `<BannerLogos qrUrl={qrUrl} slots={logoSlots} variant={logoVariant} />`
+  z `banners/common.tsx` (mniejszy QR, ten sam układ co `FooterLogos` w plakacie).
+  Sygnet: `<Sygnet name={sygnet} width={BANNER_SYGNET_W} />`.
+- Z `withPlaceholders(data)` bierz tylko `logoSlots`, `qrUrl`, `photos` oraz
+  suwaki: nazwę koła mnóż przez `titleScale`, resztę tekstu przez
   `textScale`.
 - Jeśli baner ma miejsce na zdjęcie, ustaw w rejestrze `bannerPhoto: true` -
   wspólny formularz banera (`FormBanner`) pokaże wtedy galerię zdjęć.

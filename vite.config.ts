@@ -12,7 +12,7 @@ export default defineConfig({
     // sposób. Wszystkie obrazy trafiają więc do osobnych, cache'owalnych plików.
     assetsInlineLimit: 0,
   },
-  base: "/sknm-image-generator/",
+  base: '/sknm-image-generator/',
   define: {
     __APP_VERSION__: JSON.stringify((process.env.GITHUB_SHA ?? '').slice(0, 7) || 'dev'),
   },

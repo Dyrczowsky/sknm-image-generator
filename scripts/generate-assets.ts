@@ -1,54 +1,48 @@
-// Jednorazowy generator ikon PWA.
-// Ręczny, zależny-od-zera zapis PNG (bez dodatkowych paczek npm typu sharp/canvas).
-import { deflateSync } from "node:zlib";
-import { writeFileSync } from "node:fs";
-import { crc32 } from "node:zlib";
+// Jednorazowy generator ikon PWA: ręczny zapis PNG, bez dodatkowych paczek
+// npm typu sharp/canvas.
+import { writeFileSync } from 'node:fs'
+import { crc32, deflateSync } from 'node:zlib'
 
-function chunk(type: string, data: Buffer): Buffer {
-  const typeBuf = Buffer.from(type, "ascii");
-  const body = Buffer.concat([typeBuf, data]);
-  const len = Buffer.alloc(4);
-  len.writeUInt32BE(data.length, 0);
-  const crcBuf = Buffer.alloc(4);
-  crcBuf.writeUInt32BE(crc32(body) >>> 0, 0);
-  return Buffer.concat([len, body, crcBuf]);
+type Rgb = [number, number, number]
+
+const PNG_SIGNATURE = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10])
+// Kolor marki aplikacji (#2563eb) - jednolite tło ikony.
+const BRAND: Rgb = [37, 99, 235]
+const ICON_SIZES = [192, 512]
+
+function uint32(value: number): Buffer {
+  const buf = Buffer.alloc(4)
+  buf.writeUInt32BE(value >>> 0, 0)
+  return buf
 }
 
-function encodePng(width: number, height: number, pixelFn: (x: number, y: number) => [number, number, number]): Buffer {
-  const raw = Buffer.alloc((width * 3 + 1) * height);
-  let offset = 0;
+// Chunk PNG: długość danych, typ + dane, CRC z typu i danych.
+function chunk(type: string, data: Buffer): Buffer {
+  const body = Buffer.concat([Buffer.from(type, 'ascii'), data])
+  return Buffer.concat([uint32(data.length), body, uint32(crc32(body))])
+}
+
+function encodePng(width: number, height: number, pixelAt: (x: number, y: number) => Rgb): Buffer {
+  // Każdy wiersz: bajt filtra (0 = None) + 3 bajty na piksel.
+  const raw = Buffer.alloc((width * 3 + 1) * height)
+  let offset = 0
   for (let y = 0; y < height; y++) {
-    raw[offset++] = 0; // filter type: None
+    raw[offset++] = 0
     for (let x = 0; x < width; x++) {
-      const [r, g, b] = pixelFn(x, y);
-      raw[offset++] = r;
-      raw[offset++] = g;
-      raw[offset++] = b;
+      const [r, g, b] = pixelAt(x, y)
+      raw[offset++] = r
+      raw[offset++] = g
+      raw[offset++] = b
     }
   }
-  const sig = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]);
-  const ihdr = Buffer.alloc(13);
-  ihdr.writeUInt32BE(width, 0);
-  ihdr.writeUInt32BE(height, 4);
-  ihdr[8] = 8; // bit depth
-  ihdr[9] = 2; // color type: RGB
-  ihdr[10] = 0;
-  ihdr[11] = 0;
-  ihdr[12] = 0;
-  const idat = deflateSync(raw);
-  return Buffer.concat([
-    sig,
-    chunk("IHDR", ihdr),
-    chunk("IDAT", idat),
-    chunk("IEND", Buffer.alloc(0)),
-  ]);
+  // IHDR: wymiary, 8 bitów na kanał, typ koloru 2 (RGB); kompresja, filtr
+  // i przeplot zostają zerami.
+  const ihdr = Buffer.concat([uint32(width), uint32(height), Buffer.from([8, 2, 0, 0, 0])])
+  return Buffer.concat([PNG_SIGNATURE, chunk('IHDR', ihdr), chunk('IDAT', deflateSync(raw)), chunk('IEND', Buffer.alloc(0))])
 }
 
-// Ikony PWA - proste jednolite tło w kolorze marki
-const brand: [number, number, number] = [37, 99, 235]; // #2563eb
-for (const size of [192, 512]) {
-  const png = encodePng(size, size, () => brand);
-  writeFileSync(`public/icons/icon-${size}.png`, png);
+for (const size of ICON_SIZES) {
+  writeFileSync(`public/icons/icon-${size}.png`, encodePng(size, size, () => BRAND))
 }
 
-console.log("Wygenerowano ikony PWA.");
+console.log('Wygenerowano ikony PWA.')

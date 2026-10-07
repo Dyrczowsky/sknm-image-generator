@@ -5,7 +5,7 @@ import { persist } from './client'
 
 // Wejście do saveDraft: pola tekstowe/meta jak w wierszu, ale `visibility`
 // podajemy jako obiekt - serializacja do JSON dzieje się tutaj.
-type DraftInput = Partial<Omit<DraftRow, 'visibility'>> & { visibility?: FieldVisibility }
+export type DraftInput = Partial<Omit<DraftRow, 'visibility'>> & { visibility?: FieldVisibility }
 
 export function getDraft(db: Database): DraftRow | null {
   const result = db.exec('SELECT * FROM draft WHERE id = 1')

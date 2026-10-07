@@ -5,19 +5,32 @@ export interface PaperSize {
   heightMm: number
 }
 
-// Format social ma stały rozmiar w px (`width`/`height`) i zawsze układ
-// kwadratowy. Format papierowy ma `paper` (mm, w pionie) - układ idzie za
-// orientacją, a rozmiar w px za dpi. Format banerowy ma własny kształt
-// (`shape`) i stały rozmiar w px - układ banera jest rasteryzowany wprost do
-// niego. `medium` mówi, w której zakładce wyboru szablonu format jest dostępny.
-export interface ExportFormat {
+interface FormatBase {
   label: string
+  // Zakładka wyboru szablonu, w której format jest dostępny.
   medium: Medium
-  width?: number
-  height?: number
-  paper?: PaperSize
-  shape?: PosterShape
 }
+
+// Format o stałym rozmiarze w px. Bez `shape` to format social: układ
+// kwadratowy, a wyższy format (Story) dostaje dostawkę tła. Z `shape` to
+// baner: układ tego kształtu rasteryzowany wprost do rozmiaru formatu.
+export interface PixelFormat extends FormatBase {
+  width: number
+  height: number
+  shape?: PosterShape
+  paper?: undefined
+}
+
+// Format papierowy (`paper` w mm, w pionie): układ idzie za orientacją,
+// a rozmiar w px za dpi.
+export interface PaperFormat extends FormatBase {
+  paper: PaperSize
+  width?: undefined
+  height?: undefined
+  shape?: undefined
+}
+
+export type ExportFormat = PixelFormat | PaperFormat
 
 export const EXPORT_FORMATS: Record<string, ExportFormat> = {
   square: { label: 'Kwadrat · 1080×1080', medium: 'social', width: 1080, height: 1080 },

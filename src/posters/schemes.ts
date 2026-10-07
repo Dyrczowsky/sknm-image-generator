@@ -249,8 +249,6 @@ const rekrutacja: LayoutSchemes = {
     sygnet: 'szary',
   },
 }
-// Rekrutacja nie ma bloku `default` - bazą jest jej pierwszy schemat `limonka`
-// (patrz baseBlock), więc `czern`/`szary` dziedziczą wspólne role z niego.
 
 // Warsztat — najbogatszy zestaw ról. Lokalny komponent `Pill` bierze
 // `pillFill`/`pillText`, wypełniona plakietka `badgeFill`/`badgeText`, wielki
@@ -309,108 +307,113 @@ type AccentRecipe = (accent: AccentName, ctx: SchemeBlock) => SchemeBlock
 
 const DARK_BGS = new Set<string>([colors.black, colors.ink, colors.navy, colors.inkPanel, colors.navyDark, colors.grayDark])
 
+const isDarkBg = (color: string | undefined): boolean => DARK_BGS.has(color ?? '')
+
 function accentColor(accent: AccentName, ctx: SchemeBlock): string {
   switch (accent) {
     case 'zolty': return colors.lime
     case 'pomaranczowy': return colors.coral
-    case 'granatowy': return DARK_BGS.has(ctx.pageBg ?? '') ? colors.navyLight : colors.navy
+    case 'granatowy': return isDarkBg(ctx.pageBg) ? colors.navyLight : colors.navy
     case 'zloty': return colors.gold
     case 'srebrny': return colors.silver
   }
 }
 
-// Sparowany tekst na wypełnionej plakietce — tylko nie-metale (metal per recepta).
-function accentText(accent: 'zolty' | 'pomaranczowy' | 'granatowy'): string {
-  return accent === 'zolty' ? colors.limeText : colors.cream
+// Tekst na wypełnieniu w kolorze akcentu (plakietka, pigułka, pudełko daty).
+// Nie-metale mają stałą parę, srebro zawsze ciemny tekst; tekst na złocie
+// dobiera layout (`onGold`).
+function textOnAccent(accent: AccentName, onGold: string): string {
+  switch (accent) {
+    case 'zolty': return colors.limeText
+    case 'zloty': return onGold
+    case 'srebrny': return colors.ink
+    default: return colors.cream
+  }
 }
 
+const isMetal = (accent: AccentName): accent is 'zloty' | 'srebrny' => accent === 'zloty' || accent === 'srebrny'
+
+// Metaliczny akcent przełącza też sygnet na swój wariant.
 function accentSygnet(accent: AccentName): Partial<SchemeBlock> {
-  if (accent === 'zloty') return { sygnet: 'zloty' }
-  if (accent === 'srebrny') return { sygnet: 'srebrny' }
-  return {}
+  return isMetal(accent) ? { sygnet: accent } : {}
 }
 
 const accentRecipes: Record<string, AccentRecipe | undefined> = {
-  ogloszenie: (a, ctx) => ({ accent: accentColor(a, ctx), ...accentSygnet(a) }),
+  ogloszenie: (accent, ctx) => ({ accent: accentColor(accent, ctx), ...accentSygnet(accent) }),
 
-  gosc: (a, ctx) => {
-    const c = accentColor(a, ctx)
-    const t = a === 'zloty' || a === 'srebrny' ? colors.ink : accentText(a)
+  // Metal dostaje granatowe tło trójkąta z sygnetem (`sygnetBg`), żeby złoty/
+  // srebrny sygnet nie zniknął na złotym/srebrnym akcencie.
+  gosc: (accent, ctx) => {
+    const fill = accentColor(accent, ctx)
     return {
-      accent: c,
-      dateBg: c,
-      dateText: t,
-      ...accentSygnet(a),
-      ...((a === 'zloty' || a === 'srebrny') && { sygnetBg: colors.navy }),
+      accent: fill,
+      dateBg: fill,
+      dateText: textOnAccent(accent, colors.ink),
+      ...accentSygnet(accent),
+      ...(isMetal(accent) && { sygnetBg: colors.navy }),
     }
   },
 
-  wyklad: (a, ctx) => {
-    const c = accentColor(a, ctx)
-    const t = a === 'zloty' ? colors.cream : a === 'srebrny' ? colors.ink : accentText(a)
-    return { badgeFill: c, badgeText: t, speaker: c, chips: c, ...accentSygnet(a) }
+  wyklad: (accent, ctx) => {
+    const fill = accentColor(accent, ctx)
+    return { badgeFill: fill, badgeText: textOnAccent(accent, colors.cream), speaker: fill, chips: fill, ...accentSygnet(accent) }
   },
 
   // Tekst plakietki dobierany jak w Wykładzie.
-  komunikat: (a, ctx) => {
-    const t = a === 'zloty' ? colors.cream : a === 'srebrny' ? colors.ink : accentText(a)
-    return { accent: accentColor(a, ctx), badgeText: t, ...accentSygnet(a) }
-  },
+  komunikat: (accent, ctx) => ({
+    accent: accentColor(accent, ctx),
+    badgeText: textOnAccent(accent, colors.cream),
+    ...accentSygnet(accent),
+  }),
 
   // `headerBadge` (w panelu, zawsze ciemnym) niesie akcent niezależnie od tła
   // strony. `lineFirst`/`footerBadge` niosą akcent tylko na ciemnym tle strony
   // (jak `czern`) — na jasnym tle (`default`) zostają stałym granatem, bo
   // akcent (żółty/koralowy) jako kreska/kropka na kremie wygląda gorzej niż
   // granat i tak wyglądało to dotychczas w `default`.
-  konferencja: (a, ctx) => {
-    const onPanel = accentColor(a, { ...ctx, pageBg: ctx.panel })
-    const onLine = DARK_BGS.has(ctx.pageBg ?? '') ? accentColor(a, ctx) : colors.navy
-    return { headerBadge: onPanel, lineFirst: onLine, footerBadge: onLine, ...accentSygnet(a) }
+  konferencja: (accent, ctx) => {
+    const onPanel = accentColor(accent, { ...ctx, pageBg: ctx.panel })
+    const onPage = isDarkBg(ctx.pageBg) ? accentColor(accent, ctx) : colors.navy
+    return { headerBadge: onPanel, lineFirst: onPage, footerBadge: onPage, ...accentSygnet(accent) }
   },
 
   // `pillFill`/`pillText` i `badgeFill`/`badgeText` zawsze niosą akcent —
-  // tekst dobrany pod własne tło plakietki/pigułki (`t`), niezależnie od tła
-  // strony.
-  warsztat: (a, ctx) => {
-    const c = accentColor(a, ctx)
-    const t = a === 'zloty' || a === 'srebrny' ? colors.ink : accentText(a)
-    return {
-      badgeFill: c,
-      badgeText: t,
-      pillFill: c,
-      pillText: t,
-      ...accentSygnet(a),
-    }
+  // tekst dobrany pod własne tło plakietki/pigułki, niezależnie od tła strony.
+  warsztat: (accent, ctx) => {
+    const fill = accentColor(accent, ctx)
+    const text = textOnAccent(accent, colors.ink)
+    return { badgeFill: fill, badgeText: text, pillFill: fill, pillText: text, ...accentSygnet(accent) }
   },
 
-  rekrutacja: (a, ctx) => {
-    const c = accentColor(a, ctx)
+  rekrutacja: (accent, ctx) => {
     // `lightBand` = banda na tyle jasna, że kolorowe (domyślne) logo PK i
     // ciemny QR-obrys na niej czytelne. Złoto (`zloty`, brąz-oliwka) jest ZA
     // CIEMNE na to — dostaje traktowanie jak `granatowy` (logo negatywne,
     // jasny QR-obrys), inaczej niż jasne srebro.
-    const lightBand = a === 'zolty' || a === 'pomaranczowy' || a === 'srebrny'
-    const footerText = a === 'srebrny' || a === 'zloty' ? colors.ink : lightBand ? colors.limeText : colors.cream
+    const lightBand = accent === 'zolty' || accent === 'pomaranczowy' || accent === 'srebrny'
+    const footerText = isMetal(accent) ? colors.ink : lightBand ? colors.limeText : colors.cream
     return {
-      band: c,
+      band: accentColor(accent, ctx),
       footerText,
       // QR leży na bandzie, więc ma ten sam kolor co tekst stopki.
       qr: footerText,
       // "wycięcie" plakietki w kolorze tła strony — na jasnym tle (limonka)
       // daje limonkę, na ciemnym (czern) daje czerń, jak dotychczas.
-      badgeColor: a === 'srebrny' ? colors.ink : (ctx.pageBg ?? colors.cream),
+      badgeColor: accent === 'srebrny' ? colors.ink : (ctx.pageBg ?? colors.cream),
       qrBorder: lightBand ? 'rgba(18,18,18,.4)' : 'rgba(244,242,237,.55)',
       qrText: lightBand ? 'rgba(18,18,18,.6)' : 'rgba(244,242,237,.75)',
       logoVariant: lightBand ? 'light' : 'dark',
-      ...accentSygnet(a),
+      ...accentSygnet(accent),
     }
   },
 
-  gala: (a, ctx) => ({
-    gold: accentColor(a, ctx),
-    sygnet: a === 'zloty' ? 'zloty' : a === 'srebrny' ? 'srebrny' : 'negatywny',
+  // Gala zawsze ustawia sygnet: metaliczny dla metalu, negatywny dla reszty.
+  gala: (accent, ctx) => ({
+    gold: accentColor(accent, ctx),
+    sygnet: isMetal(accent) ? accent : 'negatywny',
   }),
 
+  // „Data" nie ma osi akcentu - złoto/srebro to u niej osobne schematy.
   data: undefined,
 }
 
@@ -474,7 +477,8 @@ export const ACCENT_DOT: Record<AccentName, string> = {
 export const schemes: Record<string, LayoutSchemes> = { ogloszenie, gala, gosc, data, wyklad, konferencja, rekrutacja, warsztat, komunikat }
 
 // camelCase → --kebab; layout może dodać dowolną rolę bez zmiany resolvera.
-const roleToVar = (k: string): `--${string}` => `--${k.replace(/[A-Z]/g, (m) => `-${m.toLowerCase()}`)}`
+const roleToVar = (role: string): `--${string}` => `--${role.replace(/[A-Z]/g, (upper) => `-${upper.toLowerCase()}`)}`
+// Pola bloku schematu, które nie są rolami kolorów (nie stają się zmiennymi CSS).
 const NON_CSS = new Set(['sygnet', 'logoVariant', 'accents', 'defaultAccent'])
 
 // Nazwy schematów danego layoutu w kolejności zapisu w `schemes.ts` = kolejność
@@ -500,21 +504,18 @@ export function resolveScheme(
   accent?: AccentName,
 ): ResolvedScheme {
   const layout = schemes[layoutKey] ?? {}
-  const merged: SchemeBlock = { ...baseBlock(layout), ...(name ? layout[name] ?? {} : {}) }
+  const merged: SchemeBlock = { ...baseBlock(layout), ...(name ? layout[name] : undefined) }
+
   const recipe = accentRecipes[layoutKey]
   const axis = axisInfo(layoutKey, name)
-  const effAccent = axis.accents.length ? (accent ?? axis.defaultAccent) : undefined
-  const withAccent: SchemeBlock =
-    effAccent && recipe ? { ...merged, ...recipe(effAccent, merged) } : merged
-  const cssVars: Record<`--${string}`, string> = {}
-  for (const [k, v] of Object.entries(withAccent)) {
-    if (v !== undefined && !NON_CSS.has(k)) cssVars[roleToVar(k)] = v as string
+  const effectiveAccent = axis.accents.length ? (accent ?? axis.defaultAccent) : undefined
+  const block: SchemeBlock = effectiveAccent && recipe ? { ...merged, ...recipe(effectiveAccent, merged) } : merged
+
+  const cssVars: ResolvedScheme['cssVars'] = {}
+  for (const [role, value] of Object.entries(block)) {
+    if (value !== undefined && !NON_CSS.has(role)) cssVars[roleToVar(role)] = value as string
   }
-  return {
-    cssVars,
-    sygnet: withAccent.sygnet,
-    logoVariant: withAccent.logoVariant,
-  }
+  return { cssVars, sygnet: block.sygnet, logoVariant: block.logoVariant }
 }
 
 // Podpisy swatchy kolorystyki w UI. Brak wpisu → swatch pokazuje surowy klucz
@@ -526,7 +527,7 @@ export const SCHEME_LABELS: Record<string, string> = {
   jasny: 'Jasny',
   szary: 'Szary',
   // używane wyłącznie przez layout „Data" (ma osobne schematy złoto/srebro,
-  // bez oś akcentu):
+  // bez osi akcentu):
   okazjonalnyZloty: 'Okazjonalny złoty',
   okazjonalnySrebrny: 'Okazjonalny srebrny',
   // pozostałe layouty: jeden schemat „Okazjonalny" (paleta Gali), złoto/srebro

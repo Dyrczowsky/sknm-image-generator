@@ -11,39 +11,13 @@ interface FormBannerProps extends FormProps {
 // Formularz zakładki „Baner" - wspólny dla wszystkich layoutów. Baner niesie
 // stałą nazwę koła, więc nie ma tu pól wydarzenia (tytuł, prelegent, data):
 // zostaje rozmiar tekstu, logotypy z kodem QR i ewentualne zdjęcie.
-export function FormBanner({
-  value,
-  photo,
-  onGraphicsAdd,
-  onGraphicRemove,
-  onGraphicMove,
-  onShowPkChange,
-  onQrUrlChange,
-  onPhotoAdd,
-  onPhotoChangeAt,
-  onPhotoPositionChangeAt,
-  onTitleScaleChange,
-  onTextScaleChange,
-  onScaleLinkedChange,
-}: FormBannerProps) {
-  const gfx = { value, onGraphicsAdd, onGraphicRemove, onGraphicMove, onShowPkChange, onQrUrlChange }
-  const scale = { titleScale: value.titleScale, textScale: value.textScale, linked: value.scaleLinked, onTitleScaleChange, onTextScaleChange, onLinkedChange: onScaleLinkedChange }
+export function FormBanner({ value, onChange, photo }: FormBannerProps) {
   return (
     <form className="flex flex-col gap-3.5" onSubmit={(e) => e.preventDefault()}>
       <p className="text-[0.85rem] text-muted">Baner pokazuje nazwę koła — pola wydarzenia (tytuł, prelegent, data) dotyczą tylko zakładki „Social media".</p>
-      <TitleTextScaleFields {...scale} />
-      <GraphicsField {...gfx} />
-      {photo && (
-        <PhotoGalleryField
-          fieldKey="photo"
-          label="Zdjęcie"
-          max={4}
-          value={value}
-          onAdd={onPhotoAdd}
-          onChangeAt={onPhotoChangeAt}
-          onPositionChangeAt={onPhotoPositionChangeAt}
-        />
-      )}
+      <TitleTextScaleFields value={value} onChange={onChange} />
+      <GraphicsField value={value} onChange={onChange} />
+      {photo && <PhotoGalleryField fieldKey="photo" label="Zdjęcie" value={value} onChange={onChange} />}
     </form>
   )
 }
