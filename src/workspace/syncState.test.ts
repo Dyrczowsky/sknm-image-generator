@@ -3,7 +3,7 @@ import { EMPTY_FORM } from '../editor/formState'
 import { DEFAULT_EXPORT_SETTINGS } from '../posters/formats'
 import type { ProjectRow } from '../projects/remoteProjects'
 import type { EditorSnapshot } from '../snapshot/snapshot'
-import { afterSignOut, bindingOf, bootDecision, reconcileBinding, reduceSaveStatus, sameContent } from './syncState'
+import { afterSignOut, bindingOf, bootDecision, discardNeedsConsent, reconcileBinding, reduceSaveStatus, sameContent } from './syncState'
 import type { ProjectBinding, SaveEvent, SaveStatus, Workspace } from './syncState'
 
 const SNAPSHOT: EditorSnapshot = {
@@ -240,5 +240,34 @@ describe('sameContent', () => {
 describe('bindingOf', () => {
   it('bierze z wiersza identyfikator, nazwę, właściciela i wersję', () => {
     expect(bindingOf(row({ name: 'Gala', revision: 12 }))).toEqual({ id: 7, name: 'Gala', ownerId: 'ola', revision: 12 })
+  })
+})
+
+describe('discardNeedsConsent', () => {
+  const BLANK: EditorSnapshot = { ...SNAPSHOT, form: { ...SNAPSHOT.form, title: '' } }
+  const draft = (patch: Partial<Workspace> = {}) => workspace({ project: null, dirty: true, ...patch })
+
+  it('niezapisana, niepusta wersja robocza: trzeba zapytać', () => {
+    expect(discardNeedsConsent(draft(), null)).toBe(true)
+  })
+
+  it('projekt, treść bez zmian, pusty plakat i brak treści: bez pytania', () => {
+    expect(discardNeedsConsent(workspace({ dirty: true }), null)).toBe(false)
+    expect(discardNeedsConsent(draft({ dirty: false }), null)).toBe(false)
+    expect(discardNeedsConsent(draft({ snapshot: BLANK }), null)).toBe(false)
+    expect(discardNeedsConsent(null, null)).toBe(false)
+  })
+
+  it('zgoda dotyczy dokładnie tej treści, którą użytkownik widział', () => {
+    expect(discardNeedsConsent(draft(), SNAPSHOT)).toBe(false)
+    expect(discardNeedsConsent(draft(), JSON.parse(JSON.stringify(SNAPSHOT)) as EditorSnapshot)).toBe(false)
+  })
+
+  it('zmiany zrobione po zgodzie (w trakcie wczytywania) wymagają nowej', () => {
+    expect(discardNeedsConsent(draft({ snapshot: OTHER }), SNAPSHOT)).toBe(true)
+  })
+
+  it('pusta wersja robocza, w której coś napisano w trakcie wczytywania: trzeba zapytać', () => {
+    expect(discardNeedsConsent(draft({ snapshot: OTHER }), null)).toBe(true)
   })
 })

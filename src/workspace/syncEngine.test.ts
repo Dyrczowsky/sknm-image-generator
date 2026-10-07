@@ -413,6 +413,18 @@ describe('projekt w chmurze', () => {
     expect(remote.save).toHaveBeenCalledTimes(1)
   })
 
+  it('odpięcie w trakcie zapisu (np. projekt usunięto z listy): lista nie dostaje wiersza z powrotem', async () => {
+    const { engine, edit, epoch, remote, saved } = bound()
+    const pending = deferred<ProjectRow>()
+    remote.save.mockReturnValueOnce(pending.promise)
+    edit('B', epoch)
+    await vi.advanceTimersByTimeAsync(SYNC_DELAY_MS)
+    engine.detach()
+    pending.resolve(rowOf(snap('B'), { revision: 4 }))
+    await vi.advanceTimersByTimeAsync(0)
+    expect(saved).toEqual([])
+  })
+
   it('zmiana nazwy dotyczy tylko otwartego projektu', async () => {
     const { engine, local } = bound()
     engine.rename(8, 'Cudzy')

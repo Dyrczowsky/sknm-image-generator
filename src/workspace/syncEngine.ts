@@ -57,6 +57,9 @@ export function createWorkspaceEngine(deps: EngineDeps) {
   // Rośnie przy wczytaniu i przy odpięciu projektu: wynik zapisu rozpoczętego
   // wcześniej dotyczy już czegoś innego.
   let generation = 0
+  // Rośnie tylko przy odpięciu projektu (usunięty z listy, cudzy, zniknął
+  // z chmury): wiersza zapisanego wcześniej lista projektów już nie chce.
+  let detachments = 0
   let localTimer: ReturnType<typeof setTimeout> | undefined
   let syncTimer: ReturnType<typeof setTimeout> | undefined
   let inFlight: Promise<boolean> | null = null
@@ -100,6 +103,7 @@ export function createWorkspaceEngine(deps: EngineDeps) {
   // z pilnowaniem wersji. Zmiany, które przyjdą w trakcie, zostają `dirty`.
   const save = async (): Promise<boolean> => {
     const startedAt = generation
+    const detachedAt = detachments
     const sent = snapshot
     const sentSerialized = seen
     const target = project
@@ -110,7 +114,9 @@ export function createWorkspaceEngine(deps: EngineDeps) {
     try {
       await deps.upload(sent)
       const row = target ? await deps.save(target.id, target.revision, sent) : await deps.create(projectNameFrom(sent.form.title), sent)
-      deps.onSaved?.(row)
+      // Po wczytaniu innego dokumentu wiersz nadal jest w chmurze i lista ma
+      // o nim wiedzieć; po odpięciu (np. usunięciu projektu) wróciłby na listę.
+      if (detachedAt === detachments) deps.onSaved?.(row)
       // W trakcie żądania wczytano inny dokument albo odpięto projekt.
       if (startedAt !== generation) return false
       project = bindingOf(row)
@@ -150,6 +156,7 @@ export function createWorkspaceEngine(deps: EngineDeps) {
   const detach = () => {
     if (!project) return
     generation += 1
+    detachments += 1
     cancelSync()
     project = null
     dirty = true

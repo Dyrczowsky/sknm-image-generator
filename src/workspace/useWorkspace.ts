@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { ensureUploaded, gcLocal, hydrate } from '../assets/assets'
+import { AssetTooLargeError, ensureUploaded, gcLocal, hydrate } from '../assets/assets'
 import type { UploadedAsset } from '../assets/assets'
 import { refOf, srcOf } from '../assets/registry'
 import { getDb } from '../db/client'
@@ -18,9 +18,9 @@ import { retainMissing } from './missingAssets'
 import type { MissingAssets } from './missingAssets'
 import { createWorkspaceEngine } from './syncEngine'
 import type { EngineState, SaveResult } from './syncEngine'
-import { afterSignOut, bindingOf } from './syncState'
+import { afterSignOut, bindingOf, discardNeedsConsent } from './syncState'
 import type { ProjectBinding, Workspace } from './syncState'
-import { workspaceStore } from './workspaceStore'
+import { localStart, workspaceStore } from './workspaceStore'
 import type { WorkspaceRead } from './workspaceStore'
 
 const KNOWN_LAYOUTS = Object.keys(posterRegistry)
@@ -30,6 +30,11 @@ const UNREADABLE = 'Nie udało się odczytać zapisanego stanu plakatu.'
 const PROJECT_GONE = 'Tego projektu nie ma już w chmurze. Bieżąca treść została jako wersja robocza na tym urządzeniu.'
 const LOAD_FAILED = 'Nie udało się wczytać projektu. Sprawdź połączenie i spróbuj ponownie.'
 const SAVE_FAILED = 'Nie udało się zapisać projektu. Sprawdź połączenie i spróbuj ponownie.'
+const LOCAL_UNREADABLE =
+  'Nie udało się wczytać pracy zapisanej na tym urządzeniu. Odśwież stronę — to może pomóc. Do tego czasu zmiany nie są zapisywane na tym urządzeniu, żeby nie nadpisać zapisanej wersji.'
+const BOOT_FAILED = 'Nie udało się wczytać zapisanej pracy. Odśwież stronę — to może pomóc.'
+const OPEN_FAILED = 'Nie udało się wczytać projektu. Spróbuj ponownie.'
+const CHANGED_WHILE_LOADING = 'W czasie wczytywania wersja robocza się zmieniła. Te zmiany nie są zapisane jako projekt i zostaną zastąpione. Kontynuować?'
 
 type Rejection = Extract<ParseResult, { ok: false }>['reason']
 const refusal = (reason: Rejection) => (reason === 'invalid' ? UNREADABLE : NEEDS_NEWER_APP)
@@ -76,15 +81,33 @@ export function useWorkspace(options: WorkspaceOptions) {
   const current = useRef<EditorSnapshot | null>(null)
   // Trwa wczytywanie dokumentu - kolejne otwarcie musi poczekać.
   const busy = useRef(false)
-  // Lokalną kopię zapisała nowsza wersja aplikacji: nie wolno jej nadpisać.
+  // Lokalnej kopii nie wolno w tej sesji nadpisać: zapisała ją nowsza wersja
+  // aplikacji albo nie udało się jej odczytać (może tam być czyjaś praca).
   const localLocked = useRef(false)
+  // Powód ostatniego nieudanego wgrania grafik, o ile umiemy go nazwać.
+  const uploadProblem = useRef<string | null>(null)
   // Podmieniane co render - silnik powstaje raz i woła zawsze bieżącą wersję.
   const settleConflict = useRef<() => Promise<void>>(async () => {})
 
   const [engine] = useState(() =>
     createWorkspaceEngine({
       writeLocal: (workspace) => (localLocked.current ? Promise.resolve() : workspaceStore.write(workspace)),
-      upload: (snapshot) => upload(snapshot, missingRef.current, latest.current.onUploaded),
+      upload: async (snapshot) => {
+        const known = uploadProblem.current
+        uploadProblem.current = null
+        try {
+          await upload(snapshot, missingRef.current, latest.current.onUploaded)
+        } catch (error) {
+          // Za duża grafika nie przejdzie przy żadnym ponowieniu - mówimy o tym
+          // od razu (także po autozapisie), zamiast winić połączenie.
+          if (error instanceof AssetTooLargeError) {
+            uploadProblem.current = error.message
+            // Ponowienia co kilkanaście sekund nie przywracają zamkniętego komunikatu.
+            if (known !== error.message) setNotice(error.message)
+          }
+          throw error
+        }
+      },
       create: (name, snapshot) => createProject(requireSupabase(), { name, snapshot }),
       save: (id, revision, snapshot) => saveProject(requireSupabase(), id, revision, snapshot),
       onSaved: (row) => latest.current.onProjectSaved?.(row),
@@ -133,43 +156,60 @@ export function useWorkspace(options: WorkspaceOptions) {
   // Start: lokalna kopia robocza, a gdy jej nie ma - draft sprzed tej zmiany.
   useEffect(() => {
     let cancelled = false
-    const boot = async () => {
+    const start = async () => {
+      // Odczyt kopii przed wszystkim innym: jeśli cokolwiek dalej zawiedzie,
+      // wiemy już, czy pod kluczem leży coś, czego nie wolno nadpisać.
+      let read: WorkspaceRead
+      try {
+        read = await workspaceStore.read(KNOWN_LAYOUTS)
+      } catch {
+        read = { kind: 'unreadable' }
+      }
+      const plan = localStart(read)
+      localLocked.current = plan.locked
+
       const db = await getDb()
       const templates = listTemplates(db)
       const fallbackKey = templates.find((t) => KNOWN_LAYOUTS.includes(t.poster_key))?.poster_key ?? KNOWN_LAYOUTS[0]
       const startLang = latest.current.lang
 
-      let read: WorkspaceRead | null
-      try {
-        read = await workspaceStore.read(KNOWN_LAYOUTS)
-      } catch {
-        read = null
-      }
-
       let workspace: Workspace
-      // Sprzątanie grafik tylko wtedy, gdy wiemy na pewno, czego kopia używa.
-      let collect = read !== null
-      if (read?.kind === 'ok') {
+      if (read.kind === 'ok') {
         workspace = read.workspace
-      } else if (read?.kind === 'absent') {
+      } else if (plan.source === 'legacy') {
         const draft = getDraft(db)
         const draftKey = templates.find((t) => t.id === draft?.template_id)?.poster_key
         const snapshot = draft ? snapshotFromLegacyDraft(draft, draftKey ?? fallbackKey, startLang) : blankSnapshot(fallbackKey, startLang)
         workspace = { snapshot, project: null, dirty: !isBlank(snapshot) }
       } else {
-        if (read && read.reason !== 'invalid') {
-          localLocked.current = true
-          collect = false
-        }
         workspace = { snapshot: blankSnapshot(fallbackKey, startLang), project: null, dirty: false }
       }
 
       await hydrate(assetRefsOf(workspace.snapshot), supabase)
       if (cancelled) return
       commit(workspace.snapshot, workspace.project, workspace.dirty)
-      if (localLocked.current) setNotice(NEEDS_NEWER_APP)
-      setReady(true)
-      if (collect) void gcLocal(assetRefsOf(workspace.snapshot)).catch(() => {})
+      if (plan.problem) setNotice(plan.problem === 'newer' ? NEEDS_NEWER_APP : LOCAL_UNREADABLE)
+      // Sprzątanie grafik tylko wtedy, gdy wiemy na pewno, czego kopia używa.
+      if (!plan.locked) void gcLocal(assetRefsOf(workspace.snapshot)).catch(() => {})
+    }
+    // Cokolwiek się tu wysypie, edytor ma się otworzyć: ekran ładowania bez
+    // wyjścia jest gorszy niż pusty plakat z komunikatem.
+    const boot = async () => {
+      try {
+        await start()
+      } catch {
+        if (cancelled) return
+        // Nie wiemy, w jakim stanie jest zapisana kopia - nie nadpisujemy jej.
+        localLocked.current = true
+        try {
+          commit(blankSnapshot(KNOWN_LAYOUTS[0], latest.current.lang), null, false)
+        } catch {
+          // Zostaje to, co edytor ma domyślnie.
+        }
+        setNotice(BOOT_FAILED)
+      } finally {
+        if (!cancelled) setReady(true)
+      }
     }
     void boot()
     return () => {
@@ -211,6 +251,10 @@ export function useWorkspace(options: WorkspaceOptions) {
       if (recheck && engine.reconcileRemote(row).kind !== 'applyRemote') return false
       commit(parsed.snapshot, bindingOf(row), false)
       return true
+    } catch {
+      // Wołane także w tle (`void`) - błąd musi skończyć się komunikatem.
+      setNotice(OPEN_FAILED)
+      return false
     } finally {
       busy.current = false
     }
@@ -273,6 +317,8 @@ export function useWorkspace(options: WorkspaceOptions) {
       missingRef.current = still
       latest.current.editor.applyState({ posterKey: state.posterKey, colorScheme: state.colorScheme, form: state.form })
       setMissing(still)
+    } catch {
+      // Grafiki zostają na liście brakujących - można spróbować jeszcze raz.
     } finally {
       busy.current = false
     }
@@ -288,11 +334,14 @@ export function useWorkspace(options: WorkspaceOptions) {
   }, [engine, ready, userId])
 
   // Niezapisaną, niepustą wersję roboczą zastępujemy dopiero po potwierdzeniu.
-  const confirmDiscard = (): boolean => {
+  // `consentedTo` - treść, na której porzucenie użytkownik zgodził się chwilę
+  // wcześniej. Zwraca treść objętą zgodą albo `false`, gdy użytkownik odmówił.
+  const confirmDiscard = (consentedTo: EditorSnapshot | null): EditorSnapshot | null | false => {
     const { project, dirty } = engine.getState()
     const snapshot = current.current
-    if (project || !dirty || !snapshot || isBlank(snapshot)) return true
-    return window.confirm('Bieżąca wersja robocza nie jest zapisana jako projekt i zostanie zastąpiona. Kontynuować?')
+    if (!discardNeedsConsent(snapshot ? { snapshot, project, dirty } : null, consentedTo)) return consentedTo
+    const question = consentedTo ? CHANGED_WHILE_LOADING : 'Bieżąca wersja robocza nie jest zapisana jako projekt i zostanie zastąpiona. Kontynuować?'
+    return window.confirm(question) ? snapshot : false
   }
 
   // Otwarty projekt musi trafić do chmury, zanim zastąpi go coś innego.
@@ -301,7 +350,7 @@ export function useWorkspace(options: WorkspaceOptions) {
     if (await engine.flush()) return true
     const { project } = engine.getState()
     if (!project) return true
-    setNotice(`Nie udało się zapisać projektu „${project.name}" w chmurze, więc zostaje otwarty. Spróbuj ponownie za chwilę.`)
+    setNotice(uploadProblem.current ?? `Nie udało się zapisać projektu „${project.name}" w chmurze, więc zostaje otwarty. Spróbuj ponownie za chwilę.`)
     return false
   }
 
@@ -311,7 +360,8 @@ export function useWorkspace(options: WorkspaceOptions) {
     busy.current = true
     try {
       setNotice(null)
-      if (!confirmDiscard()) return false
+      const consented = confirmDiscard(null)
+      if (consented === false) return false
       if (!(await leave())) return false
       const next = await target()
       if (!next) return false
@@ -323,8 +373,14 @@ export function useWorkspace(options: WorkspaceOptions) {
       await hydrate(assetRefsOf(parsed.snapshot), supabase)
       // Zmiany zrobione w czasie pobierania grafik też muszą dojść do chmury.
       if (!(await leave())) return false
+      // Pobieranie trwało, a edytor był czynny: zgoda z początku nie obejmuje
+      // tego, co dopisano potem. Od tego pytania do `commit` nie ma już `await`.
+      if (confirmDiscard(consented) === false) return false
       commit(parsed.snapshot, next.project, false)
       return true
+    } catch {
+      setNotice(OPEN_FAILED)
+      return false
     } finally {
       busy.current = false
     }
@@ -370,7 +426,10 @@ export function useWorkspace(options: WorkspaceOptions) {
   const saveNow = async (): Promise<SaveResult> => {
     if (!ready || !supabase) return 'failed'
     const result = await engine.saveNow()
-    setNotice(result === 'failed' ? SAVE_FAILED : null)
+    // `blocked` / `signedOut`: nic się nie zmieniło, więc komunikat (np. przy
+    // konflikcie wersji) zostaje.
+    if (result === 'failed') setNotice(uploadProblem.current ?? SAVE_FAILED)
+    else if (result === 'saved') setNotice(null)
     return result
   }
 

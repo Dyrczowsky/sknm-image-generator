@@ -3,7 +3,7 @@ import { EMPTY_FORM } from '../editor/formState'
 import { DEFAULT_EXPORT_SETTINGS } from '../posters/formats'
 import type { EditorSnapshot } from '../snapshot/snapshot'
 import type { ProjectBinding } from './syncState'
-import { WORKSPACE_KEY, createWorkspaceStore } from './workspaceStore'
+import { WORKSPACE_KEY, createWorkspaceStore, localStart } from './workspaceStore'
 
 const LAYOUTS = ['wyklad', 'gosc']
 const REF = `${'a'.repeat(64)}.png`
@@ -94,5 +94,40 @@ describe('createWorkspaceStore', () => {
     const { store, map } = memory({ snapshot: SNAPSHOT, project: null, dirty: false })
     await store.clear()
     expect(map.size).toBe(0)
+  })
+
+  it('błąd odczytu to nie to samo co brak wpisu', async () => {
+    const store = createWorkspaceStore({
+      get: async () => {
+        throw new Error('IndexedDB: UnknownError')
+      },
+      set: async () => {},
+      del: async () => {},
+    })
+    expect(await store.read(LAYOUTS)).toEqual({ kind: 'unreadable' })
+  })
+})
+
+describe('localStart', () => {
+  const workspace = { snapshot: SNAPSHOT, project: BINDING, dirty: true }
+
+  it('zapisana kopia: wczytana, zapis odblokowany', () => {
+    expect(localStart({ kind: 'ok', workspace })).toEqual({ source: 'stored', locked: false, problem: null })
+  })
+
+  it('brak wpisu: draft sprzed kopii roboczej albo pusty plakat, zapis odblokowany', () => {
+    expect(localStart({ kind: 'absent' })).toEqual({ source: 'legacy', locked: false, problem: null })
+  })
+
+  it('śmieci: pusty plakat, który je zastąpi', () => {
+    expect(localStart({ kind: 'rejected', reason: 'invalid' })).toEqual({ source: 'blank', locked: false, problem: null })
+  })
+
+  it.each([['newer'], ['unknownLayout']] as const)('kopia z nowszej aplikacji (%s): pusty plakat bez prawa zapisu', (reason) => {
+    expect(localStart({ kind: 'rejected', reason })).toEqual({ source: 'blank', locked: true, problem: 'newer' })
+  })
+
+  it('nieudany odczyt: pusty plakat, ale zapisanej kopii nie wolno nadpisać', () => {
+    expect(localStart({ kind: 'unreadable' })).toEqual({ source: 'blank', locked: true, problem: 'unreadable' })
   })
 })

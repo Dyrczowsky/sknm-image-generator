@@ -1,9 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { fakeSupabase } from '../supabase/fakeClient'
-import { blobToDataUrl, ensureUploaded, gcLocal, hydrate, importImage } from './assets'
+import { AssetTooLargeError, blobToDataUrl, ensureUploaded, gcLocal, hydrate, importImage } from './assets'
 import type { AssetDeps } from './assets'
 import { refFor } from './hash'
 import { createLocalStore } from './localStore'
+import { ImageImportError, MAX_ASSET_BYTES } from './prepare'
 import type { LocalAsset } from './localStore'
 import { refOf, register, resetRegistry, srcOf } from './registry'
 
@@ -80,6 +81,28 @@ describe('importImage', () => {
 
     expect(await importImage(new File([PNG_BYTES], 'druga.png', { type: 'image/png' }), 'photo', deps)).toBe(PNG_DATA_URL)
     expect(await local.get(ref)).toBe(stored)
+  })
+
+  it('przygotowana grafika ponad limit kubełka → odrzucona, nic nie zostaje zapisane', async () => {
+    const { deps, map } = setup()
+    const file = new File(['x'], 'ogromne.png', { type: 'image/png' })
+    const huge = new Blob([new Uint8Array(MAX_ASSET_BYTES + 1)], { type: 'image/png' })
+
+    const error = await importImage(file, 'photo', { ...deps, prepare: async () => huge }).catch((caught: unknown) => caught)
+    expect(error).toBeInstanceOf(ImageImportError)
+    expect((error as ImageImportError).message).toBe('Plik „ogromne.png" jest za duży. Limit to 5 MB.')
+    expect(map.size).toBe(0)
+  })
+
+  it('nieobsługiwany format → typowany błąd z komunikatem', async () => {
+    const { deps, map } = setup()
+    const file = new File(['GIF89a'], 'anim.gif', { type: 'image/gif' })
+    const { prepareImage } = await import('./prepare')
+
+    const error = await importImage(file, 'photo', { ...deps, prepare: prepareImage }).catch((caught: unknown) => caught)
+    expect(error).toBeInstanceOf(ImageImportError)
+    expect((error as ImageImportError).reason).toBe('unsupported')
+    expect(map.size).toBe(0)
   })
 })
 
@@ -160,6 +183,76 @@ describe('hydrate', () => {
     expect(await hydrate([ref, MISSING, 'nie-nazwa.png', MISSING, ref], client, deps)).toEqual([MISSING, 'nie-nazwa.png'])
     expect(storageCalls).toEqual([[['from', 'sknm-poster-assets'], ['download', MISSING]]])
   })
+
+  describe('jedna zepsuta grafika kosztuje tę grafikę, nie całe wczytanie', () => {
+    const SVG_BYTES = new TextEncoder().encode(SVG)
+    const svgRef = () => refFor(SVG_BYTES, 'image/svg+xml')
+
+    it('błąd odczytu kopii lokalnej jednej grafiki: pozostałe się wczytują', async () => {
+      const { deps, local } = setup()
+      const good = await pngRef()
+      const bad = await svgRef()
+      await local.put(good, asset())
+      const get = local.get
+      local.get = async (ref) => {
+        if (ref === bad) throw new Error('IndexedDB: UnknownError')
+        return get(ref)
+      }
+
+      expect(await hydrate([bad, good], null, deps)).toEqual([bad])
+      expect(srcOf(good)).toBe(PNG_DATA_URL)
+    })
+
+    it('błąd odczytu kopii lokalnej, ale grafika jest w Storage: pobrana', async () => {
+      const { deps, local } = setup()
+      const { client } = fakeSupabase({}, { download: { data: pngBlob() } })
+      const ref = await pngRef()
+      local.get = async () => {
+        throw new Error('IndexedDB: UnknownError')
+      }
+
+      expect(await hydrate([ref], client, deps)).toEqual([])
+      expect(srcOf(ref)).toBe(PNG_DATA_URL)
+    })
+
+    it('zapis pobranej grafiki się nie udaje (brak miejsca): i tak działa w tej sesji', async () => {
+      const { deps, local, map } = setup()
+      const { client } = fakeSupabase({}, { download: { data: pngBlob() } })
+      const ref = await pngRef()
+      local.put = async () => {
+        throw new DOMException('quota', 'QuotaExceededError')
+      }
+
+      expect(await hydrate([ref], client, deps)).toEqual([])
+      expect(srcOf(ref)).toBe(PNG_DATA_URL)
+      expect(map.size).toBe(0)
+    })
+
+    it('błąd zamiany na data URL: grafika nierozwiązana', async () => {
+      const { deps, local } = setup()
+      const good = await pngRef()
+      const bad = await svgRef()
+      await local.put(good, asset())
+      await local.put(bad, asset({ blob: new Blob([SVG_BYTES]) }))
+      const toDataUrl: AssetDeps['toDataUrl'] = async (blob, mime) => {
+        if (mime === 'image/svg+xml') throw new Error('read failed')
+        return blobToDataUrl(blob, mime)
+      }
+
+      expect(await hydrate([bad, good], null, { ...deps, toDataUrl })).toEqual([bad])
+      expect(srcOf(bad)).toBeUndefined()
+      expect(srcOf(good)).toBe(PNG_DATA_URL)
+    })
+
+    it('blob, którego nie da się odczytać po pobraniu: grafika nierozwiązana', async () => {
+      const { deps } = setup()
+      const broken = { arrayBuffer: () => Promise.reject(new Error('NotReadableError')) } as unknown as Blob
+      const { client } = fakeSupabase({}, { download: { data: broken } })
+      const ref = await pngRef()
+
+      expect(await hydrate([ref], client, deps)).toEqual([ref])
+    })
+  })
 })
 
 describe('ensureUploaded', () => {
@@ -226,6 +319,36 @@ describe('ensureUploaded', () => {
     const { client, storageCalls } = fakeSupabase()
     await expect(ensureUploaded([MISSING], client, undefined, deps)).rejects.toThrow(MISSING)
     expect(storageCalls).toEqual([])
+  })
+
+  it('lokalna grafika ponad limit kubełka → błąd rozmiaru z nazwą pliku, bez żądania', async () => {
+    const { deps, local } = setup()
+    const { client, storageCalls } = fakeSupabase()
+    const ref = `${'b'.repeat(64)}.png`
+    await local.put(ref, asset({ blob: new Blob([new Uint8Array(MAX_ASSET_BYTES + 1)]), name: 'baner.png' }))
+
+    const error = await ensureUploaded([ref], client, undefined, deps).catch((caught: unknown) => caught)
+    expect(error).toBeInstanceOf(AssetTooLargeError)
+    expect((error as AssetTooLargeError).ref).toBe(ref)
+    expect((error as AssetTooLargeError).message).toContain('„baner.png"')
+    expect((error as AssetTooLargeError).message).toContain('5 MB')
+    expect(storageCalls).toEqual([])
+    expect((await local.get(ref))?.remote).toBe(false)
+  })
+
+  it.each([
+    [{ message: 'The object exceeded the maximum allowed size', status: 400, statusCode: '413' }],
+    [{ message: 'Payload too large', status: 413 }],
+    [{ message: 'x', code: 'EntityTooLarge' }],
+  ])('Storage odrzuca plik za rozmiar (%j) → błąd rozmiaru, nie ogólny', async (storageError) => {
+    const { deps, local } = setup()
+    const { client } = fakeSupabase({}, { upload: { error: storageError } })
+    const ref = await pngRef()
+    await local.put(ref, asset({ name: '' }))
+
+    const error = await ensureUploaded([ref], client, undefined, deps).catch((caught: unknown) => caught)
+    expect(error).toBeInstanceOf(AssetTooLargeError)
+    expect((error as AssetTooLargeError).message).toContain('5 MB')
   })
 })
 

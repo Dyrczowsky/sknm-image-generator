@@ -18,7 +18,9 @@ interface HistoryListProps {
   lang?: PosterLang
 }
 
-// Wspólna historia wygenerowanych plakatów. Wpis z layoutem, którego ta
+// Wspólna historia wygenerowanych plakatów. Każdy wpis niesie pełny snapshot
+// edytora; stare wpisy (snapshot null) znają tylko pola tekstowe, layout i kolory.
+// Przywrócenie otwiera wpis jako nową, niezapisaną pracę (patrz App.tsx). Wpis z layoutem, którego ta
 // wersja aplikacji nie zna, dostaje szarą miniaturę i surowy klucz layoutu.
 export function HistoryList({ entries, onRestore, onDelete, lang = 'pl' }: HistoryListProps) {
   if (entries.length === 0) {

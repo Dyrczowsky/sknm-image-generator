@@ -1,4 +1,5 @@
 import type { ProjectRow } from '../projects/remoteProjects'
+import { isBlank } from '../snapshot/snapshot'
 import type { EditorSnapshot } from '../snapshot/snapshot'
 
 // Czysta logika kopii roboczej: bez Reacta, sieci i IndexedDB. Tu zapadają
@@ -141,6 +142,18 @@ export function bootDecision(local: Workspace, remoteRow: ProjectRow | null): Bo
   if ((sameRevision && !local.dirty) || sameContent(local.snapshot, remoteRow.snapshot)) return { kind: 'keep', name, revision }
   if (local.dirty) return { kind: sameRevision ? 'push' : 'conflict', name }
   return { kind: 'applyRemote', row: remoteRow }
+}
+
+// --- Zastąpienie bieżącej treści innym dokumentem ---
+
+// Czy przed zastąpieniem treści trzeba zapytać użytkownika. Pytamy tylko
+// o niezapisaną, niepustą wersję roboczą (projekt idzie do chmury osobną
+// drogą). `consentedTo` - treść, na której porzucenie użytkownik już się
+// zgodził: zgoda nie obejmuje niczego, co dopisał później, np. w czasie
+// pobierania otwieranego projektu.
+export function discardNeedsConsent(workspace: Workspace | null, consentedTo: EditorSnapshot | null): boolean {
+  if (!workspace || workspace.project || !workspace.dirty || isBlank(workspace.snapshot)) return false
+  return consentedTo === null || !sameContent(workspace.snapshot, consentedTo)
 }
 
 // JSON z kluczami w stałej kolejności: jsonb z bazy wraca z kluczami

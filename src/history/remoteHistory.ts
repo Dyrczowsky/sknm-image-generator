@@ -7,7 +7,8 @@ const COLUMNS = 'id, created_at, poster_key, title, subtitle, speaker, event_dat
 export const HISTORY_LIMIT = 50
 
 // Wpis historii dla snapshotu edytora. Wąskie kolumny (lista, starsze klienty)
-// są wypełniane obok pełnego `snapshot`. Bez przycinania, jak dotąd: pola
+// są wypełniane obok pełnego `snapshot` (sam snapshot nie zawiera obrazów -
+// tylko ich nazwy, patrz src/assets/). Bez przycinania, jak dotąd: pola
 // formularza mają własne limity długości, a baza odrzuca resztę.
 export function newHistoryEntry(snapshot: EditorSnapshot): NewHistoryEntry {
   const { title, subtitle, speaker, event_date, event_time, location } = snapshot.form

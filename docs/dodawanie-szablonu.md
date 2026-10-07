@@ -112,8 +112,18 @@ Suwaki rozmiaru (70%-130%, `value.titleScale` / `value.textScale`, spinacz
 `fontSize` tytułu przez `titleScale` (`fontSize: 96 * titleScale`), a
 podtytułu/treści przez `textScale` — jeśli podtytuł jedzie przez `InfoLine`,
 użyj `partsStyle`/`secondLineStyle` zamiast przestylowywać cały wiersz (patrz
-`PosterWyklad.tsx`/`PosterData.tsx`). Suwaki, grafiki, zdjęcia i listy są
-sesyjne — do draftu trafiają tylko pola tekstowe i ich widoczność.
+`PosterWyklad.tsx`/`PosterData.tsx`). Suwaki, grafiki, zdjęcia i listy
+zapisują się tak samo jak pola tekstowe: wszystko, co jest w `FormValues`,
+trafia do snapshotu stanu plakatu (`src/snapshot/snapshot.ts`) — kopii
+roboczej, projektu i historii — więc wraca po odświeżeniu strony.
+
+Nowe pole w `FormValues` (albo nowe ustawienie eksportu) musi zostać dopisane
+do snapshotu: do `EMPTY_FORM` (`editor/formState.ts`) i do `parseForm`
+w `snapshot.ts` (a dla ustawień eksportu — do `normalizeExportSettings`
+w `posters/formats.ts`). Bez tego kod się nie skompiluje, a `snapshot.test.ts`
+wymaga też wartości w `FULL_FORM` / `FULL_EXPORT`. Obrazy w polu trzymaj jako
+data URL-e (tak jak `graphics` i `photos`), a w snapshocie jako nazwy plików
+— patrz „Grafiki" w [architektura.md](./architektura.md#grafiki).
 
 Stan formularza jest globalny — nie każdy layout musi używać wszystkich pól.
 

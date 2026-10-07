@@ -3,6 +3,7 @@ import type { ChangeEvent } from 'react'
 import type { FormProps } from '../types'
 import { useAssetLibraryContext } from '../assets/AssetLibraryContext'
 import { importImage } from '../assets/assets'
+import { importErrorMessage } from '../assets/prepare'
 import { srcOf } from '../assets/registry'
 import { LogoPicker } from '../components/LogoPicker'
 import { CHECKBOX, COMPACT_INPUT, FILE_PICKER, FILE_PICKER_INPUT, FORM_SECTION, IMAGE_THUMB, IMAGE_THUMB_IMG } from '../components/styles'
@@ -24,6 +25,8 @@ export function GraphicsField({ value, onChange }: FormProps) {
   const [pickerOpen, setPickerOpen] = useState(false)
   // Wymusza ponowne narysowanie po wczytaniu miniatur do rejestru.
   const [, setHydrated] = useState(0)
+  // Pliki z ostatniego wgrywania, których nie udało się przyjąć.
+  const [errors, setErrors] = useState<string[]>([])
   const logos = library?.items.filter((asset) => asset.kind === 'logo') ?? []
 
   const logoRefs = logos.map((asset) => asset.ref).join(',')
@@ -53,7 +56,12 @@ export function GraphicsField({ value, onChange }: FormProps) {
     const files = [...(e.target.files ?? [])]
     e.target.value = ''
     if (files.length === 0) return
-    onChange(addGraphics(await Promise.all(files.map((file) => importImage(file, 'logo')))))
+    setErrors([])
+    // Jeden zły plik nie może zabrać pozostałych.
+    const results = await Promise.allSettled(files.map((file) => importImage(file, 'logo')))
+    const added = results.flatMap((result) => (result.status === 'fulfilled' ? [result.value] : []))
+    if (added.length > 0) onChange(addGraphics(added))
+    setErrors(results.flatMap((result, i) => (result.status === 'rejected' ? [importErrorMessage(result.reason, files[i].name)] : [])))
   }
 
   return (
@@ -100,6 +108,15 @@ export function GraphicsField({ value, onChange }: FormProps) {
           </button>
         )}
       </div>
+      {errors.length > 0 && (
+        <div className="flex flex-col gap-1 text-[0.8rem] text-danger" role="alert">
+          {errors.map((message, i) => (
+            <p key={i} className="m-0">
+              {message}
+            </p>
+          ))}
+        </div>
+      )}
       {library && pickerOpen && (
         <LogoPicker logos={logos} thumbOf={srcOf} remaining={MAX_GRAPHICS - graphics.length} onPick={pickLogo} />
       )}

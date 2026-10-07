@@ -4,8 +4,9 @@ import type { ComponentType } from 'react'
 export interface PhotoValue { src: string; x: number; y: number }
 export type ListItem = Record<string, string>
 
-// Pola tekstowe formularza - zapisywane w draftcie i sterowane checkboxem
-// widoczności.
+// Pola tekstowe formularza - sterowane checkboxem widoczności. Wchodzą do
+// snapshotu edytora razem z resztą `FormValues` (src/snapshot/snapshot.ts);
+// nowe pole formularza musi tam zostać obsłużone.
 export const FORM_TEXT_FIELDS = [
   'title', 'subtitle', 'speaker', 'event_date', 'event_time', 'location', 'badge', 'badge2', 'body',
 ] as const
@@ -39,7 +40,9 @@ export interface FormValues extends Record<FormTextField, string> {
 // funkcje (gotowe są w editor/formState.ts), a edytor podaje je do `setForm`.
 export type FormUpdate = (form: FormValues) => FormValues
 
-// --- Wiersze lokalnej bazy SQLite (sql.js): szablony i draft ---
+// --- Wiersze lokalnej bazy SQLite (sql.js): szablony i stary draft ---
+// Stan edytora nie siedzi już w SQLite (to kopia robocza w src/workspace/);
+// `draft` jest tylko odczytywany, raz, przy migracji.
 export interface TemplateRow { id: number; name: string; poster_key: string }
 
 export interface DraftRow {

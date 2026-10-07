@@ -1,6 +1,7 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import type { ChangeEvent, PointerEvent } from 'react'
 import { importImage } from '../assets/assets'
+import { importErrorMessage } from '../assets/prepare'
 import { IMAGE_ACCEPT } from '../utils/readAsDataUrl'
 import { FILE_PICKER, FILE_PICKER_INPUT, IMAGE_THUMB, IMAGE_THUMB_IMG } from './styles'
 
@@ -51,11 +52,19 @@ function PositionSlider({ label, value, onChange }: PositionSliderProps) {
 // ustawić suwakami, żeby przesunąć wycinek zdjęcia w osi X/Y.
 export function ImageUpload({ label, hint, value, onChange, position, onPositionChange }: ImageUploadProps) {
   const drag = useRef<DragState | null>(null)
+  // Dlaczego ostatnio wybranego pliku nie udało się przyjąć.
+  const [error, setError] = useState<string | null>(null)
 
   const handleFile = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     e.target.value = ''
-    if (file) onChange(await importImage(file, 'photo'))
+    if (!file) return
+    setError(null)
+    try {
+      onChange(await importImage(file, 'photo'))
+    } catch (caught) {
+      setError(importErrorMessage(caught, file.name))
+    }
   }
 
   const handlePointerDown = (e: PointerEvent<HTMLDivElement>) => {
@@ -115,6 +124,11 @@ export function ImageUpload({ label, hint, value, onChange, position, onPosition
           </button>
         )}
       </div>
+      {error && (
+        <p className="m-0 text-[0.8rem] text-danger" role="alert">
+          {error}
+        </p>
+      )}
 
       {value && position && onPositionChange && (
         <div className="mt-1 flex flex-col gap-2.5 rounded-[10px] bg-accent-soft px-3.5 py-3">
