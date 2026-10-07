@@ -34,6 +34,8 @@ import type { RegistryEntry } from '../types'
 //   `scheme` (nazwa schematu kolorów) i sam woła `resolveScheme(layout, scheme)`.
 // - `Banner` - szeroka wersja tego samego layoutu (zakładka „Baner", patrz
 //   src/posters/banners/); te same propsy, ten sam klucz schematów kolorów.
+//   Baner niesie stałą nazwę koła, nie dane wydarzenia. `bannerPhoto` - baner
+//   ma miejsce na zdjęcie (formularz banera pokaże wtedy galerię).
 // - `Form` - jawnie napisany komponent formularza (patrz src/forms/), renderowany
 //   po wybraniu danego layoutu. Dane formularza (App.jsx) są globalne i
 //   przeżywają zmianę layoutu - zmienia się tylko to, który komponent je edytuje.
@@ -44,11 +46,11 @@ import type { RegistryEntry } from '../types'
 // Klucz (poster_key) jest zapisywany w tabeli `templates` w SQLite.
 export const posterRegistry: Record<string, RegistryEntry> = {
   wyklad: { name: 'Wykład', Component: PosterWyklad, Banner: BannerWyklad, Form: FormWyklad },
-  warsztat: { name: 'Warsztat', Component: PosterWarsztat, Banner: BannerWarsztat, Form: FormWarsztat },
+  warsztat: { name: 'Warsztat', Component: PosterWarsztat, Banner: BannerWarsztat, bannerPhoto: true, Form: FormWarsztat },
   konferencja: { name: 'Konferencja', Component: PosterKonferencja, Banner: BannerKonferencja, Form: FormKonferencja },
   rekrutacja: { name: 'Rekrutacja', Component: PosterRekrutacja, Banner: BannerRekrutacja, Form: FormRekrutacja },
   data: { name: 'Data', Component: PosterData, Banner: BannerData, Form: FormData },
-  gosc: { name: 'Gość', Component: PosterGosc, Banner: BannerGosc, Form: FormGosc },
+  gosc: { name: 'Gość', Component: PosterGosc, Banner: BannerGosc, bannerPhoto: true, Form: FormGosc },
   gala: { name: 'Gala', Component: PosterGala, Banner: BannerGala, Form: FormGala },
   ogloszenie: { name: 'Ogłoszenie', Component: PosterOgloszenie, Banner: BannerOgloszenie, Form: FormOgloszenie },
   komunikat: { name: 'Komunikat rozszerzony', Component: PosterKomunikat, Banner: BannerKomunikat, Form: FormKomunikat },

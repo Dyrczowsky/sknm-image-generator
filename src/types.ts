@@ -133,5 +133,7 @@ export interface RegistryEntry {
   Component: ComponentType<PosterProps>
   // Szeroka wersja tego samego layoutu (zakładka „Baner").
   Banner: ComponentType<PosterProps>
+  // Baner tego layoutu ma miejsce na zdjęcie - formularz banera pokaże galerię.
+  bannerPhoto?: boolean
   Form: ComponentType<FormProps>
 }

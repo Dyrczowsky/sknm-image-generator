@@ -12,6 +12,7 @@ import { downloadPoster } from './posters/export'
 import { DEFAULT_FORMAT, formatsFor, isPrintFormat, shapeFor } from './posters/formats'
 import { SHAPE_SIZE } from './posters/shape'
 import { useElementWidth } from './utils/useElementWidth'
+import { FormBanner } from './forms/FormBanner'
 import { TemplateSelector } from './components/TemplateSelector'
 import { SchemeSelector } from './components/SchemeSelector'
 import { LangToggle } from './components/LangToggle'
@@ -429,6 +430,25 @@ function App() {
   const selectedTemplate = templates.find((t) => t.id === selectedTemplateId)
   const selectedPoster = selectedTemplate ? posterRegistry[selectedTemplate.poster_key] : null
   const SelectedForm = selectedPoster?.Form
+  const formProps = {
+    value: form,
+    onFieldChange: handleFieldChange,
+    onVisibilityChange: handleVisibilityChange,
+    onGraphicsAdd: handleGraphicsAdd,
+    onGraphicRemove: handleGraphicRemove,
+    onGraphicMove: handleGraphicMove,
+    onShowPkChange: handleShowPkChange,
+    onQrUrlChange: handleQrUrlChange,
+    onPhotoAdd: handlePhotoAdd,
+    onPhotoChangeAt: handlePhotoChangeAt,
+    onPhotoPositionChangeAt: handlePhotoPositionChangeAt,
+    onListItemAdd: handleListItemAdd,
+    onListItemChange: handleListItemChange,
+    onListItemRemove: handleListItemRemove,
+    onTitleScaleChange: handleTitleScaleChange,
+    onTextScaleChange: handleTextScaleChange,
+    onScaleLinkedChange: handleScaleLinkedChange,
+  }
 
   const bugContext: BugContextInput = {
     templateName: selectedTemplate?.name,
@@ -517,27 +537,11 @@ function App() {
             onToggle={() => togglePanel('form')}
             className={`${panel} min-[900px]:[grid-area:form]`}
           >
-            {SelectedForm && (
-              <SelectedForm
-                value={form}
-                onFieldChange={handleFieldChange}
-                onVisibilityChange={handleVisibilityChange}
-                onGraphicsAdd={handleGraphicsAdd}
-                onGraphicRemove={handleGraphicRemove}
-                onGraphicMove={handleGraphicMove}
-                onShowPkChange={handleShowPkChange}
-                onQrUrlChange={handleQrUrlChange}
-                onPhotoAdd={handlePhotoAdd}
-                onPhotoChangeAt={handlePhotoChangeAt}
-                onPhotoPositionChangeAt={handlePhotoPositionChangeAt}
-                onListItemAdd={handleListItemAdd}
-                onListItemChange={handleListItemChange}
-                onListItemRemove={handleListItemRemove}
-                onTitleScaleChange={handleTitleScaleChange}
-                onTextScaleChange={handleTextScaleChange}
-                onScaleLinkedChange={handleScaleLinkedChange}
-              />
-            )}
+            {/* Baner ma wspólny, krótki formularz - dane wydarzenia zostają
+                w stanie i wracają po przejściu na „Social media". */}
+            {banner
+              ? selectedPoster && <FormBanner {...formProps} photo={selectedPoster.bannerPhoto} />
+              : SelectedForm && <SelectedForm {...formProps} />}
           </CollapsiblePanel>
 
           <section className={`${panel} flex flex-wrap items-center gap-3 min-[900px]:[grid-area:actions]`}>

@@ -179,7 +179,9 @@ Więcej o rolach, `resolveScheme` i konwencji `camelCase → --kebab`:
 Każdy layout ma też szeroką wersję do zakładki „Baner" (okładka strony
 1640×624 i okładka wydarzenia 1920×1005 na Facebooku). To osobny komponent z
 tymi samymi propsami (`PosterProps`), tym samym kluczem w `resolveScheme` i tymi
-samymi blokami - tylko przekomponowany w poziomie. Najprościej skopiować
+samymi blokami, ale to **wizytówka koła, nie plakat**: zachowuje charakter
+layoutu (kliny, zygzak, zdjęcie...), a zamiast tytułu, prelegenta i daty pokazuje
+stałą treść z `bannerCopy(lang)` (`banners/copy.ts`). Najprościej skopiować
 najbliższy istniejący baner (np. `BannerOgloszenie.tsx`).
 
 Reguły:
@@ -193,8 +195,11 @@ Reguły:
 - Stopka: `<BannerLogos qrUrl={qrUrl} slots={slots} variant={s.logoVariant} />`
   z `banners/common.tsx` (mniejszy QR, ten sam układ co `LogoRow` w plakacie).
   Sygnet ma szerokość `BANNER_SYGNET_W`.
-- Widoczność pól (`fx` / `hidden`) i suwaki (`titleScale` / `textScale`)
-  działają jak w plakacie.
+- Z `withPlaceholders(data)` bierz tylko `graphics`, `showPkLogo`, `qrUrl`,
+  `photos` oraz suwaki: nazwę koła mnóż przez `titleScale`, resztę tekstu przez
+  `textScale`.
+- Jeśli baner ma miejsce na zdjęcie, ustaw w rejestrze `bannerPhoto: true` -
+  wspólny formularz banera (`FormBanner`) pokaże wtedy galerię zdjęć.
 
 ## 5. Rejestr — `src/posters/registry.ts`
 

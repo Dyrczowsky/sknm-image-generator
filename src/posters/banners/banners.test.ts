@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest'
 import { posterRegistry } from '../registry'
 import { BANNER_PAD, BANNER_SAFE_W, SHAPE_SIZE } from '../shape'
 import { PosterScaled } from '../../components/PosterScaled'
+import { bannerCopy } from './copy'
 
 const h = createElement as unknown as (type: unknown, props: object | null, ...children: unknown[]) => ReactElement
 
@@ -28,10 +29,14 @@ describe('banery', () => {
     }
   }
 
-  it('ukryty tytuł znika z banera (display: none)', () => {
+  it('baner niesie nazwę koła (PL/EN), a nie dane wydarzenia', () => {
+    const data = { title: 'TYTUL_PLAKATU', speaker: 'PRELEGENT_X', location: 'SALA_Y', event_date: '2031-03-04' }
     for (const entry of Object.values(posterRegistry)) {
-      const html = renderToStaticMarkup(h(PosterScaled, { size: 820, shape: 'cover' }, h(entry.Banner, { data: { title: 'UKRYTY_TYTUL', visibility: { title: false } } })))
-      expect(html).toMatch(/display:none[^>]*>UKRYTY_TYTUL/)
+      const pl = renderToStaticMarkup(h(PosterScaled, { size: 820, shape: 'cover' }, h(entry.Banner, { data, lang: 'pl' })))
+      expect(pl).toContain(bannerCopy('pl').name)
+      for (const leaked of ['TYTUL_PLAKATU', 'PRELEGENT_X', 'SALA_Y']) expect(pl).not.toContain(leaked)
+      const en = renderToStaticMarkup(h(PosterScaled, { size: 820, shape: 'cover' }, h(entry.Banner, { data, lang: 'en' })))
+      expect(en).toContain(bannerCopy('en').name)
     }
   })
 })

@@ -24,7 +24,7 @@ src/
 ├── posters/           renderowanie plakatów
 │   ├── registry.ts       poster_key → { name, Component, Banner, Form }
 │   ├── PosterWyklad...    8 komponentów layoutów (style inline, patrz stylowanie.md)
-│   ├── banners/          banerowe wersje layoutów (BannerWyklad, ...) + wspólna stopka
+│   ├── banners/          banerowe wersje layoutów (BannerWyklad, ...), stała treść (copy.ts), stopka
 │   ├── blocks/           współdzielone bloki plakatu (PosterFrame, Badge, LogoRow, ...)
 │   ├── theme.ts          tokeny wizualne plakatów (kolory, typografia)
 │   ├── schemes.ts        schematy kolorów per layout + resolveScheme() + schemesFor() + oś akcentu (accentsFor)
@@ -130,6 +130,13 @@ medium**, nie osobny wpis: rejestr trzyma przy każdym layoucie drugi komponent
 layout, dane formularza, kolorystykę i akcent - zmienia się komponent, kształt
 i lista formatów eksportu (`formatsFor(medium)` w `formats.ts`). Banery wołają
 `resolveScheme` z tym samym kluczem co plakat, więc nie mają własnych schematów.
+
+Baner to wizytówka koła, nie plakat wydarzenia: niesie **stałą treść** z
+`banners/copy.ts` (`bannerCopy(lang)` - nazwa koła, uczelnia, hasło) i nie czyta
+tytułu, prelegenta ani daty z formularza. Z danych formularza bierze tylko
+logotypy, kod QR, zdjęcia i suwaki rozmiaru. Dlatego zakładka „Baner" ma jeden
+wspólny formularz `forms/FormBanner.tsx` zamiast formularza layoutu; dane
+wydarzenia zostają w stanie i wracają po przejściu na „Social media".
 
 Oba kształty banera mają wspólną wysokość układu (624 px) - baner projektuje
 się raz i jest płynny tylko na szerokość. `useBannerLayout()` oddaje boczny
