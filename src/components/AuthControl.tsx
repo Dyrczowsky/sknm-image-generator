@@ -1,4 +1,5 @@
 import type { Session } from '../supabase/useSession'
+import { Button, Popover } from './ui'
 
 interface AuthControlProps {
   session: Session
@@ -7,28 +8,51 @@ interface AuthControlProps {
   onSignOut: () => void
 }
 
-const BUTTON = 'cursor-pointer rounded-lg border border-field-border px-3 py-1.5 text-[0.8rem] font-semibold text-fg transition-colors hover:border-accent hover:text-accent'
-
-// Stan logowania w nagłówku: przycisk „Zaloguj" albo adres zalogowanej osoby
-// i „Wyloguj". Bez konfiguracji Supabase (i w trakcie odczytu sesji) nic nie
-// rysuje.
+// Konto w górnym pasku: przycisk „Zaloguj" albo przycisk z adresem zalogowanej
+// osoby, pod którym jest „Wyloguj". Adres widać w pasku dopiero od 1200 px -
+// węziej zostaje ikona, a pełny adres jest w wysuwanym panelu. Bez konfiguracji
+// Supabase (i w trakcie odczytu sesji) nic nie rysuje.
 export function AuthControl({ session, onSignInClick, onSignOut }: AuthControlProps) {
   if (session.status === 'unconfigured' || session.status === 'loading') return null
   if (session.status === 'signedOut') {
     return (
-      <button type="button" className={BUTTON} onClick={onSignInClick}>
+      <Button icon="signIn" onClick={onSignInClick}>
         Zaloguj
-      </button>
+      </Button>
     )
   }
+  const email = session.email ?? ''
   return (
-    <div className="flex min-w-0 items-center gap-2">
-      <span className="max-w-[200px] truncate text-[0.8rem] text-muted" title={session.email ?? undefined}>
-        {session.email}
-      </span>
-      <button type="button" className={BUTTON} onClick={onSignOut}>
-        Wyloguj
-      </button>
-    </div>
+    <Popover
+      label="Konto"
+      align="end"
+      className="w-64"
+      trigger={(props) => (
+        <Button {...props} variant="ghost" icon="user" iconEnd="chevronDown" aria-label={`Konto: ${email}`} title={email}>
+          <span className="hidden max-w-[180px] truncate min-[1200px]:inline">{email}</span>
+        </Button>
+      )}
+    >
+      {(close) => (
+        <div className="flex flex-col gap-2">
+          <p className="m-0 px-1 text-[0.8125rem] leading-snug text-muted">
+            Zalogowano jako
+            <strong className="block break-all font-semibold text-fg">{email}</strong>
+          </p>
+          <Button
+            variant="ghost"
+            icon="signOut"
+            align="start"
+            fullWidth
+            onClick={() => {
+              close()
+              onSignOut()
+            }}
+          >
+            Wyloguj
+          </Button>
+        </div>
+      )}
+    </Popover>
   )
 }

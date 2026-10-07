@@ -1,7 +1,11 @@
+import { useState } from 'react'
+import type { FormEvent, ReactNode } from 'react'
+import { PROJECT_NAME_MAX } from '../projects/remoteProjects'
 import type { SaveStatus } from '../workspace/syncState'
-import { ROW_ACTION } from './styles'
+import { Button, Icon, IconButton, Input } from './ui'
+import type { IconName } from './ui'
 
-interface ProjectBarProps {
+export interface ProjectBarProps {
   // Nazwa otwartego projektu; `null` = wersja robocza bez projektu.
   name: string | null
   status: SaveStatus
@@ -18,11 +22,12 @@ interface ProjectBarProps {
   onDropMissing: () => void
   onLoadCloud: () => void
   onOverwrite: () => void
+  // Zmiana nazwy otwartego projektu w miejscu. Bez tego propsa (wersja
+  // robocza, cudzy projekt) nazwy nie da się edytować.
+  onRename?: (name: string) => void
+  // Główna akcja edytora („Pobierz") - po prawej, zawsze widoczna.
+  action?: ReactNode
 }
-
-const ACTION = `${ROW_ACTION} hover:border-accent hover:text-accent disabled:cursor-wait disabled:opacity-60`
-const DANGER_ACTION = `${ROW_ACTION} hover:border-danger hover:text-danger`
-const NOTE = 'mt-2.5 flex flex-wrap items-center gap-2.5 text-[0.85rem]'
 
 // Opis stanu zapisu obok nazwy projektu.
 function statusLabel(status: SaveStatus, cloud: boolean): string {
@@ -44,52 +49,116 @@ function statusLabel(status: SaveStatus, cloud: boolean): string {
   }
 }
 
+// Stan zapisu ma ikonę i tekst - kolor tylko je wzmacnia.
+const STATUS_ICON: Record<SaveStatus, IconName> = {
+  local: 'local',
+  saved: 'saved',
+  dirty: 'unsaved',
+  saving: 'saving',
+  error: 'saveError',
+  conflict: 'conflict',
+  paused: 'paused',
+}
+const STATUS_TONE: Record<SaveStatus, string> = {
+  local: 'text-muted',
+  saved: 'text-muted',
+  dirty: 'text-muted',
+  saving: 'text-muted',
+  error: 'text-danger',
+  conflict: 'text-danger',
+  paused: 'text-warning',
+}
+const STATUS_ICON_TONE: Partial<Record<SaveStatus, string>> = { saved: 'text-success', dirty: 'text-warning', saving: 'animate-spin' }
+
 function missingLabel(count: number): string {
   if (count === 1) return 'Nie udało się wczytać 1 grafiki.'
   return `Nie udało się wczytać ${count} grafik.`
 }
 
-// Pasek pod nagłówkiem: co jest otwarte, czy jest zapisane, „Zapisz" i „Nowy
-// projekt". Tu też lądują komunikaty kopii roboczej, wybór przy konflikcie
-// wersji i informacja o grafikach, których nie udało się wczytać.
+const NOTE = 'm-0 flex flex-wrap items-center gap-x-3 gap-y-2 border-t border-border px-4 py-2 text-[0.8125rem] leading-snug'
+
+// Pasek projektu nad edytorem: co jest otwarte, czy jest zapisane, „Zapisz",
+// „Nowy projekt" i główna akcja („Pobierz"). Tu też lądują komunikaty kopii
+// roboczej, wybór przy konflikcie wersji i informacja o grafikach, których nie
+// udało się wczytać.
 export function ProjectBar({
   name, status, cloud, notice, missingCount,
-  onSave, onNew, onDismissNotice, onRetryMissing, onDropMissing, onLoadCloud, onOverwrite,
+  onSave, onNew, onDismissNotice, onRetryMissing, onDropMissing, onLoadCloud, onOverwrite, onRename, action,
 }: ProjectBarProps) {
   const conflict = status === 'conflict'
+  // `null` = nazwa nie jest edytowana.
+  const [draft, setDraft] = useState<string | null>(null)
+  const renaming = draft !== null && name !== null && Boolean(onRename)
+
+  const rename = (e: FormEvent) => {
+    e.preventDefault()
+    const next = draft?.trim()
+    if (!next) return
+    if (next !== name) onRename?.(next)
+    setDraft(null)
+  }
+
   return (
-    <section className="mb-2 rounded-[14px] border border-border bg-surface px-5 py-3.5" aria-label="Projekt">
-      <div className="flex flex-wrap items-center gap-x-3.5 gap-y-2">
-        <strong className="min-w-0 max-w-full truncate text-[0.95rem]">{name ?? 'Wersja robocza'}</strong>
-        <span className={`text-[0.85rem] ${status === 'error' || conflict ? 'text-danger' : 'text-muted'}`} role="status">
-          {statusLabel(status, cloud)}
-        </span>
-        <div className="ml-auto flex flex-wrap gap-2">
+    <section className="flex-none border-b border-border bg-bg" aria-label="Projekt">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2 px-4 py-2 min-[900px]:min-h-14">
+        <div className="flex min-w-0 flex-1 basis-full items-center gap-x-3 gap-y-1 max-[899px]:flex-wrap min-[900px]:basis-0">
+          {renaming ? (
+            <form className="flex min-w-0 flex-1 items-center gap-2" onSubmit={rename}>
+              <Input
+                size="sm"
+                className="min-w-0 flex-1 min-[900px]:max-w-80"
+                value={draft}
+                maxLength={PROJECT_NAME_MAX}
+                autoFocus
+                aria-label="Nazwa projektu"
+                onChange={(e) => setDraft(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Escape') setDraft(null)
+                }}
+              />
+              <Button type="submit" disabled={!draft?.trim()}>Zmień</Button>
+              <Button variant="ghost" onClick={() => setDraft(null)}>Anuluj</Button>
+            </form>
+          ) : (
+            <>
+              <div className="flex min-w-0 items-center gap-1">
+                <strong className="min-w-0 truncate text-[0.9375rem] leading-tight">{name ?? 'Wersja robocza'}</strong>
+                {name !== null && onRename && <IconButton icon="pencil" label="Zmień nazwę projektu" onClick={() => setDraft(name)} />}
+              </div>
+              <span className={`flex min-w-0 items-center gap-1.5 text-[0.8125rem] leading-tight ${STATUS_TONE[status]}`} title={statusLabel(status, cloud)}>
+                <Icon name={STATUS_ICON[status]} className={STATUS_ICON_TONE[status]} />
+                <span className="truncate" role="status">{statusLabel(status, cloud)}</span>
+              </span>
+            </>
+          )}
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
           {conflict && (
             <>
-              <button type="button" className={ACTION} onClick={onLoadCloud}>Wczytaj wersję z chmury</button>
-              <button type="button" className={DANGER_ACTION} onClick={onOverwrite}>Nadpisz</button>
+              <Button onClick={onLoadCloud}>Wczytaj wersję z chmury</Button>
+              <Button variant="danger" onClick={onOverwrite}>Nadpisz</Button>
             </>
           )}
           {cloud && !conflict && (
-            <button type="button" className={ACTION} onClick={onSave} disabled={status === 'saving'}>Zapisz</button>
+            <Button icon="save" busy={status === 'saving'} onClick={onSave}>Zapisz</Button>
           )}
-          <button type="button" className={ACTION} onClick={onNew}>Nowy projekt</button>
+          <Button variant="ghost" icon="newProject" onClick={onNew}>Nowy projekt</Button>
+          {action}
         </div>
       </div>
 
       {notice && (
         <p className={`${NOTE} text-danger`} role="alert">
           <span>{notice}</span>
-          <button type="button" className={ROW_ACTION} onClick={onDismissNotice}>Zamknij</button>
+          <Button variant="ghost" onClick={onDismissNotice}>Zamknij</Button>
         </p>
       )}
 
       {missingCount > 0 && (
         <p className={`${NOTE} text-muted`} role="alert">
           <span>{missingLabel(missingCount)} Zostają w projekcie i wrócą, gdy uda się je pobrać.</span>
-          <button type="button" className={ACTION} onClick={onRetryMissing}>Spróbuj ponownie</button>
-          <button type="button" className={DANGER_ACTION} onClick={onDropMissing}>Usuń je z projektu</button>
+          <Button onClick={onRetryMissing}>Spróbuj ponownie</Button>
+          <Button variant="danger" onClick={onDropMissing}>Usuń je z projektu</Button>
         </p>
       )}
     </section>

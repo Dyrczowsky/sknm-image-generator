@@ -39,9 +39,28 @@ describe('ProjectBar', () => {
     expect(html).toContain('>Nowy projekt<')
   })
 
-  it('w trakcie zapisu przycisk jest wyłączony', () => {
-    expect(render({ name: 'P', status: 'saving' })).toMatch(/<button[^>]*disabled=""[^>]*>Zapisz</)
-    expect(render({ name: 'P', status: 'dirty' })).not.toMatch(/<button[^>]*disabled=""[^>]*>Zapisz</)
+  it('w trakcie zapisu przycisk „Zapisz" jest zajęty (zostaje w kolejce fokusu)', () => {
+    const save = (html: string) => html.match(/<button[^>]*>(?:<svg.*?<\/svg>)?Zapisz</)?.[0] ?? ''
+    expect(save(render({ name: 'P', status: 'saving' }))).toContain('aria-busy="true"')
+    expect(save(render({ name: 'P', status: 'saving' }))).not.toContain('disabled=""')
+    expect(save(render({ name: 'P', status: 'dirty' }))).not.toContain('aria-busy="true"')
+  })
+
+  it('pasek jest nazwanym regionem, a stan zapisu ma ikonę obok tekstu', () => {
+    const html = render({ name: 'P', status: 'saved' })
+    expect(html).toMatch(/<section[^>]*aria-label="Projekt"/)
+    expect(html).toMatch(/<svg[^>]*aria-hidden="true"[^>]*>.*?<\/svg><span[^>]*role="status">Zapisano</)
+  })
+
+  it('główna akcja z propsa `action` stoi za „Nowy projekt"', () => {
+    const html = render({ action: createElement('button', { type: 'button' }, 'POBIERZ') })
+    expect(html.indexOf('POBIERZ')).toBeGreaterThan(html.indexOf('>Nowy projekt<'))
+  })
+
+  it('nazwę da się zmienić tylko dla otwartego projektu z `onRename`', () => {
+    expect(render({ name: 'Wykład o AI', status: 'saved', onRename: noop })).toContain('aria-label="Zmień nazwę projektu"')
+    expect(render({ name: 'Wykład o AI', status: 'saved' })).not.toContain('Zmień nazwę projektu')
+    expect(render({ name: null, onRename: noop })).not.toContain('Zmień nazwę projektu')
   })
 
   it('konflikt: dwa wyjścia zamiast „Zapisz"', () => {

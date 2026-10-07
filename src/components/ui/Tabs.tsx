@@ -67,7 +67,7 @@ interface TabListProps<T extends string> {
 }
 
 const TAB =
-  'relative inline-flex h-11 flex-none cursor-pointer select-none items-center justify-center gap-1.5 whitespace-nowrap border-0 bg-transparent px-3 text-[0.875rem] font-medium text-muted transition-colors duration-150 after:absolute after:inset-x-2 after:bottom-0 after:h-0.5 after:rounded-full after:bg-transparent hover:text-fg focus-visible:-outline-offset-2 disabled:pointer-events-none disabled:opacity-50 aria-selected:font-bold aria-selected:text-fg aria-selected:after:bg-accent min-[900px]:h-10'
+  'relative inline-flex h-11 cursor-pointer select-none items-center justify-center gap-1.5 whitespace-nowrap border-0 bg-transparent px-3 text-[0.875rem] font-medium text-muted transition-colors duration-150 after:absolute after:inset-x-2 after:bottom-0 after:h-0.5 after:rounded-full after:bg-transparent hover:text-fg focus-visible:-outline-offset-2 disabled:pointer-events-none disabled:opacity-50 aria-selected:font-bold aria-selected:text-fg aria-selected:after:bg-accent min-[900px]:h-10'
 
 // Strzałki ← → (oraz Home / End) przenoszą fokus i od razu wybierają zakładkę;
 // Tab wychodzi z listy do aktywnego panelu.
@@ -100,7 +100,7 @@ export function TabList<T extends string>({ label, tabs, fill = false, className
             aria-controls={panelId(baseId, tab.value)}
             tabIndex={tab.value === focusable ? 0 : -1}
             disabled={tab.disabled}
-            className={fill ? `${TAB} min-w-0 flex-1` : TAB}
+            className={`${TAB} ${fill ? 'min-w-0 flex-1' : 'flex-none'}`}
             onClick={() => onChange(tab.value)}
             onKeyDown={(event) => onKeyDown(event, index)}
           >

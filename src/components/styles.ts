@@ -116,3 +116,21 @@ export const UI_HEADING = 'm-0 text-[0.9375rem] font-bold leading-tight text-fg'
 
 // Powierzchnia wysuwanego panelu (Popover): menu, pomoc, wybór z listy.
 export const POPOVER_PANEL = 'rounded-xl border border-border bg-surface p-3 text-[0.875rem] text-fg shadow-pop'
+
+// Kafelek wyboru z miniaturą (szablon, kolorystyka). Stan wybrania
+// (`aria-pressed`) to ramka, tło i znaczek `CHOICE_MARK` w rogu miniatury -
+// nie sam kolor. Ramka jest zawsze, więc wybór niczego nie przesuwa.
+export const CHOICE_TILE =
+  'flex min-w-0 cursor-pointer select-none flex-col items-center gap-1.5 rounded-lg border-2 border-transparent bg-transparent p-1 pb-1.5 text-[0.8125rem] font-medium leading-tight text-muted transition-colors duration-150 hover:bg-fg/[0.06] hover:text-fg aria-pressed:border-accent aria-pressed:bg-accent-soft aria-pressed:font-semibold aria-pressed:text-fg'
+export const CHOICE_MARK =
+  'absolute right-1 top-1 flex size-5 items-center justify-center rounded-full bg-accent text-on-accent shadow-[0_0_0_2px_rgb(255_255_255/0.9)]'
+
+// Ukrycie BEZ wyłączania układu: element wyjeżdża poza lewą krawędź okna, ale
+// dalej jest rozmieszczany. Tak chowamy wszystko, co zawiera podgląd plakatu -
+// eksport kopiuje obliczone style węzła, a pod `display: none` przeglądarka
+// ich nie rozwiązuje (plik wychodził wtedy z minimalnie innym wygładzaniem
+// tekstu); `visibility: hidden` z kolei dziedziczy się na kopię i daje pusty
+// plik. Element ukryty w ten sposób MUSI dostać atrybut `inert` (fokus,
+// czytniki ekranu). `NARROW_OFFSCREEN` działa tylko poniżej 900 px.
+export const OFFSCREEN = 'pointer-events-none fixed top-0 left-[-200vw] w-screen'
+export const NARROW_OFFSCREEN = 'max-[899px]:pointer-events-none max-[899px]:fixed max-[899px]:top-0 max-[899px]:left-[-200vw] max-[899px]:w-screen'

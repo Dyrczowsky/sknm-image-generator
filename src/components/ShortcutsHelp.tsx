@@ -1,60 +1,76 @@
-import { useId, type KeyboardEvent } from 'react'
 import { SHORTCUTS, formatCombo, type ShortcutId } from '../shortcuts/shortcuts'
+import type { TicketType } from './TicketDialog'
+import { UI_HEADING } from './styles'
+import { Button, IconButton, Popover } from './ui'
 
 interface Props {
   enabled: readonly ShortcutId[]
   isMac: boolean
+  // Sterowane z zewnątrz, bo panel otwiera też klawisz „?".
   open: boolean
   onOpenChange: (open: boolean) => void
+  // Wejścia do zgłoszeń: błąd (GitHub) i zapotrzebowanie na plakat (e-mail).
+  onTicket: (type: TicketType) => void
 }
 
-// Przycisk w nagłówku + okienko z listą skrótów. Okienko jest zawsze w DOM
-// (czytniki ekranu, aria-controls), a widoczność daje: `open` (klik),
-// najechanie myszą albo fokus klawiatury (focus-visible, więc kliknięcie
-// myszą nie „przykleja" okienka). Escape zamyka.
-export function ShortcutsHelp({ enabled, isMac, open, onOpenChange }: Props) {
-  const popupId = useId()
+// Pomoc w górnym pasku: lista skrótów klawiszowych i dwa zgłoszenia. Otwiera
+// się kliknięciem albo klawiszem „?" (najechanie myszą niczego nie otwiera);
+// zamykanie, fokus i Escape załatwia `Popover`.
+export function ShortcutsHelp({ enabled, isMac, open, onOpenChange, onTicket }: Props) {
   const items = SHORTCUTS.filter((s) => enabled.includes(s.id))
 
-  const onKeyDown = (event: KeyboardEvent) => {
-    if (event.key === 'Escape' && open) {
-      event.stopPropagation()
-      onOpenChange(false)
-    }
-  }
-
   return (
-    <div className="group relative" onKeyDown={onKeyDown}>
-      <button
-        type="button"
-        aria-label="Skróty klawiszowe"
-        aria-expanded={open}
-        aria-controls={popupId}
-        onClick={() => onOpenChange(!open)}
-        className="cursor-pointer rounded-lg border border-field-border p-2 text-muted transition-[border-color,color] hover:border-accent hover:text-fg"
-      >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <rect x="2" y="6" width="20" height="12" rx="2" />
-          <path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10" />
-        </svg>
-      </button>
-      <div
-        id={popupId}
-        role="region"
-        aria-label="Lista skrótów klawiszowych"
-        className={`absolute right-0 top-full z-20 mt-2 w-max max-w-[min(20rem,calc(100vw-2rem))] rounded-lg border border-border bg-surface p-3 text-[0.85rem] text-fg shadow-lg group-hover:block group-has-[:focus-visible]:block ${open ? 'block' : 'hidden'}`}
-      >
-        <ul className="m-0 flex list-none flex-col gap-2 p-0">
-          {items.map((s) => (
-            <li key={s.id} className="flex items-center justify-between gap-4">
-              <span>{s.label}</span>
-              <kbd className="rounded-md border border-field-border bg-field px-1.5 py-0.5 font-sans text-[0.8rem] text-muted">
-                {formatCombo(s.combo, isMac)}
-              </kbd>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </div>
+    <Popover
+      label="Pomoc"
+      align="end"
+      open={open}
+      onOpenChange={onOpenChange}
+      className="w-80"
+      trigger={(props) => <IconButton {...props} icon="help" label="Pomoc i skróty klawiszowe" />}
+    >
+      {(close) => (
+        <div className="flex flex-col gap-3">
+          <section className="flex flex-col gap-2" aria-labelledby="help-shortcuts">
+            <h2 id="help-shortcuts" className={UI_HEADING}>Skróty klawiszowe</h2>
+            <ul className="m-0 flex list-none flex-col gap-1.5 p-0">
+              {items.map((s) => (
+                <li key={s.id} className="flex items-center justify-between gap-4">
+                  <span>{s.label}</span>
+                  <kbd className="flex-none rounded-md border border-border bg-sunken px-1.5 py-0.5 font-sans text-[0.8125rem] font-semibold text-fg">
+                    {formatCombo(s.combo, isMac)}
+                  </kbd>
+                </li>
+              ))}
+            </ul>
+          </section>
+          <section className="-mx-1 flex flex-col border-t border-border pt-2" aria-label="Zgłoszenia">
+            <Button
+              variant="ghost"
+              icon="bug"
+              align="start"
+              fullWidth
+              onClick={() => {
+                close()
+                onTicket('bug')
+              }}
+            >
+              Zgłoś błąd
+            </Button>
+            <Button
+              variant="ghost"
+              icon="idea"
+              align="start"
+              fullWidth
+              onClick={() => {
+                close()
+                onTicket('request')
+              }}
+            >
+              Zgłoś zapotrzebowanie na plakat
+            </Button>
+          </section>
+        </div>
+      )}
+    </Popover>
   )
 }

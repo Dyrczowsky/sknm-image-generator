@@ -53,7 +53,7 @@ function ProjectItem({ row, own, current, onOpen, onRename, onShare, onDelete }:
   return (
     <li
       aria-current={current ? 'true' : undefined}
-      className={`flex items-center gap-3.5 rounded-[10px] border bg-bg px-3.5 py-2.5 text-[0.9rem] ${current ? 'border-accent' : 'border-border'}`}
+      className={`flex flex-wrap items-center gap-3.5 rounded-[10px] border bg-bg px-3.5 py-2.5 text-[0.9rem] ${current ? 'border-accent' : 'border-border'}`}
     >
       <div className="flex-none overflow-hidden rounded-md shadow-[0_1px_2px_rgba(0,0,0,0.12)]">
         {parsed.ok ? (
@@ -94,7 +94,7 @@ function ProjectItem({ row, own, current, onOpen, onRename, onShare, onDelete }:
         )}
       </div>
 
-      <div className="flex flex-none flex-wrap justify-end gap-2">
+      <div className="flex flex-none flex-wrap justify-end gap-2 max-[639px]:basis-full max-[639px]:justify-start">
         {parsed.ok && (
           <button type="button" className={`${ROW_ACTION} hover:border-accent hover:text-accent`} onClick={() => onOpen(row)}>
             {own ? 'Otwórz' : 'Otwórz kopię'}

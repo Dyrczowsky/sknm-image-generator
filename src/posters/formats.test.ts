@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  formatSummary,
   DEFAULT_EXPORT_SETTINGS,
   DEFAULT_FORMAT,
   EXPORT_FORMATS,
@@ -138,5 +139,21 @@ describe('normalizeExportSettings', () => {
 
   it('nadmiarowe pola są pomijane', () => {
     expect(Object.keys(normalizeExportSettings({ format: 'a4', dpi: 300, extra: 'x' })).sort()).toEqual(['fileType', 'format', 'medium', 'orientation'])
+  })
+})
+
+describe('formatSummary', () => {
+  it('format papierowy: nazwa, orientacja i typ pliku', () => {
+    expect(formatSummary('a4', 'portrait', 'pdf')).toBe('A4 · pion · PDF')
+    expect(formatSummary('a2', 'landscape', 'png')).toBe('A2 · poziom · PNG')
+  })
+
+  it('pozostałe formaty: pełna etykieta', () => {
+    expect(formatSummary('square', 'portrait', 'png')).toBe('Kwadrat · 1080×1080')
+    expect(formatSummary('fbCover', 'portrait', 'png')).toBe('Facebook · okładka strony · 1640×624')
+  })
+
+  it('nieznany format: pusty opis', () => {
+    expect(formatSummary('nie-ma', 'portrait', 'png')).toBe('')
   })
 })

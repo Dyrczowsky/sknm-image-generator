@@ -75,6 +75,16 @@ export function pageSizePt(paper: PaperSize, orientation: Orientation): { width:
   return { width: (w * 72) / 25.4, height: (h * 72) / 25.4 }
 }
 
+// Krótki opis wyboru eksportu (pasek „Pobierz" na telefonie): dla papieru
+// „A4 · pion · PDF", dla pozostałych pełna etykieta formatu.
+export function formatSummary(formatKey: string, orientation: Orientation, fileType: FileType): string {
+  const format = EXPORT_FORMATS[formatKey]
+  if (!format) return ''
+  if (!format.paper) return format.label
+  const [name] = format.label.split(' · ')
+  return `${name} · ${orientation === 'landscape' ? 'poziom' : 'pion'} · ${fileType.toUpperCase()}`
+}
+
 // Ustawienia eksportu zapisywane razem ze stanem plakatu (snapshot projektu,
 // kopii roboczej i wpisu historii).
 export interface ExportSettings {

@@ -27,7 +27,7 @@ export default defineConfig({
         short_name: 'SKNM Generator',
         description: 'Generator grafik wydarzeń na podstawie szablonów.',
         theme_color: '#2563eb',
-        background_color: '#0f172a',
+        background_color: '#121417',
         display: 'standalone',
         start_url: '/',
         icons: [

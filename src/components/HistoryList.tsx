@@ -39,7 +39,7 @@ export function HistoryList({ entries, onRestore, onDelete, lang = 'pl' }: Histo
         return (
           <li
             key={entry.id}
-            className="flex items-center gap-3.5 rounded-[10px] border border-border bg-bg px-3.5 py-2.5 text-[0.9rem]"
+            className="flex flex-wrap items-center gap-3.5 rounded-[10px] border border-border bg-bg px-3.5 py-2.5 text-[0.9rem]"
           >
             <div className="flex-none overflow-hidden rounded-md shadow-[0_1px_2px_rgba(0,0,0,0.12)]">
               <SnapshotThumb snapshot={snapshot} box={THUMB_SIZE} />
@@ -55,7 +55,7 @@ export function HistoryList({ entries, onRestore, onDelete, lang = 'pl' }: Histo
               </span>
             </div>
 
-            <div className="flex flex-none gap-2">
+            <div className="flex flex-none gap-2 max-[639px]:basis-full">
               <button type="button" className={`${ROW_ACTION} hover:border-accent hover:text-accent`} onClick={() => onRestore(entry)}>
                 Przywróć
               </button>
