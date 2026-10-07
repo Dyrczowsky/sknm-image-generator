@@ -58,7 +58,9 @@ export function PosterRekrutacja({ data, scheme, accent, lang = 'pl' }: PosterPr
             ]}
             style={{ fontSize: 36, fontWeight: 800, lineHeight: 1.05, fontKerning: 'none', whiteSpace: 'nowrap' }}
           />
-          <div style={{ fontSize: 26, fontWeight: 500, opacity: 0.85 }}>{`${SITE_URL} · ${SOCIAL_HANDLE}`}</div>
+          <div style={{ fontSize: 26, fontWeight: 500, opacity: 0.85 }}>
+            {SITE_URL}{hidden('speaker') ? '' : ` · ${data.speaker || SOCIAL_HANDLE}`}
+          </div>
         </div>
         <FooterLogos qrUrl={qrUrl} slots={logoSlots} variant={logoVariant} />
       </div>
