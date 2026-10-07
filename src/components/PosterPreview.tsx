@@ -12,15 +12,17 @@ interface PosterPreviewProps {
   accent?: AccentName
   lang?: PosterLang
   shape?: PosterShape
+  // Szerokość podglądu na ekranie; domyślnie stała kolumna 420 px.
+  size?: number
 }
 
 // Podgląd na żywo - aktualizuje się automatycznie przy każdej zmianie
 // formularza, szablonu lub schematu kolorów (bez przycisku "Generuj").
-export function PosterPreview({ posterRef, Component, data, scheme, accent, lang, shape }: PosterPreviewProps) {
+export function PosterPreview({ posterRef, Component, data, scheme, accent, lang, shape, size = PREVIEW_SIZE }: PosterPreviewProps) {
   if (!Component) return null
   return (
     <div className="w-fit overflow-hidden rounded-[10px] border border-border shadow-[0_4px_16px_rgba(0,0,0,0.12)]">
-      <PosterScaled ref={posterRef} size={PREVIEW_SIZE} shape={shape}>
+      <PosterScaled ref={posterRef} size={size} shape={shape}>
         <Component data={data} scheme={scheme} accent={accent} lang={lang} />
       </PosterScaled>
     </div>

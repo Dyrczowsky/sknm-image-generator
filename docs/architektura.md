@@ -9,7 +9,7 @@ src/
 ├── index.css            wejście Tailwind + tokeny kolorów aplikacji (patrz stylowanie.md)
 │
 ├── components/          elementy UI edytora
-│   ├── TemplateSelector   kafelki layoutów
+│   ├── TemplateSelector   zakładki „Social media" / „Baner" + kafelki layoutów
 │   ├── SchemeSelector     pasek wyboru kolorystyki (renderowany pod podglądem)
 │   ├── PosterPreview      podgląd na żywo (ref do eksportu PNG)
 │   ├── PosterScaled       plakat 1080×1080 przeskalowany CSS transform do podglądu
@@ -22,8 +22,9 @@ src/
 │   └── PhotoGalleryField  galeria 0..N zdjęć, opakowuje ImageUpload
 │
 ├── posters/           renderowanie plakatów
-│   ├── registry.ts       poster_key → { name, Component, Form }
+│   ├── registry.ts       poster_key → { name, Component, Banner, Form }
 │   ├── PosterWyklad...    8 komponentów layoutów (style inline, patrz stylowanie.md)
+│   ├── banners/          banerowe wersje layoutów (BannerWyklad, ...) + wspólna stopka
 │   ├── blocks/           współdzielone bloki plakatu (PosterFrame, Badge, LogoRow, ...)
 │   ├── theme.ts          tokeny wizualne plakatów (kolory, typografia)
 │   ├── schemes.ts        schematy kolorów per layout + resolveScheme() + schemesFor() + oś akcentu (accentsFor)
@@ -88,13 +89,15 @@ recepty) nie ma osi w ogóle. Wybór jest kodowany w kolumnie `color_scheme` jak
 
 ## Kształty i formaty eksportu
 
-Plakat renderuje się w jednym z trzech kształtów (`src/posters/shape.ts`):
+Plakat renderuje się w jednym z pięciu kształtów (`src/posters/shape.ts`):
 
 | Kształt | Układ (px) | Kiedy |
 |---|---|---|
-| `square` | 1080 × 1080 | Kwadrat, Story, wszystkie miniatury |
+| `square` | 1080 × 1080 | Kwadrat, Story, miniatury plakatów, swatche, historia |
 | `portrait` | 1080 × 1528 | A4/A3/A2 w pionie |
 | `landscape` | 1528 × 1080 | A4/A3/A2 w poziomie |
+| `cover` | 1640 × 624 | baner: okładka strony na Facebooku |
+| `event` | 1192 × 624 | baner: okładka wydarzenia na Facebooku (eksport 1920 × 1005) |
 
 Kształt niesie kontekst Reacta (`PosterShapeContext`), ustawiany przez
 `PosterScaled`; `PosterFrame` i szablony czytają go przez `usePosterShape()`.
@@ -104,6 +107,8 @@ układu — tylko rozdzielczość eksportu (`src/posters/formats.ts`).
 Eksport (`src/posters/export.ts`):
 
 - **Kwadrat / Story** — PNG z układu 1080×1080, jak dotychczas.
+- **Banery (Facebook)** — PNG: układ banera rasteryzowany wprost do rozmiaru
+  formatu (1640×624 albo 1920×1005).
 - **A4 / A3 / A2** — rasteryzacja do rozmiaru papieru w px przy 300 dpi;
   gdy przeglądarka nie udźwignie canvasu, drabinka schodzi na 200 i 150 dpi
   (`dpiLadder.ts`), a kreator pokazuje, która rozdzielczość się udała.
@@ -115,6 +120,26 @@ Eksport (`src/posters/export.ts`):
 nasycone kolory marki (limonka, koral, granat) wychodzą w druku wyraźnie
 bardziej matowo niż na ekranie. Tekst w PDF nie jest zaznaczalny (to obraz).
 Bez spadów i znaczników cięcia.
+
+## Zakładki: Social media / Baner
+
+Panel „1. Wybierz szablon" ma dwie zakładki (`Medium` = `social` | `banner`,
+stan sesyjny w `App`, domyślnie `social`). Baner to **ten sam szablon w innym
+medium**, nie osobny wpis: rejestr trzyma przy każdym layoucie drugi komponent
+(`Banner`, pliki w `src/posters/banners/`). Zmiana zakładki zostawia wybrany
+layout, dane formularza, kolorystykę i akcent - zmienia się komponent, kształt
+i lista formatów eksportu (`formatsFor(medium)` w `formats.ts`). Banery wołają
+`resolveScheme` z tym samym kluczem co plakat, więc nie mają własnych schematów.
+
+Oba kształty banera mają wspólną wysokość układu (624 px) - baner projektuje
+się raz i jest płynny tylko na szerokość. `useBannerLayout()` oddaje boczny
+margines treści `padX`: tekst, logo i QR siedzą w środkowej kolumnie
+`BANNER_SAFE_W` (1096 px), bo Facebook na telefonie przycina okładkę strony do
+środkowych ~68% szerokości; na marginesy wychodzi tylko dekoracja i zdjęcia.
+
+W zakładce „Baner" podgląd przenosi się na górę i zajmuje całą szerokość
+kreatora (rozmiar z `useElementWidth`). Swatche kolorystyki i miniatury historii
+zostają kwadratowe; historia nie zapisuje medium.
 
 ## Zwijane panele kreatora
 

@@ -174,21 +174,44 @@ surowy klucz).
 Więcej o rolach, `resolveScheme` i konwencji `camelCase → --kebab`:
 [dodawanie-schematu-kolorow.md](./dodawanie-schematu-kolorow.md).
 
-## 4. Rejestr — `src/posters/registry.ts`
+## 4. Baner — `src/posters/banners/BannerPiknik.tsx`
+
+Każdy layout ma też szeroką wersję do zakładki „Baner" (okładka strony
+1640×624 i okładka wydarzenia 1920×1005 na Facebooku). To osobny komponent z
+tymi samymi propsami (`PosterProps`), tym samym kluczem w `resolveScheme` i tymi
+samymi blokami - tylko przekomponowany w poziomie. Najprościej skopiować
+najbliższy istniejący baner (np. `BannerOgloszenie.tsx`).
+
+Reguły:
+
+- Wysokość układu to zawsze 624 px, szerokość 1192-1640 px - projektuj raz,
+  płynnie na szerokość; nie rozgałęziaj po kształcie.
+- Marginesy bierz z `useBannerLayout()` (`padX`, `padY`) i podaj je w
+  `PosterFrame` przez `style={{ padding: ... }}`. Tekst, logo i QR muszą zostać
+  w środkowej kolumnie (między `padX` z lewej i z prawej); poza nią może wyjść
+  tylko dekoracja i zdjęcia - Facebook przycina boki okładki na telefonie.
+- Stopka: `<BannerLogos qrUrl={qrUrl} slots={slots} variant={s.logoVariant} />`
+  z `banners/common.tsx` (mniejszy QR, ten sam układ co `LogoRow` w plakacie).
+  Sygnet ma szerokość `BANNER_SYGNET_W`.
+- Widoczność pól (`fx` / `hidden`) i suwaki (`titleScale` / `textScale`)
+  działają jak w plakacie.
+
+## 5. Rejestr — `src/posters/registry.ts`
 
 ```ts
 import { PosterPiknik } from './PosterPiknik'
+import { BannerPiknik } from './banners/BannerPiknik'
 import { FormPiknik } from '../forms/FormPiknik'
 
 export const posterRegistry: Record<string, RegistryEntry> = {
   // ...
-  piknik: { name: 'Piknik', Component: PosterPiknik, Form: FormPiknik },
+  piknik: { name: 'Piknik', Component: PosterPiknik, Banner: BannerPiknik, Form: FormPiknik },
 }
 ```
 
 `name` to podpis kafelki w TemplateSelector.
 
-## 5. Domyślny szablon w bazie — `src/db/schema.ts`
+## 6. Domyślny szablon w bazie — `src/db/schema.ts`
 
 ```ts
 export const DEFAULT_TEMPLATES = [
@@ -201,7 +224,7 @@ export const DEFAULT_TEMPLATES = [
 także do baz zapisanych wcześniej w IndexedDB — **nie trzeba** podbijać
 `SCHEMA_VERSION` (to tylko przy zmianie kształtu tabel).
 
-## 6. Sprawdzenie
+## 7. Sprawdzenie
 
 ```bash
 npm run build      # typecheck + build
@@ -222,3 +245,6 @@ zdjęcia, pasy) skaluj przez `usePosterShape()` z `src/posters/shape.ts`
 (`kx`/`ky` = ile razy ramka jest szersza/wyższa od kwadratu) — nie
 wpisuj `1080` na sztywno i nie rozgałęziaj po formacie papieru. W kreatorze
 sprawdź też eksport A4 w pionie i poziomie (PNG i PDF).
+
+Baner obejrzyj pod `/poster/<klucz>?shape=cover` i `?shape=event`, a w
+kreatorze w zakładce „Baner" (oba formaty Facebooka, długi tytuł, kod QR).

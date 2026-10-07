@@ -19,6 +19,17 @@ describe('kształty plakatu', () => {
     expect(SHAPE_SIZE.landscape).toEqual({ width: 1528, height: 1080 })
   })
 
+  it('SHAPE_SIZE: banery mają wspólną wysokość układu', () => {
+    expect(SHAPE_SIZE.cover).toEqual({ width: 1640, height: 624 })
+    expect(SHAPE_SIZE.event).toEqual({ width: 1192, height: 624 })
+  })
+
+  it('PosterScaled shape=cover: ramka 1640×624, pudełko 820×312', () => {
+    const html = renderToStaticMarkup(h(PosterScaled, { size: 820, shape: 'cover' }, frame()))
+    expect(html).toContain('width:820px;height:312px')
+    expect(html.split('width:1640px;height:624px').length - 1).toBe(3)
+  })
+
   it('PosterFrame bez kontekstu = kwadrat 1080×1080 (miniatury bez zmian)', () => {
     expect(renderToStaticMarkup(frame())).toContain('width:1080px;height:1080px')
   })

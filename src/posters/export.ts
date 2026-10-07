@@ -1,5 +1,5 @@
 import { toCanvas, toPng } from 'html-to-image'
-import type { FileType, Orientation } from '../types'
+import type { FileType, Orientation, PosterShape } from '../types'
 import { rgbaToCmyk } from './cmyk'
 import { DPI_LADDER, withDpiLadder } from './dpiLadder'
 import { EXPORT_FORMATS, pageSizePt, pixelSize } from './formats'
@@ -62,12 +62,12 @@ function saveBlob(blob: Blob, filename: string) {
   setTimeout(() => URL.revokeObjectURL(url), 10_000)
 }
 
-// Rasteryzuje węzeł plakatu (w rozmiarze układu `orientation`) do canvasu
-// o dokładnych wymiarach papieru w px. Za duży canvas przeglądarka oddaje
+// Rasteryzuje węzeł plakatu (w rozmiarze układu `shape`) do canvasu
+// o dokładnych wymiarach docelowych w px (papier albo baner). Za duży canvas przeglądarka oddaje
 // pusty (przezroczysty) - plakat jest nieprzezroczysty, więc alfa 0 w rogu
 // oznacza porażkę i rzucamy, żeby drabinka zeszła na niższe dpi.
-async function rasterise(node: HTMLElement, orientation: Orientation, px: { width: number; height: number }): Promise<HTMLCanvasElement> {
-  const layout = SHAPE_SIZE[orientation]
+async function rasterise(node: HTMLElement, shape: PosterShape, px: { width: number; height: number }): Promise<HTMLCanvasElement> {
+  const layout = SHAPE_SIZE[shape]
   const canvas = await toCanvas(node, {
     width: layout.width,
     height: layout.height,
@@ -108,11 +108,18 @@ async function canvasToPdfBlob(canvas: HTMLCanvasElement, paper: PaperSize, orie
 
 // Pobiera plakat w wybranym formacie. Formaty social (kwadrat/story) to
 // zawsze PNG z układu 1080×1080 - `orientation`/`fileType` są ignorowane.
-// Formaty papierowe idą przez drabinkę dpi; zwracane `dpi` to rozdzielczość,
+// Banery (format z własnym `shape`) to PNG z układu banera, rasteryzowany
+// wprost do rozmiaru formatu. Formaty papierowe idą przez drabinkę dpi; zwracane `dpi` to rozdzielczość,
 // która faktycznie się udała.
 export async function downloadPoster(node: HTMLElement, basename: string, opts: DownloadOptions): Promise<{ dpi?: number }> {
   const format = EXPORT_FORMATS[opts.formatKey] ?? EXPORT_FORMATS.square
   const paper = format.paper
+
+  if (format.shape && format.width && format.height) {
+    const canvas = await rasterise(node, format.shape, { width: format.width, height: format.height })
+    saveBlob(await canvasToPngBlob(canvas), `${basename}.png`)
+    return {}
+  }
 
   if (!paper) {
     const posterDataUrl = await toPng(node, { width: 1080, height: 1080, pixelRatio: 1 })

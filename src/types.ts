@@ -98,8 +98,11 @@ export interface ResolvedScheme {
 // (pola tekstowe pokrywają się, nadmiarowe kolumny nie przeszkadzają).
 export type RawPosterData = { [K in keyof FormValues]?: FormValues[K] | null }
 // Kształt renderowanego plakatu. `square` to format social i wszystkie
-// miniatury; `portrait`/`landscape` to proporcja papieru A (1:√2).
-export type PosterShape = 'square' | 'portrait' | 'landscape'
+// miniatury; `portrait`/`landscape` to proporcja papieru A (1:√2);
+// `cover`/`event` to banery Facebooka (okładka strony / wydarzenia).
+export type PosterShape = 'square' | 'portrait' | 'landscape' | 'cover' | 'event'
+// Zakładka wyboru szablonu: grafika social (i druk) albo szeroki baner.
+export type Medium = 'social' | 'banner'
 export type Orientation = 'portrait' | 'landscape'
 export type FileType = 'png' | 'pdf'
 
@@ -128,5 +131,7 @@ export interface FormProps {
 export interface RegistryEntry {
   name: string
   Component: ComponentType<PosterProps>
+  // Szeroka wersja tego samego layoutu (zakładka „Baner").
+  Banner: ComponentType<PosterProps>
   Form: ComponentType<FormProps>
 }
