@@ -41,8 +41,10 @@ nie trafiają do historii.
 | `VITE_SUPABASE_ANON_KEY` | Project Settings → API → klucz `anon` / publishable |
 
 - **Lokalnie:** skopiuj `.env.example` do `.env.local` i uzupełnij.
-- **GitHub Pages:** repozytorium → Settings → Secrets and variables → Actions →
-  zakładka **Variables** → dodaj obie. `deploy.yml` przekazuje je do builda.
+- **GitHub Pages:** repozytorium → Settings → Environments → `github-pages` →
+  **Environment secrets** → dodaj obie. `deploy.yml` przekazuje je do builda
+  (zadanie `build` działa w tym środowisku). Po zmianie wartości trzeba
+  uruchomić deploy ponownie - są wkompilowane w build.
 
 Klucz anon jest publiczny z założenia (trafia do zbudowanego JS). Dostępu
 pilnuje RLS: rola `anon` nie ma żadnej polityki, a zalogowani muszą być na

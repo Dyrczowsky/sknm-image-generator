@@ -16,6 +16,8 @@ concurrency:
 
 jobs:
   build:
+    # Środowisko daje dostęp do sekretów Supabase używanych przy budowaniu.
+    environment: github-pages
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -34,9 +36,10 @@ jobs:
       - name: Build
         run: npm run build
         env:
-          # Publiczne z założenia (klucz anon) - dostępu pilnuje RLS w bazie.
-          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
+          # Sekrety środowiska `github-pages`. Klucz anon i tak trafia do
+          # zbudowanego JS - dostępu pilnuje RLS w bazie, nie jego tajność.
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact
