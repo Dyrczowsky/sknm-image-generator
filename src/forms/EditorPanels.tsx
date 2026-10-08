@@ -1,11 +1,12 @@
 import type { FormProps, RegistryEntry } from '../types'
-import { UI_HEADING, UI_HINT } from '../components/styles'
 import { FormBanner } from './FormBanner'
+import { LookFields } from './LookFields'
 
 // Styk między powłoką edytora (`src/pages/EditorPage.tsx`) a formularzami.
 // Powłoka renderuje `ContentPanel` w zakładce „Treść" i `LookPanel` w zakładce
 // „Wygląd" i nie wie nic więcej o formularzach - ich podział i wygląd zmienia
-// się wyłącznie w `src/forms/`.
+// się wyłącznie w `src/forms/`. Oba panele są zawsze zamontowane (nieaktywny
+// jest `hidden`), więc żaden nie opakowuje się w `<form>` ani w padding.
 export interface EditorPanelProps extends FormProps {
   // Wpis rejestru wybranego szablonu (`undefined`, gdy żaden nie jest wybrany).
   poster: RegistryEntry | undefined
@@ -13,10 +14,9 @@ export interface EditorPanelProps extends FormProps {
   banner: boolean
 }
 
-// Zakładka „Treść". NA RAZIE trzyma cały dotychczasowy formularz layoutu
-// (suwaki rozmiaru, pola, grafiki stopki, kod QR, zdjęcia) - komponent `Form`
-// z rejestru jest jednym `<form>` i nie da się go rozdzielić na dwie zakładki
-// bez przebudowy `PosterForm`.
+// Zakładka „Treść": pola tekstowe layoutu, program (Konferencja), zdjęcia
+// i kod QR. Komponent `Form` z rejestru to tylko tę część - rozmiar tekstu
+// i logotypy renderuje `LookPanel`.
 export function ContentPanel({ poster, banner, value, onChange }: EditorPanelProps) {
   if (!poster) return null
   // Baner ma wspólny, krótki formularz - dane wydarzenia zostają w stanie
@@ -26,16 +26,9 @@ export function ContentPanel({ poster, banner, value, onChange }: EditorPanelPro
   return <LayoutForm value={value} onChange={onChange} />
 }
 
-// Zakładka „Wygląd". Docelowo: rozmiar tekstu, logo PK i logotypy stopki.
-// Dopóki formularze nie są podzielone, mówi wprost, gdzie te ustawienia są.
-export function LookPanel({ poster }: EditorPanelProps) {
+// Zakładka „Wygląd": rozmiar tekstu (dwa suwaki ze spięciem), logo PK
+// i logotypy stopki. Taka sama dla każdego layoutu i dla banera.
+export function LookPanel({ poster, value, onChange }: EditorPanelProps) {
   if (!poster) return null
-  return (
-    <section className="flex flex-col gap-2">
-      <h2 className={UI_HEADING}>Wygląd</h2>
-      <p className={UI_HINT}>
-        Rozmiar tekstu, logo Politechniki Krakowskiej i logotypy stopki są na razie w zakładce „Treść" — na początku i na końcu formularza.
-      </p>
-    </section>
-  )
+  return <LookFields value={value} onChange={onChange} />
 }

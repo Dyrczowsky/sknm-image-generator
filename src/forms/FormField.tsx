@@ -1,45 +1,37 @@
 import type { FormProps } from '../types'
-import { CHECKBOX } from '../components/styles'
+import { Field, IconButton, Input, Textarea } from '../components/ui'
 import { setField, setFieldVisible } from '../editor/formState'
 import { placeholderFor } from '../posters/fallback'
 import type { FieldSpec } from './fields'
-
-const FIELD_CLASS =
-  'rounded-lg border border-field-border bg-field px-3 py-[9px] text-base text-fg transition-[border-color,box-shadow] focus:border-accent focus:outline-none focus:shadow-[0_0_0_3px_var(--color-accent-soft)]'
 
 interface FormFieldProps extends FormProps {
   field: FieldSpec
 }
 
-// Pojedyncze pole tekstowe/data/godzina/akapit. Checkbox przy etykiecie
-// steruje widocznością pola na plakacie - odznaczone pole znika z układu.
+// Pojedyncze pole tekstowe/data/godzina/akapit. Przełącznik oka przy etykiecie
+// steruje widocznością pola na plakacie - ukryte pole znika z układu, a jego
+// wejście zostaje edytowalne (tylko przygaszone).
 export function FormField({ field, value, onChange }: FormFieldProps) {
   const { name, label, type = 'text' } = field
   const visible = value.visibility[name] !== false
-  const input = {
+  const control = {
     placeholder: field.placeholder ?? placeholderFor(name),
     value: value[name],
-    'aria-label': label,
+    className: visible ? undefined : 'opacity-60',
     onChange: (e: { target: { value: string } }) => onChange(setField(name, e.target.value)),
   }
+  const toggle = (
+    <IconButton
+      icon={visible ? 'eye' : 'eyeOff'}
+      label={`${visible ? 'Ukryj na plakacie' : 'Pokaż na plakacie'}: ${label}`}
+      aria-pressed={visible}
+      onClick={() => onChange(setFieldVisible(name, !visible))}
+    />
+  )
 
   return (
-    <div className="flex flex-col gap-1.5 text-[0.9rem]">
-      <span className="flex items-center gap-2">
-        <input
-          type="checkbox"
-          className={CHECKBOX}
-          checked={visible}
-          onChange={(e) => onChange(setFieldVisible(name, e.target.checked))}
-          aria-label={`Pokaż na plakacie: ${label}`}
-        />
-        <span className={visible ? undefined : 'text-muted'}>{label}</span>
-      </span>
-      {type === 'textarea' ? (
-        <textarea className={`${FIELD_CLASS} resize-y`} rows={5} {...input} />
-      ) : (
-        <input className={FIELD_CLASS} type={type} {...input} />
-      )}
-    </div>
+    <Field label={label} action={toggle}>
+      {type === 'textarea' ? <Textarea rows={5} {...control} /> : <Input type={type} {...control} />}
+    </Field>
   )
 }

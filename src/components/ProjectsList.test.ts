@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
@@ -23,36 +24,66 @@ const render = (projects: ProjectRow[], currentId: number | null = null) =>
   )
 
 describe('ProjectsList', () => {
-  it('pusta lista', () => {
-    expect(render([])).toContain('Nie masz jeszcze zapisanych projektów.')
+  it('bez projektów: dwie sekcje, każda z własnym komunikatem', () => {
+    const html = render([])
+    expect(html).toContain('Moje projekty')
+    expect(html).toContain('Udostępnione przez zespół')
+    expect(html).toContain('Nie masz jeszcze zapisanych projektów.')
+    expect(html).toContain('Nikt jeszcze nie udostępnił zespołowi swojego projektu.')
+    expect(html).not.toContain('<ul')
   })
 
   it('własny projekt: nazwa, data i komplet akcji', () => {
     const html = render([row(1, { name: 'Wykład wiosenny' })])
     expect(html).toContain('Wykład wiosenny')
     expect(html).toContain('zmieniono 2031-03-04 09:05')
-    expect(html).toContain('>Otwórz<')
-    expect(html).toContain('Zmień nazwę')
+    expect(html).toContain('Otwórz</button>')
+    expect(html).toContain('aria-label="Zmień nazwę"')
     expect(html).toContain('Udostępnij zespołowi')
-    expect(html).toContain('>Usuń<')
+    expect(html).toContain('Usuń</button>')
     expect(html).not.toContain('Otwórz kopię')
     expect(html).not.toContain('Udostępnił(a)')
+    // Pusta jest tylko sekcja cudzych projektów.
+    expect(html).not.toContain('Nie masz jeszcze zapisanych projektów.')
+    expect(html).toContain('Nikt jeszcze nie udostępnił')
   })
 
-  it('checkbox udostępniania odzwierciedla shared', () => {
-    expect(render([row(1, { shared: true })])).toContain('checked=""')
-    expect(render([row(1, { shared: false })])).not.toContain('checked=""')
+  it('przełącznik udostępniania mówi, jaki jest stan', () => {
+    const shared = render([row(1, { shared: true })])
+    expect(shared).toContain('aria-pressed="true"')
+    expect(shared).toContain('Udostępniony zespołowi')
+    const priv = render([row(1, { shared: false })])
+    expect(priv).toContain('aria-pressed="false"')
+    expect(priv).toContain('Udostępnij zespołowi')
   })
 
-  it('cudzy projekt: autor i tylko „Otwórz kopię"', () => {
+  it('usuwanie idzie przez ConfirmButton, nie przez window.confirm', () => {
+    const html = render([row(1)])
+    expect(html).not.toContain('role="group"')
+    expect(readFileSync(new URL('./ProjectsList.tsx', import.meta.url), 'utf8')).not.toContain('window.confirm')
+  })
+
+  it('miniatura własnego projektu otwiera go', () => {
+    const html = render([row(1, { name: 'Wykład wiosenny' })])
+    expect(html).toContain('aria-label="Otwórz: Wykład wiosenny"')
+  })
+
+  it('cudzy projekt w drugiej sekcji: autor i tylko „Otwórz kopię"', () => {
     const html = render([row(2, { owner: 'other', owner_email: 'ona@klub.pl', shared: true })])
     expect(html).toContain('Udostępnił(a): ona@klub.pl')
     expect(html).toContain('Otwórz kopię')
-    expect(html).not.toContain('>Otwórz<')
+    expect(html).not.toContain('Otwórz</button>')
     expect(html).not.toContain('Zmień nazwę')
     expect(html).not.toContain('Udostępnij zespołowi')
     expect(html).not.toContain('Usuń')
-    expect(html).not.toContain('type="checkbox"')
+    expect(html).toContain('Nie masz jeszcze zapisanych projektów.')
+  })
+
+  it('własne i cudze trafiają do właściwych sekcji', () => {
+    const html = render([row(1, { name: 'Moje A' }), row(2, { name: 'Cudze B', owner: 'other', owner_email: 'x@klub.pl' })])
+    const split = html.indexOf('Udostępnione przez zespół')
+    expect(html.indexOf('Moje A')).toBeLessThan(split)
+    expect(html.indexOf('Cudze B')).toBeGreaterThan(split)
   })
 
   it('otwarty projekt: plakietka i aria-current tylko na nim', () => {
@@ -62,12 +93,12 @@ describe('ProjectsList', () => {
     expect(render([row(1)])).not.toContain('Otwarty')
   })
 
-  it('nieczytelny snapshot: szara miniatura, notka i brak przycisku otwarcia', () => {
+  it('nieczytelny snapshot: szara miniatura, notka, brak otwarcia (miniatury też), ale usuwanie zostaje', () => {
     const html = render([row(3, { snapshot: { v: 99 } })])
     expect(html).toContain('bg-border')
     expect(html).toContain('Wymaga nowszej wersji aplikacji')
     expect(html).not.toContain('Otwórz')
-    expect(html).toContain('>Usuń<')
+    expect(html).toContain('Usuń</button>')
   })
 
   it('cudzy nieczytelny snapshot: bez żadnej akcji', () => {

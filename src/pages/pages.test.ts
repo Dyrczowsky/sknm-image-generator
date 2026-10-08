@@ -1,4 +1,5 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it } from 'vitest'
+import { register, resetRegistry } from '../assets/registry'
 import type { AssetLibrary } from '../assets/useAssetLibrary'
 import type { Notes } from '../notes/useNotes'
 import type { ProjectRow } from '../projects/remoteProjects'
@@ -35,8 +36,8 @@ const notes = (sessionStatus: string) =>
     sessionStatus, onSignInClick: noop,
     notes: { ...list([{ id: 1, created_at: '2031-03-04T10:00:00Z', author_email: 'ola@sknm.pl', text: 'Wydrukować plakaty', done: false }], sessionStatus), add: noop, change: noop, remove: noop } as unknown as Notes,
   }))
-const assets = (sessionStatus: string, items: unknown[] = [{ ref: 'a'.repeat(64) + '.png', created_at: '2031-03-04T10:00:00Z', author_email: 'jan@sknm.pl', kind: 'logo', name: 'Logo wydziału' }]) =>
-  render(h(AssetsPage, { sessionStatus, onSignInClick: noop, library: { ...list(items, sessionStatus), rename: noop, remove: noop, register: noop, loadThumbs: async () => {} } as unknown as AssetLibrary }))
+const assets = (sessionStatus: string, items: unknown[] = [{ ref: 'a'.repeat(64) + '.png', created_at: '2031-03-04T10:00:00Z', author_email: 'jan@sknm.pl', kind: 'logo', name: 'Logo wydziału' }], memberEmail?: string) =>
+  render(h(AssetsPage, { sessionStatus, onSignInClick: noop, memberEmail, library: { ...list(items, sessionStatus), rename: noop, remove: noop, register: noop, loadThumbs: async () => {} } as unknown as AssetLibrary }))
 
 const PAGES: [string, (sessionStatus: string) => string, string][] = [
   ['Projekty', projects, 'swoje projekty'],
@@ -58,7 +59,7 @@ describe('strony poboczne', () => {
   it('niezalogowany widzi zachętę do logowania zamiast listy', () => {
     for (const [title, page, subject] of PAGES) {
       const html = page('signedOut')
-      expect(html, title).toMatch(/<button[^>]*>Zaloguj się<\/button>/)
+      expect(html, title).toMatch(/<button[^>]*>(<svg.*?<\/svg>)?Zaloguj się<\/button>/)
       expect(html, title).toContain(subject)
       expect(html, title).not.toContain('<ul')
     }
@@ -76,6 +77,14 @@ describe('ProjectsPage', () => {
     expect(html).toContain('aria-current="true"')
     expect(html).toContain('Otwórz')
     expect(html.indexOf('>Nowy projekt<')).toBeLessThan(html.indexOf('<ul'))
+  })
+
+  it('własny i cudzy projekt trafiają do osobnych sekcji', () => {
+    const html = projects('signedIn', [PROJECT, { ...PROJECT, id: 8, owner: 'u-jan', owner_email: 'jan@sknm.pl', name: 'Baner Jana', shared: true }])
+    expect(html.indexOf('Wykład o AI')).toBeLessThan(html.indexOf('Udostępnione przez zespół'))
+    expect(html.indexOf('Baner Jana')).toBeGreaterThan(html.indexOf('Udostępnione przez zespół'))
+    expect(html).toContain('Otwórz kopię')
+    expect(html).toContain('Udostępnił(a): jan@sknm.pl')
   })
 
   it('pusta lista ma własny komunikat', () => {
@@ -101,6 +110,14 @@ describe('NotesPage', () => {
 })
 
 describe('AssetsPage', () => {
+  const LOGO_A = 'a'.repeat(64) + '.png'
+  const LOGO_B = 'b'.repeat(64) + '.png'
+  const PHOTO = 'c'.repeat(64) + '.jpg'
+  const item = (ref: string, author: string, kind: string, name: string) => ({ ref, created_at: '2031-03-04T10:00:00Z', author_email: author, kind, name })
+  const MIXED = [item(LOGO_A, 'jan@sknm.pl', 'logo', 'Logo wydziału'), item(LOGO_B, 'ola@sknm.pl', 'logo', 'Logo koła'), item(PHOTO, 'ola@sknm.pl', 'photo', 'Aula')]
+
+  afterEach(resetRegistry)
+
   it('pozycja biblioteki: nazwa, rodzaj, autor i data', () => {
     const html = assets('signedIn')
     expect(html).toContain('Logo wydziału')
@@ -110,7 +127,48 @@ describe('AssetsPage', () => {
   })
 
   it('grafika bez nazwy i pusta biblioteka', () => {
-    expect(assets('signedIn', [{ ref: 'b'.repeat(64) + '.jpg', created_at: '2031-03-04T10:00:00Z', author_email: 'jan@sknm.pl', kind: 'photo', name: '' }])).toMatch(/Bez nazwy.*Zdjęcie/s)
-    expect(assets('signedIn', [])).toContain('Biblioteka jest pusta.')
+    expect(assets('signedIn', [item(PHOTO, 'jan@sknm.pl', 'photo', '')])).toMatch(/Bez nazwy.*Zdjęcie/s)
+    const empty = assets('signedIn', [])
+    expect(empty).toContain('Biblioteka jest pusta.')
+    expect(empty).not.toContain('Rodzaj grafiki')
+  })
+
+  it('filtr „Wszystkie / Logotypy / Zdjęcia" pokazuje liczności', () => {
+    const html = assets('signedIn', MIXED, 'jan@sknm.pl')
+    expect(html).toContain('aria-label="Rodzaj grafiki"')
+    expect(html).toContain('Wszystkie (3)')
+    expect(html).toContain('Logotypy (2)')
+    expect(html).toContain('Zdjęcia (1)')
+    // Domyślnie pokazane są wszystkie kafelki.
+    expect(html.match(/<li /g)).toHaveLength(3)
+  })
+
+  it('własne wgrania mają zmianę nazwy i usunięcie, cudze nie', () => {
+    const html = assets('signedIn', MIXED, 'ola@sknm.pl')
+    expect(html.match(/Usuń z biblioteki/g)).toHaveLength(2)
+    expect(html.match(/aria-label="Zmień nazwę"/g)).toHaveLength(2)
+    const other = assets('signedIn', MIXED, 'ktos@sknm.pl')
+    expect(other).not.toContain('Usuń z biblioteki')
+    expect(other).not.toContain('Zmień nazwę')
+  })
+
+  it('porównanie adresów nie zależy od wielkości liter', () => {
+    expect(assets('signedIn', MIXED, 'JAN@sknm.pl').match(/Usuń z biblioteki/g)).toHaveLength(1)
+  })
+
+  it('bez wczytanej miniatury: placeholder, po wczytaniu obraz', () => {
+    expect(assets('signedIn', MIXED, 'x')).toContain('data-placeholder')
+    expect(assets('signedIn', MIXED, 'x')).not.toContain('<img')
+    register(LOGO_A, 'data:image/png;base64,AAA')
+    const html = assets('signedIn', MIXED, 'x')
+    expect(html.match(/<img /g)).toHaveLength(1)
+    expect(html.match(/data-placeholder/g)).toHaveLength(2)
+  })
+
+  it('„Dodaj logotyp" tylko dla zalogowanej osoby', () => {
+    const html = assets('signedIn', MIXED, 'x')
+    expect(html).toContain('Dodaj logotyp')
+    expect(html).toContain('type="file"')
+    expect(assets('signedOut', MIXED)).not.toContain('Dodaj logotyp')
   })
 })

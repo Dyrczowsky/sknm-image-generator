@@ -1,9 +1,10 @@
-import { useRef, useState } from 'react'
+import { useId, useRef, useState } from 'react'
 import type { ChangeEvent, PointerEvent } from 'react'
 import { importImage } from '../assets/assets'
 import { importErrorMessage } from '../assets/prepare'
 import { IMAGE_ACCEPT } from '../utils/readAsDataUrl'
-import { FILE_PICKER, FILE_PICKER_INPUT, IMAGE_THUMB, IMAGE_THUMB_IMG } from './styles'
+import { IMAGE_THUMB, IMAGE_THUMB_IMG, UI_ERROR, UI_HINT, UI_LABEL, buttonClass } from './styles'
+import { Button, Icon } from './ui'
 
 // Kadr zdjęcia: pozycja wycinka w procentach (0-100) w obu osiach.
 interface Position {
@@ -32,6 +33,27 @@ interface DragState {
 
 const clampPercent = (value: number) => Math.round(Math.min(100, Math.max(0, value)))
 
+interface FilePickerButtonProps {
+  // Tekst przycisku (np. „Wybierz plik").
+  text: string
+  accept: string
+  multiple?: boolean
+  onChange: (e: ChangeEvent<HTMLInputElement>) => void
+}
+
+// Przycisk wyboru pliku: `<label>` w wyglądzie przycisku nad prawdziwym
+// `<input type="file">`, który jest tylko niewidoczny (nie `display: none`),
+// więc dostaje fokus z klawiatury - pierścień rysujemy na etykiecie.
+export function FilePickerButton({ text, accept, multiple, onChange }: FilePickerButtonProps) {
+  return (
+    <label className={`${buttonClass({ variant: 'outline' })} relative has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-focus`}>
+      <Icon name="upload" />
+      {text}
+      <input className="absolute inset-0 size-full cursor-pointer opacity-0" type="file" accept={accept} multiple={multiple} onChange={onChange} />
+    </label>
+  )
+}
+
 interface PositionSliderProps {
   label: string
   value: number
@@ -40,9 +62,9 @@ interface PositionSliderProps {
 
 function PositionSlider({ label, value, onChange }: PositionSliderProps) {
   return (
-    <label className="flex items-center gap-3 text-[0.8rem] text-muted">
-      <span className="w-[108px] flex-none">{label}</span>
-      <input className="crop-slider flex-1 cursor-pointer" type="range" min="0" max="100" value={value} onChange={(e) => onChange(Number(e.target.value))} />
+    <label className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[0.8125rem] text-muted">
+      <span className="w-[116px] flex-none">{label}</span>
+      <input className="crop-slider min-w-[120px] flex-1 cursor-pointer" type="range" min="0" max="100" value={value} onChange={(e) => onChange(Number(e.target.value))} />
     </label>
   )
 }
@@ -83,14 +105,17 @@ export function ImageUpload({ label, hint, value, onChange, position, onPosition
     })
   }
 
+  const labelId = useId()
   return (
-    <div className="flex flex-col gap-2">
-      <span className="text-[0.9rem] font-medium">{label}</span>
-      {hint && <p className="m-0 text-[0.8rem] text-muted">{hint}</p>}
+    <div role="group" aria-labelledby={labelId} className="flex flex-col gap-2.5 rounded-xl border border-border p-3">
+      <span id={labelId} className={UI_LABEL}>
+        {label}
+      </span>
+      {hint && <p className={UI_HINT}>{hint}</p>}
 
       {value && position && (
         <div
-          className="relative h-[140px] w-full cursor-grab touch-none select-none overflow-hidden rounded-[10px] border border-field-border bg-cover bg-no-repeat active:cursor-grabbing"
+          className="relative h-[140px] w-full cursor-grab touch-none select-none overflow-hidden rounded-lg border border-field-border bg-cover bg-no-repeat active:cursor-grabbing"
           style={{ backgroundImage: `url(${value})`, backgroundPosition: `${position.x}% ${position.y}%` }}
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
@@ -98,40 +123,34 @@ export function ImageUpload({ label, hint, value, onChange, position, onPosition
             drag.current = null
           }}
         >
-          <span className="pointer-events-none absolute bottom-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-[rgba(15,23,42,0.65)] px-2.5 py-1 text-[0.7rem] text-white">
+          <span className="pointer-events-none absolute bottom-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-[rgba(15,23,42,0.65)] px-2.5 py-1 text-xs text-white">
             przeciągnij, aby ustawić kadr
           </span>
         </div>
       )}
 
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-wrap items-center gap-2">
         {value && !position && (
           <div className={IMAGE_THUMB}>
             <img className={IMAGE_THUMB_IMG} src={value} alt={`Podgląd: ${label}`} />
           </div>
         )}
-        <label className={`relative ${FILE_PICKER}`}>
-          {value ? 'Zmień plik' : 'Wybierz plik'}
-          <input className={FILE_PICKER_INPUT} type="file" accept={IMAGE_ACCEPT} onChange={handleFile} />
-        </label>
+        <FilePickerButton text={value ? 'Zmień plik' : 'Wybierz plik'} accept={IMAGE_ACCEPT} onChange={handleFile} />
         {value && (
-          <button
-            type="button"
-            className="cursor-pointer rounded-lg border border-field-border bg-transparent px-4 py-[9px] text-[0.85rem] text-muted transition-[border-color,color] hover:border-danger hover:text-danger"
-            onClick={() => onChange(null)}
-          >
+          <Button icon="trash" onClick={() => onChange(null)}>
             Usuń
-          </button>
+          </Button>
         )}
       </div>
       {error && (
-        <p className="m-0 text-[0.8rem] text-danger" role="alert">
-          {error}
+        <p className={UI_ERROR} role="alert">
+          <Icon name="alert" className="mt-px" />
+          <span>{error}</span>
         </p>
       )}
 
       {value && position && onPositionChange && (
-        <div className="mt-1 flex flex-col gap-2.5 rounded-[10px] bg-accent-soft px-3.5 py-3">
+        <div className="flex flex-col gap-2.5 rounded-lg bg-accent-soft px-3 py-2.5">
           <PositionSlider label="Pozycja w poziomie" value={position.x} onChange={(x) => onPositionChange({ x })} />
           <PositionSlider label="Pozycja w pionie" value={position.y} onChange={(y) => onPositionChange({ y })} />
         </div>

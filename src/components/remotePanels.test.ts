@@ -1,5 +1,5 @@
-import { createElement } from 'react'
-import type { ReactElement } from 'react'
+import { createElement, isValidElement } from 'react'
+import type { ReactElement, ReactNode } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 import type { Note } from '../notes/remoteNotes'
@@ -11,6 +11,7 @@ import type { HistoryEntry } from '../types'
 import { HistoryList } from './HistoryList'
 import { NotesPanel } from './NotesPanel'
 import { RemotePanel } from './RemotePanel'
+import { ConfirmButton } from './ui'
 
 // Dzieci jako argumenty: typy Reacta wymagają `children` w propsach, a linter
 // zabrania przekazywać je tamtędy.
@@ -23,29 +24,42 @@ const panel = (sessionStatus: string, listStatus: string, actionError: string | 
   )
 
 describe('RemotePanel', () => {
-  it('niezalogowany: zachęta do logowania zamiast treści', () => {
+  it('niezalogowany: zaproszenie z przyciskiem logowania zamiast treści', () => {
     const html = panel('signedOut', 'idle')
-    expect(html).toContain('Zaloguj się')
-    expect(html).toContain('wspólne notatki')
+    expect(html).toContain('Tylko dla członków koła')
+    expect(html).toContain('Zaloguj się, aby zobaczyć wspólne notatki.')
+    expect(html).toMatch(/<button[^>]*>(<svg.*?<\/svg>)?Zaloguj się<\/button>/)
     expect(html).not.toContain('TREŚĆ_PANELU')
+    expect(html).not.toContain('text-accent ')
   })
 
-  it('ładowanie (także zanim znamy sesję)', () => {
-    expect(panel('loading', 'idle')).toContain('Ładowanie…')
-    expect(panel('signedIn', 'loading')).toContain('Ładowanie…')
+  it('ładowanie (także zanim znamy sesję): status ze spinnerem', () => {
+    for (const html of [panel('loading', 'idle'), panel('signedIn', 'loading')]) {
+      expect(html).toContain('Ładowanie…')
+      expect(html).toContain('role="status"')
+    }
   })
 
-  it('błąd wczytania: komunikat z ponowieniem', () => {
+  it('błąd wczytania: alert z przyciskiem ponowienia', () => {
     const html = panel('signedIn', 'error')
+    expect(html).toContain('role="alert"')
+    expect(html).toContain('Nie udało się wczytać danych')
     expect(html).toContain('Spróbuj ponownie')
     expect(html).not.toContain('TREŚĆ_PANELU')
+  })
+
+  it('build bez Supabase: wyjaśnienie zamiast wiecznego ładowania', () => {
+    const html = panel('unconfigured', 'idle')
+    expect(html).toContain('Brak połączenia z kontem zespołu')
+    expect(html).not.toContain('Ładowanie…')
   })
 
   it('gotowe: treść, a nad nią błąd ostatniej zmiany', () => {
     expect(panel('signedIn', 'ready')).toBe('TREŚĆ_PANELU')
     const html = panel('signedIn', 'ready', 'Nie udało się zapisać zmiany.')
     expect(html).toContain('Nie udało się zapisać zmiany.')
-    expect(html).toContain('TREŚĆ_PANELU')
+    expect(html).toContain('role="alert"')
+    expect(html.indexOf('Nie udało się zapisać')).toBeLessThan(html.indexOf('TREŚĆ_PANELU'))
   })
 })
 
@@ -71,6 +85,36 @@ describe('NotesPanel', () => {
     expect(html).toMatch(/line-through[^>]*>Zarezerwować salę/)
     expect(html.match(/type="checkbox"/g)).toHaveLength(2)
     expect(html.match(/checked=""/g)).toHaveLength(1)
+  })
+
+  it('otwarte notatki są w „Do zrobienia", zrobione niżej w „Zrobione"', () => {
+    const html = renderToStaticMarkup(
+      h(NotesPanel, {
+        notes: notes([
+          { id: 2, created_at: '2031-03-03T10:00:00Z', author_email: 'jan@sknm.pl', text: 'Zrobiona rzecz', done: true },
+          { id: 1, created_at: '2031-03-04T10:00:00Z', author_email: 'ola@sknm.pl', text: 'Otwarta rzecz', done: false },
+        ]),
+      }),
+    )
+    expect(html.indexOf('Do zrobienia')).toBeLessThan(html.indexOf('Otwarta rzecz'))
+    expect(html.indexOf('Otwarta rzecz')).toBeLessThan(html.indexOf('Zrobione<'))
+    expect(html.indexOf('Zrobione<')).toBeLessThan(html.indexOf('Zrobiona rzecz'))
+  })
+
+  it('same zrobione: sekcja „Do zrobienia" mówi, że wszystko gotowe', () => {
+    const html = renderToStaticMarkup(
+      h(NotesPanel, { notes: notes([{ id: 2, created_at: '2031-03-03T10:00:00Z', author_email: 'jan@sknm.pl', text: 'Zrobiona rzecz', done: true }]) }),
+    )
+    expect(html).toContain('Wszystko zrobione.')
+  })
+
+  it('pole dodawania: Dodaj wyłączone przy pustym tekście; edycja i usuwanie są przyciskami', () => {
+    const html = renderToStaticMarkup(
+      h(NotesPanel, { notes: notes([{ id: 1, created_at: '2031-03-04T10:00:00Z', author_email: 'ola@sknm.pl', text: 'Coś', done: false }]) }),
+    )
+    expect(html).toMatch(/<button[^>]*disabled=""[^>]*>(<svg.*?<\/svg>)?Dodaj<\/button>/)
+    expect(html).toContain('Edytuj')
+    expect(html).toContain('Usuń')
   })
 })
 
@@ -109,24 +153,61 @@ describe('HistoryList', () => {
 
   it('wpis bez snapshotu: kwadratowa miniatura właściwego layoutu', () => {
     const html = render([entry({ snapshot: null })])
-    expect(html).toContain('width:120px;height:120px')
+    expect(html).toContain('width:208px;height:208px')
     expect(html).toContain('Mój wykład')
     expect(html).not.toContain('bg-border')
   })
 
   it('snapshot z medium banner: miniatura banera', () => {
     const html = render([entry({ snapshot: snapshot({ medium: 'banner', format: 'fbCover' }) })])
-    expect(html).toContain('width:120px;height:45.6')
+    expect(html).toContain('width:208px;height:79')
     expect(html).toContain('width:1640px;height:624px')
   })
 
-  it('snapshot A4 poziomo: ok. 120×85 px', () => {
+  it('snapshot A4 poziomo: ok. 208×147 px', () => {
     const html = render([entry({ snapshot: snapshot({ format: 'a4', orientation: 'landscape' }) })])
-    expect(html).toContain('width:120px;height:84.8')
+    expect(html).toContain('width:208px;height:147')
   })
 
   it('snapshot nieczytelny (nieznana wersja): wraca do wąskich kolumn', () => {
     const html = render([entry({ snapshot: { v: 99 } })])
-    expect(html).toContain('width:120px;height:120px')
+    expect(html).toContain('width:208px;height:208px')
+  })
+
+  // Przechodzi po drzewie elementów, rozwijając komponenty bez hooków
+  // (HistoryList, HistoryCard); ConfirmButton zostaje jako węzeł do sprawdzenia.
+  const confirmButtons = (node: ReactNode): ReactElement<{ question: string; onConfirm: () => void }>[] => {
+    if (Array.isArray(node)) return node.flatMap(confirmButtons)
+    if (!isValidElement(node)) return []
+    if (node.type === ConfirmButton) return [node as ReactElement<{ question: string; onConfirm: () => void }>]
+    const props = node.props as { children?: ReactNode }
+    if (typeof node.type === 'function') {
+      // Tylko komponenty listy; reszta (miniatury) używa hooków i nic tu nie wnosi.
+      return ['HistoryList', 'HistoryCard'].includes(node.type.name) ? confirmButtons((node.type as (p: object) => ReactNode)(node.props as object)) : []
+    }
+    return confirmButtons(props.children)
+  }
+
+  it('Usuń przechodzi przez potwierdzenie, które mówi o całym zespole', () => {
+    const deleted: number[] = []
+    const tree = HistoryList({ entries: [entry({ id: 5 })], onRestore: noop, onDelete: (id) => deleted.push(id), lang: 'pl' })
+    const [confirm] = confirmButtons(tree)
+    expect(confirm.props.question).toContain('całego zespołu')
+    expect(deleted).toEqual([])
+    confirm.props.onConfirm()
+    expect(deleted).toEqual([5])
+  })
+
+  it('w spoczynku nie ma pytania; „Przywróć" jest zwykłym przyciskiem karty', () => {
+    const html = render([entry({})])
+    expect(html).not.toContain('role="group"')
+    expect(html).toMatch(/<button[^>]*>(<svg.*?<\/svg>)?Przywróć<\/button>/)
+    expect(html).toContain('aria-label="Przywróć: Mój wykład"')
+  })
+
+  it('wiersz daty, godziny i miejsca oraz brak pustego wiersza', () => {
+    expect(render([entry({})])).toContain('2031-03-10 • 17:30 • sala 1')
+    const html = render([entry({ event_date: '', event_time: '', location: '' })])
+    expect(html).not.toContain('•')
   })
 })
