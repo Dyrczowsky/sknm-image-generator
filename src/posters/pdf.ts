@@ -1,3 +1,5 @@
+import { buildSrgbProfile } from './srgbProfile'
+
 export interface PdfImage {
   widthPx: number
   heightPx: number
@@ -7,10 +9,12 @@ export interface PdfImage {
   imageData: Uint8Array
 }
 
-// Jednostronicowy PDF 1.4 z jednym obrazem RGB rozciągniętym na całą stronę.
-// Pisany ręcznie, żeby nie dokładać biblioteki: 5 obiektów (katalog, drzewo
-// stron, strona, obraz, strumień treści), tabela xref i trailer. Cały tekst
-// struktury to ASCII, więc długość stringa = liczba bajtów.
+const OBJECT_COUNT = 6
+
+// Jednostronicowy PDF 1.4 z jednym obrazem sRGB rozciągniętym na całą stronę.
+// Pisany ręcznie, żeby nie dokładać biblioteki: 6 obiektów (katalog, drzewo
+// stron, strona, obraz, strumień treści, profil ICC sRGB), tabela xref
+// i trailer. Cały tekst struktury to ASCII, więc długość stringa = liczba bajtów.
 export function buildPdf({ widthPx, heightPx, widthPt, heightPt, imageData }: PdfImage): Uint8Array<ArrayBuffer> {
   const enc = new TextEncoder()
   const chunks: Uint8Array[] = []
@@ -41,7 +45,7 @@ export function buildPdf({ widthPx, heightPx, widthPt, heightPt, imageData }: Pd
   push(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${w} ${h}] /Resources << /XObject << /Im0 4 0 R >> >> /Contents 5 0 R >>\nendobj\n`)
 
   startObj(4)
-  push(`<< /Type /XObject /Subtype /Image /Width ${widthPx} /Height ${heightPx} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /FlateDecode /Length ${imageData.length} >>\nstream\n`)
+  push(`<< /Type /XObject /Subtype /Image /Width ${widthPx} /Height ${heightPx} /ColorSpace [/ICCBased 6 0 R] /BitsPerComponent 8 /Filter /FlateDecode /Length ${imageData.length} >>\nstream\n`)
   push(imageData)
   push('\nendstream\nendobj\n')
 
@@ -49,11 +53,18 @@ export function buildPdf({ widthPx, heightPx, widthPt, heightPt, imageData }: Pd
   startObj(5)
   push(`<< /Length ${content.length} >>\nstream\n${content}\nendstream\nendobj\n`)
 
+  // Profil sRGB: obraz jest opisany jako ICCBased, a nie „jakieś RGB".
+  const profile = buildSrgbProfile()
+  startObj(6)
+  push(`<< /N 3 /Alternate /DeviceRGB /Length ${profile.length} >>\nstream\n`)
+  push(profile)
+  push('\nendstream\nendobj\n')
+
   const xrefAt = length
   // Każdy wpis xref ma dokładnie 20 bajtów (stąd spacja przed \n).
-  push('xref\n0 6\n0000000000 65535 f \n')
-  for (let n = 1; n <= 5; n++) push(`${String(offsets[n]).padStart(10, '0')} 00000 n \n`)
-  push(`trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n${xrefAt}\n%%EOF\n`)
+  push(`xref\n0 ${OBJECT_COUNT + 1}\n0000000000 65535 f \n`)
+  for (let n = 1; n <= OBJECT_COUNT; n++) push(`${String(offsets[n]).padStart(10, '0')} 00000 n \n`)
+  push(`trailer\n<< /Size ${OBJECT_COUNT + 1} /Root 1 0 R >>\nstartxref\n${xrefAt}\n%%EOF\n`)
 
   const out = new Uint8Array(length)
   let at = 0

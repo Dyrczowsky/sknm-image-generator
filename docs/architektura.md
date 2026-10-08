@@ -508,7 +508,9 @@ Eksport (`src/posters/export.ts`):
 - **PNG** i **PDF** — RGB (sRGB), te same kolory co w podglądzie. PDF: piksele
   bez alfy (`rgb.ts`), spakowane natywnym `CompressionStream('deflate')`
   i osadzone jako jeden obraz na stronie o wymiarach papieru (`pdf.ts`, bez
-  biblioteki).
+  biblioteki). Obraz jest oznaczony osadzonym profilem ICC sRGB
+  (`srgbProfile.ts`, budowany w kodzie), więc drukarnia wie, z jakiej
+  przestrzeni przelicza.
 
 **Kolory w druku:** PDF nie jest w CMYK. Przeliczenie robi drukarnia własnym
 profilem - wcześniejsza konwersja po naszej stronie, bez profilu ICC, dawała
