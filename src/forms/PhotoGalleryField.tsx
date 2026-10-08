@@ -1,6 +1,5 @@
 import type { FormProps } from '../types'
 import { ImageUpload } from '../components/ImageUpload'
-import { FORM_SECTION } from '../components/styles'
 import { addPhoto, removePhoto, replacePhoto, setPhotoPosition } from '../editor/formState'
 
 interface PhotoGalleryFieldProps extends FormProps {
@@ -13,13 +12,13 @@ interface PhotoGalleryFieldProps extends FormProps {
 // Galeria zdjęć (0..max) dla jednego klucza w `value.photos`, każde zdjęcie
 // z możliwością ustawienia kadru (pozycja X/Y). Dodanie pliku zawsze dokłada
 // kolejny wpis; pod istniejącym wpisem plik można podmienić albo usunąć.
+// Nagłówek „Zdjęcia" daje otaczająca grupa.
 export function PhotoGalleryField({ fieldKey, label, max = 4, value, onChange }: PhotoGalleryFieldProps) {
   const photos = value.photos[fieldKey] ?? []
   const empty = photos.length === 0
 
   return (
-    <div className={FORM_SECTION}>
-      {!empty && <span className="text-[0.9rem] font-medium">{label}</span>}
+    <>
       {photos.map((photo, i) => (
         <ImageUpload
           key={i}
@@ -40,6 +39,6 @@ export function PhotoGalleryField({ fieldKey, label, max = 4, value, onChange }:
           }}
         />
       )}
-    </div>
+    </>
   )
 }

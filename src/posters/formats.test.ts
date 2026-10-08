@@ -1,5 +1,16 @@
 import { describe, expect, it } from 'vitest'
-import { DEFAULT_FORMAT, EXPORT_FORMATS, formatsFor, isPrintFormat, pageSizePt, pixelSize, shapeFor } from './formats'
+import {
+  formatSummary,
+  DEFAULT_EXPORT_SETTINGS,
+  DEFAULT_FORMAT,
+  EXPORT_FORMATS,
+  formatsFor,
+  isPrintFormat,
+  normalizeExportSettings,
+  pageSizePt,
+  pixelSize,
+  shapeFor,
+} from './formats'
 import { SHAPE_SIZE } from './shape'
 
 const paper = (key: string) => {
@@ -71,5 +82,78 @@ describe('formaty eksportu', () => {
     const l = pageSizePt(paper('a4'), 'landscape')
     expect(l.width).toBeCloseTo(841.89, 2)
     expect(l.height).toBeCloseTo(595.28, 2)
+  })
+})
+
+describe('normalizeExportSettings', () => {
+  it('domyślne ustawienia to stan startowy edytora: social, kwadrat, pion, PNG', () => {
+    expect(DEFAULT_EXPORT_SETTINGS).toEqual({ medium: 'social', format: 'square', orientation: 'portrait', fileType: 'png' })
+  })
+
+  it('poprawne ustawienia przechodzą bez zmian', () => {
+    const settings = { medium: 'social', format: 'a3', orientation: 'landscape', fileType: 'pdf' }
+    expect(normalizeExportSettings(settings)).toEqual(settings)
+    const banner = { medium: 'banner', format: 'fbEvent', orientation: 'portrait', fileType: 'png' }
+    expect(normalizeExportSettings(banner)).toEqual(banner)
+  })
+
+  it('cokolwiek, co nie jest obiektem → ustawienia domyślne (nowy obiekt)', () => {
+    for (const raw of [undefined, null, 7, 'a4', true, [], ['banner', 'fbCover']]) {
+      expect(normalizeExportSettings(raw)).toEqual(DEFAULT_EXPORT_SETTINGS)
+    }
+    expect(normalizeExportSettings(undefined)).not.toBe(DEFAULT_EXPORT_SETTINGS)
+  })
+
+  it('znany format rozstrzyga o zakładce: baner wymusza medium „banner"', () => {
+    expect(normalizeExportSettings({ medium: 'social', format: 'fbCover' })).toMatchObject({ medium: 'banner', format: 'fbCover' })
+    expect(normalizeExportSettings({ format: 'fbEvent' })).toMatchObject({ medium: 'banner', format: 'fbEvent' })
+    expect(normalizeExportSettings({ medium: 'banner', format: 'a4' })).toMatchObject({ medium: 'social', format: 'a4' })
+    expect(normalizeExportSettings({ medium: 'bzdura', format: 'story' })).toMatchObject({ medium: 'social', format: 'story' })
+  })
+
+  it('nieznany format → domyślny format podanej zakładki, a bez poprawnej zakładki social', () => {
+    expect(normalizeExportSettings({ medium: 'banner', format: 'a9' })).toMatchObject({ medium: 'banner', format: 'fbCover' })
+    expect(normalizeExportSettings({ medium: 'social', format: 'a9' })).toMatchObject({ medium: 'social', format: 'square' })
+    expect(normalizeExportSettings({ medium: 'kino', format: 'a9' })).toMatchObject({ medium: 'social', format: 'square' })
+    expect(normalizeExportSettings({ format: 'a9' })).toMatchObject({ medium: 'social', format: 'square' })
+    expect(normalizeExportSettings({ medium: 'banner' })).toMatchObject({ medium: 'banner', format: 'fbCover' })
+    expect(normalizeExportSettings({ medium: 'banner', format: 5 })).toMatchObject({ medium: 'banner', format: 'fbCover' })
+  })
+
+  it('klucze odziedziczone po Object nie są formatami', () => {
+    for (const format of ['constructor', 'toString', '__proto__', 'hasOwnProperty']) {
+      expect(normalizeExportSettings({ format })).toMatchObject({ medium: 'social', format: 'square' })
+    }
+  })
+
+  it('zła orientacja i zły typ pliku wracają do domyślnych, reszta zostaje', () => {
+    expect(normalizeExportSettings({ format: 'a4', orientation: 'ukos', fileType: 'gif' })).toEqual({
+      medium: 'social',
+      format: 'a4',
+      orientation: 'portrait',
+      fileType: 'png',
+    })
+    expect(normalizeExportSettings({ format: 'a4', orientation: null, fileType: 3 })).toMatchObject({ orientation: 'portrait', fileType: 'png' })
+    expect(normalizeExportSettings({ format: 'a4', orientation: 'landscape', fileType: 'pdf' })).toMatchObject({ orientation: 'landscape', fileType: 'pdf' })
+  })
+
+  it('nadmiarowe pola są pomijane', () => {
+    expect(Object.keys(normalizeExportSettings({ format: 'a4', dpi: 300, extra: 'x' })).sort()).toEqual(['fileType', 'format', 'medium', 'orientation'])
+  })
+})
+
+describe('formatSummary', () => {
+  it('format papierowy: nazwa, orientacja i typ pliku', () => {
+    expect(formatSummary('a4', 'portrait', 'pdf')).toBe('A4 · pion · PDF')
+    expect(formatSummary('a2', 'landscape', 'png')).toBe('A2 · poziom · PNG')
+  })
+
+  it('pozostałe formaty: pełna etykieta', () => {
+    expect(formatSummary('square', 'portrait', 'png')).toBe('Kwadrat · 1080×1080')
+    expect(formatSummary('fbCover', 'portrait', 'png')).toBe('Facebook · okładka strony · 1640×624')
+  })
+
+  it('nieznany format: pusty opis', () => {
+    expect(formatSummary('nie-ma', 'portrait', 'png')).toBe('')
   })
 })

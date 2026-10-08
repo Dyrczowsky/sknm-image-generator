@@ -1,4 +1,4 @@
-import type { Medium, Orientation, PosterShape } from '../types'
+import type { FileType, Medium, Orientation, PosterShape } from '../types'
 
 export interface PaperSize {
   widthMm: number
@@ -73,4 +73,53 @@ export function pixelSize(paper: PaperSize, orientation: Orientation, dpi: numbe
 export function pageSizePt(paper: PaperSize, orientation: Orientation): { width: number; height: number } {
   const { w, h } = oriented(paper, orientation)
   return { width: (w * 72) / 25.4, height: (h * 72) / 25.4 }
+}
+
+// Krótki opis wyboru eksportu (pasek „Pobierz" na telefonie): dla papieru
+// „A4 · pion · PDF", dla pozostałych pełna etykieta formatu.
+export function formatSummary(formatKey: string, orientation: Orientation, fileType: FileType): string {
+  const format = EXPORT_FORMATS[formatKey]
+  if (!format) return ''
+  if (!format.paper) return format.label
+  const [name] = format.label.split(' · ')
+  return `${name} · ${orientation === 'landscape' ? 'poziom' : 'pion'} · ${fileType.toUpperCase()}`
+}
+
+// Ustawienia eksportu zapisywane razem ze stanem plakatu (snapshot projektu,
+// kopii roboczej i wpisu historii).
+export interface ExportSettings {
+  medium: Medium
+  format: string
+  orientation: Orientation
+  fileType: FileType
+}
+
+// Stan startowy edytora: „Social media", kwadrat, pion, PNG.
+export const DEFAULT_EXPORT_SETTINGS: ExportSettings = {
+  medium: 'social',
+  format: DEFAULT_FORMAT.social,
+  orientation: 'portrait',
+  fileType: 'png',
+}
+
+const isMedium = (value: unknown): value is Medium => value === 'social' || value === 'banner'
+const isOrientation = (value: unknown): value is Orientation => value === 'portrait' || value === 'landscape'
+const isFileType = (value: unknown): value is FileType => value === 'png' || value === 'pdf'
+
+// Ustawienia eksportu z niezaufanego źródła (JSON z chmury / IndexedDB).
+// Znany format rozstrzyga o zakładce (format banera wymusza „banner"), więc
+// para zakładka + format zawsze jest spójna. Nieznany format (np. usunięty
+// w nowszej wersji) → domyślny format podanej zakładki, a bez poprawnej
+// zakładki - social. Zła orientacja / typ pliku → wartości domyślne.
+export function normalizeExportSettings(raw: unknown): ExportSettings {
+  const source: Record<string, unknown> = raw && typeof raw === 'object' && !Array.isArray(raw) ? (raw as Record<string, unknown>) : {}
+  const { format, orientation, fileType } = source
+  const known = typeof format === 'string' && Object.hasOwn(EXPORT_FORMATS, format) ? format : undefined
+  const medium: Medium = known ? EXPORT_FORMATS[known].medium : isMedium(source.medium) ? source.medium : DEFAULT_EXPORT_SETTINGS.medium
+  return {
+    medium,
+    format: known ?? DEFAULT_FORMAT[medium],
+    orientation: isOrientation(orientation) ? orientation : DEFAULT_EXPORT_SETTINGS.orientation,
+    fileType: isFileType(fileType) ? fileType : DEFAULT_EXPORT_SETTINGS.fileType,
+  }
 }

@@ -1,25 +1,33 @@
 import { describe, expect, it } from 'vitest'
 import { EMPTY_FORM } from '../editor/formState'
+import { DEFAULT_EXPORT_SETTINGS } from '../posters/formats'
+import type { EditorSnapshot } from '../snapshot/snapshot'
 import { fakeSupabase } from '../supabase/fakeClient'
 import type { NewHistoryEntry } from '../types'
 import { HISTORY_LIMIT, addHistoryEntry, deleteHistoryEntry, listHistory, newHistoryEntry } from './remoteHistory'
 
-const COLUMNS = 'id, created_at, poster_key, title, subtitle, speaker, event_date, event_time, location, color_scheme'
+const COLUMNS = 'id, created_at, poster_key, title, subtitle, speaker, event_date, event_time, location, color_scheme, snapshot'
 const ENTRY: NewHistoryEntry = {
-  poster_key: 'wyklad', title: 'Tytuł', subtitle: '', speaker: 'dr X', event_date: '2031-03-04', event_time: '17:30', location: 'sala 1', color_scheme: 'czern~zloty',
+  poster_key: 'wyklad', title: 'Tytuł', subtitle: '', speaker: 'dr X', event_date: '2031-03-04', event_time: '17:30', location: 'sala 1', color_scheme: 'czern~zloty', snapshot: null,
 }
 const STORED = { id: 7, created_at: '2031-03-01T10:00:00+00:00', ...ENTRY }
 
+const snap = (over: Partial<EditorSnapshot> = {}): EditorSnapshot => ({
+  v: 1, poster_key: 'gosc', color_scheme: 'czern~zloty', lang: 'pl', export: { ...DEFAULT_EXPORT_SETTINGS },
+  form: { ...EMPTY_FORM, title: 'Tytuł', speaker: 'dr X', badge: 'PLAKIETKA', graphics: ['a.png'], photos: {} },
+  ...over,
+})
+
 describe('newHistoryEntry', () => {
-  it('bierze pola wydarzenia, layout i kolorystykę - bez reszty formularza', () => {
-    const form = { ...EMPTY_FORM, title: 'Tytuł', speaker: 'dr X', badge: 'PLAKIETKA', body: 'Treść', graphics: ['data:x'], qrUrl: 'https://x' }
-    expect(newHistoryEntry('gosc', form, 'czern~zloty')).toEqual({
-      poster_key: 'gosc', title: 'Tytuł', subtitle: '', speaker: 'dr X', event_date: '', event_time: '', location: '', color_scheme: 'czern~zloty',
+  it('wąskie kolumny z snapshotu plus cały snapshot', () => {
+    const snapshot = snap()
+    expect(newHistoryEntry(snapshot)).toEqual({
+      poster_key: 'gosc', title: 'Tytuł', subtitle: '', speaker: 'dr X', event_date: '', event_time: '', location: '', color_scheme: 'czern~zloty', snapshot,
     })
   })
 
   it('brak kolorystyki → null', () => {
-    expect(newHistoryEntry('gala', EMPTY_FORM, undefined).color_scheme).toBeNull()
+    expect(newHistoryEntry(snap({ color_scheme: null })).color_scheme).toBeNull()
   })
 })
 

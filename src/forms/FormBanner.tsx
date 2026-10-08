@@ -1,23 +1,30 @@
 import type { FormProps } from '../types'
-import { GraphicsField } from './GraphicsField'
+import { UI_HINT } from '../components/styles'
+import { FormGroup, PANEL_STACK } from './FormGroup'
 import { PhotoGalleryField } from './PhotoGalleryField'
-import { TitleTextScaleFields } from './TitleTextScaleFields'
+import { QrField } from './QrField'
 
 interface FormBannerProps extends FormProps {
   // Czy baner wybranego layoutu ma miejsce na zdjęcie (Gość, Warsztat).
   photo?: boolean
 }
 
-// Formularz zakładki „Baner" - wspólny dla wszystkich layoutów. Baner niesie
-// stałą nazwę koła, więc nie ma tu pól wydarzenia (tytuł, prelegent, data):
-// zostaje rozmiar tekstu, logotypy z kodem QR i ewentualne zdjęcie.
+// Treść banera (zakładka „Treść" w trybie „Baner"), wspólna dla wszystkich
+// layoutów. Baner niesie stałą nazwę koła, więc nie ma tu pól wydarzenia
+// (tytuł, prelegent, data): zostaje ewentualne zdjęcie i kod QR. Rozmiar
+// tekstu i logotypy są w zakładce „Wygląd".
 export function FormBanner({ value, onChange, photo }: FormBannerProps) {
   return (
-    <form className="flex flex-col gap-3.5" onSubmit={(e) => e.preventDefault()}>
-      <p className="text-[0.85rem] text-muted">Baner pokazuje nazwę koła — pola wydarzenia (tytuł, prelegent, data) dotyczą tylko zakładki „Social media".</p>
-      <TitleTextScaleFields value={value} onChange={onChange} />
-      <GraphicsField value={value} onChange={onChange} />
-      {photo && <PhotoGalleryField fieldKey="photo" label="Zdjęcie" value={value} onChange={onChange} />}
-    </form>
+    <div className={PANEL_STACK}>
+      <p className={UI_HINT}>Baner pokazuje nazwę koła — pola wydarzenia (tytuł, prelegent, data) dotyczą tylko trybu „Social media i druk".</p>
+      {photo && (
+        <FormGroup title="Zdjęcia">
+          <PhotoGalleryField fieldKey="photo" label="Zdjęcie" value={value} onChange={onChange} />
+        </FormGroup>
+      )}
+      <FormGroup title="Kod QR">
+        <QrField value={value} onChange={onChange} />
+      </FormGroup>
+    </div>
   )
 }

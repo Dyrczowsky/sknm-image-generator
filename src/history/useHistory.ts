@@ -16,7 +16,8 @@ export function useHistory(member: string | null) {
   // eksport pokazuje wtedy własny komunikat.
   const record = async (entry: NewHistoryEntry) => {
     const saved = await addHistoryEntry(requireSupabase(), entry)
-    list.setItems((items) => [saved, ...items].slice(0, HISTORY_LIMIT))
+    // Bez duplikatu: odświeżenie w tle mogło już przynieść ten wpis.
+    list.setItems((items) => [saved, ...items.filter((item) => item.id !== saved.id)].slice(0, HISTORY_LIMIT))
   }
 
   const remove = async (id: number) => {

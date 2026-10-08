@@ -1,84 +1,50 @@
-import { useEffect, useRef, useState } from 'react'
-import type { Database } from 'sql.js'
-import type { AccentName, FormValues, HistoryEntry, NewHistoryEntry, TemplateRow } from '../types'
+import { useEffect, useState } from 'react'
+import type { AccentName, FormValues, TemplateRow } from '../types'
 import { getDb } from '../db/client'
-import { getDraft, parseVisibility, saveDraft } from '../db/drafts'
-import type { DraftInput } from '../db/drafts'
-import { newHistoryEntry } from '../history/remoteHistory'
 import { listTemplates } from '../db/templates'
 import { decodeScheme, encodeScheme, fitColorsToLayout } from '../utils/colorScheme'
 import type { ColorChoice } from '../utils/colorScheme'
-import { EMPTY_FORM, formFromRow, textFieldsOf } from './formState'
+import { EMPTY_FORM } from './formState'
 
-const DRAFT_SAVE_DELAY_MS = 400
-
-// Zapisuje draft do bazy po chwili bez zmian. Porównuje zserializowaną treść,
-// więc zmiany stanu, których draft nie trzyma (grafiki, zdjęcia, suwaki), nie
-// wywołują zapisu. Pierwszy przebieg po otwarciu bazy tylko zapamiętuje stan -
-// to draft dopiero co z niej wczytany.
-function useDraftAutosave(db: Database | null, draft: DraftInput) {
-  const serialized = JSON.stringify(draft)
-  const saved = useRef<string | null>(null)
-
-  useEffect(() => {
-    if (!db) return
-    if (saved.current === null) saved.current = serialized
-    if (saved.current === serialized) return
-    const timeout = setTimeout(() => {
-      saved.current = serialized
-      void saveDraft(db, JSON.parse(serialized) as DraftInput)
-    }, DRAFT_SAVE_DELAY_MS)
-    return () => clearTimeout(timeout)
-  }, [db, serialized])
+// To, co edytor przyjmuje przy wczytaniu snapshotu (start, projekt, historia).
+export interface EditorContent {
+  posterKey: string
+  colorScheme: string | null
+  form: FormValues
 }
 
-// Stan edytora: lokalna baza, szablony, dane formularza, wybrany szablon
+// Stan edytora: szablony z lokalnej bazy, dane formularza, wybrany layout
 // i kolorystyka. Dane formularza są globalne i przeżywają zmianę szablonu.
-// Wspólna historia mieszka osobno (src/history/).
+// Zapisem i odtwarzaniem stanu zajmuje się kopia robocza (src/workspace/).
 export function useEditor() {
-  const [db, setDb] = useState<Database | null>(null)
-  const [templates, setTemplates] = useState<TemplateRow[]>([])
-  const [templateId, setTemplateId] = useState<number | null>(null)
+  const [templates, setTemplates] = useState<TemplateRow[] | null>(null)
+  // Klucz layoutu, nie lokalne `templates.id` - te różnią się między przeglądarkami.
+  const [posterKey, setPosterKey] = useState<string | null>(null)
   const [colors, setColors] = useState<ColorChoice>({ scheme: undefined, accent: undefined })
   const [form, setForm] = useState<FormValues>(EMPTY_FORM)
 
-  const posterKeyOf = (id: number | null) => templates.find((t) => t.id === id)?.poster_key
-  const template = templates.find((t) => t.id === templateId)
+  const list = templates ?? []
+  // Layout, którego lokalnie nie ma (albo jeszcze żaden) → pierwszy szablon.
+  const template = list.find((t) => t.poster_key === posterKey) ?? list[0]
   const colorScheme = encodeScheme(colors.scheme, colors.accent)
 
-  // Start: otwarcie bazy i odtworzenie ostatniego draftu.
+  // Start: otwarcie bazy z szablonami.
   useEffect(() => {
     let cancelled = false
-    void getDb().then((openedDb) => {
-      if (cancelled) return
-      const loadedTemplates = listTemplates(openedDb)
-      const draft = getDraft(openedDb)
-      const initialId = draft?.template_id ?? loadedTemplates[0]?.id ?? null
-      const initialKey = loadedTemplates.find((t) => t.id === initialId)?.poster_key
-
-      setTemplates(loadedTemplates)
-      setTemplateId(initialId)
-      setColors(fitColorsToLayout(initialKey, decodeScheme(draft?.color_scheme)))
-      if (draft) setForm({ ...formFromRow(draft), visibility: parseVisibility(draft.visibility) })
-      setDb(openedDb)
+    void getDb().then((db) => {
+      if (!cancelled) setTemplates(listTemplates(db))
     })
     return () => {
       cancelled = true
     }
   }, [])
 
-  useDraftAutosave(db, {
-    ...textFieldsOf(form),
-    visibility: form.visibility,
-    template_id: templateId,
-    color_scheme: colorScheme ?? null,
-  })
-
   // Nowy szablon dostaje swoją domyślną kolorystykę.
   const selectTemplate = (id: number) => {
-    if (id === templateId) return
-    setTemplateId(id)
-    setColors(fitColorsToLayout(posterKeyOf(id)))
+    const next = list.find((t) => t.id === id)
+    if (!next || next.id === template?.id) return
+    setPosterKey(next.poster_key)
+    setColors(fitColorsToLayout(next.poster_key))
   }
 
   // Nowy schemat może zawężać listę akcentów - niedozwolony jest odpinany.
@@ -90,23 +56,18 @@ export function useEditor() {
     setColors({ ...colors, accent })
   }
 
-  // Przywraca pola tekstowe, szablon i kolorystykę wpisu historii. Zdjęć
-  // i grafik historia nie trzyma, więc wracają do stanu domyślnego. Wpis
-  // z layoutem, którego lokalnie nie ma, zostawia bieżący szablon.
-  const restoreHistoryEntry = (entry: HistoryEntry) => {
-    const id = templates.find((t) => t.poster_key === entry.poster_key)?.id ?? templateId
-    setForm(formFromRow(entry))
-    setTemplateId(id)
-    setColors(fitColorsToLayout(posterKeyOf(id), decodeScheme(entry.color_scheme)))
+  // Wczytuje cały stan naraz. W odróżnieniu od `selectTemplate` nie resetuje
+  // kolorystyki: zapisana zostaje, o ile layout ją dopuszcza. Nie zależy od
+  // listy szablonów, więc działa też, zanim ta się wczyta.
+  const applyState = (content: EditorContent) => {
+    setPosterKey(content.posterKey)
+    setColors(fitColorsToLayout(content.posterKey, decodeScheme(content.colorScheme)))
+    setForm(content.form)
   }
 
-  // Bieżący stan jako wpis historii; `null`, gdy nie ma wybranego szablonu.
-  const exportSnapshot = (): NewHistoryEntry | null =>
-    template ? newHistoryEntry(template.poster_key, form, colorScheme) : null
-
   return {
-    ready: db !== null,
-    templates,
+    ready: templates !== null,
+    templates: list,
     template,
     form,
     updateForm: setForm,
@@ -115,7 +76,8 @@ export function useEditor() {
     selectTemplate,
     selectScheme,
     selectAccent,
-    restoreHistoryEntry,
-    exportSnapshot,
+    applyState,
   }
 }
+
+export type Editor = ReturnType<typeof useEditor>

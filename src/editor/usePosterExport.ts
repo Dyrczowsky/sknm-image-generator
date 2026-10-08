@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import type { FileType, Medium, Orientation } from '../types'
 import { downloadPoster } from '../posters/export'
-import { DEFAULT_FORMAT, formatsFor, isPrintFormat, shapeFor } from '../posters/formats'
+import { DEFAULT_EXPORT_SETTINGS, DEFAULT_FORMAT, formatsFor, isPrintFormat, normalizeExportSettings, shapeFor } from '../posters/formats'
+import type { ExportSettings } from '../posters/formats'
 
 const FULL_PRINT_DPI = 300
 
@@ -10,20 +11,34 @@ function fileBasename(title: string): string {
   return (title || 'plakat').trim().replace(/\s+/g, '_')
 }
 
-// Ustawienia eksportu i sam eksport. Wszystko tu jest sesyjne - po
-// odświeżeniu strony wraca „Social media" i kwadrat.
+// Ustawienia eksportu i sam eksport. Ustawienia (`settings`) są częścią
+// snapshotu: kopia robocza zapisuje je razem z resztą stanu i przywraca przez
+// `applySettings`. Sesyjne są tylko `exporting` i `note`.
 export function usePosterExport() {
   // Zakładka wyboru szablonu: grafika social/druk albo baner.
-  const [medium, setMedium] = useState<Medium>('social')
-  const [format, setFormat] = useState(DEFAULT_FORMAT.social)
+  const [medium, setMedium] = useState<Medium>(DEFAULT_EXPORT_SETTINGS.medium)
+  const [format, setFormat] = useState(DEFAULT_EXPORT_SETTINGS.format)
   // Orientacja strony i typ pliku dotyczą tylko formatów papierowych (A4/A3/A2).
-  const [orientation, setOrientation] = useState<Orientation>('portrait')
-  const [printFileType, setPrintFileType] = useState<FileType>('png')
+  const [orientation, setOrientation] = useState<Orientation>(DEFAULT_EXPORT_SETTINGS.orientation)
+  const [printFileType, setPrintFileType] = useState<FileType>(DEFAULT_EXPORT_SETTINGS.fileType)
   const [exporting, setExporting] = useState(false)
   const [note, setNote] = useState<string | null>(null)
 
   const isPrint = isPrintFormat(format)
   const fileType: FileType = isPrint ? printFileType : 'png'
+  // Do snapshotu idzie typ pliku wybrany dla druku, także gdy bieżący format
+  // nie jest papierowy - po powrocie do A4/A3/A2 wybór ma wrócić.
+  const settings: ExportSettings = { medium, format, orientation, fileType: printFileType }
+
+  // Wczytuje ustawienia ze snapshotu; niespójne są naprawiane jak przy odczycie.
+  const applySettings = (next: ExportSettings) => {
+    const normalized = normalizeExportSettings(next)
+    setMedium(normalized.medium)
+    setFormat(normalized.format)
+    setOrientation(normalized.orientation)
+    setPrintFileType(normalized.fileType)
+    setNote(null)
+  }
 
   // Zmiana zakładki zostawia szablon, dane i kolorystykę - zmienia się tylko
   // komponent (plakat/baner) i lista formatów eksportu.
@@ -62,6 +77,8 @@ export function usePosterExport() {
   }
 
   return {
+    settings,
+    applySettings,
     medium,
     selectMedium,
     formats: formatsFor(medium),
@@ -75,6 +92,7 @@ export function usePosterExport() {
     shape: shapeFor(format, orientation),
     exporting,
     note,
+    dismissNote: () => setNote(null),
     download,
   }
 }

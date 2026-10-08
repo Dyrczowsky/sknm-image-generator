@@ -1,49 +1,45 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useReducer, useState } from 'react'
+import { initialListState, remoteListReducer, viewOf } from './remoteListState'
+import type { ListUpdate, RemoteListState, RemoteListStatus } from './remoteListState'
 
-// `idle` - lista nieaktywna (np. użytkownik niezalogowany).
-export type RemoteListStatus = 'idle' | 'loading' | 'ready' | 'error'
-
-interface Loaded<T> {
-  // Żądanie, którego dotyczy wynik (patrz `requestKey`).
-  key: string
-  status: 'ready' | 'error'
-  items: T[]
-}
+export type { RemoteListStatus }
 
 // Lista wczytywana z serwera dla użytkownika `scope` (`null` = nikt nie jest
-// zalogowany: lista pusta i nieaktywna). Zmiana użytkownika albo `reload()`
-// wczytuje ją od nowa. `load` musi być stabilną funkcją (np. z poziomu modułu).
+// zalogowany: lista pusta i nieaktywna). Zmiana użytkownika wczytuje ją od nowa
+// i od razu czyści; `reload()` odświeża ją w tle - dotychczasowe pozycje zostają
+// widoczne, a zmiany naniesione w międzyczasie przez `setItems` nie giną.
+// `load` musi być stabilną funkcją (np. z poziomu modułu).
 export function useRemoteList<T>(scope: string | null, load: () => Promise<T[]>) {
-  const [loaded, setLoaded] = useState<Loaded<T> | null>(null)
+  const [state, dispatch] = useReducer(remoteListReducer<T>, scope, initialListState<T>)
   const [reloads, setReloads] = useState(0)
-  const requestKey = `${scope}#${reloads}`
 
   useEffect(() => {
+    dispatch({ type: 'begin', scope })
     if (scope === null) return
     let cancelled = false
     load().then(
       (items) => {
-        if (!cancelled) setLoaded({ key: requestKey, status: 'ready', items })
+        if (!cancelled) dispatch({ type: 'loaded', scope, items })
       },
       () => {
-        if (!cancelled) setLoaded({ key: requestKey, status: 'error', items: [] })
+        if (!cancelled) dispatch({ type: 'failed', scope })
       },
     )
     return () => {
       cancelled = true
     }
-  }, [scope, load, requestKey])
+  }, [scope, load, reloads])
 
-  // Wynik innego żądania (inny użytkownik, starsze przeładowanie) nie liczy się.
-  const current = scope !== null && loaded?.key === requestKey ? loaded : null
-  const status: RemoteListStatus = scope === null ? 'idle' : (current?.status ?? 'loading')
+  const view: RemoteListState<T> = viewOf(state, scope)
 
   return {
-    status,
-    items: current?.items ?? [],
+    status: view.status,
+    items: view.items,
     reload: () => setReloads((n) => n + 1),
     // Nanosi lokalną zmianę (po udanym zapisie na serwerze) na wczytaną listę.
-    setItems: (update: (items: T[]) => T[]) =>
-      setLoaded((prev) => (prev?.key === requestKey ? { ...prev, items: update(prev.items) } : prev)),
+    // Działa też w trakcie ładowania i odświeżania; patrz `RemoteListState.pending`.
+    setItems: (update: ListUpdate<T>) => {
+      if (scope !== null) dispatch({ type: 'update', scope, update })
+    },
   }
 }

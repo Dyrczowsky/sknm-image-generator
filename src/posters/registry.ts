@@ -32,13 +32,17 @@ import type { RegistryEntry } from '../types'
 // - `name` - podpis kafelki layoutu w TemplateSelector.
 // - `Component` - komponent plakatu; przyjmuje `data` (dane formularza) oraz
 //   `scheme` (nazwa schematu kolorów) i sam woła `resolveScheme(layout, scheme)`.
-// - `Banner` - szeroka wersja tego samego layoutu (zakładka „Baner", patrz
+// - `Banner` - szeroka wersja tego samego layoutu (rodzaj grafiki „Baner", patrz
 //   src/posters/banners/); te same propsy, ten sam klucz schematów kolorów.
 //   Baner niesie stałą nazwę koła, nie dane wydarzenia. `bannerPhoto` - baner
-//   ma miejsce na zdjęcie (formularz banera pokaże wtedy galerię).
-// - `Form` - formularz layoutu: lista pól na wspólnym `PosterForm` (patrz src/forms/), renderowany
-//   po wybraniu danego layoutu. Dane formularza (editor/useEditor.ts) są globalne
-//   i przeżywają zmianę layoutu - zmienia się tylko to, który komponent je edytuje.
+//   ma miejsce na zdjęcie (`FormBanner` pokaże wtedy galerię zdjęć).
+// - `Form` - treść layoutu (zakładka „Treść"): lista pól na wspólnym `PosterForm`
+//   (patrz src/forms/), renderowana przez `ContentPanel` po wybraniu danego layoutu.
+//   To NIE cały formularz: rozmiar tekstu i logotypy są wspólne dla wszystkich
+//   layoutów i rysuje je zakładka „Wygląd" (`LookFields`), a w trybie „Baner"
+//   zamiast `Form` renderuje się wspólny `FormBanner`. Dane formularza
+//   (editor/useEditor.ts) są globalne i przeżywają zmianę layoutu - zmienia się
+//   tylko to, który komponent je edytuje.
 //
 // Lista schematów kolorów NIE jest tutaj - wynika wprost z `schemes.ts`
 // (`schemesFor(poster_key)`, kolejność = kolejność zapisu w bloku layoutu).

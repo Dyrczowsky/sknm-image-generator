@@ -41,7 +41,7 @@ export function resetIfStale(db: Database): boolean {
 // Historia wygenerowanych grafik mieszkała kiedyś lokalnie w tabeli
 // `generated_images`; teraz jest wspólna, w Supabase (src/history/). Starą
 // tabelę usuwamy przy starcie - bez podbijania SCHEMA_VERSION, żeby nie
-// skasować przy okazji draftu. Zwraca `true`, gdy tabela istniała.
+// skasować przy okazji (jeszcze niezmigrowanego) draftu. Zwraca `true`, gdy tabela istniała.
 export function dropLegacyHistory(db: Database): boolean {
   const existing = rowsFromExec(db.exec("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'generated_images'"))
   if (existing.length === 0) return false
@@ -49,6 +49,9 @@ export function dropLegacyHistory(db: Database): boolean {
   return true
 }
 
+// Tabela `draft` jest dziedzictwem: nic do niej nie zapisuje (stan edytora
+// trzyma kopia robocza, src/workspace/), a `getDraft` czyta ją tylko raz, gdy
+// kopii roboczej jeszcze nie ma. Podbicie SCHEMA_VERSION zrzuca ją razem z resztą.
 export function createSchema(db: Database): void {
   db.run(`
     CREATE TABLE IF NOT EXISTS templates (

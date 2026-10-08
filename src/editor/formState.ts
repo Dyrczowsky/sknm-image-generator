@@ -2,10 +2,11 @@ import { FORM_TEXT_FIELDS } from '../types'
 import type { FormTextField, FormUpdate, FormValues } from '../types'
 import { MAX_GRAPHICS } from '../posters/theme'
 
-// Stan formularza po starcie i po przywróceniu wpisu historii. Do draftu
-// i historii trafiają tylko pola tekstowe (draft trzyma też widoczność);
-// grafiki, zdjęcia, listy i suwaki rozmiaru są sesyjne - wracają do tych
-// wartości po odświeżeniu strony.
+// Stan pustego formularza: wartości domyślne, a także tło, na którym parser
+// snapshotu uzupełnia brakujące pola. Każde pole `FormValues` trafia do
+// snapshotu (`src/snapshot/snapshot.ts`) - kopii roboczej, projektu i wpisu
+// historii; nowe pole trzeba tam obsłużyć w `parseForm`, inaczej kod się nie
+// skompiluje, a test obiegu snapshotu padnie.
 export const EMPTY_FORM: FormValues = {
   title: '',
   subtitle: '',
@@ -27,7 +28,7 @@ export const EMPTY_FORM: FormValues = {
   scaleLinked: true,
 }
 
-// Pola tekstowe wiersza bazy (draft / historia); kolumny, których wiersz nie
+// Pola tekstowe wiersza bazy (stary draft / wąskie kolumny historii); kolumny, których wiersz nie
 // ma, oraz NULL-e dają pusty tekst.
 export type TextFieldsRow = Partial<Record<FormTextField, string | null>>
 
@@ -51,7 +52,7 @@ const removeAt = <T>(items: T[], index: number): T[] => items.filter((_, i) => i
 export const setField = (name: FormTextField, value: string): FormUpdate => (form) => ({ ...form, [name]: value })
 
 // Odznaczenie ukrywa pole na plakacie. Widoczne pole to brak klucza, żeby
-// draft trzymał tylko rzeczywiste wyjątki.
+// snapshot trzymał tylko rzeczywiste wyjątki.
 export const setFieldVisible = (name: FormTextField, visible: boolean): FormUpdate => (form) => {
   const visibility = { ...form.visibility }
   if (visible) delete visibility[name]

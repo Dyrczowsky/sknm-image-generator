@@ -22,6 +22,7 @@ function toResult(error: { message: string } | null): AuthResult {
 export function useSession() {
   const [status, setStatus] = useState<SessionStatus>(supabase ? 'loading' : 'unconfigured')
   const [email, setEmail] = useState<string | null>(null)
+  const [userId, setUserId] = useState<string | null>(null)
   const passwordPending = useRef(arrivedToSetPassword)
 
   useEffect(() => {
@@ -30,6 +31,7 @@ export function useSession() {
     const { data } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'PASSWORD_RECOVERY') passwordPending.current = true
       setEmail(session?.user.email ?? null)
+      setUserId(session?.user.id ?? null)
       if (!session) setStatus('signedOut')
       else setStatus(passwordPending.current ? 'settingPassword' : 'signedIn')
     })
@@ -65,7 +67,7 @@ export function useSession() {
     return result
   }
 
-  return { status, email, signIn, signOut, requestPasswordReset, setPassword, skipPasswordSetup: finishPasswordSetup }
+  return { status, email, userId, signIn, signOut, requestPasswordReset, setPassword, skipPasswordSetup: finishPasswordSetup }
 }
 
 export type Session = ReturnType<typeof useSession>

@@ -26,7 +26,7 @@ export function useNotes(member: string | null) {
     }
   }
 
-  const add = (text: string) => run(() => addNote(requireSupabase(), text), (notes, added) => [added, ...notes])
+  const add = (text: string) => run(() => addNote(requireSupabase(), text), (notes, added) => [added, ...notes.filter((note) => note.id !== added.id)])
 
   const change = (id: number, noteChange: NoteChange) =>
     run(

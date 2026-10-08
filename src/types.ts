@@ -4,8 +4,9 @@ import type { ComponentType } from 'react'
 export interface PhotoValue { src: string; x: number; y: number }
 export type ListItem = Record<string, string>
 
-// Pola tekstowe formularza - zapisywane w draftcie i sterowane checkboxem
-// widoczności.
+// Pola tekstowe formularza - sterowane checkboxem widoczności. Wchodzą do
+// snapshotu edytora razem z resztą `FormValues` (src/snapshot/snapshot.ts);
+// nowe pole formularza musi tam zostać obsłużone.
 export const FORM_TEXT_FIELDS = [
   'title', 'subtitle', 'speaker', 'event_date', 'event_time', 'location', 'badge', 'badge2', 'body',
 ] as const
@@ -27,7 +28,7 @@ export interface FormValues extends Record<FormTextField, string> {
   qrUrl: string
   photos: Record<string, PhotoValue[]>
   lists: Record<string, ListItem[]>
-  // Mnożnik rozmiaru tytułu/pozostałego tekstu (suwaki w formularzu) - 1 =
+  // Mnożnik rozmiaru tytułu/pozostałego tekstu (suwaki w zakładce „Wygląd") - 1 =
   // domyślny rozmiar szablonu. `scaleLinked` - czy suwaki są spięte
   // (przesunięcie jednego ustawia oba na ten sam procent).
   titleScale: number
@@ -39,7 +40,9 @@ export interface FormValues extends Record<FormTextField, string> {
 // funkcje (gotowe są w editor/formState.ts), a edytor podaje je do `setForm`.
 export type FormUpdate = (form: FormValues) => FormValues
 
-// --- Wiersze lokalnej bazy SQLite (sql.js): szablony i draft ---
+// --- Wiersze lokalnej bazy SQLite (sql.js): szablony i stary draft ---
+// Stan edytora nie siedzi już w SQLite (to kopia robocza w src/workspace/);
+// `draft` jest tylko odczytywany, raz, przy migracji.
 export interface TemplateRow { id: number; name: string; poster_key: string }
 
 export interface DraftRow {
@@ -74,6 +77,8 @@ export interface HistoryEntry {
   event_time: string
   location: string
   color_scheme: string | null
+  // Pełny snapshot edytora (surowy jsonb); null w starych wpisach sprzed snapshotów.
+  snapshot: unknown
 }
 
 export type NewHistoryEntry = Omit<HistoryEntry, 'id' | 'created_at'>
@@ -116,7 +121,9 @@ export interface RegistryEntry {
   Component: ComponentType<PosterProps>
   // Szeroka wersja tego samego layoutu (zakładka „Baner").
   Banner: ComponentType<PosterProps>
-  // Baner tego layoutu ma miejsce na zdjęcie - formularz banera pokaże galerię.
+  // Baner tego layoutu ma miejsce na zdjęcie - zakładka „Treść" banera (`FormBanner`) pokaże galerię.
   bannerPhoto?: boolean
+  // Treść layoutu (zakładka „Treść"). Rozmiar tekstu i logotypy to zakładka
+  // „Wygląd", wspólna dla wszystkich layoutów - nie należą do `Form`.
   Form: ComponentType<FormProps>
 }
