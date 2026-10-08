@@ -14,7 +14,7 @@ import { ProjectBar } from '../components/ProjectBar'
 import type { ProjectBarProps } from '../components/ProjectBar'
 import { SchemeSelector } from '../components/SchemeSelector'
 import { SegmentedToggle } from '../components/SegmentedToggle'
-import { NARROW_OFFSCREEN } from '../components/styles'
+import { NARROW_OFFSCREEN, NARROW_QUERY } from '../components/styles'
 import { TemplateSelector } from '../components/TemplateSelector'
 import { useMediaQuery } from '../utils/useMediaQuery'
 
@@ -30,8 +30,7 @@ const VIEW_OPTIONS = [
 // odmontowany. Zakładkom wystarcza `display: none`; podgląd musi zostać
 // w układzie (`NARROW_OFFSCREEN` + `inert`), żeby „Pobierz" z dolnego paska
 // dawało ten sam plik co przy widocznym podglądzie.
-const NARROW_HIDDEN = 'max-[899px]:hidden'
-const NARROW_QUERY = '(max-width: 899.98px)'
+const NARROW_HIDDEN = 'max-[900px]:hidden'
 
 // Od 900 px: dwie kolumny (zakładki | podgląd), każda na pełną wysokość.
 const PANES_SIDE_BY_SIDE = 'min-[900px]:grid min-[900px]:grid-cols-[clamp(340px,38%,480px)_minmax(0,1fr)] min-[900px]:grid-rows-[minmax(0,1fr)]'
@@ -69,7 +68,9 @@ export function EditorPage({ editor, exporter, lang, posterRef, tab, onTabChange
   // oddajemy go przełącznikowi, którym użytkownik właśnie zmienił rodzaj.
   const focusBeforeSwap = useRef<Element | null>(null)
   const selectMedium = (medium: Medium) => {
-    focusBeforeSwap.current = document.activeElement
+    // Kliknięcie aktywnego rodzaju nic nie zmienia - nie zostawiamy celu, który
+    // przy późniejszej, niezwiązanej zmianie (np. otwarciu banera) ukradłby fokus.
+    if (medium !== exporter.medium) focusBeforeSwap.current = document.activeElement
     exporter.selectMedium(medium)
   }
   useLayoutEffect(() => {

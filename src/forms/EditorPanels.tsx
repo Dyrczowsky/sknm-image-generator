@@ -10,7 +10,9 @@ import { LookFields } from './LookFields'
 export interface EditorPanelProps extends FormProps {
   // Wpis rejestru wybranego szablonu (`undefined`, gdy żaden nie jest wybrany).
   poster: RegistryEntry | undefined
-  // Rodzaj grafiki „Baner": wspólny, krótki formularz zamiast formularza layoutu.
+  // Rodzaj grafiki „Baner": wspólny, krótki formularz zamiast formularza
+  // layoutu. Czyta go tylko `ContentPanel`; `LookPanel` jest taki sam dla
+  // plakatu i banera i go pomija (propsy mają wspólny kształt dla `EditorPage`).
   banner: boolean
 }
 

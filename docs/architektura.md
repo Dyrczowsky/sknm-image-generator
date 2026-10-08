@@ -4,45 +4,61 @@
 
 ```
 src/
-├── App.tsx              układ strony edytora; spina hooki stanu z komponentami
-├── main.tsx             bootstrap + prosty routing: App albo PosterPreviewPage
+├── App.tsx              powłoka: składa WSZYSTKIE hooki stanu, trasę i akcje; przekazuje je stronom
+├── main.tsx             bootstrap: /poster/<klucz> → PosterPreviewPage, reszta → App
 ├── index.css            wejście Tailwind + tokeny kolorów aplikacji (patrz stylowanie.md)
 ├── types.ts             wspólne typy (FormValues, FormUpdate, PosterProps, wiersze bazy, ...)
 │
 ├── editor/             stan edytora
 │   ├── useEditor.ts       szablony z lokalnej bazy, formularz, kolorystyka (zapis robi workspace/)
-│   ├── usePosterExport.ts zakładka, format, orientacja, typ pliku i sam eksport
+│   ├── usePosterExport.ts medium, format, orientacja, typ pliku i sam eksport
 │   └── formState.ts       EMPTY_FORM + czyste przekształcenia formularza (setField, addGraphics, ...)
 │
-├── components/          elementy UI edytora
-│   ├── TemplateSelector   zakładki „Social media" / „Baner" + kafelki layoutów
-│   ├── SchemeSelector     pasek wyboru kolorystyki (renderowany pod podglądem)
-│   ├── ExportBar          format eksportu, orientacja, typ pliku, przycisk „Pobierz"
+├── pages/               jedna strona = jeden plik (patrz „Powłoka i trasy")
+│   ├── EditorPage         pasek projektu + zakładki + podgląd (zawsze w drzewie)
+│   ├── ProjectsPage / AssetsPage / HistoryPage / NotesPage   strony poboczne
+│   └── PosterPreviewPage  podgląd jednego szablonu pod /poster/<klucz> (poza App)
+│
+├── components/          elementy UI
+│   ├── AppShell           szkielet: górny pasek + edytor (stale w drzewie) + strona poboczna
+│   ├── TopBar             nazwa, nawigacja stron, pomoc, język plakatu, konto
+│   ├── PageFrame          rama strony pobocznej: tytuł, opis, akcje, treść
+│   ├── EditorTabs         zakładki Szablon / Treść / Wygląd (panele zawsze zamontowane)
+│   ├── ProjectBar         pasek projektu: nazwa, status zapisu, „Zapisz", „Nowy projekt", „Pobierz"
+│   ├── PreviewPane        ExportBar nad sceną + podgląd dopasowany do sceny (useElementSize + fit.ts)
+│   ├── ExportBar          format, orientacja, typ pliku; DownloadButton („Pobierz") osobno
 │   ├── PosterPreview      podgląd na żywo (ref do eksportu)
 │   ├── PosterScaled       plakat w rozmiarze układu przeskalowany CSS transform do podglądu
+│   ├── TemplateSelector   przełącznik „Social media i druk" / „Baner" + kafelki layoutów
+│   ├── SchemeSelector     wybór kolorystyki i akcentu (zakładka Szablon)
 │   ├── ImageUpload        pole na grafikę z podglądem (zdjęcie z kadrowaniem)
-│   ├── HistoryList        wspólna historia wygenerowanych grafik (miniatury ze snapshotu)
-│   ├── ProjectBar         pasek pod nagłówkiem: nazwa projektu, status zapisu, „Zapisz", konflikt
-│   ├── ProjectsList       panel „Projekty": własne i udostępnione, nazwa, udostępnianie, usuwanie
 │   ├── LogoPicker         logotypy z wspólnej biblioteki do wstawienia na plakat
-│   ├── ShortcutsHelp      okienko ze skrótami klawiszowymi
-│   ├── NotesPanel         wspólna lista zadań
-│   ├── RemotePanel        rama paneli z danymi z Supabase (logowanie / ładowanie / błąd)
-│   ├── AuthControl/Dialog logowanie w nagłówku
+│   ├── ProjectsList / HistoryList / AssetTile / NotesPanel   treść stron pobocznych
+│   ├── RemotePanel        rama danych z Supabase (logowanie / ładowanie / błąd)
+│   ├── cards.tsx          CardSection, EmptyNote - wspólne elementy stron z kartami
+│   ├── cardStyles.ts      klasy kart i siatki (CARD_GRID, cardClass, THUMB_FIELD)
+│   ├── ShortcutsHelp      wysuwane okienko ze skrótami klawiszowymi (w górnym pasku)
+│   ├── AuthControl/Dialog logowanie w górnym pasku
 │   ├── TicketDialog       modal zgłoszeń (błąd / zapotrzebowanie na plakat)
-│   └── styles.ts          klasy Tailwinda powtarzane w kilku komponentach
+│   ├── ui/                prymitywy: Button, Field, Input, Tabs, Popover, Icon, ... (stylowanie.md)
+│   └── styles.ts          klasy Tailwinda powtarzane w kilku komponentach (m.in. OFFSCREEN)
 │
-├── forms/              formularze layoutów
-│   ├── PosterForm         wspólny szkielet: suwaki, pola, grafiki + QR, galeria zdjęć
+├── forms/              zawartość zakładek Treść i Wygląd
+│   ├── EditorPanels       ContentPanel i LookPanel - jedyny styk powłoki edytora z formularzami
+│   ├── PosterForm         szkielet Treści layoutu: teksty, własne grupy, zdjęcia, kod QR
 │   ├── fields.ts          FieldSpec + gotowe pola (FIELDS, badgeField)
 │   ├── FormWyklad...      po jednym pliku na layout: lista pól dla PosterForm
-│   ├── FormBanner         wspólny formularz zakładki „Baner"
+│   ├── FormBanner         Treść zakładki „Baner" (wspólna dla layoutów)
+│   ├── LookFields         zakładka Wygląd (wspólna dla layoutów i banera): rozmiar tekstu + logotypy
+│   ├── TitleTextScaleFields, ScaleSlider   suwaki rozmiaru
+│   ├── LogosField         logo PK i grafiki stopki
+│   ├── QrField            link do kodu QR
+│   ├── PhotoGalleryField  galeria 0..N zdjęć, opakowuje ImageUpload
 │   ├── FormField          pole tekstowe + checkbox widoczności
-│   ├── GraphicsField      logo PK, grafiki stopki, link do kodu QR
-│   └── PhotoGalleryField  galeria 0..N zdjęć, opakowuje ImageUpload
+│   └── FormGroup          nagłówek grupy + PANEL_STACK (odstępy między grupami)
 │
 ├── posters/           renderowanie plakatów
-│   ├── registry.ts       poster_key → { name, Component, Banner, Form }
+│   ├── registry.ts       poster_key → { name, Component, Banner, Form, bannerPhoto? }
 │   ├── PosterWyklad...    9 komponentów layoutów (style inline, patrz stylowanie.md)
 │   ├── banners/          banerowe wersje layoutów (BannerWyklad, ...) + wspólna stopka (common.tsx)
 │   ├── blocks/           współdzielone bloki plakatu (PosterFrame, Sygnet, Badge, FooterLogos, ...)
@@ -71,7 +87,9 @@ src/
 │   ├── templates.ts      listTemplates()
 │   └── drafts.ts         odczyt starego draftu (tylko migracja, nic już go nie zapisuje)
 │
-└── utils/             drobne narzędzia (daty, kodowanie kolorystyki, URL-e zgłoszeń, hooki)
+└── utils/             drobne narzędzia: route.ts (trasy), uiState.ts (zakładki edytora), fit.ts
+                       (dopasowanie podglądu), useElementSize / useMediaQuery / useStoredState,
+                       daty, kodowanie kolorystyki, URL-e zgłoszeń
 ```
 
 ## Przepływ danych
@@ -84,21 +102,184 @@ src/
    nie robi formularz ani `useEditor`: `useWorkspace` po każdej zmianie składa
    z całego stanu snapshot i oddaje go silnikowi zapisu.
 3. Wybrany szablon + rejestr → `poster` = `{ Component, Banner, Form }`.
-   - `Form` renderuje się w panelu "2. Uzupełnij dane".
-   - `Component` renderuje się w `PosterPreview` z tymi samymi danymi (`form`) i `scheme`.
+   - `Form` renderuje się w zakładce „Treść" (przez `ContentPanel`); zakładkę „Wygląd"
+     (rozmiar tekstu, logotypy) rysuje wspólny `LookFields`, nie `Form`.
+   - `Component` (w zakładce „Baner" - `Banner`) renderuje się w `PosterPreview` z tymi
+     samymi danymi (`form`) i `scheme`.
    - Pasek kolorystyki: `schemesFor(poster_key)` z `schemes.ts` (kolejność = kolejność
      zapisu; layout z jednym schematem nie pokazuje paska). Zmiana szablonu lub
      schematu przechodzi przez `fitColorsToLayout()` (`utils/colorScheme.ts`), które
      dobiera domyślny schemat i odpina niedozwolony akcent.
 4. Dane formularza są **globalne** i przeżywają zmianę layoutu - zmienia się tylko,
    który `Form` je edytuje i który `Component` je rysuje.
-5. "Pobierz" → `usePosterExport().download()` → `downloadPoster(posterRef.current, ...)`,
+5. "Pobierz" (przycisk w pasku projektu albo Ctrl/⌘+Enter) → `handleDownload` w
+   `App` → `usePosterExport().download()` → `downloadPoster(posterRef.current, ...)`,
    a po udanym zapisie pliku - jeśli użytkownik jest zalogowany - najpierw
    `workspace.uploadAssets()` wgrywa grafiki snapshotu do Storage, potem
    `useHistory().record()` dopisuje wpis (z pełnym snapshotem) do wspólnej
    historii w Supabase.
 
 Logowanie, wspólna historia, projekty, biblioteka grafik i notatki: [supabase.md](./supabase.md).
+
+## Powłoka i trasy
+
+`App.tsx` składa w jednym miejscu **wszystkie** hooki stanu (`useEditor`,
+`usePosterExport`, `useSession`, `useWorkspace`, `useHistory`, `useNotes`,
+`useProjects`, `useAssetLibrary`) oraz akcje łączące je ze sobą (zapis, pobranie,
+otwarcie projektu lub wpisu historii). Strony dostają dane i akcje wyłącznie
+przez propsy, więc stan edytora przeżywa przejście na inną stronę, a strona
+nie zna hooków innych stron. Nowy stan, który ma przeżyć nawigację, dopisuje się
+w `App`, nie w stronie.
+
+```
+App
+└── AssetLibraryContext
+    ├── AppShell
+    │   ├── TopBar            nazwa, nawigacja stron, pomoc (skróty), język plakatu, konto
+    │   ├── EditorPage        ZAWSZE w drzewie
+    │   └── strona poboczna   Projekty / Grafiki / Historia / Notatki (tylko gdy aktywna)
+    ├── TicketDialog
+    └── AuthDialog
+```
+
+### Trasy w hashu
+
+Strona wynika z `location.hash` (`src/utils/route.ts`, `useHashRoute`):
+
+| Hash | Strona |
+|---|---|
+| `#/` (i wszystko nierozpoznane) | Edytor |
+| `#/projekty` | Projekty |
+| `#/grafiki` | Grafiki |
+| `#/historia` | Historia |
+| `#/notatki` | Notatki |
+
+Tablica `PAGES` jest jedynym źródłem nazw, hashy i kolejności w nawigacji
+(`TopBar` rysuje z niej zwykłe odnośniki `<a href="#/...">`, więc działają
+wstecz / dalej i odświeżenie). `parseRoute` nigdy nie rzuca i ignoruje wielkość
+liter, końcowy `/` i sufiks `?...`.
+
+**Dlaczego hash, a nie ścieżki.** Aplikacja stoi na GitHub Pages pod
+`/sknm-image-generator/` (`base` w `vite.config.ts`). To statyczny hosting bez
+przepisywania adresów: głęboki link typu `/projekty` kończyłby się 404 po
+odświeżeniu, a hash nigdy nie trafia na serwer. Drugi powód: linki z Supabase
+(zaproszenie, reset hasła) wracają na adres aplikacji z tokenami w hashu
+(`#access_token=...&type=recovery`, patrz `arrivedToSetPassword` w
+`supabase/client.ts`). Nie są one ścieżkami, więc `parseRoute` zwraca dla nich
+edytor, a ekran ustawiania hasła pokazuje `AuthDialog`, gdy sesja ma status `settingPassword`.
+
+Bez Supabase (`session.status === 'unconfigured'`) nie ma stron z danymi
+wspólnymi: `TopBar` nie rysuje nawigacji, a `App` wymusza stronę edytora, nawet
+gdy hash mówi co innego. Wejście na stronę poboczną (zalogowany) odświeża jej
+listę - nie ma synchronizacji na żywo. Tytuł karty to „<strona> — Generator
+obrazów SKNM". `/poster/<klucz>[/<schemat>]` to osobny, ścieżkowy podgląd
+szablonu (`main.tsx` → `PosterPreviewPage`), działający poza `App`.
+
+### Edytor zostaje zamontowany, schowany przez `inert`
+
+`AppShell` renderuje stronę edytora **zawsze**. Poza edytorem dostaje klasę
+`OFFSCREEN` (`styles.ts`: `fixed`, `left-[-200vw]`, `pointer-events-none`) i
+atrybut `inert`; strona poboczna pojawia się obok, w drugim `div`.
+
+**Dlaczego tak, a nie `display: none` albo odmontowanie.** Eksport
+rasteryzuje *żywy* węzeł plakatu z podglądu (`posterRef`, `html-to-image`),
+a skrót Ctrl/⌘+Enter „Pobierz plakat" działa z każdej strony. Węzeł musi więc
+istnieć i mieć układ:
+
+- `display: none` - przeglądarka nie rozwiązuje wtedy obliczonych stylów, które
+  eksport kopiuje do klona; plik wychodził z minimalnie innym wygładzaniem
+  tekstu;
+- `visibility: hidden` - dziedziczy się na klon i daje **pusty plik**;
+- odmontowanie - znika `posterRef`, a z nim źródło pliku.
+
+Dlatego element schowany ma zostać w układzie, tylko poza oknem, i dostać
+`inert` (bez tego zostałby w kolejce fokusu i dla czytników ekranu). Ta sama
+zasada obowiązuje w dwóch innych miejscach i **każda zmiana, która chowa
+podgląd, musi ją zachować**:
+
+- `AppShell`: schowany edytor trzyma wysokość, jaką ma pod górnym paskiem
+  (`h-[calc(100dvh-3.5rem)]` od 900 px), żeby `PreviewPane` zmierzył się tak samo
+  i podgląd po powrocie nie zmienił rozmiaru;
+- `EditorPage` poniżej 900 px: panel podglądu w widoku „Edycja" dostaje
+  `NARROW_OFFSCREEN` + `inert`, żeby „Pobierz" z dolnego paska dawał ten sam plik
+  co przy widocznym podglądzie. Zakładkom wystarcza zwykłe `max-[900px]:hidden`
+  (nic z nich nie jest rasteryzowane).
+
+Zakładki edytora (`Tabs`/`TabPanel`) również zostawiają nieaktywny panel w
+drzewie (`hidden`), więc wpisane dane, stan pól i otwarte okienka nie giną.
+Zwykły `hidden` jest tu bezpieczny, bo w panelach nie ma węzła plakatu.
+
+## Strona edytora
+
+`EditorPage` (`src/pages/EditorPage.tsx`) od góry:
+
+1. **Pasek projektu** (`ProjectBar`): nazwa projektu (albo „Wersja robocza")
+   z ołówkiem do zmiany nazwy, status zapisu (`SaveStatus`, tekst + ikona),
+   „Zapisz" (tylko z Supabase, w konflikcie zastąpione wyborem „Wczytaj wersję z
+   chmury" / „Nadpisz"), „Nowy projekt" i **„Pobierz"**. Pod spodem komunikat
+   kopii roboczej i informacja o brakujących grafikach. „Pobierz" jest
+   `DownloadButton` z `ExportBar.tsx`, przekazanym jako `action` - to jedyna akcja
+   `primary` edytora, od 900 px zawsze widoczna w tym pasku.
+2. **Zakładki** (`EditorTabs`, lewy panel): **Szablon** (`TemplateSelector`:
+   przełącznik rodzaju grafiki „Social media i druk" / „Baner" i kafelki
+   layoutów, `SchemeSelector`: kolorystyka i akcent), **Treść** (`ContentPanel`)
+   i **Wygląd** (`LookPanel` → `LookFields`: „Rozmiar tekstu" i „Logotypy").
+   Wszystkie trzy panele są stale zamontowane; aktywną zakładkę pamięta `App`
+   (`localStorage`, `sknm-editor-tab`, `utils/uiState.ts`; nieznana wartość =
+   „Szablon"), a skróty Alt/⌥+1/2/3 przełączają ją z każdej strony (wracają też
+   do edytora). Każda zakładka przewija się osobno.
+3. **Podgląd** (`PreviewPane`, prawy panel): `ExportBar` (format, a dla papieru
+   orientacja i typ pliku), pod nim scena z podglądem i ewentualnym komunikatem
+   eksportu (`exporter.note`).
+
+`ContentPanel` i `LookPanel` (`forms/EditorPanels.tsx`) to cały styk powłoki z
+formularzami: powłoka nie wie, co jest w środku. Treść to `poster.Form` layoutu
+(w trybie „Baner" - `FormBanner`), a Wygląd jest taki sam dla każdego layoutu i
+banera.
+
+**Podgląd dopasowany do sceny.** `PreviewPane` mierzy scenę
+(`useElementSize`, `ResizeObserver`) i liczy szerokość podglądu `fitWidth(scena,
+kształt, stagePadding(scena))` z `utils/fit.ts`: największą, przy której plakat
+mieści się w scenie w OBU wymiarach (kwadrat, pion, poziom, oba banery), z
+marginesem 4% krótszego boku (8-28 px). Dzięki temu podgląd nie jest przycięty i
+nie wymusza przewijania. Pomiar zerowy jest pomijany, więc ukryty element
+zachowuje ostatni rozmiar. `PosterScaled` skaluje plakat CSS transform; węzeł
+pod `posterRef` zawsze ma pełny rozmiar układu (patrz „Kształty i formaty").
+Od 900 px scena bierze resztę wysokości panelu; węziej ma proporcje plakatu, ale
+nie więcej niż zostaje w oknie telefonu.
+
+**Układ zależny od szerokości** (próg 900 px, `min-[900px]:`):
+
+- **od 900 px** - aplikacja ma wysokość okna i sama się nie przewija; dwie kolumny
+  (zakładki `clamp(340px,38%,480px)` | podgląd), przewija się tylko treść zakładki;
+- **poniżej 900 px** - przewija się dokument. Przełącznik „Edycja | Podgląd" (stan
+  lokalny `EditorPage`) pokazuje jeden panel naraz, a przyklejony dolny pasek
+  trzyma podsumowanie formatu (przycisk przełączający na podgląd) i „Pobierz".
+  Pasek projektu ma wtedy przycisk „Pobierz" ukryty (`max-[900px]:hidden`), żeby nie
+  było dwóch. Dolny pasek nie ma własnej logiki: woła ten sam `onDownload`.
+
+**Wariant banera.** Gdy rodzaj grafiki to „Baner" (`exporter.medium ===
+'banner'`), kolejność paneli się odwraca: podgląd idzie na górę (`40dvh`, min.
+`16rem`) na całą szerokość, a zakładki pod nim zajmują resztę i przewijają się
+pod podglądem. Kolejność w DOM jest zamieniana, żeby Tab szedł za kolejnością na
+ekranie; panele mają stałe `key`, więc React je przenosi, nie odmontowuje (stan
+zostaje), a fokus przełącznika rodzaju jest przywracany po zamianie.
+
+## Strony poboczne
+
+Wszystkie opakowuje `PageFrame` (tytuł, jednozdaniowy opis, akcje po prawej,
+treść w kolumnie do 1040 px), a treść list — `RemotePanel` (niezalogowany:
+zaproszenie do logowania; ładowanie; błąd z „Spróbuj ponownie"). Strony
+nie mają własnych hooków danych - dostają je z `App`.
+
+| Strona | Co pokazuje |
+|---|---|
+| **Projekty** (`ProjectsPage`) | własne projekty zalogowanej osoby i te udostępnione zespołowi (`ProjectsList`); własne można otworzyć, przemianować, udostępnić („Udostępnij zespołowi") i usunąć, cudze tylko otworzyć jako kopię. Akcja „Nowy projekt". Udane otwarcie przenosi do edytora, nieudane zostaje na liście, a powód pokazuje komunikat kopii roboczej nad stroną |
+| **Grafiki** (`AssetsPage`) | wspólna biblioteka logotypów i zdjęć (`AssetTile`), filtr Wszystkie / Logotypy / Zdjęcia; własne grafiki można przemianować i usunąć; „Dodaj logotyp" wgrywa logotyp bez robienia plakatu |
+| **Historia** (`HistoryPage`) | każdy pobrany plakat zespołu (`HistoryList`, miniatura ze snapshotu). „Przywróć" otwiera wpis w edytorze jako nową, niezapisaną wersję roboczą - nie nadpisuje otwartego projektu |
+| **Notatki** (`NotesPage`) | wspólna lista zadań (`NotesPanel`); liczba otwartych pokazuje się jako pigułka przy „Notatki" w górnym pasku |
+
+Karty i siatki: [stylowanie.md](./stylowanie.md#strony-i-karty).
 
 ## Snapshot i kopia robocza
 
@@ -240,13 +421,23 @@ wypada ze snapshotu (do bazy nie może trafić data URL).
 ## Skróty klawiszowe
 
 Jedyny rejestr to `SHORTCUTS` w `src/shortcuts/shortcuts.ts` (id, kombinacja,
-opis, czy działa w polach tekstowych): Ctrl/⌘+S „Zapisz projekt", Ctrl/⌘+Enter
-„Pobierz plakat", `?` „Pokaż skróty". Korzystają z niego `useShortcuts` (jeden
-nasłuch `keydown`; skrót bez handlera jest pomijany, z handlerem blokuje
-domyślną akcję przeglądarki) i okienko pomocy `ShortcutsHelp`, więc nowy skrót
-dopisuje się w jednym miejscu. Handlery podaje `App.tsx`; bez Supabase skrót
-zapisu jest wyłączony. Przy otwartym `<dialog>` skróty nie działają.
+opis, czy działa w polach tekstowych):
 
+| Skrót | Akcja | W polach tekstowych |
+|---|---|---|
+| Ctrl/⌘+S | Zapisz projekt | tak |
+| Ctrl/⌘+Enter | Pobierz plakat | tak |
+| Alt/⌥+1 / 2 / 3 | Zakładka „Szablon" / „Treść" / „Wygląd" | tak |
+| `?` | Pokaż skróty klawiszowe | nie |
+
+Skróty zakładek porównują fizyczny klawisz (`code`), bo ⌥1 na Macu wpisuje „¡".
+Korzystają z rejestru `useShortcuts` (jeden nasłuch `keydown`; skrót bez handlera
+jest pomijany, z handlerem blokuje domyślną akcję przeglądarki) i okienko pomocy
+`ShortcutsHelp` (wysuwane z górnego paska), więc nowy skrót dopisuje się w
+jednym miejscu. Handlery podaje `App.tsx`; bez Supabase skrót zapisu nie robi
+nic (nadal blokuje okno zapisu przeglądarki) i nie jest pokazany w pomocy.
+Skróty zakładek i pobierania działają z każdej strony (zakładka najpierw wraca do
+edytora). Przy otwartym `<dialog>` skróty nie działają.
 
 ## Widoczność pól
 
@@ -326,23 +517,26 @@ marki (limonka) leżą poza gamutem CMYK, więc w druku i tak wyjdą nieco
 spokojniej niż na ekranie. Tekst w PDF nie jest zaznaczalny (to obraz).
 Bez spadów i znaczników cięcia.
 
-## Zakładki: Social media / Baner
+## Rodzaj grafiki: Social media i druk / Baner
 
-Panel „1. Wybierz szablon" ma dwie zakładki (`Medium` = `social` | `banner`,
-stan w `usePosterExport`, zapisywany w snapshocie jako `export.medium`, domyślnie `social`). Baner to **ten sam szablon w innym
-medium**, nie osobny wpis: rejestr trzyma przy każdym layoucie drugi komponent
-(`Banner`, pliki w `src/posters/banners/`). Zmiana zakładki zostawia wybrany
-layout, dane formularza, kolorystykę i akcent - zmienia się komponent, kształt
-i lista formatów eksportu (`formatsFor(medium)` w `formats.ts`). Banery wołają
-`resolveScheme` z tym samym kluczem co plakat, więc nie mają własnych schematów.
+Przełącznik w zakładce „Szablon" (`TemplateSelector`; `Medium` = `social` | `banner`,
+stan w `usePosterExport`, zapisywany w snapshocie jako `export.medium`, domyślnie
+`social`). Baner to **ten sam szablon w innym medium**, nie osobny wpis: rejestr
+trzyma przy każdym layoucie drugi komponent (`Banner`, pliki w
+`src/posters/banners/`). Zmiana medium zostawia wybrany layout, dane formularza,
+kolorystykę i akcent - zmienia się komponent, kształt i lista formatów eksportu
+(`formatsFor(medium)` w `formats.ts`). Banery wołają `resolveScheme` z tym samym
+kluczem co plakat, więc nie mają własnych schematów.
 
 Baner to wizytówka koła, nie plakat wydarzenia: niesie **stałą treść** z
 `posters/copy.ts` (`CLUB_NAME[lang]` - pełna nazwa koła „Studenckie Koło Naukowe
 Matematyków Politechniki Krakowskiej", zawsze w całości, bez haseł i opisów) i nie czyta
 tytułu, prelegenta ani daty z formularza. Z danych formularza bierze tylko
-logotypy, kod QR, zdjęcia i suwaki rozmiaru. Dlatego zakładka „Baner" ma jeden
-wspólny formularz `forms/FormBanner.tsx` zamiast formularza layoutu; dane
-wydarzenia zostają w stanie i wracają po przejściu na „Social media".
+logotypy, kod QR, zdjęcia i suwaki rozmiaru. Dlatego w trybie „Baner" zakładka
+„Treść" pokazuje wspólny `forms/FormBanner.tsx` (zdjęcie - gdy wpis rejestru ma
+`bannerPhoto` - i kod QR) zamiast formularza layoutu; dane wydarzenia zostają w
+stanie i wracają po przejściu na „Social media i druk". Zakładka „Wygląd" jest
+ta sama co przy plakacie.
 
 Oba kształty banera mają wspólną wysokość układu (624 px) - baner projektuje
 się raz i jest płynny tylko na szerokość. `useBannerLayout()` oddaje boczny
@@ -350,18 +544,6 @@ margines treści `padX`: tekst, logo i QR siedzą w środkowej kolumnie
 `BANNER_SAFE_W` (1096 px), bo Facebook na telefonie przycina okładkę strony do
 środkowych ~68% szerokości; na marginesy wychodzi tylko dekoracja i zdjęcia.
 
-W zakładce „Baner" podgląd przenosi się na górę i zajmuje całą szerokość
-kreatora (rozmiar z `useElementWidth`). Swatche kolorystyki i miniatury historii
-zostają kwadratowe; medium, format, orientacja i typ pliku są częścią snapshotu
-(`export`), więc wracają razem z projektem i wpisem historii.
-
-## Zwijane panele kreatora
-
-Panele „1. Wybierz szablon", „2. Uzupełnij dane", „Projekty", „Historia" i
-„Notatki" to `CollapsiblePanel` — zwinięta treść dostaje `hidden` (nie jest odmontowana,
-więc stan formularza zostaje). Stan zwinięcia leży w `localStorage` pod
-`sknm-collapsed-panels` (`src/utils/collapsedPanels.ts`); zepsuty wpis =
-wszystko rozwinięte. Panel „Projekty" (`ProjectsList`) pokazuje własne projekty
-zalogowanej osoby i te, które inni udostępnili zespołowi; własne można
-otworzyć, przemianować, udostępnić (przełącznik „Udostępnij zespołowi") i
-usunąć, cudze tylko otworzyć jako kopię. Rozwinięcie panelu odświeża listę.
+Układ edytora w trybie banera: patrz „Strona edytora". Swatche kolorystyki i
+miniatury historii zostają kwadratowe; medium, format, orientacja i typ pliku są
+częścią snapshotu (`export`), więc wracają razem z projektem i wpisem historii.

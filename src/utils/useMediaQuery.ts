@@ -1,6 +1,6 @@
 import { useCallback, useSyncExternalStore } from 'react'
 
-// Czy okno spełnia zapytanie CSS (np. `(max-width: 899.98px)`), śledzone na
+// Czy okno spełnia zapytanie CSS (np. `NARROW_QUERY`), śledzone na
 // żywo. Do rzeczy, których sam CSS nie umie - np. atrybutu `inert` zależnego
 // od szerokości okna. Poza przeglądarką (testy) zawsze `false`.
 export function useMediaQuery(query: string): boolean {

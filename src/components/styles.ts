@@ -4,11 +4,6 @@
 // Strona: jedna kolumna do 900px, szeroki układ powyżej.
 export const PAGE_SHELL = 'mx-auto max-w-[720px] px-4 pt-8 pb-16 min-[900px]:max-w-[1240px]'
 
-export const CHECKBOX = 'h-[15px] w-[15px] flex-none cursor-pointer accent-accent'
-
-// Kompaktowe pole tekstowe (wiersze list, link do kodu QR).
-export const COMPACT_INPUT = 'rounded-lg border border-field-border bg-field px-3 py-[9px] text-[0.9rem] text-fg'
-
 // Miniatura wgranej grafiki na białym tle.
 export const IMAGE_THUMB = 'flex h-[52px] w-[52px] flex-none items-center justify-center overflow-hidden rounded-lg border border-field-border bg-white'
 export const IMAGE_THUMB_IMG = 'max-h-full max-w-full object-contain'
@@ -123,5 +118,13 @@ export const CHOICE_MARK =
 // tekstu); `visibility: hidden` z kolei dziedziczy się na kopię i daje pusty
 // plik. Element ukryty w ten sposób MUSI dostać atrybut `inert` (fokus,
 // czytniki ekranu). `NARROW_OFFSCREEN` działa tylko poniżej 900 px.
+//
+// JEDNA granica układu: 900 px. Tailwind 4 kompiluje `min-[900px]:` do
+// `@media (width >= 900px)`, a `max-[900px]:` do `@media not all and (width >= 900px)`,
+// czyli dokładnie dopełnienia (`width < 900px`) - bez luki przy ułamkowych
+// szerokościach (zoom). Dlatego „wąsko" pisze się `max-[900px]:`, nie
+// z liczbą o 1 mniejszą (to `width < 899px` i zostawia pasmo 899-900 px bez układu).
+// `NARROW_QUERY` to to samo dopełnienie dla `matchMedia` (atrybut `inert` w JS).
+export const NARROW_QUERY = 'not all and (min-width: 900px)'
 export const OFFSCREEN = 'pointer-events-none fixed top-0 left-[-200vw] w-screen'
-export const NARROW_OFFSCREEN = 'max-[899px]:pointer-events-none max-[899px]:fixed max-[899px]:top-0 max-[899px]:left-[-200vw] max-[899px]:w-screen'
+export const NARROW_OFFSCREEN = 'max-[900px]:pointer-events-none max-[900px]:fixed max-[900px]:top-0 max-[900px]:left-[-200vw] max-[900px]:w-screen'

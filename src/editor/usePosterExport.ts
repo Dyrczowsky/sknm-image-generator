@@ -92,6 +92,7 @@ export function usePosterExport() {
     shape: shapeFor(format, orientation),
     exporting,
     note,
+    dismissNote: () => setNote(null),
     download,
   }
 }

@@ -5,7 +5,7 @@ Projekt ma **dwa rozłączne światy stylów**. Nie mieszaj ich.
 | | UI aplikacji (edytor) | Plakaty (`src/posters/**`) |
 |---|---|---|
 | Technika | Tailwind CSS v4 (klasy utility w JSX) | style inline (`style={{ ... }}`) + zmienne CSS |
-| Gdzie | `App.tsx`, `src/components`, `src/forms`, `src/pages` | `src/posters/**`, `src/posters/blocks/**` |
+| Gdzie | `src/components`, `src/forms`, `src/pages` (i `App.tsx`) | `src/posters/**`, `src/posters/blocks/**` |
 | Motyw ciemny | `@media (prefers-color-scheme: dark)` w `index.css` | schematy kolorów per layout (`schemes.ts`) |
 
 ## UI aplikacji - Tailwind v4
@@ -53,12 +53,13 @@ w `:root`, a że `@theme inline` trzyma w utilities `var(--...)`, nie ma potrzeb
 - Kolor akcentu na tekście to `text-accent-text`, nie `text-accent` - sam `--accent`
   na ciemnym tle ma kontrast 3,6:1. `bg-accent` zostaje dla wypełnień (z `text-on-accent`).
 - Dłuższy, powtarzalny zestaw klas wyciągnij do stałej w komponencie
-  (np. `PANEL` w `App.tsx`, `actionButton` w `HistoryList.tsx`), a gdy powtarza się
-  w kilku plikach - do `src/components/styles.ts` -
-  nie do `@apply`.
+  (np. `LINK` w `TopBar.tsx`, `PANEL` w `EditorTabs.tsx`, `NOTE` w `ProjectBar.tsx`),
+  a gdy powtarza się w kilku plikach - do `src/components/styles.ts`
+  (karty: `cardStyles.ts`) - nie do `@apply`.
 - Wartości spoza skali podawaj arbitralnie: `py-[9px]`, `rounded-[10px]`,
   `min-[900px]:...`, `[grid-area:preview]`.
-- Breakpoint układu dwukolumnowego to **900px** (`min-[900px]:`), nie domyślne `lg`.
+- Breakpoint układu (edytor w dwóch kolumnach, górny pasek w jednym wierszu, aplikacja
+  o wysokości okna) to **900px** (`min-[900px]:` / `max-[900px]:`), nie domyślne `lg`.
 
 ### Prymitywy - `src/components/ui`
 
@@ -71,7 +72,7 @@ zamiast składać je z klas na nowo:
 | `IconButton` | akcja z samą ikoną | `icon`, `label` (obowiązkowa nazwa), `variant`, `size`, `busy`, `aria-pressed` |
 | `Field` | etykieta + kontrolka + podpowiedź / błąd | `label`, `hint`, `error`, `required`, `action`, `labelHidden` |
 | `Input` / `Textarea` / `Select` | kontrolki o jednym wyglądzie | natywne atrybuty + `size` (`sm` / `md`) |
-| `Tabs` + `TabList` + `TabPanel` | zakładki; nieaktywny panel zostaje w drzewie (`hidden`) | `value`, `onChange`; `label`, `tabs`, `fill` |
+| `Tabs` + `TabList` + `TabPanel` | zakładki (m.in. `EditorTabs`); nieaktywny panel zostaje w drzewie (`hidden`) | `value`, `onChange`; `label`, `tabs`, `fill` |
 | `Popover` | panel przypięty do przycisku (menu, pomoc) | `trigger`, `label`, `align`, `side`, `role`, `open` / `onOpenChange` |
 | `ConfirmButton` | akcja niszcząca z pytaniem w miejscu przycisku (zamiast `window.confirm`) | `question`, `confirmLabel`, `onConfirm` |
 | `Badge` | licznik albo krótki stan | `tone`, `icon`, `srLabel` |
@@ -94,6 +95,48 @@ Zasady, które z nich wynikają:
 - Typografia interfejsu: 12 px (pigułki), 13 px (etykiety, podpowiedzi, przyciski `sm`),
   14 px (tekst, pola, przyciski `md`), 15 px (nagłówek grupy - `UI_HEADING`). Zaokrąglenia:
   `rounded-lg` (8 px) dla kontrolek, `rounded-xl` (12 px) dla paneli, `rounded-full` dla pigułek.
+
+### Elementy stałe `styles.ts`
+
+Poza `buttonClass()` / `fieldClass()` plik trzyma stałe używane w kilku miejscach:
+
+| Stała | Do czego |
+|---|---|
+| `UI_LABEL`, `UI_HINT`, `UI_ERROR`, `UI_HEADING` | etykieta, podpowiedź, błąd i nagłówek grupy pól (`Field`, `FormGroup`, formularze) |
+| `CHOICE_TILE`, `CHOICE_MARK` | kafelek wyboru z miniaturą (szablon, kolorystyka) i znaczek zaznaczenia w rogu |
+| `POPOVER_PANEL` | powierzchnia panelu wysuwanego |
+| `IMAGE_THUMB`, `IMAGE_THUMB_IMG` | miniatura wgranej grafiki na białym tle |
+| `DIALOG`, `DIALOG_FIELD`, `DIALOG_LABEL`, `BUTTON_PRIMARY`, `BUTTON_GHOST` | modale na natywnym `<dialog>` (`AuthDialog`, `TicketDialog`) - starszy zestaw, który jeszcze nie przeszedł na prymitywy |
+| `PAGE_SHELL` | kolumna strony podglądu szablonu (`PosterPreviewPage`) |
+| `OFFSCREEN`, `NARROW_OFFSCREEN` | ukrycie bez wyłączania układu - **patrz niżej** |
+
+#### Ukrywanie elementu z podglądem plakatu
+
+Wszystko, co zawiera węzeł plakatu (strona edytora poza edytorem, panel podglądu na
+telefonie w widoku „Edycja"), chowaj przez `OFFSCREEN` / `NARROW_OFFSCREEN` **razem z
+atrybutem `inert`**, nigdy przez `hidden`, `display: none` ani `visibility: hidden` -
+eksport rasteryzuje ten węzeł (`display: none` zmienia wygładzanie tekstu,
+`visibility: hidden` daje pusty plik). Uzasadnienie i miejsca użycia:
+[architektura.md](./architektura.md#edytor-zostaje-zamontowany-schowany-przez-inert).
+Zwykłe `hidden` zostaje dla elementów bez plakatu (np. nieaktywna zakładka).
+
+### Strony i karty
+
+Strony poboczne (Projekty, Grafiki, Historia, Notatki) składa się z gotowych elementów:
+
+- `PageFrame` (`components/PageFrame.tsx`) - rama strony: `title` (`<h1>`), `description`
+  (jedno zdanie: co tu jest i kto to widzi), `actions` (po prawej tytułu, np. „Nowy
+  projekt") i treść w kolumnie do 1040 px. Każda strona zaczyna się od niego; edytor ma
+  własny, ukryty wizualnie `<h1>`.
+- `CardSection` (tytuł z licznikiem) i `EmptyNote` (przerywana ramka „nic tu nie ma")
+  z `components/cards.tsx`.
+- `cardStyles.ts`: `CARD_GRID` (siatka `auto-fill` kart od 15 rem, do czterech kolumn w
+  ramie 1040 px), `cardClass(highlight?)` (karta; `highlight` obrysowuje akcentem
+  otwarty projekt), `THUMB_FIELD` (pole miniatury na górze karty, tło `bg-sunken`) i
+  `THUMB_BOX` (bok pola, w który wpisujemy miniaturę plakatu, w px).
+
+Dane list przychodzą z `RemotePanel`, który sam pokazuje stany niezalogowany / ładowanie /
+błąd - strona nie rysuje ich ręcznie.
 
 ### Ikony
 

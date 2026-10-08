@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { ChangeEvent } from 'react'
-import { ensureUploaded, importImage } from '../assets/assets'
+import { alreadyInLibraryMessage, importImage, libraryErrorMessage } from '../assets/assets'
 import { importErrorMessage } from '../assets/prepare'
 import { refOf, srcOf } from '../assets/registry'
 import type { AssetLibrary } from '../assets/useAssetLibrary'
@@ -21,42 +21,26 @@ interface AssetsPageProps {
   // rejestracja i `loadThumbs` do dociągania miniatur.
   library: AssetLibrary
   onSignInClick: () => void
-  // E-mail zalogowanej osoby - po nim poznajemy jej własne wgrania. Gdy `App`
-  // go nie poda, strona pyta o sesję klienta Supabase.
-  memberEmail?: string
+  // E-mail zalogowanej osoby (`''` bez sesji) - po nim poznajemy jej własne wgrania.
+  memberEmail: string
 }
 
 type Filter = 'all' | 'logo' | 'photo'
 
 const same = (a: string, b: string) => a.trim().toLowerCase() === b.trim().toLowerCase()
 
-// E-mail zalogowanej osoby: z propsa albo z sesji klienta.
-function useMemberEmail(fromProps: string | undefined, signedIn: boolean): string {
-  const [fromSession, setFromSession] = useState('')
-  useEffect(() => {
-    if (fromProps !== undefined || !signedIn) return
-    let active = true
-    // Dynamicznie, bo moduł klienta czyta `window` już przy imporcie (testy w node).
-    void import('../supabase/client').then(async ({ supabase }) => {
-      const email = (await supabase?.auth.getSession())?.data.session?.user.email
-      if (active) setFromSession(email ?? '')
-    })
-    return () => {
-      active = false
-    }
-  }, [fromProps, signedIn])
-  return fromProps ?? fromSession
-}
-
 // Strona „Grafiki": wspólna biblioteka logotypów i zdjęć zespołu. Grafiki
 // trafiają tu przy zapisie projektu i pobraniu plakatu albo przyciskiem
 // „Dodaj logotyp" - bez robienia plakatu.
 export function AssetsPage({ sessionStatus, library, onSignInClick, memberEmail }: AssetsPageProps) {
-  const signedIn = sessionStatus === 'signedIn'
-  const me = useMemberEmail(memberEmail, signedIn)
+  // Tak samo jak w `App`: także w trakcie ustawiania hasła ktoś jest zalogowany.
+  const signedIn = sessionStatus === 'signedIn' || sessionStatus === 'settingPassword'
+  const me = memberEmail
   const [filter, setFilter] = useState<Filter>('all')
   const [uploading, setUploading] = useState(false)
   const [errors, setErrors] = useState<string[]>([])
+  // Informacje, które nie są błędem (np. grafika już jest w bibliotece).
+  const [infos, setInfos] = useState<string[]>([])
   // Wymusza ponowne narysowanie po wczytaniu miniatur do rejestru.
   const [, setHydrated] = useState(0)
 
@@ -91,7 +75,11 @@ export function AssetsPage({ sessionStatus, library, onSignInClick, memberEmail 
     if (files.length === 0) return
     setUploading(true)
     setErrors([])
+    setInfos([])
     const problems: string[] = []
+    const already: string[] = []
+    // Co jest w bibliotece: wczytane pozycje i to, co dodaliśmy w tej partii.
+    const known = new Map(library.items.map((asset) => [asset.ref, asset.kind]))
     for (const file of files) {
       let ref: string | undefined
       try {
@@ -100,21 +88,21 @@ export function AssetsPage({ sessionStatus, library, onSignInClick, memberEmail 
         problems.push(importErrorMessage(error, file.name))
         continue
       }
+      const present = ref ? known.get(ref) : undefined
+      if (present) {
+        already.push(alreadyInLibraryMessage(file.name, present))
+        continue
+      }
       try {
         if (!ref) throw new Error('brak nazwy grafiki')
-        const { requireSupabase } = await import('../supabase/client')
-        let registered = false
-        await ensureUploaded([ref], requireSupabase(), async (asset) => {
-          await library.register(asset)
-          registered = true
-        })
-        // Grafika wgrana wcześniej z tej przeglądarki, a potem usunięta z biblioteki.
-        if (!registered) await library.register({ ref, kind: 'logo', name: file.name })
-      } catch {
-        problems.push(`Nie udało się dodać „${file.name}" do biblioteki. Sprawdź połączenie i spróbuj ponownie.`)
+        await library.upload(ref, 'logo', file.name)
+        known.set(ref, 'logo')
+      } catch (error) {
+        problems.push(libraryErrorMessage(error, file.name))
       }
     }
     setErrors(problems)
+    setInfos(already)
     setUploading(false)
   }
 
@@ -156,6 +144,16 @@ export function AssetsPage({ sessionStatus, library, onSignInClick, memberEmail 
               {errors.map((message) => (
                 <p key={message} className="m-0 flex items-start gap-2">
                   <Icon name="alert" className="mt-px" />
+                  {message}
+                </p>
+              ))}
+            </div>
+          )}
+          {infos.length > 0 && (
+            <div role="status" className="flex flex-col gap-1 rounded-lg bg-sunken px-3 py-2 text-[0.8125rem] text-muted">
+              {infos.map((message) => (
+                <p key={message} className="m-0 flex items-start gap-2">
+                  <Icon name="info" className="mt-px" />
                   {message}
                 </p>
               ))}

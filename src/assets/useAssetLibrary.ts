@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { requireSupabase } from '../supabase/client'
 import { useRemoteList } from '../supabase/useRemoteList'
-import { hydrate } from './assets'
-import type { UploadedAsset } from './assets'
+import { ensureUploaded, hydrate } from './assets'
+import type { AssetKind, UploadedAsset } from './assets'
 import { listAssets, registerAsset, removeAsset, renameAsset } from './remoteLibrary'
 import type { LibraryAsset } from './remoteLibrary'
 
@@ -50,12 +50,24 @@ export function useAssetLibrary(member: string | null) {
     })
   }
 
+  // Wgrywa do Storage grafikę zaimportowaną już lokalnie (`importImage`) i wpisuje
+  // ją do biblioteki z rodzajem wybranym przez użytkownika. Rzuca przy porażce.
+  const upload = async (ref: string, kind: AssetKind, name: string): Promise<void> => {
+    let registered = false
+    await ensureUploaded([ref], requireSupabase(), async (asset) => {
+      await register(asset)
+      registered = true
+    })
+    // Wgrana wcześniej z tej przeglądarki, a potem usunięta z biblioteki.
+    if (!registered) await register({ ref, kind, name })
+  }
+
   // Dociąga miniatury do rejestru; formularz nie musi znać klienta Supabase.
   const loadThumbs = async (refs: string[]): Promise<void> => {
     await hydrate(refs, requireSupabase())
   }
 
-  return { status: list.status, items: list.items, reload: list.reload, actionError, rename, remove, register, loadThumbs }
+  return { status: list.status, items: list.items, reload: list.reload, actionError, rename, remove, register, upload, loadThumbs }
 }
 
 export type AssetLibrary = ReturnType<typeof useAssetLibrary>

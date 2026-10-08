@@ -6,6 +6,9 @@ import { Button, Icon, IconButton, Input } from './ui'
 import type { IconName } from './ui'
 
 export interface ProjectBarProps {
+  // Identyfikator otwartego projektu; `null` = wersja robocza. Zmiana
+  // identyfikatora zeruje stan paska (np. rozpoczętą zmianę nazwy).
+  id: number | null
   // Nazwa otwartego projektu; `null` = wersja robocza bez projektu.
   name: string | null
   status: SaveStatus
@@ -81,7 +84,13 @@ const NOTE = 'm-0 flex flex-wrap items-center gap-x-3 gap-y-2 border-t border-bo
 // „Nowy projekt" i główna akcja („Pobierz"). Tu też lądują komunikaty kopii
 // roboczej, wybór przy konflikcie wersji i informacja o grafikach, których nie
 // udało się wczytać.
-export function ProjectBar({
+export function ProjectBar(props: ProjectBarProps) {
+  // Pasek jest stale zamontowany, więc jego stan lokalny przeżywa otwarcie innego
+  // projektu: `key` zaczyna go od nowa, żeby szkic nazwy projektu A nie zmienił B.
+  return <ProjectStrip key={props.id ?? 'draft'} {...props} />
+}
+
+function ProjectStrip({
   name, status, cloud, notice, missingCount,
   onSave, onNew, onDismissNotice, onRetryMissing, onDropMissing, onLoadCloud, onOverwrite, onRename, action,
 }: ProjectBarProps) {
@@ -101,7 +110,7 @@ export function ProjectBar({
   return (
     <section className="flex-none border-b border-border bg-bg" aria-label="Projekt">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2 px-4 py-2 min-[900px]:min-h-14">
-        <div className="flex min-w-0 flex-1 basis-full items-center gap-x-3 gap-y-1 max-[899px]:flex-wrap min-[900px]:basis-0">
+        <div className="flex min-w-0 flex-1 basis-full items-center gap-x-3 gap-y-1 max-[900px]:flex-wrap min-[900px]:basis-0">
           {renaming ? (
             <form className="flex min-w-0 flex-1 items-center gap-2" onSubmit={rename}>
               <Input

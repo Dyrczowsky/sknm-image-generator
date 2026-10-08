@@ -20,7 +20,7 @@ const row = (id: number, patch: Partial<ProjectRow> = {}): ProjectRow => ({
 
 const render = (projects: ProjectRow[], currentId: number | null = null) =>
   renderToStaticMarkup(
-    createElement(ProjectsList, { projects, userId: 'me', currentId, lang: 'pl', onOpen: noop, onRename: noop, onShare: noop, onDelete: noop }),
+    createElement(ProjectsList, { projects, userId: 'me', currentId, onOpen: noop, onRename: noop, onShare: noop, onDelete: noop }),
   )
 
 describe('ProjectsList', () => {
@@ -51,9 +51,12 @@ describe('ProjectsList', () => {
   it('przełącznik udostępniania mówi, jaki jest stan', () => {
     const shared = render([row(1, { shared: true })])
     expect(shared).toContain('aria-pressed="true"')
+    expect(shared).toContain('aria-label="Udostępnij zespołowi: Projekt 1"')
     expect(shared).toContain('Udostępniony zespołowi')
     const priv = render([row(1, { shared: false })])
     expect(priv).toContain('aria-pressed="false"')
+    // Nazwa dostępna nie zmienia się razem ze stanem.
+    expect(priv).toContain('aria-label="Udostępnij zespołowi: Projekt 1"')
     expect(priv).toContain('Udostępnij zespołowi')
   })
 

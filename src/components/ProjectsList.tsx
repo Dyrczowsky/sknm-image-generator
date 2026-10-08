@@ -5,7 +5,6 @@ import type { ProjectRow } from '../projects/remoteProjects'
 import { posterRegistry } from '../posters/registry'
 import { parseSnapshot } from '../snapshot/snapshot'
 import { formatTimestamp } from '../utils/formatDate'
-import type { PosterLang } from '../types'
 import { CARD_GRID, THUMB_BOX, THUMB_FIELD, cardClass } from './cardStyles'
 import { CardSection, EmptyNote } from './cards'
 import { SnapshotThumb } from './SnapshotThumb'
@@ -18,8 +17,6 @@ interface ProjectsListProps {
   userId: string
   // Projekt otwarty w edytorze.
   currentId: number | null
-  // Język plakatu; miniatury nieczytelnych snapshotów go nie potrzebują.
-  lang?: PosterLang
   onOpen: (row: ProjectRow) => void
   onRename: (row: ProjectRow, name: string) => void
   onShare: (row: ProjectRow, shared: boolean) => void
@@ -115,6 +112,8 @@ function ProjectCard({ row, own, current, onOpen, onRename, onShare, onDelete }:
               <Button
                 variant="ghost"
                 icon={row.shared ? 'check' : 'share'}
+                // Stała nazwa; stan niesie `aria-pressed`, napis tylko go opisuje.
+                aria-label={`Udostępnij zespołowi: ${row.name}`}
                 aria-pressed={row.shared}
                 onClick={() => onShare(row, !row.shared)}
               >

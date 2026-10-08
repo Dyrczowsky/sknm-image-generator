@@ -6,6 +6,7 @@ import type { ProjectRow } from '../projects/remoteProjects'
 import type { Projects } from '../projects/useProjects'
 import { h, render } from '../components/ui/testUtils'
 import type { HistoryEntry } from '../types'
+import { alreadyInLibraryMessage } from '../assets/assets'
 import { AssetsPage } from './AssetsPage'
 import { HistoryPage } from './HistoryPage'
 import { NotesPage } from './NotesPage'
@@ -26,7 +27,7 @@ const ENTRY: HistoryEntry = {
 
 const projects = (sessionStatus: string, items: ProjectRow[] = [PROJECT]) =>
   render(h(ProjectsPage, {
-    sessionStatus, projects: list(items, sessionStatus) as unknown as Projects, userId: 'u-ola', currentId: 7, lang: 'pl',
+    sessionStatus, projects: list(items, sessionStatus) as unknown as Projects, userId: 'u-ola', currentId: 7,
     onSignInClick: noop, onOpen: noop, onRename: noop, onShare: noop, onDelete: noop, onNew: noop,
   }))
 const history = (sessionStatus: string) =>
@@ -37,7 +38,7 @@ const notes = (sessionStatus: string) =>
     notes: { ...list([{ id: 1, created_at: '2031-03-04T10:00:00Z', author_email: 'ola@sknm.pl', text: 'Wydrukować plakaty', done: false }], sessionStatus), add: noop, change: noop, remove: noop } as unknown as Notes,
   }))
 const assets = (sessionStatus: string, items: unknown[] = [{ ref: 'a'.repeat(64) + '.png', created_at: '2031-03-04T10:00:00Z', author_email: 'jan@sknm.pl', kind: 'logo', name: 'Logo wydziału' }], memberEmail?: string) =>
-  render(h(AssetsPage, { sessionStatus, onSignInClick: noop, memberEmail, library: { ...list(items, sessionStatus), rename: noop, remove: noop, register: noop, loadThumbs: async () => {} } as unknown as AssetLibrary }))
+  render(h(AssetsPage, { sessionStatus, onSignInClick: noop, memberEmail: memberEmail ?? '', library: { ...list(items, sessionStatus), rename: noop, remove: noop, register: noop, upload: noop, loadThumbs: async () => {} } as unknown as AssetLibrary }))
 
 const PAGES: [string, (sessionStatus: string) => string, string][] = [
   ['Projekty', projects, 'swoje projekty'],
@@ -124,6 +125,17 @@ describe('AssetsPage', () => {
     expect(html).toContain('Logotyp')
     expect(html).toContain('jan@sknm.pl')
     expect(html).toMatch(/2031-03-04 \d\d:00/)
+  })
+
+  it('przycisk dodawania jest też w trakcie ustawiania hasła (jak w App) i nie ma go bez sesji', () => {
+    expect(assets('signedIn')).toContain('Dodaj logotyp do biblioteki')
+    expect(assets('settingPassword')).toContain('Dodaj logotyp do biblioteki')
+    expect(assets('signedOut')).not.toContain('Dodaj logotyp do biblioteki')
+  })
+
+  it('komunikat o grafice, która już jest w bibliotece, mówi też, gdy jest tam jako zdjęcie', () => {
+    expect(alreadyInLibraryMessage('logo.png', 'logo')).toBe('„logo.png" jest już w bibliotece.')
+    expect(alreadyInLibraryMessage('foto.png', 'photo')).toBe('„foto.png" jest już w bibliotece jako zdjęcie.')
   })
 
   it('grafika bez nazwy i pusta biblioteka', () => {

@@ -9,7 +9,7 @@ const noop = () => {}
 const render = (patch: Partial<ComponentProps<typeof ProjectBar>> = {}) =>
   renderToStaticMarkup(
     createElement(ProjectBar, {
-      name: null, status: 'local', cloud: true, notice: null, missingCount: 0,
+      id: null, name: null, status: 'local', cloud: true, notice: null, missingCount: 0,
       onSave: noop, onNew: noop, onDismissNotice: noop, onRetryMissing: noop, onDropMissing: noop, onLoadCloud: noop, onOverwrite: noop,
       ...patch,
     }),
@@ -93,5 +93,23 @@ describe('opis stanu zapisu', () => {
     const labels = statuses.map((status) => render({ name: 'P', status }).match(/role="status">([^<]*)</)?.[1] ?? '')
     expect(labels.every((label) => label.length > 0)).toBe(true)
     expect(new Set(labels).size).toBe(statuses.length)
+  })
+})
+
+describe('stan paska przy zmianie projektu', () => {
+  // Pasek jest stale zamontowany; szkic zmiany nazwy ma nie przejść na inny projekt.
+  const keyOf = (id: number | null) => {
+    const element = ProjectBar({
+      id, name: null, status: 'local', cloud: true, notice: null, missingCount: 0,
+      onSave: noop, onNew: noop, onDismissNotice: noop, onRetryMissing: noop, onDropMissing: noop, onLoadCloud: noop, onOverwrite: noop,
+    })
+    return element.key
+  }
+
+  it('klucz zależy od otwartego projektu, więc jego zmiana zeruje stan lokalny', () => {
+    expect(keyOf(1)).toBe('1')
+    expect(keyOf(2)).not.toBe(keyOf(1))
+    expect(keyOf(null)).toBe('draft')
+    expect(keyOf(null)).not.toBe(keyOf(1))
   })
 })

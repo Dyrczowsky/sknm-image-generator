@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
 import { NOTE_MAX_LENGTH } from '../notes/remoteNotes'
 import type { Note } from '../notes/remoteNotes'
@@ -10,14 +10,29 @@ import { Button, ConfirmButton, Input } from './ui'
 interface NoteItemProps {
   note: Note
   notes: Notes
+  // Ta pozycja właśnie zmieniła listę (odhaczenie): po zamontowaniu oddaje fokus swojemu polu wyboru.
+  restoreFocus: boolean
+  onFocusRestored: () => void
+  onToggle: (id: number) => void
 }
 
 const CHECK = 'mt-0.5 size-5 flex-none cursor-pointer accent-accent'
 
 // Jedna pozycja listy; „Edytuj" zamienia treść w pole z „Zapisz" / „Anuluj".
 // Zrobione notatki są cichsze: bez tła, wyszarzone, treść przekreślona.
-function NoteItem({ note, notes }: NoteItemProps) {
+function NoteItem({ note, notes, restoreFocus, onFocusRestored, onToggle }: NoteItemProps) {
   const [draft, setDraft] = useState<string | null>(null)
+  const check = useRef<HTMLInputElement>(null)
+
+  // Odhaczona notatka przechodzi między listami, więc jej element powstaje na
+  // nowo i fokus spada na <body>; wracamy go na pole wyboru w nowym miejscu.
+  useEffect(() => {
+    if (!restoreFocus) return
+    check.current?.focus()
+    onFocusRestored()
+    // Tylko przy zamontowaniu: wtedy pozycja jest już na nowej liście.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const save = async (e: FormEvent) => {
     e.preventDefault()
@@ -29,10 +44,17 @@ function NoteItem({ note, notes }: NoteItemProps) {
   return (
     <li className={`flex items-start gap-3 rounded-xl border px-3.5 py-3 ${note.done ? 'border-border bg-transparent' : 'border-border bg-surface'}`}>
       <input
+        ref={check}
         type="checkbox"
         className={CHECK}
         checked={note.done}
-        onChange={(e) => void notes.change(note.id, { done: e.target.checked })}
+        onChange={(e) => {
+          onToggle(note.id)
+          // Nieudana zmiana nie przenosi notatki, więc fokus nie ma po co wracać.
+          void notes.change(note.id, { done: e.target.checked }).then((ok) => {
+            if (!ok) onFocusRestored()
+          })
+        }}
         aria-label={`Zrobione: ${note.text}`}
       />
       {draft === null ? (
@@ -77,6 +99,19 @@ const LIST = 'm-0 flex list-none flex-col gap-2 p-0'
 // Szerokość ograniczona, żeby wiersze dało się czytać.
 export function NotesPanel({ notes }: { notes: Notes }) {
   const [text, setText] = useState('')
+  // Notatka, której pole wyboru ma dostać fokus po przejściu na drugą listę.
+  const [focusId, setFocusId] = useState<number | null>(null)
+
+  const item = (note: Note) => (
+    <NoteItem
+      key={note.id}
+      note={note}
+      notes={notes}
+      restoreFocus={note.id === focusId}
+      onFocusRestored={() => setFocusId(null)}
+      onToggle={setFocusId}
+    />
+  )
 
   const add = async (e: FormEvent) => {
     e.preventDefault()
@@ -109,14 +144,14 @@ export function NotesPanel({ notes }: { notes: Notes }) {
               <EmptyNote>Wszystko zrobione.</EmptyNote>
             ) : (
               <ul className={LIST}>
-                {open.map((note) => <NoteItem key={note.id} note={note} notes={notes} />)}
+                {open.map(item)}
               </ul>
             )}
           </CardSection>
           {done.length > 0 && (
             <CardSection title="Zrobione" count={done.length}>
               <ul className={LIST}>
-                {done.map((note) => <NoteItem key={note.id} note={note} notes={notes} />)}
+                {done.map(item)}
               </ul>
             </CardSection>
           )}

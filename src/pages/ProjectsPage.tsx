@@ -1,7 +1,6 @@
 import type { ProjectRow } from '../projects/remoteProjects'
 import type { Projects } from '../projects/useProjects'
 import type { SessionStatus } from '../supabase/useSession'
-import type { PosterLang } from '../types'
 import { PageFrame } from '../components/PageFrame'
 import { ProjectsList } from '../components/ProjectsList'
 import { RemotePanel } from '../components/RemotePanel'
@@ -15,7 +14,6 @@ interface ProjectsPageProps {
   userId: string
   // Projekt otwarty w edytorze.
   currentId: number | null
-  lang: PosterLang
   onSignInClick: () => void
   // `App` otwiera projekt i po udanym otwarciu przechodzi do edytora.
   onOpen: (row: ProjectRow) => void
@@ -27,7 +25,7 @@ interface ProjectsPageProps {
 }
 
 // Strona „Projekty": projekty zalogowanej osoby i udostępnione zespołowi.
-export function ProjectsPage({ sessionStatus, projects, userId, currentId, lang, onSignInClick, onOpen, onRename, onShare, onDelete, onNew }: ProjectsPageProps) {
+export function ProjectsPage({ sessionStatus, projects, userId, currentId, onSignInClick, onOpen, onRename, onShare, onDelete, onNew }: ProjectsPageProps) {
   return (
     <PageFrame
       title="Projekty"
@@ -46,7 +44,6 @@ export function ProjectsPage({ sessionStatus, projects, userId, currentId, lang,
           projects={projects.items}
           userId={userId}
           currentId={currentId}
-          lang={lang}
           onOpen={onOpen}
           onRename={onRename}
           onShare={onShare}

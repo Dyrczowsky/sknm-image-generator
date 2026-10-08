@@ -77,15 +77,15 @@ describe('ContentPanel (Treść)', () => {
     expect(html).not.toContain('type="checkbox"')
   })
 
-  it('przełącznik widoczności: pressed i nazwa zależą od stanu, pole zostaje edytowalne', () => {
+  it('przełącznik widoczności: stała nazwa, stan w aria-pressed, pole zostaje edytowalne', () => {
     const shown = content('wyklad')
-    expect(shown).toContain('aria-label="Ukryj na plakacie: Tytuł"')
-    const tag = button(shown, 'Ukryj na plakacie: Tytuł')
+    expect(shown).toContain('aria-label="Pokaż na plakacie: Tytuł"')
+    const tag = button(shown, 'Pokaż na plakacie: Tytuł')
     expect(tag).toContain('aria-pressed="true"')
 
     const hidden = content('wyklad', form({ visibility: { title: false } }))
     expect(button(hidden, 'Pokaż na plakacie: Tytuł')).toContain('aria-pressed="false"')
-    expect(hidden).not.toContain('aria-label="Ukryj na plakacie: Tytuł"')
+    expect(hidden).not.toContain('Ukryj na plakacie')
     const titleId = hidden.match(/<label for="([^"]+)"[^>]*>Tytuł<\/label>/)?.[1]
     const hiddenInput = hidden.match(new RegExp(`<input[^>]*id="${titleId}"[^>]*>`))?.[0] ?? ''
     expect(hiddenInput).toContain('opacity-60')
@@ -127,11 +127,12 @@ describe('LookPanel (Wygląd)', () => {
     expect(html.match(/<button[^>]*aria-pressed="true"[^>]*>(?:<svg.*?<\/svg>)Przesuwaj razem/)).not.toBeNull()
   })
 
-  it('logo PK: przełącznik z aria-pressed i nazwą zależną od stanu', () => {
+  it('logo PK: przełącznik ze stałą nazwą i stanem w aria-pressed', () => {
     const on = look('wyklad', form({ showPkLogo: true }))
-    expect(button(on, 'Ukryj na plakacie: logo Politechniki Krakowskiej')).toContain('aria-pressed="true"')
+    expect(button(on, 'Pokaż na plakacie: logo Politechniki Krakowskiej')).toContain('aria-pressed="true"')
     const off = look('wyklad', form({ showPkLogo: false }))
     expect(button(off, 'Pokaż na plakacie: logo Politechniki Krakowskiej')).toContain('aria-pressed="false"')
+    expect(off).not.toContain('Ukryj na plakacie')
   })
 
   it('logotypy: wgrywanie w wyglądzie, bez kodu QR i bez „Z biblioteki" bez kontekstu', () => {

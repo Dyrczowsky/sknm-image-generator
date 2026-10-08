@@ -78,7 +78,7 @@ describe('IconButton', () => {
   })
 
   it('przełącznik: aria-pressed przechodzi na przycisk', () => {
-    const on = openingTag(render(h(IconButton, { icon: 'eye', label: 'Ukryj na plakacie: Tytuł', 'aria-pressed': true })), '<button')
+    const on = openingTag(render(h(IconButton, { icon: 'eye', label: 'Pokaż na plakacie: Tytuł', 'aria-pressed': true })), '<button')
     const off = openingTag(render(h(IconButton, { icon: 'eyeOff', label: 'Pokaż na plakacie: Tytuł', 'aria-pressed': false })), '<button')
     expect(on).toContain('aria-pressed="true"')
     expect(off).toContain('aria-pressed="false"')

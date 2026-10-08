@@ -18,7 +18,7 @@ const editor = {
   colors: { scheme: undefined, accent: undefined }, colorScheme: null, selectTemplate: noop, selectScheme: noop, selectAccent: noop, applyState: noop,
 } as unknown as Editor
 const project = {
-  name: null, status: 'local', cloud: true, notice: null, missingCount: 0,
+  id: null, name: null, status: 'local', cloud: true, notice: null, missingCount: 0,
   onSave: noop, onNew: noop, onDismissNotice: noop, onRetryMissing: noop, onDropMissing: noop, onLoadCloud: noop, onOverwrite: noop,
 }
 const BANNER = { medium: 'banner', format: 'fbCover', shape: 'cover', isPrint: false, formats: formatsFor('banner') }
@@ -59,7 +59,7 @@ describe('EditorPage', () => {
     const html = page()
     const primary = [...html.matchAll(/<button[^>]*class="([^"]* bg-accent [^"]*)"[^>]*>/g)].map((m) => m[1])
     expect(primary).toHaveLength(2)
-    expect(primary.filter((cls) => cls.includes('max-[899px]:hidden'))).toHaveLength(1)
+    expect(primary.filter((cls) => cls.includes('max-[900px]:hidden'))).toHaveLength(1)
     const bottomBar = html.slice(html.lastIndexOf('sticky bottom-0'))
     expect(openingTag(html, '<div class="sticky bottom-0')).toContain('min-[900px]:hidden')
     expect(bottomBar).toContain('Kwadrat · 1080×1080')
@@ -91,9 +91,9 @@ describe('EditorPage', () => {
   it('podgląd jest w drzewie zawsze - w widoku „Edycja" na telefonie tylko wysunięty poza okno, nigdy display:none', () => {
     const html = page()
     const preview = openingTag(html, '<section aria-label="Podgląd i eksport"')
-    expect(preview).toContain('max-[899px]:left-[-200vw]')
-    expect(preview).toContain('max-[899px]:fixed')
-    expect(preview).not.toMatch(/class="[^"]*\b(max-\[899px\]:hidden|hidden|invisible)\b/)
+    expect(preview).toContain('max-[900px]:left-[-200vw]')
+    expect(preview).toContain('max-[900px]:fixed')
+    expect(preview).not.toMatch(/class="[^"]*\b(max-\[900px\]:hidden|hidden|invisible)\b/)
     expect(preview).not.toContain(' hidden=""')
     // Węzeł plakatu w pełnej rozdzielczości (źródło eksportu) i tytuł z formularza.
     const body = html.slice(section(html, 'Podgląd i eksport'))
@@ -107,7 +107,7 @@ describe('EditorPage', () => {
     expect(toggle.slice(toggle.lastIndexOf('<div class="sticky'))).toContain('min-[900px]:hidden')
     expect(html).toMatch(/aria-pressed="true"[^>]*>Edycja</)
     expect(html).toMatch(/aria-pressed="false"[^>]*>Podgląd</)
-    expect(openingTag(html, '<section aria-label="Edycja plakatu"')).not.toContain('max-[899px]:hidden')
+    expect(openingTag(html, '<section aria-label="Edycja plakatu"')).not.toContain('max-[900px]:hidden')
   })
 
   it('ustawienia eksportu stoją w panelu podglądu, nad plakatem', () => {

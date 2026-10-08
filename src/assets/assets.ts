@@ -2,7 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import { isAssetRef, mimeOfRef, refFor } from './hash'
 import { localStore } from './localStore'
 import type { LocalStore } from './localStore'
-import { MAX_ASSET_BYTES, prepareImage, tooLargeError } from './prepare'
+import { ImageImportError, MAX_ASSET_BYTES, prepareImage, tooLargeError } from './prepare'
 import { register, srcOf } from './registry'
 import { downloadAsset, uploadAsset } from './remoteStore'
 
@@ -55,6 +55,18 @@ function isTooLargeUpload(error: unknown): boolean {
   )
 }
 
+// Komunikat po nieudanym dodaniu grafiki do biblioteki: błędy typowane (za duży
+// plik, zły format) mówią same, co jest nie tak; reszta to zwykle sieć.
+export function libraryErrorMessage(error: unknown, fileName: string): string {
+  if (error instanceof AssetTooLargeError || error instanceof ImageImportError) return error.message
+  return `Nie udało się dodać „${fileName}" do biblioteki. Sprawdź połączenie i spróbuj ponownie.`
+}
+
+// Komunikat, gdy dodawana grafika jest już w bibliotece (zamiast cichego końca).
+export function alreadyInLibraryMessage(fileName: string, kind: AssetKind): string {
+  return `„${fileName}" jest już w bibliotece${kind === 'photo' ? ' jako zdjęcie' : ''}.`
+}
+
 const BASE64_CHUNK = 0x8000
 
 // Data URL w base64 z jawnie podanym typem MIME. Plakat wpisuje adres obrazu
@@ -91,8 +103,13 @@ export async function importImage(file: File, kind: AssetKind, deps: AssetDeps =
   const ref = await refFor(await blob.arrayBuffer(), blob.type)
 
   // Ta sama grafika wgrana drugi raz: zostaje istniejący wpis, żeby nie zgubić
-  // znacznika `remote` i nie wgrywać jej ponownie.
-  if (!(await deps.local.get(ref))) await deps.local.put(ref, { blob, remote: false, kind, name: file.name })
+  // znacznika `remote` i nie wgrywać jej ponownie. Wyjątek: jeśli nie trafiła
+  // jeszcze do Storage, wygrywa rodzaj wybrany teraz - to z niego powstanie
+  // wiersz biblioteki (`ensureUploaded`), więc zdjęcie dodane potem jako
+  // logotyp ma trafić do logotypów. Wgrana już grafika ma swój wiersz.
+  const existing = await deps.local.get(ref)
+  if (!existing) await deps.local.put(ref, { blob, remote: false, kind, name: file.name })
+  else if (!existing.remote && existing.kind !== kind) await deps.local.put(ref, { ...existing, kind })
 
   const known = srcOf(ref)
   if (known) return known

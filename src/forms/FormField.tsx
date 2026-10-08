@@ -9,6 +9,8 @@ interface FormFieldProps extends FormProps {
 }
 
 // Pojedyncze pole tekstowe/data/godzina/akapit. Przełącznik oka przy etykiecie
+// ma stałą nazwę, a stan niesie `aria-pressed` (nazwa nie może się zmieniać
+// razem z nim);
 // steruje widocznością pola na plakacie - ukryte pole znika z układu, a jego
 // wejście zostaje edytowalne (tylko przygaszone).
 export function FormField({ field, value, onChange }: FormFieldProps) {
@@ -23,7 +25,7 @@ export function FormField({ field, value, onChange }: FormFieldProps) {
   const toggle = (
     <IconButton
       icon={visible ? 'eye' : 'eyeOff'}
-      label={`${visible ? 'Ukryj na plakacie' : 'Pokaż na plakacie'}: ${label}`}
+      label={`Pokaż na plakacie: ${label}`}
       aria-pressed={visible}
       onClick={() => onChange(setFieldVisible(name, !visible))}
     />

@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { fakeSupabase } from '../supabase/fakeClient'
-import { AssetTooLargeError, blobToDataUrl, ensureUploaded, gcLocal, hydrate, importImage } from './assets'
+import { AssetTooLargeError, blobToDataUrl, ensureUploaded, gcLocal, hydrate, importImage, libraryErrorMessage } from './assets'
 import type { AssetDeps } from './assets'
 import { refFor } from './hash'
 import { createLocalStore } from './localStore'
@@ -81,6 +81,16 @@ describe('importImage', () => {
 
     expect(await importImage(new File([PNG_BYTES], 'druga.png', { type: 'image/png' }), 'photo', deps)).toBe(PNG_DATA_URL)
     expect(await local.get(ref)).toBe(stored)
+  })
+
+  it('zdjęcie niewgrane do Storage, dodane ponownie jako logotyp, zmienia rodzaj na wybrany teraz', async () => {
+    const { deps, local } = setup()
+    const ref = await pngRef()
+    const stored = asset({ kind: 'photo', name: 'pierwsza.png' })
+    await local.put(ref, stored)
+
+    await importImage(new File([PNG_BYTES], 'druga.png', { type: 'image/png' }), 'logo', deps)
+    expect(await local.get(ref)).toEqual({ ...stored, kind: 'logo' })
   })
 
   it('przygotowana grafika ponad limit kubełka → odrzucona, nic nie zostaje zapisane', async () => {
@@ -371,5 +381,15 @@ describe('gcLocal', () => {
 
     await gcLocal([], deps)
     expect(await local.refs()).toEqual([MISSING])
+  })
+})
+
+describe('libraryErrorMessage', () => {
+  it('błędy typowane mówią własnym komunikatem, reszta radzi sprawdzić połączenie', () => {
+    const tooLarge = new AssetTooLargeError(MISSING, 'duze.png')
+    expect(libraryErrorMessage(tooLarge, 'duze.png')).toBe(tooLarge.message)
+    const unsupported = new ImageImportError('unsupported', 'Nieobsługiwany format.')
+    expect(libraryErrorMessage(unsupported, 'a.gif')).toBe('Nieobsługiwany format.')
+    expect(libraryErrorMessage(new Error('network'), 'a.png')).toBe('Nie udało się dodać „a.png" do biblioteki. Sprawdź połączenie i spróbuj ponownie.')
   })
 })

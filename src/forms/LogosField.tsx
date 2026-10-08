@@ -67,7 +67,7 @@ export function LogosField({ value, onChange }: FormProps) {
         <span className={UI_LABEL}>Logo Politechniki Krakowskiej</span>
         <IconButton
           icon={showPkLogo ? 'eye' : 'eyeOff'}
-          label={`${showPkLogo ? 'Ukryj' : 'Pokaż'} na plakacie: logo Politechniki Krakowskiej`}
+          label="Pokaż na plakacie: logo Politechniki Krakowskiej"
           aria-pressed={showPkLogo}
           className="-my-2"
           onClick={() => onChange(setShowPkLogo(!showPkLogo))}

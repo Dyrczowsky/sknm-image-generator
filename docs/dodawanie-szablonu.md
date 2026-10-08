@@ -16,11 +16,12 @@ import type { PosterProps } from '../types'
 import { withPlaceholders } from './fallback'
 import { resolveScheme } from './schemes'
 import { FooterLogos } from './blocks/FooterLogos'
+import { InfoLine } from './blocks/InfoLine'
 import { PosterFrame } from './blocks/PosterFrame'
 import { Sygnet } from './blocks/Sygnet'
 
 export function PosterPiknik({ data, scheme, accent, lang = 'pl' }: PosterProps) {
-  const { title, subtitle, event_date, location, logoSlots, qrUrl } = withPlaceholders(data)
+  const { title, subtitle, event_date, location, logoSlots, qrUrl, hidden, fx, titleScale, textScale } = withPlaceholders(data)
   const { cssVars, sygnet, logoVariant } = resolveScheme('piknik', scheme, accent)
 
   return (
@@ -28,14 +29,14 @@ export function PosterPiknik({ data, scheme, accent, lang = 'pl' }: PosterProps)
       <Sygnet name={sygnet} />
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-        <div style={{ fontSize: 96, fontWeight: 800, lineHeight: 0.95 }}>{title}</div>
-        {subtitle && <div style={{ fontSize: 32, color: 'var(--accent)' }}>{subtitle}</div>}
-        <div style={{ fontSize: 28 }}>{event_date} · {location}</div>
+        <div style={{ fontSize: 96 * titleScale, fontWeight: 800, lineHeight: 0.95, ...fx('title') }}>{title}</div>
+        <div style={{ fontSize: 32 * textScale, color: 'var(--accent)', ...fx('subtitle') }}>{subtitle}</div>
+        <InfoLine parts={[{ text: event_date, hidden: hidden('event_date') }, { text: location, hidden: hidden('location') }]} />
       </div>
 
       {/* Stopka: logo PK w prawym dolnym rogu (ta sama pozycja we wszystkich
           szablonach), kod QR odbity maksymalnie w lewo. `logoSlots` to logo PK
-          (o ile włączone) i grafiki wgrane w formularzu. */}
+          (o ile włączone) i grafiki wgrane w zakładce „Wygląd". */}
       <FooterLogos qrUrl={qrUrl} slots={logoSlots} variant={logoVariant} />
     </PosterFrame>
   )
@@ -63,11 +64,14 @@ Reguły:
   ten kontener warunkiem `{!hidden('<pole>') && ...}`, żeby nie zostało puste
   pudełko.
 
-## 2. Formularz — `src/forms/FormPiknik.tsx`
+## 2. Formularz (Treść) — `src/forms/FormPiknik.tsx`
 
-Formularz layoutu to lista pól podana wspólnemu szkieletowi `PosterForm`, który
-sam dokłada suwaki rozmiaru, grafiki stopki z kodem QR i (opcjonalnie) galerię
-zdjęć.
+Edytor ma trzy zakładki: Szablon, Treść i Wygląd. `Form` z rejestru to
+**wyłącznie zakładka „Treść"**: lista pól podana wspólnemu szkieletowi
+`PosterForm`, który sam dokłada grupy „Teksty", opcjonalnie „Zdjęcia" i „Kod QR".
+Zakładkę „Wygląd" (rozmiar tekstu, logo PK i logotypy stopki - `LookFields`)
+rysuje powłoka, taką samą dla każdego layoutu i dla banera
+(`forms/EditorPanels.tsx`), więc nowy layout niczego tam nie dopisuje.
 
 ```tsx
 import type { FormProps } from '../types'
@@ -97,10 +101,13 @@ Z czego się składa:
 - `FIELDS` — gotowe pola o typowych podpisach (tytuł, podtytuł, prelegent, data,
   godzina, lokalizacja); `badgeField(placeholder)` — pole plakietki, którego
   placeholder to domyślna treść z `DEFAULT_BADGE` w `posters/copy.ts`.
-- `photoLabel="..."` na `PosterForm` — dokłada galerię 0..4 zdjęć z kadrowaniem
-  (`value.photos.photo`); po stronie plakatu `<PhotoGallery photos={photos.photo} />`.
-- `children` `PosterForm` — sekcje własne layoutu między polami a grafikami, np.
-  lista powtarzalna (program konferencji w `FormKonferencja.tsx`, `value.lists`).
+- `photoLabel="..."` na `PosterForm` — dokłada grupę „Zdjęcia": galerię 0..4
+  zdjęć z kadrowaniem (`value.photos.photo`); po stronie plakatu
+  `<PhotoGallery photos={photos.photo} />`.
+- `children` `PosterForm` — grupy własne layoutu (`FormGroup`) między tekstami a
+  zdjęciami, np. lista powtarzalna (program konferencji w `FormKonferencja.tsx`,
+  `value.lists`). Odstępy i kreski między grupami daje kontener `PANEL_STACK`
+  w `PosterForm`, więc własna grupa nie dodaje paddingu ani `<form>`.
 
 Formularz nie zmienia stanu sam: woła `onChange(przekształcenie)`, gdzie
 przekształcenia (`setField`, `addGraphics`, `addListItem`, ...) to czyste
@@ -108,7 +115,8 @@ funkcje z `src/editor/formState.ts`. Nowy rodzaj zmiany = nowa funkcja tam
 (+ test w `formState.test.ts`).
 
 Suwaki rozmiaru (70%-130%, `value.titleScale` / `value.textScale`, spinacz
-`value.scaleLinked`) są w każdym formularzu. W komponencie plakatu pomnóż
+`value.scaleLinked`) leżą we wspólnym „Wyglądzie", nie w formularzu layoutu -
+plakat musi je tylko uwzględnić. W komponencie plakatu pomnóż
 `fontSize` tytułu przez `titleScale` (`fontSize: 96 * titleScale`), a
 podtytułu/treści przez `textScale` — jeśli podtytuł jedzie przez `InfoLine`,
 użyj `partsStyle`/`secondLineStyle` zamiast przestylowywać cały wiersz (patrz
@@ -126,6 +134,9 @@ data URL-e (tak jak `graphics` i `photos`), a w snapshocie jako nazwy plików
 — patrz „Grafiki" w [architektura.md](./architektura.md#grafiki).
 
 Stan formularza jest globalny — nie każdy layout musi używać wszystkich pól.
+Logotypy i rozmiary tekstu z „Wyglądu" dostaje jednak każdy layout, więc plakat
+powinien rysować `logoSlots` w stopce i mnożyć teksty przez suwaki (inaczej te
+kontrolki nic na nim nie zrobią).
 
 ## 3. Schemat kolorów — `src/posters/schemes.ts`
 
@@ -177,7 +188,7 @@ Więcej o rolach, `resolveScheme` i konwencji `camelCase → --kebab`:
 
 ## 4. Baner — `src/posters/banners/BannerPiknik.tsx`
 
-Każdy layout ma też szeroką wersję do zakładki „Baner" (okładka strony
+Każdy layout ma też szeroką wersję dla rodzaju grafiki „Baner" (okładka strony
 1640×624 i okładka wydarzenia 1920×1005 na Facebooku). To osobny komponent z
 tymi samymi propsami (`PosterProps`), tym samym kluczem w `resolveScheme` i tymi
 samymi blokami, ale to **wizytówka koła, nie plakat**: zachowuje charakter
@@ -215,7 +226,8 @@ export const posterRegistry: Record<string, RegistryEntry> = {
 }
 ```
 
-`name` to podpis kafelki w TemplateSelector.
+`name` to podpis kafelki w TemplateSelector. `Form` to tylko zakładka „Treść"
+(krok 2); opcjonalne `bannerPhoto: true` — patrz krok 4.
 
 ## 6. Domyślny szablon w bazie — `src/db/schema.ts`
 
@@ -241,8 +253,9 @@ Podgląd z danymi przykładowymi (dev):
 `http://localhost:5173/sknm-image-generator/poster/piknik`
 oraz `.../poster/piknik/czern`.
 
-Potem uruchom `npm run dev`, wybierz "Piknik" w generatorze i zweryfikuj podgląd
-na żywo oraz eksport PNG ("Pobierz PNG").
+Potem uruchom `npm run dev`, wybierz „Piknik" w zakładce „Szablon", wypełnij
+„Treść", sprawdź „Wygląd" (suwaki rozmiaru, logotypy) i zweryfikuj podgląd na
+żywo oraz eksport PNG („Pobierz PNG" w pasku projektu).
 
 Szablon musi wyglądać dobrze w **trzech kształtach**. Otwórz
 `/poster/<klucz>?shape=portrait` i `/poster/<klucz>?shape=landscape`
@@ -253,4 +266,4 @@ wpisuj `1080` na sztywno i nie rozgałęziaj po formacie papieru. W kreatorze
 sprawdź też eksport A4 w pionie i poziomie (PNG i PDF).
 
 Baner obejrzyj pod `/poster/<klucz>?shape=cover` i `?shape=event`, a w
-kreatorze w zakładce „Baner" (oba formaty Facebooka, długi tytuł, kod QR).
+kreatorze po wybraniu rodzaju grafiki „Baner" (oba formaty Facebooka, długi tytuł, kod QR).

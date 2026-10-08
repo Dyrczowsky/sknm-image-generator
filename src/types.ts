@@ -28,7 +28,7 @@ export interface FormValues extends Record<FormTextField, string> {
   qrUrl: string
   photos: Record<string, PhotoValue[]>
   lists: Record<string, ListItem[]>
-  // Mnożnik rozmiaru tytułu/pozostałego tekstu (suwaki w formularzu) - 1 =
+  // Mnożnik rozmiaru tytułu/pozostałego tekstu (suwaki w zakładce „Wygląd") - 1 =
   // domyślny rozmiar szablonu. `scaleLinked` - czy suwaki są spięte
   // (przesunięcie jednego ustawia oba na ten sam procent).
   titleScale: number
@@ -121,7 +121,9 @@ export interface RegistryEntry {
   Component: ComponentType<PosterProps>
   // Szeroka wersja tego samego layoutu (zakładka „Baner").
   Banner: ComponentType<PosterProps>
-  // Baner tego layoutu ma miejsce na zdjęcie - formularz banera pokaże galerię.
+  // Baner tego layoutu ma miejsce na zdjęcie - zakładka „Treść" banera (`FormBanner`) pokaże galerię.
   bannerPhoto?: boolean
+  // Treść layoutu (zakładka „Treść"). Rozmiar tekstu i logotypy to zakładka
+  // „Wygląd", wspólna dla wszystkich layoutów - nie należą do `Form`.
   Form: ComponentType<FormProps>
 }

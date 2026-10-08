@@ -172,3 +172,11 @@ function stableJson(value: unknown): string {
 export function sameContent(snapshot: EditorSnapshot, remote: unknown): boolean {
   return stableJson(snapshot) === stableJson(remote)
 }
+
+// Krótki opis problemu z zapisem (tylko `error` i `conflict`); rozwiązanie
+// (ponowienie, wybór wersji) jest w pasku projektu w edytorze.
+export function saveProblem(status: SaveStatus): string | null {
+  if (status === 'error') return 'Nie udało się zapisać projektu — ponowimy próbę.'
+  if (status === 'conflict') return 'Projekt został zmieniony w innym miejscu — wybierz w edytorze, którą wersję zachować.'
+  return null
+}

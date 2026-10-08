@@ -20,11 +20,11 @@ import { AppShell } from './components/AppShell'
 import { AuthControl } from './components/AuthControl'
 import { AuthDialog } from './components/AuthDialog'
 import { LangToggle } from './components/LangToggle'
+import { PageAlerts } from './components/PageAlerts'
 import { ShortcutsHelp } from './components/ShortcutsHelp'
 import { TicketDialog } from './components/TicketDialog'
 import type { TicketType } from './components/TicketDialog'
 import { TopBar } from './components/TopBar'
-import { Button } from './components/ui'
 import { AssetsPage } from './pages/AssetsPage'
 import { EditorPage } from './pages/EditorPage'
 import { HistoryPage } from './pages/HistoryPage'
@@ -237,6 +237,7 @@ function App() {
             onTabChange={setTab}
             onDownload={handleDownload}
             project={{
+              id: openProject?.id ?? null,
               name: openProject?.name ?? null,
               status: workspace.status,
               cloud: shared,
@@ -255,19 +256,19 @@ function App() {
           />
         }
       >
-        {workspace.notice && (
-          <p role="alert" className="m-0 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 border-b border-border bg-danger-soft px-4 py-2 text-[0.8125rem] leading-snug text-danger">
-            <span>{workspace.notice}</span>
-            <Button variant="ghost" onClick={workspace.dismissNotice}>Zamknij</Button>
-          </p>
-        )}
+        <PageAlerts
+          notice={workspace.notice}
+          onDismissNotice={workspace.dismissNotice}
+          exportNote={exporter.note}
+          onDismissExportNote={exporter.dismissNote}
+          saveStatus={workspace.status}
+        />
         {page === 'projects' && (
           <ProjectsPage
             sessionStatus={session.status}
             projects={projects}
             userId={session.userId ?? ''}
             currentId={openProject?.id ?? null}
-            lang={lang}
             onSignInClick={openSignIn}
             onOpen={openFromList}
             onRename={(row, name) => renameProject(row.id, name)}
@@ -276,7 +277,7 @@ function App() {
             onNew={startNew}
           />
         )}
-        {page === 'assets' && <AssetsPage sessionStatus={session.status} library={library} onSignInClick={openSignIn} />}
+        {page === 'assets' && <AssetsPage sessionStatus={session.status} library={library} memberEmail={member ?? ''} onSignInClick={openSignIn} />}
         {page === 'history' && (
           <HistoryPage sessionStatus={session.status} history={history} lang={lang} onSignInClick={openSignIn} onRestore={restoreHistory} />
         )}
