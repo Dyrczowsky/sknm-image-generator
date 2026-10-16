@@ -148,9 +148,10 @@ const data: LayoutSchemes = {
 // dolnym rogu. Dekoracyjne kliny (`washTop`, `wedgeBr`, `wedgeBl`) mają jawne
 // hex/rgba per schemat — bez color-mix. `wedgeBr` niesie tylko kolor; jego
 // `opacity: 0.42` zostaje w JSX. Jeden schemat `czern` (żółty akcent wbudowany);
-// pozostałe warianty akcentu (coral/złoto/srebro) daje oś akcentu. Brak
-// schematów `jasny`/`szary` (usunięte) i brak `granatowy` w osi `default`
-// (patrz komentarz przy `accents` niżej).
+// pozostałe warianty akcentu (coral/złoto/srebro) daje oś akcentu. `kremowy`
+// to odwrócony `default`: granatowy tekst na kremie, domyślnie granatowy
+// akcent. Brak schematów `jasny`/`szary` (usunięte) i brak `granatowy` w osi
+// `default` (patrz komentarz przy `accents` niżej).
 const wyklad: LayoutSchemes = {
   default: {
     pageBg: colors.navy, pageText: colors.cream,
@@ -162,6 +163,13 @@ const wyklad: LayoutSchemes = {
     // (navyLight) traci kontrast na plakietce/nazwisku.
     accents: ['zolty', 'pomaranczowy'], defaultAccent: 'zolty',
   },
+  // Jasne tło: kliny to chłodne, bladogranatowe tony kremu, sygnet granatowy.
+  kremowy: { pageBg: colors.cream, pageText: colors.navy,
+             badgeFill: colors.navy, badgeText: colors.cream,
+             speaker: colors.navy, chips: colors.navy,
+             washTop: 'rgba(60,69,155,.05)', wedgeBr: '#C9CCE6', wedgeBl: '#E3E4EF',
+             sygnet: 'granat', logoVariant: 'light',
+             accents: ['zolty', 'pomaranczowy', 'granatowy'], defaultAccent: 'granatowy' },
   czern: { pageBg: colors.black, badgeFill: colors.lime, badgeText: colors.limeText,
            speaker: colors.lime, chips: colors.lime,
            washTop: 'rgba(255,255,255,.04)', wedgeBr: '#1E1E1E', wedgeBl: '#0A0A0A',
@@ -416,6 +424,8 @@ const accentRecipes: Record<string, AccentRecipe | undefined> = {
   // „Data" nie ma osi akcentu - złoto/srebro to u niej osobne schematy.
   data: undefined,
 }
+// Baner „Warsztat – bez zdjęcia" ma te same kolory co Warsztat.
+accentRecipes.warsztatBezZdjecia = accentRecipes.warsztat
 
 export const ACCENT_NAMES: AccentName[] = ['zolty', 'pomaranczowy', 'granatowy', 'zloty', 'srebrny']
 
@@ -474,7 +484,8 @@ export const ACCENT_DOT: Record<AccentName, string> = {
   srebrny: colors.silver,
 }
 
-export const schemes: Record<string, LayoutSchemes> = { ogloszenie, gala, gosc, data, wyklad, konferencja, rekrutacja, warsztat, komunikat }
+// `warsztatBezZdjecia` to wariant banera Warsztatu - dzieli z nim schematy.
+export const schemes: Record<string, LayoutSchemes> = { ogloszenie, gala, gosc, data, wyklad, konferencja, rekrutacja, warsztat, warsztatBezZdjecia: warsztat, komunikat }
 
 // camelCase → --kebab; layout może dodać dowolną rolę bez zmiany resolvera.
 const roleToVar = (role: string): `--${string}` => `--${role.replace(/[A-Z]/g, (upper) => `-${upper.toLowerCase()}`)}`
@@ -526,6 +537,7 @@ export const SCHEME_LABELS: Record<string, string> = {
   czern: 'Czerń',
   jasny: 'Jasny',
   szary: 'Szary',
+  kremowy: 'Kremowy',
   // używane wyłącznie przez layout „Data" (ma osobne schematy złoto/srebro,
   // bez osi akcentu):
   okazjonalnyZloty: 'Okazjonalny złoty',

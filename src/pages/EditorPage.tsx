@@ -71,6 +71,8 @@ export function EditorPage({ editor, exporter, lang, posterRef, tab, onTabChange
     // Kliknięcie aktywnego rodzaju nic nie zmienia - nie zostawiamy celu, który
     // przy późniejszej, niezwiązanej zmianie (np. otwarciu banera) ukradłby fokus.
     if (medium !== exporter.medium) focusBeforeSwap.current = document.activeElement
+    // Layout tylko-banerowy nie ma wersji „Social media i druk" - wracamy do pokrewnego.
+    if (medium === 'social' && poster?.bannerOnly) editor.switchLayoutKeepingColors(poster.bannerOnly.fallbackKey)
     exporter.selectMedium(medium)
   }
   useLayoutEffect(() => {

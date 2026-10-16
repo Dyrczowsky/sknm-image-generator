@@ -130,7 +130,7 @@ describe('oś akcentu — dostępność per schemat', () => {
     }
   })
   it('Wykład: brak schematów „szary"/„jasny", brak akcentu „granatowy" na „Granat" (default)', () => {
-    expect(schemesFor('wyklad')).toEqual(['default', 'czern', 'okazjonalny'])
+    expect(schemesFor('wyklad')).toEqual(['default', 'kremowy', 'czern', 'okazjonalny'])
     expect(accentsFor('wyklad', 'default')).toEqual(['zolty', 'pomaranczowy'])
     expect(accentAllowed('wyklad', 'default', 'granatowy')).toBe(false)
   })
@@ -250,6 +250,21 @@ describe('resolveScheme — z akcentem', () => {
     expect(resolveScheme('warsztat', 'default', undefined).cssVars['--pill-text']).toBe(colors.limeText)
     expect(resolveScheme('rekrutacja', 'limonka', undefined).cssVars['--band']).toBe(colors.navy)
     expect(resolveScheme('rekrutacja', 'limonka', undefined).cssVars['--badge-color']).toBe(colors.lime)
+  })
+
+  it('Wykład Kremowy: granatowy tekst na kremie, Domyślny = granatowy akcent', () => {
+    const def = resolveScheme('wyklad', 'kremowy', undefined)
+    expect(def.cssVars['--page-bg']).toBe(colors.cream)
+    expect(def.cssVars['--page-text']).toBe(colors.navy)
+    expect(def.cssVars['--badge-fill']).toBe(colors.navy)
+    expect(def.cssVars['--badge-text']).toBe(colors.cream)
+    expect(def.cssVars['--speaker']).toBe(colors.navy)
+    expect(def.sygnet).toBe('granat')
+    expect(def.logoVariant).toBe('light')
+    // recepta dla domyślnego akcentu zgadza się z literałami bloku
+    expect(resolveScheme('wyklad', 'kremowy', 'granatowy').cssVars).toEqual(def.cssVars)
+    expect(accentsFor('wyklad', 'kremowy')).toEqual(['zolty', 'pomaranczowy', 'granatowy'])
+    expect(SCHEME_LABELS.kremowy).toBe('Kremowy')
   })
 
   it('brak wybranego akcentu → renderuje defaultAccent schematu', () => {

@@ -9,6 +9,7 @@ import { PosterKonferencja } from './PosterKonferencja'
 import { PosterKomunikat } from './PosterKomunikat'
 import { BannerWyklad } from './banners/BannerWyklad'
 import { BannerWarsztat } from './banners/BannerWarsztat'
+import { BannerWarsztatBezZdjecia } from './banners/BannerWarsztatBezZdjecia'
 import { BannerKonferencja } from './banners/BannerKonferencja'
 import { BannerRekrutacja } from './banners/BannerRekrutacja'
 import { BannerData } from './banners/BannerData'
@@ -36,6 +37,9 @@ import type { RegistryEntry } from '../types'
 //   src/posters/banners/); te same propsy, ten sam klucz schematów kolorów.
 //   Baner niesie stałą nazwę koła, nie dane wydarzenia. `bannerPhoto` - baner
 //   ma miejsce na zdjęcie (`FormBanner` pokaże wtedy galerię zdjęć).
+//   `bannerOnly` - layout istnieje tylko jako baner: zakładka „Social media
+//   i druk" go nie pokazuje, a przełączenie na nią wraca do `fallbackKey`
+//   (`Component` zostaje dla miniatur kolorystyki i historii).
 // - `Form` - treść layoutu (zakładka „Treść"): lista pól na wspólnym `PosterForm`
 //   (patrz src/forms/), renderowana przez `ContentPanel` po wybraniu danego layoutu.
 //   To NIE cały formularz: rozmiar tekstu i logotypy są wspólne dla wszystkich
@@ -51,6 +55,7 @@ import type { RegistryEntry } from '../types'
 export const posterRegistry: Record<string, RegistryEntry> = {
   wyklad: { name: 'Wykład', Component: PosterWyklad, Banner: BannerWyklad, Form: FormWyklad },
   warsztat: { name: 'Warsztat', Component: PosterWarsztat, Banner: BannerWarsztat, bannerPhoto: true, Form: FormWarsztat },
+  warsztatBezZdjecia: { name: 'Warsztat – bez zdjęcia', Component: PosterWarsztat, Banner: BannerWarsztatBezZdjecia, bannerOnly: { fallbackKey: 'warsztat' }, Form: FormWarsztat },
   konferencja: { name: 'Konferencja', Component: PosterKonferencja, Banner: BannerKonferencja, Form: FormKonferencja },
   rekrutacja: { name: 'Rekrutacja', Component: PosterRekrutacja, Banner: BannerRekrutacja, Form: FormRekrutacja },
   data: { name: 'Data', Component: PosterData, Banner: BannerData, Form: FormData },

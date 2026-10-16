@@ -212,6 +212,11 @@ Reguły:
   `textScale`.
 - Jeśli baner ma miejsce na zdjęcie, ustaw w rejestrze `bannerPhoto: true` -
   wspólny formularz banera (`FormBanner`) pokaże wtedy galerię zdjęć.
+- Wariant samego banera (np. `warsztatBezZdjecia` - Warsztat bez zdjęcia,
+  wyśrodkowany) to osobny wpis rejestru z `bannerOnly: { fallbackKey }`:
+  w trybie „Social media i druk" kafelek jest ukryty, a przełączenie na ten
+  tryb wraca do `fallbackKey` z zachowaniem kolorystyki. Schematy dzieli z
+  layoutem bazowym przez alias w `schemes` i `accentRecipes` (`schemes.ts`).
 
 ## 5. Rejestr — `src/posters/registry.ts`
 

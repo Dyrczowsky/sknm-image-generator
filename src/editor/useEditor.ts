@@ -47,6 +47,13 @@ export function useEditor() {
     setColors(fitColorsToLayout(next.poster_key))
   }
 
+  // Zamiana layoutu na pokrewny (np. baner „Warsztat – bez zdjęcia" → Warsztat)
+  // z zachowaniem kolorystyki, o ile nowy layout ją dopuszcza.
+  const switchLayoutKeepingColors = (posterKey: string) => {
+    setPosterKey(posterKey)
+    setColors(fitColorsToLayout(posterKey, colors))
+  }
+
   // Nowy schemat może zawężać listę akcentów - niedozwolony jest odpinany.
   const selectScheme = (scheme: string) => {
     setColors(fitColorsToLayout(template?.poster_key, { scheme, accent: colors.accent }))
@@ -74,6 +81,7 @@ export function useEditor() {
     colors,
     colorScheme,
     selectTemplate,
+    switchLayoutKeepingColors,
     selectScheme,
     selectAccent,
     applyState,

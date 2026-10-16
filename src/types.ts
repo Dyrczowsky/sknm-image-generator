@@ -123,6 +123,9 @@ export interface RegistryEntry {
   Banner: ComponentType<PosterProps>
   // Baner tego layoutu ma miejsce na zdjęcie - zakładka „Treść" banera (`FormBanner`) pokaże galerię.
   bannerPhoto?: boolean
+  // Layout tylko dla banerów (np. „Warsztat – bez zdjęcia"): ukryty w trybie
+  // „Social media i druk"; przełączenie na ten tryb wybiera `fallbackKey`.
+  bannerOnly?: { fallbackKey: string }
   // Treść layoutu (zakładka „Treść"). Rozmiar tekstu i logotypy to zakładka
   // „Wygląd", wspólna dla wszystkich layoutów - nie należą do `Form`.
   Form: ComponentType<FormProps>
