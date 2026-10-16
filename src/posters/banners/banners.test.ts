@@ -6,6 +6,8 @@ import { posterRegistry } from '../registry'
 import { BANNER_PAD, BANNER_SAFE_W, SHAPE_SIZE } from '../shape'
 import { PosterScaled } from '../../components/PosterScaled'
 import { CLUB_NAME } from '../copy'
+import { schemesFor } from '../schemes'
+import { DEFAULT_TEMPLATES } from '../../db/schema'
 
 const h = createElement as unknown as (type: unknown, props: object | null, ...children: unknown[]) => ReactElement
 
@@ -38,5 +40,20 @@ describe('banery', () => {
       const en = renderToStaticMarkup(h(PosterScaled, { size: 820, shape: 'cover' }, h(entry.Banner, { data, lang: 'en' })))
       expect(en).toContain(CLUB_NAME.en)
     }
+  })
+
+  it('layout tylko-banerowy: fallback istnieje, jest zwykłym layoutem i ma te same schematy', () => {
+    for (const [key, entry] of Object.entries(posterRegistry)) {
+      if (!entry.bannerOnly) continue
+      const fallback = posterRegistry[entry.bannerOnly.fallbackKey]
+      expect(fallback, `${key}: brak fallbacku`).toBeDefined()
+      expect(fallback.bannerOnly).toBeUndefined()
+      expect(schemesFor(key)).toEqual(schemesFor(entry.bannerOnly.fallbackKey))
+    }
+  })
+
+  it('każdy layout z rejestru ma szablon w DEFAULT_TEMPLATES', () => {
+    const keys = DEFAULT_TEMPLATES.map((t) => t.poster_key)
+    for (const key of Object.keys(posterRegistry)) expect(keys).toContain(key)
   })
 })

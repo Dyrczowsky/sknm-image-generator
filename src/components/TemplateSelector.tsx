@@ -63,7 +63,7 @@ export function TemplateSelector({ templates, selectedId, onSelect, medium, onMe
         <div ref={gridRef} className="grid" style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`, gap: GAP }}>
           {templates.map((tpl) => {
             const entry = posterRegistry[tpl.poster_key]
-            if (!entry) return null
+            if (!entry || (!banner && entry.bannerOnly)) return null
             const Thumb = banner ? entry.Banner : entry.Component
             const isActive = tpl.id === selectedId
             return (
