@@ -34,6 +34,9 @@ export interface FormValues extends Record<FormTextField, string> {
   titleScale: number
   textScale: number
   scaleLinked: boolean
+  // Konferencja: punkty programu rozkładają się równomiernie na całą wysokość
+  // obszaru listy (zamiast stałych odstępów).
+  fillAgenda: boolean
 }
 
 // Przekształcenie stanu formularza. Formularze zgłaszają zmiany jako takie

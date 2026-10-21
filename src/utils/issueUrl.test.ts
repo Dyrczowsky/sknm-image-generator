@@ -13,7 +13,7 @@ const emptyForm: FormValues = {
   title: '', subtitle: '', speaker: '', event_date: '', event_time: '',
   location: '', badge: '', badge2: '', body: '', visibility: {}, graphics: [],
   showPkLogo: false, qrUrl: '', photos: {}, lists: {}, titleScale: 1,
-  textScale: 1, scaleLinked: false,
+  textScale: 1, scaleLinked: false, fillAgenda: false,
 }
 
 const ctx = (over: Partial<BugContextInput> = {}): BugContextInput => ({

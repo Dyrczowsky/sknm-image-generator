@@ -1,7 +1,7 @@
 import type { FormProps } from '../types'
 import { Button, ConfirmButton, Input } from '../components/ui'
 import { UI_LABEL } from '../components/styles'
-import { addListItem, removeListItem, setListItemField } from '../editor/formState'
+import { addListItem, removeListItem, setFillAgenda, setListItemField } from '../editor/formState'
 import { DEFAULT_BADGE } from '../posters/copy'
 import { FIELDS, badgeField } from './fields'
 import type { FieldSpec } from './fields'
@@ -69,6 +69,15 @@ function AgendaField({ value, onChange }: FormProps) {
       <Button icon="plus" className="self-start" onClick={() => onChange(addListItem('agenda'))}>
         Dodaj punkt programu
       </Button>
+      <label className="flex items-center gap-2 text-sm">
+        <input
+          type="checkbox"
+          className="size-4 cursor-pointer accent-accent"
+          checked={value.fillAgenda}
+          onChange={(e) => onChange(setFillAgenda(e.target.checked))}
+        />
+        Rozłóż punkty równomiernie na całej wysokości
+      </label>
     </FormGroup>
   )
 }
