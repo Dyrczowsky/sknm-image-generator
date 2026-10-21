@@ -18,7 +18,7 @@ const DEFAULT_AGENDA: ListItem[] = [
 
 // KONFERENCJA — nagłówek + lista programu
 export function PosterKonferencja({ data, scheme, accent, lang = 'pl' }: PosterProps) {
-  const { title, event_date, location, badge, badge2, logoSlots, qrUrl, lists, hidden, fx, titleScale } = withPlaceholders(data)
+  const { title, event_date, location, badge, badge2, logoSlots, qrUrl, lists, hidden, fx, titleScale, fillAgenda } = withPlaceholders(data)
   const agenda = lists.agenda?.length ? lists.agenda : DEFAULT_AGENDA
   const { cssVars, sygnet, logoVariant } = resolveScheme('konferencja', scheme, accent)
   // W pionie wiersze programu dostają więcej oddechu, żeby krótka lista nie
@@ -44,7 +44,7 @@ export function PosterKonferencja({ data, scheme, accent, lang = 'pl' }: PosterP
       </div>
 
       <div style={{ flex: 1, padding: '48px 72px 72px', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', ...(fillAgenda && { flex: 1 }) }}>
           {agenda.map((item, i) => (
             <div
               key={i}
@@ -55,6 +55,7 @@ export function PosterKonferencja({ data, scheme, accent, lang = 'pl' }: PosterP
                 padding: `${rowPad}px 0`,
                 borderTop: `2px solid ${i === 0 ? 'var(--line-first)' : 'var(--line-rest)'}`,
                 alignItems: 'baseline',
+                ...(fillAgenda && { flex: 1, alignContent: 'center' }),
               }}
             >
               {/* Etykiety godzin są koralowe we wszystkich schematach - literał, nie rola. */}

@@ -60,6 +60,7 @@ const FULL_FORM: FormValues = {
   titleScale: 1.25,
   textScale: 0.8,
   scaleLinked: false,
+  fillAgenda: true,
 }
 
 const FULL_EXPORT: ExportSettings = { medium: 'banner', format: 'fbEvent', orientation: 'landscape', fileType: 'pdf' }

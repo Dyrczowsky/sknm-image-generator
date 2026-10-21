@@ -203,6 +203,7 @@ function parseForm(raw: unknown): SnapshotForm {
     titleScale: numberOr(source.titleScale, EMPTY_FORM.titleScale, MIN_SCALE, MAX_SCALE),
     textScale: numberOr(source.textScale, EMPTY_FORM.textScale, MIN_SCALE, MAX_SCALE),
     scaleLinked: flagOr(source.scaleLinked, EMPTY_FORM.scaleLinked),
+    fillAgenda: flagOr(source.fillAgenda, EMPTY_FORM.fillAgenda),
   }
 }
 
