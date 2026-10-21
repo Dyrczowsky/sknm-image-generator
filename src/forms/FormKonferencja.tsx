@@ -1,7 +1,7 @@
 import type { FormProps } from '../types'
 import { Button, ConfirmButton, Input } from '../components/ui'
 import { UI_LABEL } from '../components/styles'
-import { addListItem, removeListItem, setListItemField } from '../editor/formState'
+import { addListItem, removeListItem, setAgendaEvenFill, setListItemField } from '../editor/formState'
 import { DEFAULT_BADGE } from '../posters/copy'
 import { FIELDS, badgeField } from './fields'
 import type { FieldSpec } from './fields'
@@ -29,9 +29,19 @@ const AGENDA_COLUMNS = [
 
 // Powtarzalna lista punktów programu (`value.lists.agenda`).
 function AgendaField({ value, onChange }: FormProps) {
+  const { agendaEvenFill } = value
   const agenda = value.lists.agenda ?? []
   return (
     <FormGroup title="Program">
+      <label className="flex items-center gap-2 text-[0.8125rem] font-medium text-fg">
+        <input
+          type="checkbox"
+          className="size-4 cursor-pointer accent-accent"
+          checked={agendaEvenFill}
+          onChange={(e) => onChange(setAgendaEvenFill(e.target.checked))}
+        />
+        Równomiernie wypełniaj program (w razie potrzeby wydłuż plakat)
+      </label>
       {agenda.map((item, index) => {
         const remove = () => onChange(removeListItem('agenda', index))
         const filled = AGENDA_COLUMNS.some((column) => Boolean(item[column.name]))

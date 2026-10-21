@@ -28,6 +28,9 @@ export interface FormValues extends Record<FormTextField, string> {
   qrUrl: string
   photos: Record<string, PhotoValue[]>
   lists: Record<string, ListItem[]>
+  // Konferencja: czy sekcja programu ma równomiernie wypełniać dostępny obszar
+  // i móc wydłużyć plakat do prostokąta, gdy punktów jest dużo.
+  agendaEvenFill: boolean
   // Mnożnik rozmiaru tytułu/pozostałego tekstu (suwaki w zakładce „Wygląd") - 1 =
   // domyślny rozmiar szablonu. `scaleLinked` - czy suwaki są spięte
   // (przesunięcie jednego ustawia oba na ten sam procent).

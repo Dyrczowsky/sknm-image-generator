@@ -37,6 +37,8 @@ describe('ContentPanel (Treść)', () => {
   it('Konferencja: Teksty, Program, Kod QR - program po tekstach', () => {
     const html = content('konferencja', form({ lists: { agenda: [{ time: '10:00', title: 'Otwarcie' }, {}] } }))
     expect(headings(html)).toEqual(['Teksty', 'Program', 'Kod QR'])
+    expect(html).toContain('type="checkbox"')
+    expect(html).toContain('Równomiernie wypełniaj program')
     expect(html).toContain('aria-label="Godzina, punkt 1"')
     expect(html).toContain('aria-label="Nazwa punktu, punkt 2"')
     expect(html).toContain('Dodaj punkt programu')

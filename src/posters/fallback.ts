@@ -59,6 +59,7 @@ export function withPlaceholders(data: RawPosterData) {
     qrUrl: data.qrUrl ?? '',
     photos: data.photos ?? {},
     lists: data.lists ?? {},
+    agendaEvenFill: data.agendaEvenFill ?? false,
     // Mnożnik rozmiaru tytułu/pozostałego tekstu z suwaków w formularzu;
     // 1 = rozmiar domyślny.
     titleScale: data.titleScale ?? 1,

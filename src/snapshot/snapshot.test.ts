@@ -57,6 +57,7 @@ const FULL_FORM: FormValues = {
     agenda: [{ time: '10:00', label: 'Otwarcie' }, {}, { time: '11:30' }],
     sponsors: [{ name: 'ACME' }],
   },
+  agendaEvenFill: true,
   titleScale: 1.25,
   textScale: 0.8,
   scaleLinked: false,

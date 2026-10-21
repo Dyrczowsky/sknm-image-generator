@@ -12,6 +12,7 @@ import {
   replacePhoto,
   setField,
   setFieldVisible,
+  setAgendaEvenFill,
   setListItemField,
   setPhotoPosition,
   setScaleLinked,
@@ -93,6 +94,11 @@ describe('listy', () => {
     const filled = setListItemField('agenda', 0, 'time', '10:00')(added)
     expect(filled.lists.agenda).toEqual([{ time: '10:00' }])
     expect(removeListItem('agenda', 0)(filled).lists.agenda).toEqual([])
+  })
+
+  it('setAgendaEvenFill przełącza tryb równomiernego wypełnienia programu', () => {
+    expect(setAgendaEvenFill(true)(EMPTY_FORM).agendaEvenFill).toBe(true)
+    expect(setAgendaEvenFill(false)({ ...EMPTY_FORM, agendaEvenFill: true }).agendaEvenFill).toBe(false)
   })
 })
 

@@ -23,6 +23,7 @@ export const EMPTY_FORM: FormValues = {
   qrUrl: '',
   photos: {},
   lists: {},
+  agendaEvenFill: false,
   titleScale: 1,
   textScale: 1,
   scaleLinked: true,
@@ -111,6 +112,8 @@ export const setListItemField = (fieldKey: string, index: number, name: string, 
 
 export const removeListItem = (fieldKey: string, index: number): FormUpdate =>
   updateList(fieldKey, (items) => removeAt(items, index))
+
+export const setAgendaEvenFill = (agendaEvenFill: boolean): FormUpdate => (form) => ({ ...form, agendaEvenFill })
 
 // Suwaki rozmiaru. Spięte: przesunięcie jednego ustawia OBA na ten sam
 // procent; zapięcie spinacza od razu równa tekst do tytułu, żeby nie zostawić

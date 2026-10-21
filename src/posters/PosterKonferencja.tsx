@@ -18,16 +18,16 @@ const DEFAULT_AGENDA: ListItem[] = [
 
 // KONFERENCJA — nagłówek + lista programu
 export function PosterKonferencja({ data, scheme, accent, lang = 'pl' }: PosterProps) {
-  const { title, event_date, location, badge, badge2, logoSlots, qrUrl, lists, hidden, fx, titleScale } = withPlaceholders(data)
+  const { title, event_date, location, badge, badge2, logoSlots, qrUrl, lists, hidden, fx, titleScale, agendaEvenFill } = withPlaceholders(data)
   const agenda = lists.agenda?.length ? lists.agenda : DEFAULT_AGENDA
   const { cssVars, sygnet, logoVariant } = resolveScheme('konferencja', scheme, accent)
   // W pionie wiersze programu dostają więcej oddechu, żeby krótka lista nie
   // zostawiała pustej połowy strony (kwadrat/poziom: ky = 1 → 22px jak dotąd).
-  const { ky } = usePosterShape()
+  const { ky, height } = usePosterShape()
   const rowPad = Math.round(22 * ky ** 3)
 
   return (
-    <PosterFrame vars={cssVars}>
+    <PosterFrame vars={cssVars} style={agendaEvenFill ? { height: 'auto', minHeight: height } : undefined}>
       <div style={{ background: 'var(--panel)', color: 'var(--panel-text)', padding: '56px 72px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: 32 }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <Badge color="var(--header-badge)" style={fx('badge')}>{badge || DEFAULT_BADGE.seminarium[lang]}</Badge>
@@ -44,7 +44,7 @@ export function PosterKonferencja({ data, scheme, accent, lang = 'pl' }: PosterP
       </div>
 
       <div style={{ flex: 1, padding: '48px 72px 72px', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', flex: agendaEvenFill ? 1 : undefined, justifyContent: agendaEvenFill ? 'space-between' : undefined }}>
           {agenda.map((item, i) => (
             <div
               key={i}

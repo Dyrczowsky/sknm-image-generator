@@ -200,6 +200,7 @@ function parseForm(raw: unknown): SnapshotForm {
     qrUrl: textOr(source.qrUrl, EMPTY_FORM.qrUrl),
     photos: parseRecordOfLists(source.photos, parsePhoto),
     lists: parseRecordOfLists(source.lists, parseListItem),
+    agendaEvenFill: flagOr(source.agendaEvenFill, EMPTY_FORM.agendaEvenFill),
     titleScale: numberOr(source.titleScale, EMPTY_FORM.titleScale, MIN_SCALE, MAX_SCALE),
     textScale: numberOr(source.textScale, EMPTY_FORM.textScale, MIN_SCALE, MAX_SCALE),
     scaleLinked: flagOr(source.scaleLinked, EMPTY_FORM.scaleLinked),
