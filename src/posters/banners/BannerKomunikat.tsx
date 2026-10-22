@@ -3,7 +3,7 @@ import { CLUB_NAME, SITE_URL } from '../copy'
 import { withPlaceholders } from '../fallback'
 import { resolveScheme } from '../schemes'
 import { useBannerLayout } from '../shape'
-import { fontMono } from '../theme'
+import { fontMono, leading } from '../theme'
 import { Badge } from '../blocks/Badge'
 import { PosterFrame } from '../blocks/PosterFrame'
 import { Sygnet } from '../blocks/Sygnet'
@@ -23,7 +23,7 @@ export function BannerKomunikat({ data, scheme, accent, lang = 'pl' }: PosterPro
         <Sygnet name={sygnet} width={BANNER_SYGNET_W} />
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <Badge background="var(--accent)" color="var(--badge-text)" style={{ fontSize: 18, padding: '8px 14px' }}>SKNM</Badge>
-          <div style={{ fontSize: 62 * titleScale, lineHeight: 1, fontWeight: 800, letterSpacing: NAME_TRACKING, fontKerning: 'none', textWrap: 'balance' }}>
+          <div style={{ fontSize: 62 * titleScale, lineHeight: leading(1, titleScale), fontWeight: 800, letterSpacing: NAME_TRACKING, fontKerning: 'none', textWrap: 'balance' }}>
             {CLUB_NAME[lang]}
           </div>
         </div>

@@ -9,6 +9,7 @@ import { Sygnet } from '../blocks/Sygnet'
 import { FadingTriangles } from '../blocks/Triangle'
 import { Wedges } from '../blocks/Wedges'
 import { BANNER_SYGNET_W, BannerLogos, NAME_TRACKING } from './common'
+import { leading } from '../theme'
 
 // WYKŁAD (baner) — nazwa koła na tle klinów, stos trójkątów przy lewej krawędzi.
 export function BannerWyklad({ data, scheme, accent, lang = 'pl' }: PosterProps) {
@@ -24,7 +25,7 @@ export function BannerWyklad({ data, scheme, accent, lang = 'pl' }: PosterProps)
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14, position: 'relative', zIndex: 1 }}>
-        <div style={{ fontSize: 76 * titleScale, lineHeight: 0.96, maxWidth: 960, fontWeight: 800, letterSpacing: NAME_TRACKING, fontKerning: 'none', textWrap: 'balance' }}>
+        <div style={{ fontSize: 76 * titleScale, lineHeight: leading(0.96, titleScale), maxWidth: 960, fontWeight: 800, letterSpacing: NAME_TRACKING, fontKerning: 'none', textWrap: 'balance' }}>
           {CLUB_NAME[lang]}
         </div>
       </div>

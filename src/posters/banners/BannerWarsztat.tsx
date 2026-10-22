@@ -7,6 +7,7 @@ import { PosterFrame } from '../blocks/PosterFrame'
 import { Sygnet } from '../blocks/Sygnet'
 import { PhotoGallery } from '../PhotoGallery'
 import { BANNER_SYGNET_W, BannerLogos, NAME_TRACKING } from './common'
+import { leading } from '../theme'
 
 // Zdjęcie: tyle wchodzi w bezpieczną kolumnę (reszta to prawy margines),
 // a `SLANT` to poziomy bieg skosu lewej krawędzi.
@@ -33,7 +34,7 @@ export function BannerWarsztat({ data, scheme, accent, lang = 'pl' }: PosterProp
         <Sygnet name={sygnet} width={BANNER_SYGNET_W} />
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 660 }}>
-          <div style={{ fontSize: 54 * titleScale, lineHeight: 0.98, color: 'var(--title)', fontWeight: 800, letterSpacing: NAME_TRACKING, fontKerning: 'none', textWrap: 'balance' }}>
+          <div style={{ fontSize: 54 * titleScale, lineHeight: leading(0.98, titleScale), color: 'var(--title)', fontWeight: 800, letterSpacing: NAME_TRACKING, fontKerning: 'none', textWrap: 'balance' }}>
             {CLUB_NAME[lang]}
           </div>
         </div>

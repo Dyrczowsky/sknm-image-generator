@@ -70,6 +70,22 @@ export const typography = {
   },
 }
 
+// O ile mnożnik interlinii rośnie na każde +100% rozmiaru tekstu.
+export const LEADING_GROWTH = 0.2
+
+// Najmniejsza interlinia tekstu z suwakiem rozmiaru. W Fieldwork 800 „k”/„ł”
+// sięgają 0,697 em nad linię bazową, a „y”/„j”/„g” 0,235 em pod nią - razem
+// 0,932 em, więc przy 0,94 ogonek „y” dotykał „k” w wierszu niżej. 1,0
+// zostawia ok. 0,07 em odstępu (8 px przy tytule 120 px).
+export const MIN_LEADING = 1
+
+// Interlinia tekstu powiększonego suwakiem rozmiaru: co najmniej MIN_LEADING,
+// a powyżej 100% rośnie szybciej niż sam tekst (130% → +0,06), żeby duże
+// litery nie zlewały się w blok.
+export function leading(base: number, scale: number): number {
+  return Math.round((Math.max(MIN_LEADING, base) + LEADING_GROWTH * Math.max(0, scale - 1)) * 1000) / 1000
+}
+
 // Wymiary ramki nadaje PosterFrame z kształtu (patrz shape.ts).
 export const posterBaseStyle: CSSProperties = {
   position: 'relative',

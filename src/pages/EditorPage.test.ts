@@ -76,7 +76,7 @@ describe('EditorPage', () => {
     // Treść ukrytych zakładek nie jest odmontowana: szablony i formularz są w drzewie.
     expect(html).toContain('aria-label="Rodzaj grafiki"')
     expect(html).toContain('Kolorystyka')
-    expect(html).toContain('value="Tytuł z formularza"')
+    expect(html).toContain('>Tytuł z formularza</textarea>')
   })
 
   it('zakładka „Szablon": rodzaj grafiki, kafelki szablonów z aria-pressed i nazwą bez tekstu miniatury', () => {

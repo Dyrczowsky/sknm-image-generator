@@ -8,7 +8,7 @@ import { PosterForm } from './PosterForm'
 // (bez godziny i lokalizacji).
 const KOMUNIKAT_FIELDS: FieldSpec[] = [
   badgeField(DEFAULT_BADGE.komunikat.pl),
-  { name: 'title', label: 'Nagłówek' },
+  { name: 'title', label: 'Nagłówek', type: 'textarea', rows: 2 },
   { name: 'body', label: 'Treść komunikatu', type: 'textarea' },
   { name: 'subtitle', label: 'Podpis / źródło (opcjonalnie)' },
   FIELDS.date,

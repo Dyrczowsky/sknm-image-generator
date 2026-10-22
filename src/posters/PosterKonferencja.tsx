@@ -4,7 +4,7 @@ import { DEFAULT_BADGE, SITE_URL } from './copy'
 import { withPlaceholders } from './fallback'
 import { resolveScheme } from './schemes'
 import { usePosterShape } from './shape'
-import { colors, fontMono, TITLE_TRACKING } from './theme'
+import { colors, fontMono, leading, TITLE_TRACKING } from './theme'
 import { Badge } from './blocks/Badge'
 import { FooterLogos } from './blocks/FooterLogos'
 import { PosterFrame } from './blocks/PosterFrame'
@@ -32,7 +32,7 @@ export function PosterKonferencja({ data, scheme, accent, lang = 'pl' }: PosterP
       <div style={{ background: 'var(--panel)', color: 'var(--panel-text)', padding: '56px 72px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: 32 }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <Badge color="var(--header-badge)" style={fx('badge')}>{badge || DEFAULT_BADGE.seminarium[lang]}</Badge>
-          <div style={{ fontSize: 76 * titleScale, fontWeight: 800, lineHeight: 0.96, letterSpacing: TITLE_TRACKING, fontKerning: 'none', ...fx('title') }}>
+          <div style={{ fontSize: 76 * titleScale, fontWeight: 800, lineHeight: leading(0.96, titleScale), letterSpacing: TITLE_TRACKING, fontKerning: 'none', whiteSpace: 'pre-line', ...fx('title') }}>
             {title}
           </div>
           <div style={{ fontSize: 28, fontWeight: 600 }}>

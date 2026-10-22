@@ -3,7 +3,7 @@ import { getDay, getMonthShort } from '../utils/formatDate'
 import { BRANDING_EVENT } from './copy'
 import { withPlaceholders } from './fallback'
 import { resolveScheme } from './schemes'
-import { fontMono, TITLE_TRACKING, typography } from './theme'
+import { fontMono, leading, TITLE_TRACKING, typography } from './theme'
 import { BrandingText } from './blocks/BrandingText'
 import { FooterLogos } from './blocks/FooterLogos'
 import { InfoLine } from './blocks/InfoLine'
@@ -46,12 +46,12 @@ export function PosterData({ data, scheme, accent, lang = 'pl' }: PosterProps) {
           labelStyle={{ font: `400 18px ${fontMono}` }}
         />
         <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-          <div style={{ fontSize: 60 * titleScale, fontWeight: 800, lineHeight: 1, letterSpacing: TITLE_TRACKING, color: 'var(--title)', fontKerning: 'none', ...fx('title') }}>
+          <div style={{ fontSize: 60 * titleScale, fontWeight: 800, lineHeight: leading(1, titleScale), letterSpacing: TITLE_TRACKING, color: 'var(--title)', fontKerning: 'none', whiteSpace: 'pre-line', ...fx('title') }}>
             {title}
           </div>
           <InfoLine
             parts={[{ text: subtitle, hidden: hidden('subtitle') }]}
-            partsStyle={{ fontSize: typography.body.fontSize * textScale }}
+            partsStyle={{ fontSize: typography.body.fontSize * textScale, lineHeight: leading(typography.body.lineHeight, textScale), whiteSpace: 'pre-line' }}
             secondLine={location}
             secondLineHidden={hidden('location')}
             style={{ color: 'var(--muted-text)', maxWidth: '24ch' }}
