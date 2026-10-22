@@ -37,11 +37,11 @@ export function PosterWarsztat({ data, scheme, accent, lang = 'pl' }: PosterProp
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 22, maxWidth: 600 }}>
           <Badge background="var(--badge-fill)" color="var(--badge-text)" style={{ padding: '10px 16px', ...fx('badge') }}>{badge || DEFAULT_BADGE.warsztat[lang]}</Badge>
-          <div style={{ fontSize: 104 * titleScale, fontWeight: 800, lineHeight: 0.94, letterSpacing: TITLE_TRACKING, color: 'var(--title)', fontKerning: 'none', ...fx('title') }}>
+          <div style={{ fontSize: 104 * titleScale, fontWeight: 800, lineHeight: 0.94, letterSpacing: TITLE_TRACKING, color: 'var(--title)', fontKerning: 'none', whiteSpace: 'pre-line', ...fx('title') }}>
             {title}
           </div>
           {subtitle && (
-            <div style={{ fontSize: 32 * textScale, fontWeight: 500, lineHeight: 1.4, color: 'var(--muted-text)', ...fx('subtitle') }}>{subtitle}</div>
+            <div style={{ fontSize: 32 * textScale, fontWeight: 500, lineHeight: 1.4, color: 'var(--muted-text)', whiteSpace: 'pre-line', ...fx('subtitle') }}>{subtitle}</div>
           )}
         </div>
 

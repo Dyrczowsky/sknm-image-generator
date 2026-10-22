@@ -33,7 +33,7 @@ export function FormField({ field, value, onChange }: FormFieldProps) {
 
   return (
     <Field label={label} action={toggle}>
-      {type === 'textarea' ? <Textarea rows={5} {...control} /> : <Input type={type} {...control} />}
+      {type === 'textarea' ? <Textarea rows={field.rows ?? 5} {...control} /> : <Input type={type} {...control} />}
     </Field>
   )
 }

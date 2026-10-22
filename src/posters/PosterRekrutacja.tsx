@@ -30,10 +30,10 @@ export function PosterRekrutacja({ data, scheme, accent, lang = 'pl' }: PosterPr
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 26, position: 'relative', maxWidth: 900 * kx }}>
-        <div style={{ fontSize: 150 * titleScale, fontWeight: 800, lineHeight: 0.88, letterSpacing: TITLE_TRACKING, fontKerning: 'none', ...fx('title') }}>
+        <div style={{ fontSize: 150 * titleScale, fontWeight: 800, lineHeight: 0.88, letterSpacing: TITLE_TRACKING, fontKerning: 'none', whiteSpace: 'pre-line', ...fx('title') }}>
           {title}
         </div>
-        <div style={{ fontSize: 38 * textScale, fontWeight: 600, lineHeight: 1.3, color: 'var(--sub-color)', ...fx('subtitle') }}>
+        <div style={{ fontSize: 38 * textScale, fontWeight: 600, lineHeight: 1.3, color: 'var(--sub-color)', whiteSpace: 'pre-line', ...fx('subtitle') }}>
           {subtitle || RECRUITMENT_PITCH[lang]}
         </div>
       </div>

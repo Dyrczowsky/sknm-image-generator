@@ -5,16 +5,20 @@ import type { FormTextField } from '../types'
 export interface FieldSpec {
   name: FormTextField
   label: string
-  // `textarea` - wieloliniowe pole do dłuższych akapitów.
+  // `textarea` - wieloliniowe pole: Enter łamie wiersz na plakacie.
   type?: 'text' | 'date' | 'time' | 'textarea'
+  // Wysokość pola `textarea` w wierszach (domyślnie 5 - akapit).
+  rows?: number
   placeholder?: string
 }
 
 // Pola o tym samym podpisie w większości layoutów. Layout z innym podpisem
 // (np. „Nagłówek" zamiast „Tytuł") wpisuje własny `FieldSpec`.
 export const FIELDS = {
-  title: { name: 'title', label: 'Tytuł' },
-  subtitle: { name: 'subtitle', label: 'Opis / podtytuł' },
+  // Tytuł i podtytuł są wieloliniowe, żeby samemu zdecydować, gdzie łamać
+  // wiersz; bez Entera tekst zawija się sam jak dotąd.
+  title: { name: 'title', label: 'Tytuł', type: 'textarea', rows: 2 },
+  subtitle: { name: 'subtitle', label: 'Opis / podtytuł', type: 'textarea', rows: 2 },
   speaker: { name: 'speaker', label: 'Prelegent / organizator' },
   date: { name: 'event_date', label: 'Data', type: 'date' },
   time: { name: 'event_time', label: 'Godzina', type: 'time' },

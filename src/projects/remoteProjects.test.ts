@@ -149,6 +149,7 @@ describe('zmiany bez snapshotu', () => {
 
 describe('projectNameFrom', () => {
   it('przycina białe znaki', () => expect(projectNameFrom('  Plakat  ')).toBe('Plakat'))
+  it('ręczne łamania wierszy tytułu → jedna linia', () => expect(projectNameFrom('To jest\ntytuł\r\n referatu')).toBe('To jest tytuł referatu'))
   it('pusty lub same spacje → Bez tytułu', () => {
     expect(projectNameFrom('')).toBe('Bez tytułu')
     expect(projectNameFrom('   ')).toBe('Bez tytułu')

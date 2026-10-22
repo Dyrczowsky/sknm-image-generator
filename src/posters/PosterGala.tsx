@@ -30,11 +30,11 @@ export function PosterGala({ data, scheme, accent, lang = 'pl' }: PosterProps) {
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 30, position: 'relative', zIndex: 1 }}>
         <Badge color="var(--gold)" style={{ font: `700 24px ${fontMono}`, letterSpacing: '.2em', ...fx('badge') }}>{badge || DEFAULT_BADGE.gala[lang]}</Badge>
-        <div style={{ fontSize: 126 * titleScale, fontWeight: 800, lineHeight: 0.94, letterSpacing: TITLE_TRACKING, fontKerning: 'none', ...fx('title') }}>
+        <div style={{ fontSize: 126 * titleScale, fontWeight: 800, lineHeight: 0.94, letterSpacing: TITLE_TRACKING, fontKerning: 'none', whiteSpace: 'pre-line', ...fx('title') }}>
           {title}
         </div>
         {subtitle && (
-          <div style={{ fontSize: 34 * textScale, fontWeight: 500, lineHeight: 1.4, color: 'var(--muted-text)', maxWidth: '26ch', ...fx('subtitle') }}>{subtitle}</div>
+          <div style={{ fontSize: 34 * textScale, fontWeight: 500, lineHeight: 1.4, color: 'var(--muted-text)', maxWidth: '26ch', whiteSpace: 'pre-line', ...fx('subtitle') }}>{subtitle}</div>
         )}
       </div>
 
