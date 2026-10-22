@@ -27,7 +27,8 @@ export function PosterKonferencja({ data, scheme, accent, lang = 'pl' }: PosterP
   const rowPad = Math.round(22 * ky ** 3)
 
   return (
-    <PosterFrame vars={cssVars}>
+    // Z włączonym „Dopasuj program" kwadrat wydłuża się, gdy program się nie mieści.
+    <PosterFrame vars={cssVars} grow={fillAgenda}>
       <div style={{ background: 'var(--panel)', color: 'var(--panel-text)', padding: '56px 72px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: 32 }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <Badge color="var(--header-badge)" style={fx('badge')}>{badge || DEFAULT_BADGE.seminarium[lang]}</Badge>

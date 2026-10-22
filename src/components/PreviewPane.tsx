@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import type { ComponentType, CSSProperties, RefObject } from 'react'
 import type { PosterExport } from '../editor/usePosterExport'
 import { SHAPE_SIZE } from '../posters/shape'
@@ -36,7 +37,11 @@ interface PreviewPaneProps {
 // paskiem „Pobierz" (ok. 4 rem) - wysoki plakat A4 też widać w całości.
 export function PreviewPane({ posterRef, Component, data, scheme, accent, lang, exporter, inert, className }: PreviewPaneProps) {
   const [stageRef, stage] = useElementSize<HTMLDivElement>()
-  const shape = SHAPE_SIZE[exporter.shape]
+  // Plakat może urosnąć w dół ponad kształt (Konferencja z długim programem),
+  // więc podgląd dopasowuje się do zmierzonej wysokości układu.
+  const [layoutHeight, setLayoutHeight] = useState(0)
+  const base = SHAPE_SIZE[exporter.shape]
+  const shape = { width: base.width, height: Math.max(base.height, layoutHeight) }
   const size = fitWidth(stage, shape, stagePadding(stage)) || UNMEASURED_SIZE
   const ratio = { '--preview-ratio': `${shape.width} / ${shape.height}` } as CSSProperties
 
@@ -49,7 +54,7 @@ export function PreviewPane({ posterRef, Component, data, scheme, accent, lang, 
         className="relative aspect-(--preview-ratio) max-h-[max(14rem,calc(100dvh-27rem))] min-h-40 w-full overflow-hidden min-[900px]:aspect-auto min-[900px]:max-h-none min-[900px]:min-h-0 min-[900px]:flex-1"
       >
         <div className="absolute inset-0 flex items-center justify-center">
-          <PosterPreview posterRef={posterRef} Component={Component} data={data} scheme={scheme} accent={accent} lang={lang} shape={exporter.shape} size={size} />
+          <PosterPreview posterRef={posterRef} Component={Component} data={data} scheme={scheme} accent={accent} lang={lang} shape={exporter.shape} size={size} layoutHeight={layoutHeight} onLayoutHeight={setLayoutHeight} />
         </div>
         {exporter.note && (
           <p

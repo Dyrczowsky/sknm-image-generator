@@ -62,9 +62,11 @@ function saveBlob(blob: Blob, filename: string) {
 
 // Centruje plakat na płótnie o zadanych wymiarach. Tło poza plakatem dostaje
 // kolor odczytany z jego własnego rogu, żeby dostawka nie wyglądała jak
-// przypadkowa biała ramka wokół kolorowych szablonów.
-async function compositeOnCanvas(posterDataUrl: string, size: Size): Promise<string> {
+// przypadkowa biała ramka wokół kolorowych szablonów. Plakat wyższy niż
+// format (wydłużony kwadrat) nie jest przycinany - płótno rośnie do niego.
+async function compositeOnCanvas(posterDataUrl: string, format: Size): Promise<string> {
   const img = await loadImage(posterDataUrl)
+  const size = canvasSizeFor(format, img)
   if (size.width === img.width && size.height === img.height) return posterDataUrl
 
   const source = context2d(createCanvas(img))
@@ -78,6 +80,11 @@ async function compositeOnCanvas(posterDataUrl: string, size: Size): Promise<str
   ctx.drawImage(img, (size.width - img.width) / 2, (size.height - img.height) / 2)
 
   return canvas.toDataURL('image/png')
+}
+
+// Płótno social: rozmiar formatu, ale nigdy mniejsze od samego plakatu.
+export function canvasSizeFor(format: Size, poster: Size): Size {
+  return { width: Math.max(format.width, poster.width), height: Math.max(format.height, poster.height) }
 }
 
 // Rasteryzuje węzeł plakatu (w rozmiarze układu `shape`) do canvasu
@@ -128,9 +135,11 @@ async function downloadBanner(node: HTMLElement, basename: string, shape: Poster
 }
 
 // Social (kwadrat/story): PNG z układu kwadratowego; format wyższy niż kwadrat
-// dostaje dostawkę w kolorze tła plakatu.
+// dostaje dostawkę w kolorze tła plakatu. Wysokość bierzemy z węzła, bo
+// kwadrat może urosnąć w dół (PosterFrame `grow`).
 async function downloadSocial(node: HTMLElement, basename: string, size: Size) {
-  const posterDataUrl = await toPng(node, { ...SHAPE_SIZE.square, pixelRatio: 1 })
+  const layout = { width: SHAPE_SIZE.square.width, height: Math.max(SHAPE_SIZE.square.height, node.offsetHeight) }
+  const posterDataUrl = await toPng(node, { ...layout, pixelRatio: 1 })
   saveAs(await compositeOnCanvas(posterDataUrl, size), `${basename}.png`)
 }
 

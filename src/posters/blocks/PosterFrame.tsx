@@ -6,6 +6,10 @@ interface PosterFrameProps {
   vars?: Record<`--${string}`, string>
   padding?: number
   style?: CSSProperties
+  // Kwadrat może urosnąć w dół, gdy treść się nie mieści (wysokość = co
+  // najmniej kwadrat). Papier i banery mają stały rozmiar, więc tam nic nie
+  // zmienia.
+  grow?: boolean
   children: ReactNode
 }
 
@@ -14,13 +18,14 @@ interface PosterFrameProps {
 // (resolveScheme(...).cssVars) — po ich rozlaniu każdy potomek może użyć
 // `var(--rola)` w inline-style. `background`/`color` biorą się z CSS vars
 // `--page-bg` / `--page-text`. `style` nadpisuje domyślny układ flex.
-export function PosterFrame({ vars, padding = 0, style, children }: PosterFrameProps) {
-  const { width, height } = usePosterShape()
+export function PosterFrame({ vars, padding = 0, style, grow = false, children }: PosterFrameProps) {
+  const { shape, width, height } = usePosterShape()
+  const stretch = grow && shape === 'square'
   return (
     <div
       style={{
         width,
-        height,
+        ...(stretch ? { minHeight: height } : { height }),
         ...posterBaseStyle,
         ...vars,
         background: 'var(--page-bg)',
