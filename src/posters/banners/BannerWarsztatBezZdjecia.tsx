@@ -6,6 +6,7 @@ import { BANNER_PAD, BANNER_SAFE_W, useBannerLayout } from '../shape'
 import { PosterFrame } from '../blocks/PosterFrame'
 import { Sygnet } from '../blocks/Sygnet'
 import { BANNER_SYGNET_W, BannerLogos, MarginChips, NAME_TRACKING } from './common'
+import { leading } from '../theme'
 
 // WARSZTAT BEZ ZDJĘCIA (baner) — kolorystyka Warsztatu, ale bez zdjęcia:
 // sygnet, nazwa koła i stopka w jednej wyśrodkowanej kolumnie. Nazwa ma całą
@@ -22,7 +23,7 @@ export function BannerWarsztatBezZdjecia({ data, scheme, accent, lang = 'pl' }: 
       <div style={{ position: 'absolute', inset: `${padY}px ${padX}px`, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'space-between', gap: 16, textAlign: 'center' }}>
         <Sygnet name={sygnet} width={BANNER_SYGNET_W} />
 
-        <div style={{ fontSize: 76 * titleScale, lineHeight: 0.96, maxWidth: BANNER_SAFE_W - 2 * BANNER_PAD, color: 'var(--title)', fontWeight: 800, letterSpacing: NAME_TRACKING, fontKerning: 'none', textWrap: 'balance' }}>
+        <div style={{ fontSize: 76 * titleScale, lineHeight: leading(0.96, titleScale), maxWidth: BANNER_SAFE_W - 2 * BANNER_PAD, color: 'var(--title)', fontWeight: 800, letterSpacing: NAME_TRACKING, fontKerning: 'none', textWrap: 'balance' }}>
           {CLUB_NAME[lang]}
         </div>
 

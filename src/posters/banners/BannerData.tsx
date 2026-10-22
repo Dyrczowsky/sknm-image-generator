@@ -3,7 +3,7 @@ import { CLUB_NAME, SITE_URL } from '../copy'
 import { withPlaceholders } from '../fallback'
 import { resolveScheme } from '../schemes'
 import { BANNER_PAD, useBannerLayout } from '../shape'
-import { fontMono } from '../theme'
+import { fontMono, leading } from '../theme'
 import { PosterFrame } from '../blocks/PosterFrame'
 import { Sygnet } from '../blocks/Sygnet'
 import { BANNER_SYGNET_W, BannerLogos, MarginChips, NAME_TRACKING } from './common'
@@ -24,7 +24,7 @@ export function BannerData({ data, scheme, accent, lang = 'pl' }: PosterProps) {
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 18, marginTop: -64 }}>
         <div style={{ fontSize: 250, fontWeight: 800, lineHeight: 0.78, letterSpacing: '-.03em' }}>SKNM</div>
-        <div style={{ fontSize: 35 * titleScale, fontWeight: 800, lineHeight: 1.05, color: 'var(--month-color)', letterSpacing: NAME_TRACKING, fontKerning: 'none' }}>
+        <div style={{ fontSize: 35 * titleScale, fontWeight: 800, lineHeight: leading(1.05, titleScale), color: 'var(--month-color)', letterSpacing: NAME_TRACKING, fontKerning: 'none' }}>
           {CLUB_NAME[lang]}
         </div>
       </div>

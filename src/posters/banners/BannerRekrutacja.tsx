@@ -3,7 +3,7 @@ import { CLUB_NAME, SITE_URL, SOCIAL_HANDLE } from '../copy'
 import { withPlaceholders } from '../fallback'
 import { resolveScheme } from '../schemes'
 import { useBannerLayout } from '../shape'
-import { fontMono } from '../theme'
+import { fontMono, leading } from '../theme'
 import { PosterFrame } from '../blocks/PosterFrame'
 import { Sygnet } from '../blocks/Sygnet'
 import { BANNER_SYGNET_W, BannerLogos, NAME_TRACKING } from './common'
@@ -35,7 +35,7 @@ export function BannerRekrutacja({ data, scheme, accent, lang = 'pl' }: PosterPr
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14, position: 'relative' }}>
-        <div style={{ fontSize: 72 * titleScale, fontWeight: 800, lineHeight: 0.94, letterSpacing: NAME_TRACKING, fontKerning: 'none', textWrap: 'balance' }}>
+        <div style={{ fontSize: 72 * titleScale, fontWeight: 800, lineHeight: leading(0.94, titleScale), letterSpacing: NAME_TRACKING, fontKerning: 'none', textWrap: 'balance' }}>
           {CLUB_NAME[lang]}
         </div>
       </div>

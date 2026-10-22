@@ -3,7 +3,7 @@ import { CLUB_NAME, SITE_URL } from '../copy'
 import { withPlaceholders } from '../fallback'
 import { resolveScheme } from '../schemes'
 import { useBannerLayout, usePosterShape } from '../shape'
-import { fontMono } from '../theme'
+import { fontMono, leading } from '../theme'
 import { Badge } from '../blocks/Badge'
 import { BrandingText } from '../blocks/BrandingText'
 import { PosterFrame } from '../blocks/PosterFrame'
@@ -29,7 +29,7 @@ export function BannerGala({ data, scheme, accent, lang = 'pl' }: PosterProps) {
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16, position: 'relative', zIndex: 1 }}>
         <Badge color="var(--gold)" style={{ font: `700 ${18 * textScale}px ${fontMono}`, letterSpacing: '.2em' }}>SKNM</Badge>
-        <div style={{ fontSize: 66 * titleScale, lineHeight: 0.98, maxWidth: 1000, fontWeight: 800, letterSpacing: NAME_TRACKING, fontKerning: 'none', textWrap: 'balance' }}>
+        <div style={{ fontSize: 66 * titleScale, lineHeight: leading(0.98, titleScale), maxWidth: 1000, fontWeight: 800, letterSpacing: NAME_TRACKING, fontKerning: 'none', textWrap: 'balance' }}>
           {CLUB_NAME[lang]}
         </div>
       </div>

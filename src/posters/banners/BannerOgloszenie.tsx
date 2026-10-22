@@ -3,7 +3,7 @@ import { CLUB_NAME, SITE_URL } from '../copy'
 import { withPlaceholders } from '../fallback'
 import { resolveScheme } from '../schemes'
 import { BANNER_PAD, useBannerLayout } from '../shape'
-import { fontMono } from '../theme'
+import { fontMono, leading } from '../theme'
 import { PosterFrame } from '../blocks/PosterFrame'
 import { Sygnet } from '../blocks/Sygnet'
 import { Triangle } from '../blocks/Triangle'
@@ -20,7 +20,7 @@ export function BannerOgloszenie({ data, scheme, accent, lang = 'pl' }: PosterPr
       <MarginChips margin={padX - BANNER_PAD} colors={['var(--accent)', 'var(--accent)', 'var(--accent)']} />
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center', gap: 20 }}>
         <Sygnet name={sygnet} width={92} />
-        <div style={{ fontSize: 58 * titleScale, fontWeight: 800, lineHeight: 1.04, letterSpacing: NAME_TRACKING, maxWidth: '30ch', textWrap: 'balance', fontKerning: 'none' }}>
+        <div style={{ fontSize: 58 * titleScale, fontWeight: 800, lineHeight: leading(1.04, titleScale), letterSpacing: NAME_TRACKING, maxWidth: '30ch', textWrap: 'balance', fontKerning: 'none' }}>
           {CLUB_NAME[lang]}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>

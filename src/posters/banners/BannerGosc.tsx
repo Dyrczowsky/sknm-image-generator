@@ -8,6 +8,7 @@ import { PosterFrame } from '../blocks/PosterFrame'
 import { Sygnet } from '../blocks/Sygnet'
 import { PhotoGallery } from '../PhotoGallery'
 import { BANNER_SYGNET_W, BannerLogos, NAME_TRACKING } from './common'
+import { leading } from '../theme'
 
 // Szerokość zdjęcia wewnątrz bezpiecznej kolumny; na okładce strony zdjęcie
 // dodatkowo wychodzi na lewy margines aż do krawędzi.
@@ -43,7 +44,7 @@ export function BannerGosc({ data, scheme, accent, lang = 'pl' }: PosterProps) {
         <Badge color="var(--accent)" style={{ fontSize: 18, paddingTop: 6 }}>SKNM</Badge>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          <div style={{ fontSize: 58 * titleScale, lineHeight: 1, fontWeight: 800, letterSpacing: NAME_TRACKING, fontKerning: 'none', textWrap: 'balance' }}>
+          <div style={{ fontSize: 58 * titleScale, lineHeight: leading(1, titleScale), fontWeight: 800, letterSpacing: NAME_TRACKING, fontKerning: 'none', textWrap: 'balance' }}>
             {CLUB_NAME[lang]}
           </div>
         </div>

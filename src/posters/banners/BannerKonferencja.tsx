@@ -3,7 +3,7 @@ import { CLUB_NAME, SITE_URL } from '../copy'
 import { withPlaceholders } from '../fallback'
 import { resolveScheme } from '../schemes'
 import { useBannerLayout } from '../shape'
-import { fontMono } from '../theme'
+import { fontMono, leading } from '../theme'
 import { Badge } from '../blocks/Badge'
 import { PosterFrame } from '../blocks/PosterFrame'
 import { Sygnet } from '../blocks/Sygnet'
@@ -27,7 +27,7 @@ export function BannerKonferencja({ data, scheme, accent, lang = 'pl' }: PosterP
         <Sygnet name={sygnet} width={BANNER_SYGNET_W} />
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <Badge color="var(--header-badge)" style={{ fontSize: 18 }}>SKNM</Badge>
-          <div style={{ fontSize: 44 * titleScale, lineHeight: 1.02, fontWeight: 800, letterSpacing: NAME_TRACKING, fontKerning: 'none', textWrap: 'balance' }}>
+          <div style={{ fontSize: 44 * titleScale, lineHeight: leading(1.02, titleScale), fontWeight: 800, letterSpacing: NAME_TRACKING, fontKerning: 'none', textWrap: 'balance' }}>
             {CLUB_NAME[lang]}
           </div>
         </div>

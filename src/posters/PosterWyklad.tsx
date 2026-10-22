@@ -2,7 +2,7 @@ import type { PosterProps } from '../types'
 import { BRANDING_SHORT, DEFAULT_BADGE } from './copy'
 import { withPlaceholders } from './fallback'
 import { resolveScheme } from './schemes'
-import { TITLE_TRACKING, typography } from './theme'
+import { leading, TITLE_TRACKING, typography } from './theme'
 import { Badge } from './blocks/Badge'
 import { BigDateNumber } from './blocks/BigDateNumber'
 import { BrandingText } from './blocks/BrandingText'
@@ -27,7 +27,7 @@ export function PosterWyklad({ data, scheme, accent, lang = 'pl' }: PosterProps)
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 28, position: 'relative', zIndex: 1 }}>
         <Badge background="var(--badge-fill)" color="var(--badge-text)" style={{ fontSize: 24, ...fx('badge') }}>{badge || DEFAULT_BADGE.wyklad[lang]}</Badge>
-        <div style={{ fontSize: 120 * titleScale, fontWeight: 800, lineHeight: 0.94, letterSpacing: TITLE_TRACKING, fontKerning: 'none', ...fx('title') }}>
+        <div style={{ fontSize: 120 * titleScale, fontWeight: 800, lineHeight: leading(0.94, titleScale), letterSpacing: TITLE_TRACKING, fontKerning: 'none', ...fx('title') }}>
           {title}
         </div>
         <div style={{ fontSize: 36, fontWeight: 600, color: 'var(--speaker)', ...fx('speaker') }}>{speaker}</div>
@@ -43,7 +43,7 @@ export function PosterWyklad({ data, scheme, accent, lang = 'pl' }: PosterProps)
             ]}
             secondLine={subtitle}
             secondLineHidden={hidden('subtitle')}
-            secondLineStyle={{ fontSize: typography.body.fontSize * textScale }}
+            secondLineStyle={{ fontSize: typography.body.fontSize * textScale, lineHeight: leading(typography.body.lineHeight, textScale) }}
             style={{ paddingBottom: 10, whiteSpace: 'nowrap' }}
           />
         </div>

@@ -2,7 +2,7 @@ import type { PosterProps } from '../types'
 import { BRANDING_SHORT, SITE_URL } from './copy'
 import { withPlaceholders } from './fallback'
 import { resolveScheme } from './schemes'
-import { fontMono, TITLE_TRACKING } from './theme'
+import { fontMono, leading, TITLE_TRACKING } from './theme'
 import { BrandingText } from './blocks/BrandingText'
 import { FooterLogos } from './blocks/FooterLogos'
 import { PosterFrame } from './blocks/PosterFrame'
@@ -28,7 +28,7 @@ export function PosterOgloszenie({ data, scheme, accent, lang = 'pl' }: PosterPr
           <Triangle width={46} height={40} color="var(--accent)" />
           <Triangle width={46} height={40} color="var(--accent)" />
         </div>
-        <div style={{ fontSize: 72 * titleScale, fontWeight: 800, lineHeight: 1.08, letterSpacing: TITLE_TRACKING, maxWidth: '18ch', textWrap: 'balance', fontKerning: 'none', ...fx('title') }}>
+        <div style={{ fontSize: 72 * titleScale, fontWeight: 800, lineHeight: leading(1.08, titleScale), letterSpacing: TITLE_TRACKING, maxWidth: '18ch', textWrap: 'balance', fontKerning: 'none', ...fx('title') }}>
           {title}
         </div>
         {subtitle && (
