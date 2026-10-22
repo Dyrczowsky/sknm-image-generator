@@ -13,16 +13,19 @@ interface PosterPreviewProps {
   shape?: PosterShape
   // Szerokość podglądu na ekranie (px); wysokość wynika z kształtu.
   size: number
+  // Wysokość plakatu, który urósł w dół, i jej pomiar (patrz PosterScaled).
+  layoutHeight?: number
+  onLayoutHeight?: (height: number) => void
 }
 
 // Podgląd na żywo - aktualizuje się automatycznie przy każdej zmianie
 // formularza, szablonu lub schematu kolorów (bez przycisku "Generuj").
 // Rozmiar podaje rodzic (`PreviewPane` dopasowuje go do panelu).
-export function PosterPreview({ posterRef, Component, data, scheme, accent, lang, shape, size }: PosterPreviewProps) {
+export function PosterPreview({ posterRef, Component, data, scheme, accent, lang, shape, size, layoutHeight, onLayoutHeight }: PosterPreviewProps) {
   if (!Component) return null
   return (
     <div className="w-fit flex-none overflow-hidden rounded-[3px] shadow-[0_0_0_1px_rgb(0_0_0/0.08),0_6px_24px_-6px_rgb(0_0_0/0.35)]">
-      <PosterScaled ref={posterRef} size={size} shape={shape}>
+      <PosterScaled ref={posterRef} size={size} shape={shape} layoutHeight={layoutHeight} onLayoutHeight={onLayoutHeight}>
         <Component data={data} scheme={scheme} accent={accent} lang={lang} />
       </PosterScaled>
     </div>

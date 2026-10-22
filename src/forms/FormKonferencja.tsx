@@ -76,7 +76,7 @@ function AgendaField({ value, onChange }: FormProps) {
           checked={value.fillAgenda}
           onChange={(e) => onChange(setFillAgenda(e.target.checked))}
         />
-        Rozłóż punkty równomiernie na całej wysokości
+        Dopasuj program: rozłóż punkty na całą wysokość, a gdy się nie mieszczą, wydłuż kwadrat
       </label>
     </FormGroup>
   )

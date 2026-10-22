@@ -24,8 +24,9 @@ describe('banery', () => {
       it(`${key}: baner renderuje się w kształcie ${shape} na pustych danych`, () => {
         const { width, height } = SHAPE_SIZE[shape]
         const html = renderToStaticMarkup(h(PosterScaled, { size: width / 2, shape }, h(entry.Banner, { data: {} })))
-        // dwa wrappery PosterScaled + ramka banera
-        expect(html.split(`width:${width}px;height:${height}px`).length - 1).toBe(3)
+        // wrapper skalowania + ramka banera; węzeł eksportu ma min-height
+        expect(html.split(`width:${width}px;height:${height}px`).length - 1).toBe(2)
+        expect(html).toContain(`width:${width}px;min-height:${height}px`)
         expect(html).toContain('SKNM')
       })
     }
