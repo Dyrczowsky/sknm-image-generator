@@ -55,7 +55,7 @@ export function PosterGosc({ data, scheme, accent, lang = 'pl' }: PosterProps) {
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 820 }}>
           <Badge color="var(--accent)" style={fx('badge')}>{badge || DEFAULT_BADGE.seminarium[lang]}</Badge>
-          <div style={{ fontSize: 82 * titleScale, fontWeight: 800, lineHeight: leading(0.98, titleScale), letterSpacing: TITLE_TRACKING, fontKerning: 'none', ...fx('title') }}>
+          <div style={{ fontSize: 82 * titleScale, fontWeight: 800, lineHeight: leading(0.98, titleScale), letterSpacing: TITLE_TRACKING, fontKerning: 'none', whiteSpace: 'pre-line', ...fx('title') }}>
             {title}
           </div>
           <InfoLine

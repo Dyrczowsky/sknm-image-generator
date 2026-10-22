@@ -87,12 +87,13 @@ describe('ContentPanel (Treść)', () => {
     expect(button(hidden, 'Pokaż na plakacie: Tytuł')).toContain('aria-pressed="false"')
     expect(hidden).not.toContain('Ukryj na plakacie')
     const titleId = hidden.match(/<label for="([^"]+)"[^>]*>Tytuł<\/label>/)?.[1]
-    const hiddenInput = hidden.match(new RegExp(`<input[^>]*id="${titleId}"[^>]*>`))?.[0] ?? ''
+    // Tytuł to textarea (ręczne łamanie wierszy).
+    const hiddenInput = hidden.match(new RegExp(`<textarea[^>]*id="${titleId}"[^>]*>`))?.[0] ?? ''
     expect(hiddenInput).toContain('opacity-60')
     expect(hiddenInput).not.toContain(' disabled=""')
     expect(hiddenInput).not.toContain('readOnly')
     // Widoczne pole nie jest przygaszone.
-    expect(shown.match(/<input[^>]*opacity-60/)).toBeNull()
+    expect(shown.match(/<(input|textarea)[^>]*opacity-60/)).toBeNull()
   })
 
   it('Kod QR jest w treści, a rozmiar tekstu i logotypy nie', () => {

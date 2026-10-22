@@ -91,5 +91,6 @@ export async function deleteProject(client: SupabaseClient, id: number): Promise
 
 // Nazwa nowego projektu z tytułu plakatu.
 export function projectNameFrom(title: string): string {
-  return title.trim().slice(0, PROJECT_NAME_MAX).trimEnd() || DEFAULT_NAME
+  // Tytuł może mieć ręczne łamania wierszy - nazwa projektu to jedna linia.
+  return title.replace(/\s+/g, ' ').trim().slice(0, PROJECT_NAME_MAX).trimEnd() || DEFAULT_NAME
 }

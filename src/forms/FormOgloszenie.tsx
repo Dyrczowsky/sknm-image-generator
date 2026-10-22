@@ -5,7 +5,7 @@ import { PosterForm } from './PosterForm'
 // Krótki zestaw pól (bez daty, godziny i lokalizacji) - do cytatów,
 // komunikatów i podziękowań.
 const OGLOSZENIE_FIELDS: FieldSpec[] = [
-  { name: 'title', label: 'Treść ogłoszenia / cytatu' },
+  { name: 'title', label: 'Treść ogłoszenia / cytatu', type: 'textarea', rows: 3 },
   { name: 'subtitle', label: 'Autor / podpis (opcjonalnie)' },
 ]
 

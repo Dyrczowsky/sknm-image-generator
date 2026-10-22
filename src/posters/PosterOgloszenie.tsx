@@ -28,7 +28,7 @@ export function PosterOgloszenie({ data, scheme, accent, lang = 'pl' }: PosterPr
           <Triangle width={46} height={40} color="var(--accent)" />
           <Triangle width={46} height={40} color="var(--accent)" />
         </div>
-        <div style={{ fontSize: 72 * titleScale, fontWeight: 800, lineHeight: leading(1.08, titleScale), letterSpacing: TITLE_TRACKING, maxWidth: '18ch', textWrap: 'balance', fontKerning: 'none', ...fx('title') }}>
+        <div style={{ fontSize: 72 * titleScale, fontWeight: 800, lineHeight: leading(1.08, titleScale), letterSpacing: TITLE_TRACKING, maxWidth: '18ch', textWrap: 'balance', fontKerning: 'none', whiteSpace: 'pre-line', ...fx('title') }}>
           {title}
         </div>
         {subtitle && (
