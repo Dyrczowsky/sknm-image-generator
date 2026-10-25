@@ -25,7 +25,7 @@ export function PhotoGalleryField({ fieldKey, label, max = 4, value, onChange }:
           label={`${label} ${i + 1}`}
           value={photo.src}
           onChange={(src) => onChange(src ? replacePhoto(fieldKey, i, src) : removePhoto(fieldKey, i))}
-          position={{ x: photo.x, y: photo.y }}
+          position={{ x: photo.x, y: photo.y, zoom: photo.zoom ?? 1 }}
           onPositionChange={(position) => onChange(setPhotoPosition(fieldKey, i, position))}
         />
       ))}

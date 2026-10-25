@@ -1,7 +1,8 @@
 import type { ComponentType } from 'react'
 
 // --- Dane formularza (stan edytora) ---
-export interface PhotoValue { src: string; x: number; y: number }
+// `zoom` >= 1 (brak = 1 = zdjęcie dopasowane do kadru, najmniejsze możliwe).
+export interface PhotoValue { src: string; x: number; y: number; zoom?: number }
 export type ListItem = Record<string, string>
 
 // Pola tekstowe formularza - sterowane checkboxem widoczności. Wchodzą do

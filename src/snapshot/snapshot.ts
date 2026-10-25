@@ -15,6 +15,7 @@ export interface SnapshotPhoto {
   asset: string
   x: number
   y: number
+  zoom?: number
 }
 
 // Formularz z obrazami zastąpionymi przez refy. Typ wynika z `FormValues`,
@@ -76,7 +77,7 @@ export function toSnapshot(state: EditorState, refOf: (dataUrl: string) => strin
     const entries: SnapshotPhoto[] = []
     for (const photo of gallery) {
       const asset = assetOf(photo.src)
-      if (asset !== undefined) entries.push({ asset, x: photo.x, y: photo.y })
+      if (asset !== undefined) entries.push({ asset, x: photo.x, y: photo.y, ...(photo.zoom ? { zoom: photo.zoom } : {}) })
     }
     photos[fieldKey] = entries
   }
@@ -111,7 +112,7 @@ export function fromSnapshot(snapshot: EditorSnapshot, srcOf: (ref: string) => s
     const entries: PhotoValue[] = []
     for (const photo of gallery) {
       const src = resolve(photo.asset)
-      if (src !== undefined) entries.push({ src, x: photo.x, y: photo.y })
+      if (src !== undefined) entries.push({ src, x: photo.x, y: photo.y, ...(photo.zoom ? { zoom: photo.zoom } : {}) })
     }
     photos[fieldKey] = entries
   }
@@ -159,6 +160,7 @@ function parsePhoto(raw: unknown): SnapshotPhoto | undefined {
     asset: raw.asset,
     x: numberOr(raw.x, PHOTO_CENTER, 0, 100),
     y: numberOr(raw.y, PHOTO_CENTER, 0, 100),
+    ...(typeof raw.zoom === 'number' && Number.isFinite(raw.zoom) && raw.zoom > 1 ? { zoom: clamp(raw.zoom, 1, 4) } : {}),
   }
 }
 

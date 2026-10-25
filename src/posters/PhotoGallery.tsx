@@ -58,6 +58,8 @@ export function PhotoGallery({ photos, label, style, placeholderStyle, labelStyl
                 backgroundPosition: `${photo.x ?? 50}% ${photo.y ?? 50}%`,
                 backgroundSize: 'cover',
                 backgroundRepeat: 'no-repeat',
+                // Zoom 1 = zdjęcie dopasowane do kadru (cover); więcej = przybliżenie wokół punktu kadru.
+                ...(photo.zoom && photo.zoom > 1 ? { transform: `scale(${photo.zoom})`, transformOrigin: `${photo.x ?? 50}% ${photo.y ?? 50}%` } : {}),
               }}
             />
           ))}
