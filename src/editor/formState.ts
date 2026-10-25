@@ -97,7 +97,7 @@ export const replacePhoto = (fieldKey: string, index: number, src: string): Form
 export const removePhoto = (fieldKey: string, index: number): FormUpdate =>
   updatePhotos(fieldKey, (photos) => removeAt(photos, index))
 
-export const setPhotoPosition = (fieldKey: string, index: number, position: { x?: number; y?: number }): FormUpdate =>
+export const setPhotoPosition = (fieldKey: string, index: number, position: { x?: number; y?: number; zoom?: number }): FormUpdate =>
   updatePhotos(fieldKey, (photos) => replaceAt(photos, index, (photo) => ({ ...photo, ...position })))
 
 // Powtarzalna lista pod kluczem `fieldKey` (np. program konferencji).

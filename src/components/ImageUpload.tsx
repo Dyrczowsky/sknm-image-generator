@@ -10,6 +10,8 @@ import { Button, Icon } from './ui'
 interface Position {
   x: number
   y: number
+  // Przybliżenie (1 = zdjęcie dopasowane do kadru, najmniejsze możliwe).
+  zoom?: number
 }
 
 interface ImageUploadProps {
@@ -57,14 +59,16 @@ export function FilePickerButton({ text, accept, multiple, onChange }: FilePicke
 interface PositionSliderProps {
   label: string
   value: number
+  min?: number
+  max?: number
   onChange: (value: number) => void
 }
 
-function PositionSlider({ label, value, onChange }: PositionSliderProps) {
+function PositionSlider({ label, value, min = 0, max = 100, onChange }: PositionSliderProps) {
   return (
     <label className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[0.8125rem] text-muted">
       <span className="w-[116px] flex-none">{label}</span>
-      <input className="crop-slider min-w-[120px] flex-1 cursor-pointer" type="range" min="0" max="100" value={value} onChange={(e) => onChange(Number(e.target.value))} />
+      <input className="crop-slider min-w-[120px] flex-1 cursor-pointer" type="range" min={min} max={max} value={value} onChange={(e) => onChange(Number(e.target.value))} />
     </label>
   )
 }
@@ -116,13 +120,20 @@ export function ImageUpload({ label, hint, value, onChange, position, onPosition
       {value && position && (
         <div
           className="relative h-[140px] w-full cursor-grab touch-none select-none overflow-hidden rounded-lg border border-field-border bg-cover bg-no-repeat active:cursor-grabbing"
-          style={{ backgroundImage: `url(${value})`, backgroundPosition: `${position.x}% ${position.y}%` }}
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={() => {
             drag.current = null
           }}
         >
+          <div
+            className="absolute inset-0 bg-cover bg-no-repeat"
+            style={{
+              backgroundImage: `url(${value})`,
+              backgroundPosition: `${position.x}% ${position.y}%`,
+              ...(position.zoom && position.zoom > 1 ? { transform: `scale(${position.zoom})`, transformOrigin: `${position.x}% ${position.y}%` } : {}),
+            }}
+          />
           <span className="pointer-events-none absolute bottom-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-[rgba(15,23,42,0.65)] px-2.5 py-1 text-xs text-white">
             przeciągnij, aby ustawić kadr
           </span>
@@ -153,6 +164,7 @@ export function ImageUpload({ label, hint, value, onChange, position, onPosition
         <div className="flex flex-col gap-2.5 rounded-lg bg-accent-soft px-3 py-2.5">
           <PositionSlider label="Pozycja w poziomie" value={position.x} onChange={(x) => onPositionChange({ x })} />
           <PositionSlider label="Pozycja w pionie" value={position.y} onChange={(y) => onPositionChange({ y })} />
+          <PositionSlider label="Powiększenie" value={Math.round((position.zoom ?? 1) * 100)} min={100} max={400} onChange={(z) => onPositionChange({ zoom: z / 100 })} />
         </div>
       )}
     </div>
