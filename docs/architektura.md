@@ -282,6 +282,98 @@ nie mają własnych hooków danych - dostają je z `App`.
 
 Karty i siatki: [stylowanie.md](./stylowanie.md#strony-i-karty).
 
+## Prezentacje
+
+Prezentacje w stylu PowerPointa (slajdy z układów, pokaz, przejścia, eksport).
+Działają **tylko lokalnie**, bez Supabase i bez logowania: prezentacja żyje w
+IndexedDB tej przeglądarki. Strona `#/prezentacje` (`PresentationsPage`) jest
+osobnym światem obok edytora plakatów i nie korzysta z jego snapshotu.
+
+```
+src/slides/
+├── types.ts, defineSlide.ts, themes.ts, shape.ts   typy, definicja układu, motywy, rozmiar 1600×900 / 1200×1200
+├── deck.ts, history.ts, starter.ts                  czyste operacje na prezentacji, cofnij/ponów, startowa prezentacja
+├── deckStore.ts, useDecks.ts                        zapis w IndexedDB, hook dla strony
+├── SlideView.tsx, SlideScaled.tsx                   rysowanie slajdu i skalowanie do szerokości ekranu
+├── present.ts, transitions.ts                       nawigacja pokazu, rejestr przejść
+├── export/offscreen.tsx, export/raster.ts           renderowanie poza oknem, PNG i PDF
+├── export/html.ts                                   samodzielny plik HTML (w przygotowaniu)
+└── komponenty/                                      WSZYSTKIE układy: jeden plik = jeden układ + index.ts, _wspolne.tsx, _tekst.tsx
+src/components/slides/                               edytor i pokaz (UI)
+src/pages/PresentationsPage.tsx                      strona listy i edytora prezentacji
+```
+
+**Model danych.** `Deck` (`types.ts`) to nazwa, motyw (`granat`, `kremowy`,
+`ciemny`), domyślne przejście i jego czas (300-1000 ms), lista `Slide`. Slajd
+to `layout` (klucz układu), `data` (treść wg `defaults` układu), tło
+(`jasne` / `ciemne`), `mirrored`, `reveal` (pokazuj po kolei) i opcjonalne
+`transition`. Jedna prezentacja renderuje się w **16:9 i 1:1** z tej samej
+treści: każdy układ sam przestawia się na kwadrat (`useSlideAspect()`).
+`viewAspect` to tylko ostatni wybór przełącznika w edytorze.
+
+**Zapis.** `deckStore.ts` trzyma lekką listę `sknm-deck-index` (do ekranu
+wyboru) i osobny wpis `sknm-deck:<id>` na każdą prezentację, więc lista nie
+wczytuje treści. Zapis treści idzie przed indeksem. `useDecks` opóźnia zapis o
+400 ms i wymusza go przy ukryciu karty, `pagehide` i odmontowaniu, a `load`
+zawsze opróżnia kolejkę przed odczytem. Zdjęcia w bazie są **refami** (nazwa
+grafiki z `src/assets/`), jak w snapshotach plakatów: `toStored` zamienia data
+URL na ref, `fromStored` wczytuje je z powrotem; brakujące grafiki dostają
+`src: null` i pokazują zakreskowane miejsce. Prezentacja nowszej wersji
+(`v` większe niż `DECK_VERSION`) nie jest czytana. `parseDeck` naprawia resztę
+zamiast ją odrzucać (szczegóły w [dodawanie-slajdu.md](./dodawanie-slajdu.md)).
+
+**Historia.** `history.ts` to ogólny stos cofnij / ponów (limit 100 wpisów).
+Ciągłe pisanie w jedno pole skleja się w jedno cofnięcie: wpis z kluczem pola
+przesuwa okno o sekundę (`COALESCE_MS`) z każdą literą. Po cofnięciu kolejna
+zmiana już się nie skleja. Zmiana bez śladu w historii (np. `updatedAt`)
+idzie przez `replacePresent`.
+
+**Rysowanie.** `SlideView` dostaje slajd i ustawia `SlideRenderContext`
+(proporcja, motyw, tło, lustro, numer slajdu, bieżący krok, `reveal`), a potem
+rysuje komponent układu. Edycję na slajdzie włącza `SlideEditContext`:
+`editable` plus `onText(path, value)` i `onOverflow`. Poza edytorem
+(miniatury, pokaz, eksport) działa `READ_ONLY_EDIT`, więc każdy `EditableText`
+rysuje zwykły tekst. Komponenty widzą kolory tylko jako `var(--s-…)` ustawione
+przez `paletteVars` na korzeniu slajdu. `SlideScaled` skaluje pełny układ
+CSS-em `transform` do szerokości na ekranie, a wysokość wynika z proporcji.
+
+**Dopasowanie tekstu.** `AutoFit` mierzy tekst po każdym renderze w
+`useLayoutEffect` i zapisuje mnożnik w zmiennej `--fit` wprost w `style`
+elementu, bez stanu Reacta. Font w `fit(px)` to `calc(px * var(--fit))`.
+Zmniejsza go najwyżej do 70%. Gdy tekst nadal się nie mieści, zgłasza to przez
+`onOverflow`, a edytor dostaje tę informację.
+
+**Pokaz i kroki.** `reveal` i `steps` układu dają liczbę kroków slajdu
+(`stepsForDeck`; bez `reveal` slajd ma 0). `present.ts` to czysta nawigacja
+po pozycji `{ slide, step }`: `next` najpierw odsłania kolejne elementy, potem
+przechodzi do następnego slajdu; `prev` działa odwrotnie i wraca do slajdu w
+pełni odsłoniętego; `goto` zawsze wraca na krok 0. `Step` w komponencie ukrywa
+element, dopóki `step < index`. W edytorze, miniaturach i eksporcie krok to
+`Infinity`, więc wszystko jest widoczne.
+
+**Przejścia.** `transitions.ts` to rejestr dziesięciu przejść (`TRANSITIONS`,
+kolejność galerii to `TRANSITION_KEYS`). `transitionFrames(key, kierunek)`
+zwraca klatki dla Web Animations API na dwóch warstwach (wychodząca i
+wchodząca). Klatki to zwykłe obiekty bez funkcji, z dozwolonymi właściwościami
+`opacity`, `transform`, `clipPath`, `filter`, bo tę samą tabelę wkłada się do
+samodzielnego HTML jako JSON. Przy `prefers-reduced-motion` każde przejście
+(poza `brak`) zamienia się w krótkie przenikanie (25% czasu), a `clampDuration`
+pilnuje zakresu 300-1000 ms.
+
+**Eksport.** `renderOffscreen` (`export/offscreen.tsx`) montuje wszystkie
+slajdy w osobnym węźle poza ekranem (`left: -200vw`, `inert`,
+`aria-hidden`). Zwraca węzły dopiero po fontach, zdjęciach i dwóch klatkach
+(AutoFit musi się zmierzyć). `setStep` pozwala wyrenderować kolejne kroki bez
+przejść CSS. Tak jak poster editor, ten węzeł **nie może być
+`display: none` ani `visibility: hidden`**: eksport kopiuje obliczone style, a
+ukrycie daje pusty plik lub gorsze wygładzanie tekstu (patrz
+„Edytor zostaje zamontowany" wyżej). `export/raster.ts` rasteryzuje każdy
+slajd przez `html-to-image` (`toCanvas`, w rozdzielczości 1920×1080 albo
+1080×1080), rysując go dwa razy, bo WebKit przy pierwszym przebiegu często
+pomija obrazy i fonty. PNG idzie plik po pliku z przerwą na pobrania, a PDF składa
+`buildPdfPages` z `posters/pdf.ts`. Eksport HTML (`export/html.ts`) jest
+samodzielnym plikiem z tym samym modelem i tabelą przejść.
+
 ## Snapshot i kopia robocza
 
 ### Snapshot - jedyny opis stanu plakatu
