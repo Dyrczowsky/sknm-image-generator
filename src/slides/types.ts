@@ -46,9 +46,9 @@ export interface PhotoValue {
   zoom: number
 }
 
-// Pozycja listy (karty, wpisy, tagi, wiersze agendy): same pola tekstowe.
 export const EMPTY_PHOTO: PhotoValue = { src: null, x: 50, y: 50, zoom: 1 }
 
+// Pozycja listy (karty, wpisy, tagi, wiersze agendy): same pola tekstowe.
 export type SlideItem = Record<string, string>
 
 export type SlideValue = string | boolean | PhotoValue | SlideItem[]
