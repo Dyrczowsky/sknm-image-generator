@@ -15,6 +15,7 @@ import { isMacPlatform } from './shortcuts/shortcuts'
 import type { ShortcutId } from './shortcuts/shortcuts'
 import { useShortcuts } from './shortcuts/useShortcuts'
 import { parseSnapshot, snapshotFromLegacyHistory } from './snapshot/snapshot'
+import { useDecks } from './slides/useDecks'
 import { useSession } from './supabase/useSession'
 import { AppShell } from './components/AppShell'
 import { AuthControl } from './components/AuthControl'
@@ -65,6 +66,8 @@ function App() {
   const notes = useNotes(member)
   const projects = useProjects(userId)
   const library = useAssetLibrary(member)
+  // Prezentacje są lokalne (IndexedDB), więc działają także bez Supabase.
+  const decks = useDecks()
   const [authOpen, setAuthOpen] = useState(false)
   const [helpOpen, setHelpOpen] = useState(false)
   const posterRef = useRef<HTMLDivElement | null>(null)
@@ -283,7 +286,7 @@ function App() {
           <HistoryPage sessionStatus={session.status} history={history} lang={lang} onSignInClick={openSignIn} onRestore={restoreHistory} />
         )}
         {page === 'notes' && <NotesPage sessionStatus={session.status} notes={notes} onSignInClick={openSignIn} />}
-        {page === 'presentations' && <PresentationsPage />}
+        {page === 'presentations' && <PresentationsPage decks={decks} />}
       </AppShell>
       <TicketDialog type={ticket} onClose={() => setTicket(null)} bugContext={bugContext} />
       <AuthDialog session={session} open={authOpen} onClose={() => setAuthOpen(false)} />
