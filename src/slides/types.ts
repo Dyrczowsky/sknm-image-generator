@@ -22,6 +22,20 @@ export type TransitionKey =
   | 'obrot'
   | 'rozmycie'
 
+// Kolejność = kolejność w galerii przejść.
+export const TRANSITION_KEYS: readonly TransitionKey[] = [
+  'brak',
+  'przenikanie',
+  'wypchniecie',
+  'wsuniecie',
+  'odsloniecie',
+  'przyblizenie',
+  'wymazanie',
+  'trojkaty',
+  'obrot',
+  'rozmycie',
+]
+
 // Zdjęcie w slajdzie. W stanie aplikacji `src` to data URL (jak w plakatach);
 // zapis w IndexedDB trzyma zamiast niego nazwę grafiki (ref) - patrz deckStore.
 // `x`/`y` - kadr w procentach (0-100), `zoom` - 1 = dopasowane do kadru.
@@ -33,6 +47,8 @@ export interface PhotoValue {
 }
 
 // Pozycja listy (karty, wpisy, tagi, wiersze agendy): same pola tekstowe.
+export const EMPTY_PHOTO: PhotoValue = { src: null, x: 50, y: 50, zoom: 1 }
+
 export type SlideItem = Record<string, string>
 
 export type SlideValue = string | boolean | PhotoValue | SlideItem[]
@@ -69,3 +85,7 @@ export interface Deck {
 }
 
 export const DECK_VERSION = 1
+
+export const MIN_DURATION = 300
+export const MAX_DURATION = 1000
+export const DEFAULT_DURATION = 600
