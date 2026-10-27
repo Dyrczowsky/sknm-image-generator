@@ -297,7 +297,7 @@ src/slides/
 ├── SlideView.tsx, SlideScaled.tsx                   rysowanie slajdu i skalowanie do szerokości ekranu
 ├── present.ts, transitions.ts                       nawigacja pokazu, rejestr przejść
 ├── export/offscreen.tsx, export/raster.ts           renderowanie poza oknem, PNG i PDF
-├── export/html.ts                                   samodzielny plik HTML (w przygotowaniu)
+├── export/html.ts                                   samodzielny plik HTML (oba formaty + odtwarzacz z player.ts)
 └── komponenty/                                      WSZYSTKIE układy: jeden plik = jeden układ + index.ts, _wspolne.tsx, _tekst.tsx
 src/components/slides/                               edytor i pokaz (UI)
 src/pages/PresentationsPage.tsx                      strona listy i edytora prezentacji
