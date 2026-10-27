@@ -1,14 +1,11 @@
 import type { CSSProperties, ReactNode } from 'react'
 import { Sygnet } from '../../posters/blocks/Sygnet'
-import { fontHeading, fontMono } from '../../posters/theme'
-import { useSlideRender } from '../defineSlide'
+import { colors, fontHeading, fontMono } from '../../posters/theme'
+import { useSlideEdit, useSlideRender } from '../defineSlide'
 import { SLIDE_SIZE } from '../shape'
 import { paletteFor, paletteVars } from '../themes'
 import type { PhotoValue } from '../types'
 import { EditableText } from './_tekst'
-
-// SZKIC KONTRAKTU - wygląd bloków dopracowuje zadanie 8a. Sygnatury eksportów
-// nie mogą się zmienić (używają ich wszystkie komponenty w tym folderze).
 
 export { AutoFit, EditableText, fit } from './_tekst'
 export { fontHeading, fontMono }
@@ -46,7 +43,7 @@ export function SlideFrame({ children, padding, sygnet = true, band = true, numb
         ...style,
       }}
     >
-      {children}
+      <div style={{ position: 'relative', height: '100%' }}>{children}</div>
       {sygnet && <Sygnet name={palette.sygnet} width={88} style={{ position: 'absolute', top: 52, right: 64 }} />}
       {band && <TriangleBand />}
       {number && <SlideNumber />}
@@ -54,14 +51,64 @@ export function SlideFrame({ children, padding, sygnet = true, band = true, numb
   )
 }
 
+const BAND_TRIANGLE_W = 36
+const BAND_H = 32
+
+// Trójkąty pasa: deterministyczne dla numeru slajdu `k` i szerokości `width`.
+export function bandTriangles(width: number, k: number): { points: string; opacity: string }[] {
+  const w = BAND_TRIANGLE_W
+  const h = BAND_H
+  const n = Math.ceil(width / (w / 2)) + 1
+  const result: { points: string; opacity: string }[] = []
+  for (let i = 0; i < n; i++) {
+    const r = Math.abs(Math.sin((i + 1) * 12.9898 + (k + 1) * 78.233) * 43758.5453) % 1
+    if (r < 0.3) continue
+    const x = (i * w) / 2 - w / 2
+    const points = i % 2 === 0 ? `${x},${h} ${x + w},${h} ${x + w / 2},0` : `${x},0 ${x + w},0 ${x + w / 2},${h}`
+    result.push({ points, opacity: (0.12 + r * 0.75).toFixed(2) })
+  }
+  return result
+}
+
 // Pas trójkątów na dole slajdu, losowy, ale stały dla numeru slajdu.
 export function TriangleBand() {
-  return null
+  const info = useSlideRender()
+  const width = SLIDE_SIZE[info.aspect].width
+  return (
+    <svg
+      viewBox={`0 0 ${width} ${BAND_H}`}
+      preserveAspectRatio="none"
+      aria-hidden="true"
+      style={{ position: 'absolute', left: 0, right: 0, bottom: 0, width: '100%', height: BAND_H, display: 'block', color: 'var(--s-band)' }}
+    >
+      {bandTriangles(width, info.index).map((t) => (
+        <polygon key={t.points} points={t.points} fill="currentColor" opacity={t.opacity} />
+      ))}
+    </svg>
+  )
 }
 
 // „01 / 11" w lewym dolnym rogu (w kwadracie - w prawym).
 export function SlideNumber() {
-  return null
+  const info = useSlideRender()
+  const square = info.aspect === '1:1'
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return (
+    <div
+      style={{
+        position: 'absolute',
+        bottom: 46,
+        ...(square ? { right: 80 } : { left: 100 }),
+        fontFamily: fontMono,
+        fontSize: 17,
+        fontWeight: 700,
+        letterSpacing: '.14em',
+        color: 'var(--s-muted)',
+      }}
+    >
+      {`${pad(info.index + 1)} / ${pad(info.total)}`}
+    </div>
+  )
 }
 
 interface KickerProps {
@@ -72,7 +119,29 @@ interface KickerProps {
 
 // Plakietka nad nagłówkiem: trójkąt + wersaliki mono.
 export function Kicker({ path, value, style }: KickerProps) {
-  return <EditableText path={path} value={value} style={{ fontFamily: fontMono, ...style }} />
+  const { editable } = useSlideEdit()
+  if (!value && !editable) return null
+  return (
+    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 14, marginBottom: 26, ...style }}>
+      <span
+        aria-hidden="true"
+        style={{ width: 22, height: 19, flexShrink: 0, background: 'var(--s-accent)', clipPath: 'polygon(0 0, 100% 0, 50% 100%)' }}
+      />
+      <EditableText
+        path={path}
+        value={value}
+        as="span"
+        style={{
+          fontFamily: fontMono,
+          fontSize: 19,
+          fontWeight: 700,
+          letterSpacing: '.16em',
+          textTransform: 'uppercase',
+          color: 'var(--s-accent)',
+        }}
+      />
+    </div>
+  )
 }
 
 interface ChipProps {
@@ -82,7 +151,23 @@ interface ChipProps {
 
 // Prostokątna plakietka na tle `--s-soft` (miejsce, tag).
 export function Chip({ children, style }: ChipProps) {
-  return <span style={{ background: 'var(--s-soft)', color: 'var(--s-soft-fg)', ...style }}>{children}</span>
+  return (
+    <span
+      style={{
+        display: 'inline-block',
+        padding: '9px 18px',
+        background: 'var(--s-soft)',
+        color: 'var(--s-soft-fg)',
+        fontSize: 21,
+        fontWeight: 800,
+        letterSpacing: '.1em',
+        textTransform: 'uppercase',
+        ...style,
+      }}
+    >
+      {children}
+    </span>
+  )
 }
 
 export type PhotoVariant = 'cien' | 'ramka' | 'zwykle'
@@ -99,10 +184,75 @@ interface PhotoFigureProps {
 }
 
 // Zdjęcie z kadrem (`object-position`, `zoom`); bez pliku - zakreskowane miejsce na zdjęcie.
-export function PhotoFigure({ photo, style, alt = '' }: PhotoFigureProps) {
+export function PhotoFigure({ photo, variant = 'zwykle', caption, style, alt = '' }: PhotoFigureProps) {
+  const origin = `${photo.x}% ${photo.y}%`
   return (
-    <figure style={{ margin: 0, ...style }}>
-      {photo.src && <img src={photo.src} alt={alt} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
+    <figure style={{ position: 'relative', margin: 0, ...style }}>
+      {variant === 'cien' && (
+        <div style={{ position: 'absolute', inset: 0, background: 'var(--s-band)', transform: 'translate(16px, 16px)' }} />
+      )}
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          overflow: 'hidden',
+          outline: variant === 'ramka' ? '10px solid var(--s-frame)' : undefined,
+        }}
+      >
+        {photo.src ? (
+          <img
+            src={photo.src}
+            alt={alt}
+            style={{
+              position: 'absolute',
+              inset: 0,
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              objectPosition: origin,
+              transform: `scale(${photo.zoom})`,
+              transformOrigin: origin,
+            }}
+          />
+        ) : (
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: `repeating-linear-gradient(135deg, ${colors.placeholderBg} 0 10px, ${colors.placeholderBgAlt} 10px 20px)`,
+              color: colors.placeholderText,
+              fontFamily: fontMono,
+              fontSize: 20,
+              fontWeight: 700,
+              letterSpacing: '.16em',
+            }}
+          >
+            ZDJĘCIE
+          </div>
+        )}
+      </div>
+      {caption && (
+        <EditableText
+          path={caption.path}
+          value={caption.value}
+          as="figcaption"
+          style={{
+            position: 'absolute',
+            left: 0,
+            bottom: -44,
+            fontFamily: fontMono,
+            fontSize: 17,
+            fontWeight: 700,
+            letterSpacing: '.12em',
+            textTransform: 'uppercase',
+            color: 'var(--s-muted)',
+            whiteSpace: 'nowrap',
+          }}
+        />
+      )}
     </figure>
   )
 }
@@ -114,7 +264,22 @@ interface StepProps {
   style?: CSSProperties
 }
 
+const STEP_EASE = 'cubic-bezier(.2,.8,.2,1)'
+
 // Element pokazywany po kolei (karta, wpis, tag). Bez „pokazuj po kolei" zawsze widoczny.
-export function Step({ children, style }: StepProps) {
-  return <div style={style}>{children}</div>
+export function Step({ index, children, style }: StepProps) {
+  const info = useSlideRender()
+  const hidden = info.reveal && info.step < index
+  return (
+    <div
+      style={{
+        opacity: hidden ? 0 : 1,
+        transform: hidden ? 'translateY(24px)' : 'none',
+        transition: `opacity .45s ${STEP_EASE}, transform .45s ${STEP_EASE}`,
+        ...style,
+      }}
+    >
+      {children}
+    </div>
+  )
 }

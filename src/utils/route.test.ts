@@ -1,15 +1,22 @@
 import { describe, expect, it } from 'vitest'
-import { PAGES, parseRoute, routeHref } from './route'
+import { LOCAL_PAGES, PAGES, parseRoute, routeHref } from './route'
 
 describe('PAGES', () => {
-  it('ma pięć stron z oczekiwanymi hashami i etykietami', () => {
+  it('ma sześć stron z oczekiwanymi hashami i etykietami', () => {
     expect(PAGES.map(p => [p.page, p.hash, p.label])).toEqual([
       ['editor', '#/', 'Edytor'],
+      ['presentations', '#/prezentacje', 'Prezentacje'],
       ['projects', '#/projekty', 'Projekty'],
       ['assets', '#/grafiki', 'Grafiki'],
       ['history', '#/historia', 'Historia'],
       ['notes', '#/notatki', 'Notatki'],
     ])
+  })
+})
+
+describe('LOCAL_PAGES', () => {
+  it('to edytor i prezentacje - strony bez Supabase', () => {
+    expect(LOCAL_PAGES).toEqual(['editor', 'presentations'])
   })
 })
 
@@ -19,6 +26,9 @@ describe('parseRoute', () => {
   })
   it('znane hashe → odpowiednie strony', () => {
     for (const { page, hash } of PAGES) expect(parseRoute(hash), hash).toBe(page)
+  })
+  it('#/prezentacje → prezentacje', () => {
+    expect(parseRoute('#/prezentacje')).toBe('presentations')
   })
   it('końcowe ukośniki i wielkość liter są ignorowane', () => {
     expect(parseRoute('#/projekty/')).toBe('projects')

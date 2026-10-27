@@ -153,6 +153,7 @@ Strona wynika z `location.hash` (`src/utils/route.ts`, `useHashRoute`):
 | `#/grafiki` | Grafiki |
 | `#/historia` | Historia |
 | `#/notatki` | Notatki |
+| `#/prezentacje` | Prezentacje (lokalnie, także bez Supabase) |
 
 Tablica `PAGES` jest jedynym źródłem nazw, hashy i kolejności w nawigacji
 (`TopBar` rysuje z niej zwykłe odnośniki `<a href="#/...">`, więc działają
@@ -169,8 +170,8 @@ odświeżeniu, a hash nigdy nie trafia na serwer. Drugi powód: linki z Supabase
 edytor, a ekran ustawiania hasła pokazuje `AuthDialog`, gdy sesja ma status `settingPassword`.
 
 Bez Supabase (`session.status === 'unconfigured'`) nie ma stron z danymi
-wspólnymi: `TopBar` nie rysuje nawigacji, a `App` wymusza stronę edytora, nawet
-gdy hash mówi co innego. Wejście na stronę poboczną (zalogowany) odświeża jej
+wspólnymi: `TopBar` rysuje tylko odnośniki z `LOCAL_PAGES` (Edytor, Prezentacje),
+a `App` wymusza stronę edytora dla pozostałych adresów, nawet gdy hash mówi co innego. Wejście na stronę poboczną (zalogowany) odświeża jej
 listę - nie ma synchronizacji na żywo. Tytuł karty to „<strona> — Generator
 obrazów SKNM". `/poster/<klucz>[/<schemat>]` to osobny, ścieżkowy podgląd
 szablonu (`main.tsx` → `PosterPreviewPage`), działający poza `App`.

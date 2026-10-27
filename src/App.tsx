@@ -29,9 +29,10 @@ import { AssetsPage } from './pages/AssetsPage'
 import { EditorPage } from './pages/EditorPage'
 import { HistoryPage } from './pages/HistoryPage'
 import { NotesPage } from './pages/NotesPage'
+import { PresentationsPage } from './pages/PresentationsPage'
 import { ProjectsPage } from './pages/ProjectsPage'
 import type { BugContextInput } from './utils/issueUrl'
-import { PAGES, useHashRoute } from './utils/route'
+import { LOCAL_PAGES, PAGES, useHashRoute } from './utils/route'
 import type { Page } from './utils/route'
 import { EDITOR_TAB_STORAGE_KEY, parseEditorTab, serializeEditorTab } from './utils/uiState'
 import type { EditorTab } from './utils/uiState'
@@ -85,9 +86,9 @@ function App() {
   const ready = editor.ready && workspace.ready
   const { form, template, colors } = editor
   // Bez Supabase aplikacja nie ma logowania ani stron z danymi wspólnymi -
-  // adres takiej strony pokazuje wtedy edytor.
+  // adres takiej strony pokazuje wtedy edytor (strony lokalne działają zawsze).
   const shared = session.status !== 'unconfigured'
-  const page: Page = shared ? route : 'editor'
+  const page: Page = shared || LOCAL_PAGES.includes(route) ? route : 'editor'
   const openSignIn = () => setAuthOpen(true)
 
   // Wejście na stronę odświeża jej listę - nie ma synchronizacji na żywo.
@@ -282,6 +283,7 @@ function App() {
           <HistoryPage sessionStatus={session.status} history={history} lang={lang} onSignInClick={openSignIn} onRestore={restoreHistory} />
         )}
         {page === 'notes' && <NotesPage sessionStatus={session.status} notes={notes} onSignInClick={openSignIn} />}
+        {page === 'presentations' && <PresentationsPage />}
       </AppShell>
       <TicketDialog type={ticket} onClose={() => setTicket(null)} bugContext={bugContext} />
       <AuthDialog session={session} open={authOpen} onClose={() => setAuthOpen(false)} />
