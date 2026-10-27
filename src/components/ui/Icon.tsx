@@ -5,6 +5,8 @@ import {
   Languages, LayoutTemplate, Library, Lightbulb, Link, LoaderCircle, LogIn, LogOut, Palette, Pencil, Plus, QrCode,
   RefreshCw, RotateCcw, Save, Search, Share2, SlidersHorizontal, SquarePen, StickyNote, Trash2, TriangleAlert, Type,
   Upload, User, X,
+  Bookmark, CalendarDays, Columns2, FlipHorizontal2, Hash, Heading1, LayoutDashboard, LayoutGrid, List, Maximize, Play,
+  Presentation, Quote, RectangleHorizontal, Redo2, Sparkles, Square, Undo2,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
@@ -19,6 +21,7 @@ const ICONS = {
   graphics: Images,
   history: History,
   notes: StickyNote,
+  presentations: Presentation,
   // Zakładki edytora
   template: LayoutTemplate,
   content: Type,
@@ -56,6 +59,24 @@ const ICONS = {
   qr: QrCode,
   image: Image,
   library: Library,
+  // Prezentacje: układy slajdów i wstążka
+  slideTitle: Heading1,
+  slideSection: Bookmark,
+  slidePhotoText: Columns2,
+  slideList: List,
+  slideCards: LayoutGrid,
+  slideMosaic: LayoutDashboard,
+  slideInvite: CalendarDays,
+  slideQuote: Quote,
+  slideStat: Hash,
+  play: Play,
+  undo: Undo2,
+  redo: Redo2,
+  transition: Sparkles,
+  fullscreen: Maximize,
+  mirror: FlipHorizontal2,
+  aspectWide: RectangleHorizontal,
+  aspectSquare: Square,
   // Kierunki i zmiana kolejności
   chevronDown: ChevronDown,
   chevronUp: ChevronUp,
