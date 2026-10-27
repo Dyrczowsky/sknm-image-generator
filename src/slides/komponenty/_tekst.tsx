@@ -192,6 +192,27 @@ export function findFitFactor(
   return { factor: Math.max(floor, Math.floor(fits * 1000) / 1000), overflowing: false }
 }
 
+// Czy treść wychodzi poza pudełko. Nie `scrollHeight`: nagłówki mają
+// interlinię ~1,04, ciaśniejszą niż obszar treści fontu, więc przeglądarka
+// zawsze liczy kilka px „przewijania", nawet gdy nic nie jest ucięte - i każdy
+// nagłówek spadał do minimum z ostrzeżeniem. Bierzemy więc pudełka układu
+// dzieci (offset*, bez transformacji kroków „pokazuj po kolei"); pudełko AutoFit
+// ma `position: relative`, więc to ono jest ich offsetParent.
+function contentOverflows(el: HTMLElement): boolean {
+  let bottom = 0
+  let right = 0
+  for (const child of Array.from(el.children)) {
+    if (!(child instanceof HTMLElement)) continue
+    const margin = parseFloat(getComputedStyle(child).marginBottom) || 0
+    bottom = Math.max(bottom, child.offsetTop + child.offsetHeight + margin)
+    right = Math.max(right, child.offsetLeft + child.offsetWidth)
+  }
+  // Tekst wpisany wprost w pudełko (bez elementu) - zostaje stara miara.
+  const looseText = Array.from(el.childNodes).some((node) => node.nodeType === Node.TEXT_NODE && node.textContent?.trim())
+  if (looseText) return el.scrollHeight > el.clientHeight + 1 || el.scrollWidth > el.clientWidth + 1
+  return bottom > el.clientHeight + 1 || right > el.clientWidth + 1
+}
+
 export interface AutoFitProps {
   // Unikalny w obrębie slajdu - pod nim AutoFit zgłasza przepełnienie.
   id: string
@@ -219,7 +240,7 @@ export function AutoFit({ id, children, style, min = 0.7 }: AutoFitProps) {
     const { id, min, onOverflow } = latest.current
     const result = findFitFactor((factor) => {
       el.style.setProperty('--fit', String(factor))
-      return el.scrollHeight > el.clientHeight + 1 || el.scrollWidth > el.clientWidth + 1
+      return contentOverflows(el)
     }, min)
     el.style.setProperty('--fit', String(result.factor))
     state.current.factor = result.factor
@@ -271,7 +292,7 @@ export function AutoFit({ id, children, style, min = 0.7 }: AutoFitProps) {
   // `--fit: 1` w propsie tylko jako wartość startowa - React nie nadpisze
   // ustawionej ręcznie wartości, dopóki ten prop się nie zmieni.
   return (
-    <div ref={ref} style={{ minHeight: 0, ...style, ['--fit' as string]: 1 }}>
+    <div ref={ref} style={{ position: 'relative', minHeight: 0, ...style, ['--fit' as string]: 1 }}>
       {children}
     </div>
   )
