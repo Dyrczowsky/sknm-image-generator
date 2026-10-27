@@ -272,6 +272,7 @@ export function Step({ index, children, style }: StepProps) {
   const hidden = info.reveal && info.step < index
   return (
     <div
+      data-step={index}
       style={{
         opacity: hidden ? 0 : 1,
         transform: hidden ? 'translateY(24px)' : 'none',
