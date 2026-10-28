@@ -41,7 +41,7 @@ async function rendered<T>(render: () => Promise<T>): Promise<T> {
   return render()
 }
 
-function context2d(canvas: HTMLCanvasElement): CanvasRenderingContext2D {
+export function context2d(canvas: HTMLCanvasElement): CanvasRenderingContext2D {
   const ctx = canvas.getContext('2d')
   if (!ctx) throw new Error('brak kontekstu 2d')
   return ctx
