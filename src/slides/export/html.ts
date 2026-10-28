@@ -188,6 +188,9 @@ export async function exportDeckHtml(deck: Deck, onProgress?: ExportProgress): P
   onProgress?.(done, total)
 
   const fontCssPromise = buildFontCss()
+  // Błąd czeka na `await` niżej; bez tego wcześniejszy wyjątek zostawiłby
+  // nieobsłużone odrzucenie.
+  fontCssPromise.catch(() => {})
   // Ten sam plik (sygnet, logo) w obu formatach pobieramy raz.
   const images = new Map<string, Promise<string>>()
   const markup: Record<SlideAspect, string[]> = { '16:9': [], '1:1': [] }

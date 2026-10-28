@@ -175,10 +175,15 @@ describe('parseDeck', () => {
     expect(res.deck).toMatchObject({ id: 'a', name: 'Prezentacja', theme: 'granat', transition: 'przenikanie', duration: MIN_DURATION, viewAspect: '16:9', updatedAt: 0, slides: [] })
   })
 
-  it('odrzuca slajdy z nieznanym układem i nie-obiekty', () => {
+  it('pomija slajdy, które nie są obiektami', () => {
     const good = createSlide('cytat')
-    const res = parseDeck({ id: 'a', slides: [good, { layout: 'nie-ma' }, 5, null] })
+    const res = parseDeck({ id: 'a', slides: [good, 5, null] })
     expect(res.ok && res.deck.slides.map((s) => s.id)).toEqual([good.id])
+  })
+
+  it('slajd nieznanego układu = prezentacja z nowszej wersji (nie kasujemy go autozapisem)', () => {
+    const res = parseDeck({ id: 'a', slides: [createSlide('cytat'), { layout: 'nie-ma' }] })
+    expect(res).toEqual({ ok: false, reason: 'newer' })
   })
 
   it('błędny typ pola wraca do domyślnego, nieznane klucze znikają', () => {

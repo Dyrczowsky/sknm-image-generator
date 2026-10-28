@@ -65,10 +65,11 @@ describe('deckStore', () => {
     expect(photoOf(toStored(deckWithPhoto(DATA_URL))).src).toBe(DATA_URL)
   })
 
-  it('ref, którego nie da się wczytać, daje src null', async () => {
+  it('ref, którego nie da się wczytać, zostaje w danych i przeżywa kolejny zapis', async () => {
     const raw = toStored(deckWithPhoto(REF))
     const loaded = await fromStored(raw, async (refs) => refs)
-    expect(loaded.ok && photoOf(loaded.deck).src).toBeNull()
+    expect(loaded.ok && photoOf(loaded.deck).src).toBe(REF)
+    expect(loaded.ok && photoOf(toStored(loaded.deck)).src).toBe(REF)
   })
 
   it('indeks posortowany po updatedAt malejąco, upsert bez duplikatów', async () => {

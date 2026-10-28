@@ -1,6 +1,6 @@
 import type { FieldSpec } from '../../slides/defineSlide'
 import { layoutOf } from '../../slides/komponenty'
-import { EMPTY_PHOTO } from '../../slides/types'
+import { EMPTY_PHOTO, photoSrc } from '../../slides/types'
 import type { PhotoValue, Slide, SlideAspect, SlideData, SlideItem, SlideThemeKey, SlideValue } from '../../slides/types'
 import { ImageUpload } from '../ImageUpload'
 import { UI_HEADING, UI_HINT, UI_LABEL } from '../styles'
@@ -92,7 +92,7 @@ function FieldControl({ field, value, onData }: FieldControlProps) {
       return (
         <ImageUpload
           label={field.label}
-          value={photo.src}
+          value={photoSrc(photo)}
           onChange={(src) => onData(field.key, { ...photo, src, ...(src ? {} : { x: 50, y: 50, zoom: 1 }) })}
           position={{ x: photo.x, y: photo.y, zoom: photo.zoom }}
           onPositionChange={(next) => onData(field.key, { ...photo, ...next }, `${field.key}:kadr`)}

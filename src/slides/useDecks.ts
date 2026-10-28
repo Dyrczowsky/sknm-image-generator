@@ -38,6 +38,8 @@ export function useDecks(store: DeckStore = deckStore): Decks {
     async (deck: Deck) => {
       try {
         await store.save({ ...deck, updatedAt: Date.now() })
+        // Udany zapis znosi wcześniejszy komunikat - dane znów są bezpieczne.
+        if (alive.current) setError(null)
         await refresh()
       } catch {
         if (alive.current) setError(SAVE_ERROR)
@@ -110,6 +112,7 @@ export function useDecks(store: DeckStore = deckStore): Decks {
       pending.current.delete(id)
       try {
         await store.remove(id)
+        if (alive.current) setError(null)
         await refresh()
       } catch {
         setError(SAVE_ERROR)

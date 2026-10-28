@@ -4,6 +4,7 @@ import { colors, fontHeading, fontMono } from '../../posters/theme'
 import { useSlideEdit, useSlideRender } from '../defineSlide'
 import { SLIDE_SIZE } from '../shape'
 import { paletteFor, paletteVars } from '../themes'
+import { photoSrc } from '../types'
 import type { PhotoValue } from '../types'
 import { EditableText } from './_tekst'
 
@@ -199,9 +200,9 @@ export function PhotoFigure({ photo, variant = 'zwykle', caption, style, alt = '
           outline: variant === 'ramka' ? '10px solid var(--s-frame)' : undefined,
         }}
       >
-        {photo.src ? (
+        {photoSrc(photo) ? (
           <img
-            src={photo.src}
+            src={photoSrc(photo) ?? undefined}
             alt={alt}
             style={{
               position: 'absolute',

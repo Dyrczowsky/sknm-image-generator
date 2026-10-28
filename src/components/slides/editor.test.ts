@@ -256,3 +256,17 @@ describe('Inspector', () => {
     expect(inspect('tytul')).toContain('Ten układ edytujesz bezpośrednio na slajdzie.')
   })
 })
+
+describe('format podglądu a historia', () => {
+  it('cofnięcie treści nie przełącza formatu z powrotem', () => {
+    let state = initEditor(deckOf('cytat'))
+    state = setTextAt(state, 0, 'author', 'Ktoś', 1)
+    state = setViewAspectIn(state, '1:1')
+    state = undoIn(state)
+    expect(state.history.present.viewAspect).toBe('1:1')
+    expect(state.history.present.slides[0].data.author).not.toBe('Ktoś')
+    state = redoIn(state)
+    expect(state.history.present.viewAspect).toBe('1:1')
+    expect(state.history.present.slides[0].data.author).toBe('Ktoś')
+  })
+})

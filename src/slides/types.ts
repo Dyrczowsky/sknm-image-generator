@@ -1,3 +1,5 @@
+import { isAssetRef } from '../assets/hash'
+
 // Typy prezentacji. Jedna prezentacja (Deck) ma tę samą treść w obu
 // formatach - 16:9 i 1:1 - a każdy układ slajdu sam przestawia się na kwadrat.
 
@@ -47,6 +49,13 @@ export interface PhotoValue {
 }
 
 export const EMPTY_PHOTO: PhotoValue = { src: null, x: 50, y: 50, zoom: 1 }
+
+// Adres do narysowania zdjęcia. `src` będący nazwą grafiki (`<sha256>.<ext>`)
+// to grafika, której nie udało się wczytać z tego urządzenia - zostaje w
+// danych (zapis jej nie gubi), a slajd rysuje puste miejsce na zdjęcie.
+export function photoSrc(photo: PhotoValue): string | null {
+  return photo.src && !isAssetRef(photo.src) ? photo.src : null
+}
 
 // Pozycja listy (karty, wpisy, tagi, wiersze agendy): same pola tekstowe.
 export type SlideItem = Record<string, string>

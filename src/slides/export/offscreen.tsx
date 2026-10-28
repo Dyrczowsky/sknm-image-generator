@@ -13,8 +13,18 @@ export interface OffscreenSlides {
 }
 
 // Czeka, aż przeglądarka narysuje zmiany (dwie klatki) - AutoFit mierzy w efektach.
+// W karcie w tle requestAnimationFrame stoi, więc limit czasu nie pozwala
+// eksportowi zawisnąć (układ i tak jest policzony synchronicznie).
 function nextPaint(): Promise<void> {
-  return new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())))
+  return new Promise((resolve) => {
+    const timeout = setTimeout(resolve, 200)
+    requestAnimationFrame(() =>
+      requestAnimationFrame(() => {
+        clearTimeout(timeout)
+        resolve()
+      }),
+    )
+  })
 }
 
 async function imagesLoaded(root: HTMLElement): Promise<void> {
@@ -50,10 +60,22 @@ export async function renderOffscreen(deck: Deck, aspect: SlideAspect): Promise<
       </>,
     )
 
-  flushSync(draw)
-  await document.fonts.ready
-  await imagesLoaded(host)
-  await nextPaint()
+  const dispose = () => {
+    root.unmount()
+    host.remove()
+  }
+
+  // Wywołujący sprząta dopiero po zwróceniu wyniku - błąd przygotowania
+  // zostawiłby w dokumencie ukryty węzeł z całą prezentacją.
+  try {
+    flushSync(draw)
+    await document.fonts.ready
+    await imagesLoaded(host)
+    await nextPaint()
+  } catch (error) {
+    dispose()
+    throw error
+  }
 
   const nodes = Array.from(host.querySelectorAll<HTMLElement>('[data-slide-index]')).map((wrapper) => wrapper.firstElementChild as HTMLElement)
 
@@ -68,9 +90,6 @@ export async function renderOffscreen(deck: Deck, aspect: SlideAspect): Promise<
       })
       await nextPaint()
     },
-    dispose: () => {
-      root.unmount()
-      host.remove()
-    },
+    dispose,
   }
 }

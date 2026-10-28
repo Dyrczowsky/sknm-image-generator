@@ -74,7 +74,9 @@ export async function fromStored(raw: unknown, resolve: Resolver = defaultResolv
     ok: true,
     deck: mapPhotos(parsed.deck, (src) => {
       if (!isAssetRef(src)) return src
-      return missing.has(src) ? null : (srcOf(src) ?? null)
+      // Nieudane wczytanie zostawia nazwę grafiki: kolejny autozapis musi ją
+      // zachować (PhotoFigure rysuje wtedy „brak zdjęcia"), a nie nadpisać `null`.
+      return missing.has(src) ? src : (srcOf(src) ?? src)
     }),
   }
 }
@@ -85,6 +87,15 @@ export function createDeckStore(kv: Pick<KeyValueStore, 'get' | 'set' | 'del'>, 
     return Array.isArray(raw) ? (raw as DeckIndexEntry[]) : []
   }
   const sorted = (entries: DeckIndexEntry[]) => [...entries].sort((a, b) => b.updatedAt - a.updatedAt)
+  // Zapis i usuwanie czytają indeks, zmieniają go i zapisują - równoległe
+  // wywołania (opóźniony zapis + „Nowa prezentacja") gubiłyby wpisy. Kolejka
+  // wykonuje je po jednym; błąd jednego nie blokuje następnych.
+  let queue: Promise<unknown> = Promise.resolve()
+  const serial = <T>(task: () => Promise<T>): Promise<T> => {
+    const run = queue.then(task)
+    queue = run.catch(() => {})
+    return run
+  }
   return {
     list: async () => sorted(await readIndex()),
     async load(id) {
@@ -92,7 +103,7 @@ export function createDeckStore(kv: Pick<KeyValueStore, 'get' | 'set' | 'del'>, 
       if (raw === undefined || raw === null) return { ok: false, reason: 'missing' }
       return fromStored(raw, resolve)
     },
-    async save(deck) {
+    save: (deck) => serial(async () => {
       // Najpierw treść, potem indeks: przerwany zapis nie zostawi wpisu bez prezentacji.
       await kv.set(deckKey(deck.id), toStored(deck))
       const entry: DeckIndexEntry = {
@@ -104,12 +115,12 @@ export function createDeckStore(kv: Pick<KeyValueStore, 'get' | 'set' | 'del'>, 
       }
       const index = await readIndex()
       await kv.set(DECK_INDEX_KEY, sorted([...index.filter((e) => e.id !== deck.id), entry]))
-    },
-    async remove(id) {
+    }),
+    remove: (id) => serial(async () => {
       await kv.del(deckKey(id))
       const index = await readIndex()
       await kv.set(DECK_INDEX_KEY, index.filter((e) => e.id !== id))
-    },
+    }),
   }
 }
 

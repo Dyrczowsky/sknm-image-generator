@@ -195,6 +195,13 @@ export type ParsedDeck = { ok: true; deck: Deck } | { ok: false; reason: 'invali
 export function parseDeck(raw: unknown): ParsedDeck {
   if (!isObject(raw) || typeof raw.id !== 'string') return { ok: false, reason: 'invalid' }
   if (isNumber(raw.v) && raw.v > DECK_VERSION) return { ok: false, reason: 'newer' }
+  // Slajd nieznanego układu (z nowszej wersji aplikacji): odmawiamy otwarcia,
+  // jak przy snapshotach plakatów. Pominięcie go skasowałoby slajd przy
+  // pierwszym autozapisie.
+  const unknownLayout = (Array.isArray(raw.slides) ? raw.slides : []).some(
+    (slide) => isObject(slide) && typeof slide.layout === 'string' && !layoutOf(slide.layout),
+  )
+  if (unknownLayout) return { ok: false, reason: 'newer' }
   const slides = (Array.isArray(raw.slides) ? raw.slides : []).map(repairSlide).filter((s): s is Slide => s !== undefined)
   const aspect: SlideAspect = raw.viewAspect === '1:1' ? '1:1' : '16:9'
   const deck: Deck = {

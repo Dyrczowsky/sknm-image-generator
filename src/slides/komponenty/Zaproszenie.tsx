@@ -1,5 +1,5 @@
 import { defineSlide, useSlideAspect, useSlideEdit, useSlideRender } from '../defineSlide'
-import { EMPTY_PHOTO } from '../types'
+import { EMPTY_PHOTO, photoSrc } from '../types'
 import { colors } from '../../posters/theme'
 import { AutoFit, Chip, EditableText, Kicker, SlideFrame, Step, fit, fontMono } from './_wspolne'
 
@@ -92,9 +92,9 @@ function Zaproszenie({ data }: { data: typeof defaults }) {
 
   const posterBox = (
     <div style={{ order: mirrored ? 0 : 2, width: box, height: box, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      {poster.src ? (
+      {photoSrc(poster) ? (
         <img
-          src={poster.src}
+          src={photoSrc(poster) ?? undefined}
           alt="Plakat"
           style={{ display: 'block', maxWidth: '100%', maxHeight: '100%', outline: '5px solid var(--s-frame)', boxShadow: '0 24px 60px rgba(0,0,0,.35)' }}
         />

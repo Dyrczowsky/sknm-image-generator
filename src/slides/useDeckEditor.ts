@@ -110,8 +110,12 @@ export function setViewAspectIn(state: EditorState, viewAspect: SlideAspect): Ed
 }
 
 // Po cofnięciu zaznaczenie zostaje przy tym samym slajdzie, jeśli nadal istnieje.
-function travel(state: EditorState, history: History<Deck>): EditorState {
-  if (history === state.history) return state
+function travel(state: EditorState, next: History<Deck>): EditorState {
+  if (next === state.history) return state
+  // Format podglądu nie jest krokiem historii - cofnięcie treści nie może go
+  // przełączyć z powrotem (wpisy w past/future mają stary format).
+  const viewAspect = state.history.present.viewAspect
+  const history = next.present.viewAspect === viewAspect ? next : replacePresent(next, { ...next.present, viewAspect })
   const selectedId = state.history.present.slides[state.selected]?.id
   const found = history.present.slides.findIndex((slide) => slide.id === selectedId)
   return { history, selected: clampIndex(found === -1 ? state.selected : found, history.present.slides.length) }
