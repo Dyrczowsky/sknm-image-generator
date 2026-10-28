@@ -25,7 +25,23 @@ const CORNER = 4
 // Ile czasu przeglądarka ma na rozpoczęcie pobierania, zanim zwolnimy blob.
 const BLOB_URL_TTL_MS = 10_000
 
-export function context2d(canvas: HTMLCanvasElement): CanvasRenderingContext2D {
+// Silnik WebKit: Safari na Macu i każda przeglądarka na iPhonie/iPadzie
+// (Chrome na iOS ma w UA "CriOS", nie "Chrome/"). Chromium też podaje
+// "AppleWebKit", ale zawsze razem z "Chrome/".
+export function isWebKit(userAgent: string): boolean {
+  return /AppleWebKit/.test(userAgent) && !/Chrome\//.test(userAgent)
+}
+
+// WebKit przy pierwszym renderze html-to-image pomija obrazy tła (zdjęcia
+// w plakacie) - obrazek z SVG jest gotowy, zanim dociągnie się jego tło.
+// Drugi render z tymi samymi opcjami już je ma, więc w WebKit pierwszy
+// wynik wyrzucamy. Mniejszy render na rozgrzewkę nie wystarcza.
+async function rendered<T>(render: () => Promise<T>): Promise<T> {
+  if (typeof navigator !== 'undefined' && isWebKit(navigator.userAgent)) await render()
+  return render()
+}
+
+function context2d(canvas: HTMLCanvasElement): CanvasRenderingContext2D {
   const ctx = canvas.getContext('2d')
   if (!ctx) throw new Error('brak kontekstu 2d')
   return ctx
@@ -94,14 +110,16 @@ export function canvasSizeFor(format: Size, poster: Size): Size {
 // niższe dpi.
 async function rasterise(node: HTMLElement, shape: PosterShape, target: Size): Promise<HTMLCanvasElement> {
   const layout = SHAPE_SIZE[shape]
-  const canvas = await toCanvas(node, {
-    width: layout.width,
-    height: layout.height,
-    canvasWidth: target.width,
-    canvasHeight: target.height,
-    pixelRatio: 1,
-    skipAutoScale: true,
-  })
+  const canvas = await rendered(() =>
+    toCanvas(node, {
+      width: layout.width,
+      height: layout.height,
+      canvasWidth: target.width,
+      canvasHeight: target.height,
+      pixelRatio: 1,
+      skipAutoScale: true,
+    }),
+  )
   if (canvas.width !== target.width || canvas.height !== target.height) throw new Error('canvas ma inny rozmiar niż żądany')
   if (context2d(canvas).getImageData(CORNER, CORNER, 1, 1).data[3] === 0) throw new Error('pusty canvas')
   return canvas
@@ -139,7 +157,7 @@ async function downloadBanner(node: HTMLElement, basename: string, shape: Poster
 // kwadrat może urosnąć w dół (PosterFrame `grow`).
 async function downloadSocial(node: HTMLElement, basename: string, size: Size) {
   const layout = { width: SHAPE_SIZE.square.width, height: Math.max(SHAPE_SIZE.square.height, node.offsetHeight) }
-  const posterDataUrl = await toPng(node, { ...layout, pixelRatio: 1 })
+  const posterDataUrl = await rendered(() => toPng(node, { ...layout, pixelRatio: 1 }))
   saveAs(await compositeOnCanvas(posterDataUrl, size), `${basename}.png`)
 }
 
