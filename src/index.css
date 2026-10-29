@@ -152,31 +152,44 @@
   }
 }
 
-/* Prezentacje: edycja tekstu na slajdzie (EditableText). Jedyne globalne reguły slajdów - reszta to style inline. */
-/* Rozmiary w pikselach slajdu - płótno edytora jest pomniejszone ok. dwukrotnie,
-   więc obwódki są grubsze, niż wyglądają na ekranie. Box-shadow zamiast outline:
-   nie zmienia układu i nie koliduje z globalnym :focus-visible. */
-[data-slide-edit] {
+/* Edycja tekstu na slajdzie (EditableText) i na podglądzie plakatu (PosterText).
+   Jedyne globalne reguły slajdów - reszta to style inline. */
+/* Rozmiary w pikselach slajdu/plakatu - płótno edytora jest pomniejszone ok.
+   dwukrotnie (podgląd plakatu dwu-trzykrotnie), więc obwódki są grubsze, niż
+   wyglądają na ekranie. Box-shadow zamiast outline: nie zmienia układu i nie
+   koliduje z globalnym :focus-visible. */
+[data-slide-edit],
+[data-poster-edit] {
   outline: none;
   cursor: text;
   border-radius: 4px;
   transition: box-shadow 0.15s;
 }
 
-[data-slide-edit]:hover {
+[data-slide-edit]:hover,
+[data-poster-edit]:hover {
   box-shadow: 0 0 0 5px color-mix(in srgb, var(--accent) 45%, transparent);
 }
 
 [data-slide-edit]:focus,
-[data-slide-edit]:focus-visible {
+[data-slide-edit]:focus-visible,
+[data-poster-edit]:focus,
+[data-poster-edit]:focus-visible {
   outline: none;
   box-shadow: 0 0 0 6px var(--accent);
 }
 
 /* Podpowiedź w pustym polu. `data-empty` przełącza też sam EditableText przy
    pisaniu, zanim dojdzie render. */
-[data-slide-edit][data-empty]::before {
+[data-slide-edit][data-empty]::before,
+[data-poster-edit][data-empty]::before {
   content: attr(data-placeholder);
   opacity: 0.4;
   pointer-events: none;
+}
+
+/* Plakat: puste pole pokazuje wartość przykładową tak jak poza edycją
+   (pełny kolor, styl tekstu pola) - znika dopiero po wpisaniu. */
+[data-poster-edit][data-empty]::before {
+  opacity: 1;
 }
