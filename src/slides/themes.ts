@@ -123,6 +123,7 @@ export function paletteVars(palette: SlidePalette): CSSProperties {
     '--s-fg': palette.fg,
     '--s-muted': palette.muted,
     '--s-accent': palette.accent,
+    '--rich-accent': 'var(--s-accent)', // akcent runów RichText na slajdzie
     '--s-on-accent': palette.onAccent,
     '--s-soft': palette.soft,
     '--s-soft-fg': palette.softFg,
