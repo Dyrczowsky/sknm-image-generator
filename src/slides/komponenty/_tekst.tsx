@@ -1,6 +1,8 @@
 import { createElement, useCallback, useEffect, useLayoutEffect, useRef } from 'react'
 import type { ClipboardEvent, CSSProperties, KeyboardEvent, ReactNode, Ref } from 'react'
 import { useSlideEdit } from '../defineSlide'
+import { placeCaretAtEnd } from '../../richText/dom'
+import type { EditableTag } from '../../richText/RichEditable'
 
 // Tekst slajdu (EditableText) i dopasowanie fontu do pudełka (AutoFit).
 // Sygnatury eksportów to kontrakt dla komponentów slajdów - wolno tylko
@@ -11,7 +13,7 @@ export function fit(px: number): string {
   return `calc(${px}px * var(--fit, 1))`
 }
 
-export type EditableTag = 'div' | 'span' | 'p' | 'h1' | 'h2' | 'h3' | 'b' | 'i' | 'figcaption'
+export type { EditableTag }
 
 export interface EditableTextProps {
   // Ścieżka w `data` slajdu, np. `heading` albo `cards.2.title`.
@@ -49,16 +51,6 @@ export function normalizeEditedText(raw: string, multiline: boolean): string {
   const text = raw.replace(/ /g, ' ').replace(/\r\n?/g, '\n').replace(/\n+$/, '')
   // Pole jednowierszowe: wklejone wiersze sklejamy spacją, a nie „na styk".
   return multiline ? text : text.replace(/\n+/g, ' ')
-}
-
-function placeCaretAtEnd(el: HTMLElement) {
-  const selection = window.getSelection()
-  if (!selection) return
-  const range = document.createRange()
-  range.selectNodeContents(el)
-  range.collapse(false)
-  selection.removeAllRanges()
-  selection.addRange(range)
 }
 
 // Tekst slajdu, który w edytorze można kliknąć i zmienić.
