@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { MARK, parseRich } from './format'
+import { MARK, parseRich, toPlain } from './format'
 import {
   alignIn, applyPlainEdit, clearMarks, insertPlain, marksIn, setAlign, splitLine, toggleMark,
 } from './ops'
@@ -51,6 +51,45 @@ describe('operacje na zakresie', () => {
     expect(caret).toBe(3)
   })
   it('insertPlain: wklejone wiersze w polu jednowierszowym sklejone spacją, bez znaków sterujących', () => {
-    expect(insertPlain('ab', 1, 1, 'x\n\ny', false)).toEqual({ value: 'ax yb', caret: 4 })
+    expect(insertPlain('ab', 1, 1, 'x\n\ny\ue105', false)).toEqual({ value: 'ax yb', caret: 4 })
+  })
+  it('applyPlainEdit: z pustego i do pustego', () => {
+    expect(applyPlainEdit('', 'a')).toBe('a')
+    expect(applyPlainEdit('a', '')).toBe('')
+  })
+  it('insertPlain na początku wiersza dziedziczy marks znaku po', () => {
+    const v = toggleMark('ab', 0, 1, B)
+    expect(parseRich(insertPlain(v, 0, 0, 'x', false).value)[0].runs).toEqual([
+      { text: 'xa', marks: B }, { text: 'b', marks: 0 }])
+  })
+  it('insertPlain w pustym wierszu nie dziedziczy marks z sąsiednich wierszy', () => {
+    const v = toggleMark('a\n\nb', 0, 1, B)
+    const doc = parseRich(insertPlain(v, 2, 2, 'x', false).value)
+    expect(doc[1].runs).toEqual([{ text: 'x', marks: 0 }])
+  })
+  it('setAlign i alignIn na pustym tekście', () => {
+    expect(parseRich(setAlign('', 0, 0, 'center'))).toEqual([{ align: 'center', runs: [] }])
+    expect(alignIn('', 0, 0)).toBe('left')
+  })
+  it('zakres kończący się tuż po \\n dotyka tylko pierwszego wiersza', () => {
+    const v = setAlign('a\nb', 2, 3, 'right')
+    expect(alignIn(v, 0, 2)).toBe('left')
+    expect(parseRich(setAlign('a\nb', 0, 2, 'center')).map((l) => l.align)).toEqual(['center', 'left'])
+  })
+  it('applyPlainEdit: usunięcie \\n łączy wiersze z wyrównaniem wcześniejszego', () => {
+    const v = setAlign('a\nb', 2, 3, 'right')
+    expect(parseRich(applyPlainEdit(v, 'ab')).map((l) => l.align)).toEqual(['left'])
+    const w = setAlign('a\nb', 0, 1, 'center')
+    expect(parseRich(applyPlainEdit(w, 'ab')).map((l) => l.align)).toEqual(['center'])
+  })
+  it('insertPlain zastępujący zaznaczenie wielowierszowe', () => {
+    const v = setAlign('ab\ncd\nef', 3, 4, 'right')
+    const r = insertPlain(v, 1, 7, 'X', true)
+    expect(toPlain(r.value)).toBe('aXf')
+    expect(r.caret).toBe(2)
+    expect(parseRich(r.value).map((l) => l.align)).toEqual(['left'])
+  })
+  it('insertPlain w trybie wielowierszowym normalizuje \\r\\n i \\r do \\n', () => {
+    expect(insertPlain('', 0, 0, 'a\r\nb\rc', true)).toEqual({ value: 'a\nb\nc', caret: 5 })
   })
 })

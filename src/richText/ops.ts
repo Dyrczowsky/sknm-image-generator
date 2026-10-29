@@ -26,6 +26,7 @@ function collapse({ cells, aligns }: Flat): string {
   return serializeRich(doc)
 }
 
+// Odwrócony zakres (end < start) zwija się do kursora w start.
 function clamp(flat: Flat, start: number, end: number): [number, number] {
   const s = Math.max(0, Math.min(start, flat.cells.length))
   const e = Math.max(s, Math.min(end, flat.cells.length))
@@ -106,7 +107,7 @@ function replaceRange(flat: Flat, s: number, e: number, text: string): number {
 
 function cleanText(text: string, multiline: boolean): string {
   const t = stripControl(text)
-  return multiline ? t : t.replace(/\s*[\r\n]+\s*/g, ' ')
+  return multiline ? t.replace(/\r\n?/g, '\n') : t.replace(/\s*[\r\n]+\s*/g, ' ')
 }
 
 export function insertPlain(
@@ -122,6 +123,7 @@ export function splitLine(value: string, start: number, end: number): { value: s
   return insertPlain(value, start, end, '\n', true)
 }
 
+// Wstawienie '\n' bywa niejednoznaczne w diffie (np. 'aa' -> 'a\na'); edytor contentEditable używa splitLine.
 export function applyPlainEdit(value: string, nextPlain: string): string {
   const flat = expand(value)
   const old = flat.cells.map((c) => c.ch).join('')

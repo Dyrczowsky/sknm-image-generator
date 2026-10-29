@@ -84,7 +84,7 @@ export function serializeRich(doc: RichDoc): string {
     let out = line.align === 'center' ? CENTER : line.align === 'right' ? RIGHT : ''
     let cur = 0
     for (const r of merged) {
-      if (r.marks !== cur) { out += String.fromCharCode(MARK_BASE + (r.marks & MARK_MAX)); cur = r.marks }
+      if (r.marks !== cur) { out += String.fromCharCode(MARK_BASE + (r.marks & MARK_MAX)); cur = r.marks & MARK_MAX }
       out += r.text
     }
     return out
