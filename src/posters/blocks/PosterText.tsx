@@ -1,7 +1,8 @@
 import { createElement } from 'react'
 import type { CSSProperties, KeyboardEvent, ReactElement } from 'react'
-import { RichEditable, RichText } from '../../richText'
+import { RichEditable, RichText, toPlain } from '../../richText'
 import type { EditableTag } from '../../richText'
+import type { ListItem } from '../../types'
 import { usePosterEdit } from '../edit'
 
 export interface PosterTextProps {
@@ -19,6 +20,8 @@ export interface PosterTextProps {
   transform?: 'uppercase'
   // Dostępna nazwa edytora, np. „Tytuł".
   label: string
+  // Pozycja listy (`lists.…`): lista, którą szablon rysuje, gdy w formularzu jej brak.
+  listSeed?: ListItem[]
 }
 
 // Tekst plakatu, który na podglądzie w edytorze można kliknąć i zmienić.
@@ -33,8 +36,11 @@ function textStyle({ style, transform }: PosterTextProps): CSSProperties | undef
 }
 
 function StaticText(props: PosterTextProps): ReactElement {
-  const { value, fallback, as = 'div', inline } = props
-  return createElement(as, { style: textStyle(props) }, <RichText value={value || fallback || ''} inline={inline} />)
+  const { value, fallback, as = 'div', multiline, inline } = props
+  // Pusty jak w edycji: bez widocznego tekstu (same znaczniki formatu też).
+  const shown = toPlain(value ?? '') === '' ? fallback ?? '' : value ?? ''
+  // Wyrównania tylko tam, gdzie pole w edycji je obsługuje (`alignable`).
+  return createElement(as, { style: textStyle(props) }, <RichText value={shown} inline={inline || !multiline} />)
 }
 
 // Cofanie na plakacie nie działa w polu tekstowym (historia formularza jest
@@ -50,11 +56,11 @@ function blockUndo(event: KeyboardEvent<HTMLElement>) {
 
 function EditableField(props: PosterTextProps): ReactElement {
   const { onText } = usePosterEdit()
-  const { path, value, fallback, as, multiline = false, inline = false, label } = props
+  const { path, value, fallback, as, multiline = false, inline = false, label, listSeed } = props
   return (
     <RichEditable
       value={value ?? ''}
-      onChange={(v) => onText(path, v)}
+      onChange={(v) => onText(path, v, listSeed)}
       as={as}
       style={textStyle(props)}
       multiline={multiline}

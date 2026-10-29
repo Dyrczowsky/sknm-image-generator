@@ -5,6 +5,12 @@ import { RichEditable } from './RichEditable'
 const base = { onChange: () => {}, ariaLabel: 'Nagłówek', marker: 'data-slide-edit' }
 
 describe('RichEditable', () => {
+  it('white-space z propsu style wygrywa z domyślnym pre-line', () => {
+    const tag = openingTag(render(h(RichEditable, { ...base, value: 'a', style: { whiteSpace: 'pre-wrap' } })), '<div')
+    expect(tag).toContain('white-space:pre-wrap')
+    expect(tag).not.toContain('pre-line')
+  })
+
   it('pole contentEditable="true" z rolą, nazwą i znacznikiem', () => {
     const tag = openingTag(render(h(RichEditable, { ...base, value: 'Ala', multiline: true, placeholder: 'Tytuł' })), '<div')
     // SSR pisze nazwy atrybutów jak w JSX; HTML i tak ignoruje wielkość liter.

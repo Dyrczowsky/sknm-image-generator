@@ -52,7 +52,7 @@ export function PreviewPane({ posterRef, Component, data, scheme, accent, lang, 
   // plakat jest statyczny, żeby do pliku nie trafiły znaczniki edycji.
   const edit: PosterEdit = {
     editable: !exporter.exporting && !inert,
-    onText: (path, value) => onChange(setFormPath(path, value)),
+    onText: (path, value, seed) => onChange(setFormPath(path, value, seed)),
   }
 
   return (

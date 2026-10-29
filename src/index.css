@@ -166,17 +166,26 @@
   transition: box-shadow 0.15s;
 }
 
-[data-slide-edit]:hover,
-[data-poster-edit]:hover {
+[data-slide-edit]:hover {
   box-shadow: 0 0 0 5px color-mix(in srgb, var(--accent) 45%, transparent);
 }
 
 [data-slide-edit]:focus,
-[data-slide-edit]:focus-visible,
+[data-slide-edit]:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 6px var(--accent);
+}
+
+/* Plakat nadpisuje `--accent` kolorem schematu (schemes.ts), więc obwódka
+   bierze kolor fokusu aplikacji - `--focus` nie jest rolą schematu. */
+[data-poster-edit]:hover {
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--focus) 45%, transparent);
+}
+
 [data-poster-edit]:focus,
 [data-poster-edit]:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 6px var(--accent);
+  box-shadow: 0 0 0 6px var(--focus);
 }
 
 /* Podpowiedź w pustym polu. `data-empty` przełącza też sam EditableText przy

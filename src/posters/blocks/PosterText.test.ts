@@ -40,6 +40,29 @@ describe('PosterText', () => {
     expect(openingTag(editable({ path: 'title', value: 'a', label: 'Tytuł' }), '<div')).not.toContain('data-alignable')
   })
 
+  it('bez providera tekst bez treści (same znaczniki formatu) rysuje wartość zastępczą', () => {
+    expect(render(h(PosterText, { path: 'title', value: '\uE000\uE101', fallback: 'X', label: 'Tytuł' }))).toBe('<div>X</div>')
+  })
+
+  it('bez providera wyrównania tylko w polu wielowierszowym (jak w edycji)', () => {
+    const value = '\uE000\uE001Ala'
+    expect(render(h(PosterText, { path: 'title', value, label: 'Tytuł' }))).toBe('<div>Ala</div>')
+    expect(render(h(PosterText, { path: 'body', value, multiline: true, label: 'Treść' }))).toBe('<div><div style="text-align:center">Ala</div></div>')
+  })
+
+  it('white-space ze stylu szablonu taki sam w edycji i poza nią', () => {
+    const props = { path: 'subtitle', value: 'a  b', style: { whiteSpace: 'pre' }, label: 'Podtytuł' }
+    expect(render(h(PosterText, props))).toBe('<div style="white-space:pre">a  b</div>')
+    const tag = openingTag(editable(props), '<div')
+    expect(tag).toContain('style="white-space:pre"')
+  })
+
+  it('w edytorze przekazuje listSeed do onText', () => {
+    // SSR nie wywoła onChange - sprawdzamy, że prop przechodzi bez błędu i nie trafia do DOM.
+    const tag = openingTag(editable({ path: 'lists.agenda.0.title', value: '', listSeed: [{ title: 'a' }], label: 'Punkt' }), '<div')
+    expect(tag).not.toContain('listSeed')
+  })
+
   it('transform: uppercase przez CSS, tekst w oryginalnej wielkości', () => {
     const html = render(h(PosterText, { path: 'badge', value: 'Nowość', transform: 'uppercase', style: { color: 'red' }, label: 'Plakietka' }))
     expect(html).toBe('<div style="color:red;text-transform:uppercase">Nowość</div>')
@@ -63,5 +86,24 @@ describe('setFormPath', () => {
   it('nieznana ścieżka nie zmienia formularza', () => {
     expect(setFormPath('nieznane', 'x')(EMPTY_FORM)).toBe(EMPTY_FORM)
     expect(setFormPath('lists.agenda.x.title', 'x')(EMPTY_FORM)).toBe(EMPTY_FORM)
+  })
+
+  it('pozycja spoza listy bez zarodka nie zmienia formularza', () => {
+    expect(setFormPath('lists.agenda.5.title', 'x')(EMPTY_FORM)).toBe(EMPTY_FORM)
+    expect(setFormPath('lists.agenda.0.title', 'x')(EMPTY_FORM)).toBe(EMPTY_FORM)
+  })
+
+  it('pusta lista: zarodek (rysowana lista domyślna) trafia do formularza ze zmianą', () => {
+    const seed = [{ title: 'a' }, { title: 'b' }, { title: 'c' }]
+    const next = setFormPath('lists.agenda.1.title', 'x', seed)(EMPTY_FORM)
+    expect(next.lists.agenda).toEqual([{ title: 'a' }, { title: 'x' }, { title: 'c' }])
+    expect(seed[1].title).toBe('b')
+    expect(setFormPath('lists.agenda.5.title', 'x', seed)(EMPTY_FORM)).toBe(EMPTY_FORM)
+  })
+
+  it('istniejąca lista ignoruje zarodek', () => {
+    const form = { ...EMPTY_FORM, lists: { agenda: [{ title: 'a' }] } }
+    const next = setFormPath('lists.agenda.0.title', 'x', [{ title: 'p' }, { title: 'q' }])(form)
+    expect(next.lists.agenda).toEqual([{ title: 'x' }])
   })
 })
