@@ -1,13 +1,14 @@
 import { createElement } from 'react'
 import type { ReactElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
-import { describe, expect, it } from 'vitest'
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import { posterRegistry } from '../registry'
 import { BANNER_PAD, BANNER_SAFE_W, SHAPE_SIZE } from '../shape'
 import { PosterScaled } from '../../components/PosterScaled'
 import { CLUB_NAME } from '../copy'
 import { schemesFor } from '../schemes'
 import { DEFAULT_TEMPLATES } from '../../db/schema'
+import type { RawPosterData } from '../../types'
 
 const h = createElement as unknown as (type: unknown, props: object | null, ...children: unknown[]) => ReactElement
 
@@ -57,4 +58,45 @@ describe('banery', () => {
     const keys = DEFAULT_TEMPLATES.map((t) => t.poster_key)
     for (const key of Object.keys(posterRegistry)) expect(keys).toContain(key)
   })
+})
+
+// Wszystkie pola tekstowe wypełnione (z <&) - baner ma je ignorować.
+const FULL: RawPosterData = {
+  title: 'Tytuł <b> & co',
+  subtitle: 'Podtytuł <i> & co',
+  speaker: 'Prelegent & <x>',
+  location: 'Sala <1> & 2',
+  badge: 'Plakietka & <p>',
+  badge2: 'Druga & <p>',
+  body: 'Treść & <t>\nDruga linia',
+  event_date: '2026-11-12',
+  event_time: '18:30',
+  lists: { agenda: [{ time: '09:00', title: 'Punkt <a> & b', subtitle: 'Opis & <c>' }] },
+}
+
+describe('banery: HTML sprzed formatowania', () => {
+  // Data/godzina przykładowa to „dziś" - zegar stoi w miejscu.
+  beforeAll(() => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date(2026, 9, 29, 12, 0))
+  })
+  afterAll(() => {
+    vi.useRealTimers()
+  })
+
+  for (const [key, entry] of Object.entries(posterRegistry)) {
+    const render = (data: RawPosterData) => renderToStaticMarkup(h(entry.Banner, { data }))
+
+    it(`${key}: puste dane`, () => {
+      expect(render({})).toMatchSnapshot()
+    })
+
+    it(`${key}: tytuł z <&`, () => {
+      expect(render({ title: 'A <b> & C' })).toMatchSnapshot()
+    })
+
+    it(`${key}: wszystkie pola`, () => {
+      expect(render(FULL)).toMatchSnapshot()
+    })
+  }
 })
