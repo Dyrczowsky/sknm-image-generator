@@ -1,3 +1,4 @@
+import { toPlain } from '../richText'
 import { EMPTY_FORM, textFieldsOf } from '../editor/formState'
 import { DEFAULT_EXPORT_SETTINGS, normalizeExportSettings } from '../posters/formats'
 import type { ExportSettings } from '../posters/formats'
@@ -253,7 +254,8 @@ export function assetRefsOf(snapshot: EditorSnapshot): string[] {
   return [...refs]
 }
 
-const hasText = (value: string): boolean => value.trim().length > 0
+// Znaki sterujące formatu się nie liczą: pole tylko z wyrównaniem jest puste.
+const hasText = (value: string): boolean => toPlain(value).trim().length > 0
 
 // Czy użytkownik nie wpisał nic, czego szkoda byłoby stracić: żadnego tekstu,
 // obrazu, wpisu listy ani kodu QR. Szablon, kolory, język, widoczność pól,

@@ -442,6 +442,13 @@ describe('assetRefsOf', () => {
   })
 })
 
+describe('isBlank i formatowanie', () => {
+  it('pole tylko z wyrównaniem (bez tekstu) jest puste', () => {
+    const snapshot = { ...DEFAULT_SNAPSHOT, form: { ...EMPTY_SNAPSHOT_FORM, title: '\uE000\uE001' } }
+    expect(isBlank(snapshot)).toBe(true)
+  })
+})
+
 describe('isBlank', () => {
   const withForm = (form: Partial<SnapshotForm>): EditorSnapshot => ({ ...DEFAULT_SNAPSHOT, form: { ...EMPTY_SNAPSHOT_FORM, ...form } })
 
