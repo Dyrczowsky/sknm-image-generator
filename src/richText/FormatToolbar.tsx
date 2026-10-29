@@ -7,11 +7,11 @@ import { rovingTarget } from '../components/ui/keys'
 import { isMacPlatform } from '../shortcuts/shortcuts'
 import { MARK } from './format'
 import type { Align } from './format'
+import { placeToolbar } from './placeToolbar'
+import type { Box } from './placeToolbar'
 import { richFieldFor } from './fieldRegistry'
 import type { FormatOp, ToolbarState } from './fieldRegistry'
 
-const GAP = 8
-const MARGIN = 8
 const ALIGN_UNAVAILABLE = 'Wyrównanie niedostępne w tym polu'
 
 interface MarkButton { icon: IconName; label: (mod: string) => string; mark: number }
@@ -91,7 +91,7 @@ export function ToolbarButtons({ state, onFormat }: { state: ToolbarState; onFor
   )
 }
 
-interface Shown { anchor: { top: number; bottom: number; center: number }; state: ToolbarState }
+interface Shown { anchor: Box; state: ToolbarState }
 
 // Pływający pasek nad zaznaczeniem w polu z formatowaniem (portal do body).
 // Pokazuje się przy niepustym zaznaczeniu w jednym polu, które (lub pasek)
@@ -117,7 +117,7 @@ export function FormatToolbar(): ReactElement | null {
       const rect = sel.getRangeAt(0).getBoundingClientRect()
       fieldRef.current = field
       setShown({
-        anchor: { top: rect.top, bottom: rect.bottom, center: rect.left + rect.width / 2 },
+        anchor: { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right },
         state: field.handle.state(),
       })
     }
@@ -125,9 +125,14 @@ export function FormatToolbar(): ReactElement | null {
       dismissed.current = false
       refresh()
     }
-    const onFocusOut = () => setTimeout(refresh, 0)
+    let timer: ReturnType<typeof setTimeout> | undefined
+    const onFocusOut = () => {
+      clearTimeout(timer)
+      timer = setTimeout(refresh, 0)
+    }
     const onKey = (event: globalThis.KeyboardEvent) => {
       if (event.key !== 'Escape' || !fieldRef.current) return
+      event.stopPropagation()
       dismissed.current = true
       refresh()
     }
@@ -137,6 +142,7 @@ export function FormatToolbar(): ReactElement | null {
     window.addEventListener('scroll', refresh, true)
     window.addEventListener('resize', refresh)
     return () => {
+      clearTimeout(timer)
       document.removeEventListener('selectionchange', onSelection)
       document.removeEventListener('focusout', onFocusOut)
       document.removeEventListener('keydown', onKey)
@@ -150,13 +156,11 @@ export function FormatToolbar(): ReactElement | null {
     const panel = panelRef.current
     if (!shown || !panel) return
     const { width, height } = panel.getBoundingClientRect()
-    const { anchor } = shown
-    const above = anchor.top - GAP - height
-    const top = above >= MARGIN ? above : anchor.bottom + GAP
-    const maxLeft = Math.max(MARGIN, document.documentElement.clientWidth - MARGIN - width)
-    const left = Math.min(Math.max(anchor.center - width / 2, MARGIN), maxLeft)
-    panel.style.top = `${top}px`
-    panel.style.left = `${left}px`
+    const pos = placeToolbar(shown.anchor, { width, height }, { width: document.documentElement.clientWidth, height: window.innerHeight })
+    panel.style.visibility = pos ? 'visible' : 'hidden'
+    if (!pos) return
+    panel.style.top = `${pos.top}px`
+    panel.style.left = `${pos.left}px`
   }, [shown])
 
   if (!shown) return null
@@ -165,11 +169,19 @@ export function FormatToolbar(): ReactElement | null {
     const field = fieldRef.current
     if (!field) return
     field.handle.applyFormat(op)
-    setShown((prev) => (prev ? { ...prev, state: field.handle.state() } : prev))
+    const sel = document.getSelection()
+    const rect = sel && sel.rangeCount > 0 ? sel.getRangeAt(0).getBoundingClientRect() : null
+    setShown((prev) => {
+      if (!prev) return prev
+      const anchor = rect ? { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right } : prev.anchor
+      return { anchor, state: field.handle.state() }
+    })
   }
 
   return createPortal(
-    <div ref={panelRef} style={{ position: 'fixed', top: 0, left: 0 }} className="z-40 rounded-xl border border-border bg-surface p-1 shadow-pop">
+    <div ref={panelRef} style={{ position: 'fixed', top: 0, left: 0 }} onMouseDown={(event) => event.preventDefault()}
+      className="z-40 rounded-xl border border-border bg-surface p-1 shadow-pop"
+    >
       <ToolbarButtons state={shown.state} onFormat={onFormat} />
     </div>,
     document.body,
