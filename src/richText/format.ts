@@ -8,9 +8,9 @@ export interface RichRun { text: string; marks: number } // text bez '\n'
 export interface RichLine { align: Align; runs: RichRun[] }
 export type RichDoc = RichLine[] // zawsze ≥ 1 wiersz
 
-const RICH = ''
-const CENTER = ''
-const RIGHT = ''
+const RICH = '\ue000'
+const CENTER = '\ue001'
+const RIGHT = '\ue002'
 const MARK_BASE = 0xe100
 const MARK_MAX = 31
 
@@ -84,7 +84,7 @@ export function serializeRich(doc: RichDoc): string {
     let out = line.align === 'center' ? CENTER : line.align === 'right' ? RIGHT : ''
     let cur = 0
     for (const r of merged) {
-      if (r.marks !== cur) { out += String.fromCharCode(MARK_BASE + r.marks); cur = r.marks }
+      if (r.marks !== cur) { out += String.fromCharCode(MARK_BASE + (r.marks & MARK_MAX)); cur = r.marks }
       out += r.text
     }
     return out

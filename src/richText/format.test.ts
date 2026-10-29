@@ -14,7 +14,7 @@ describe('format tekstu z formatowaniem', () => {
       { align: 'left', runs: [{ text: 'kota', marks: MARK.italic }] },
     ]
     expect(parseRich(serializeRich(doc))).toEqual(doc)
-    expect(serializeRich(doc).startsWith('')).toBe(true)
+    expect(serializeRich(doc).startsWith('\ue000')).toBe(true)
     expect(isRich(serializeRich(doc))).toBe(true)
   })
   it('dokument bez formatowania serializuje się do zwykłego stringa', () => {
@@ -26,7 +26,7 @@ describe('format tekstu z formatowaniem', () => {
   })
   it('uszkodzone znaczniki nie gubią tekstu', () => {
     expect(toPlain('abc')).toBe('abc')
-    expect(toPlain('abcd')).toBe('abcd')
+    expect(toPlain('\ue000a\ue0f0b\ue150c\ue105d')).toBe('abcd')
   })
   it('sąsiednie runy o tych samych stylach są łączone', () => {
     const s = serializeRich([{ align: 'left', runs: [{ text: 'a', marks: 1 }, { text: 'b', marks: 1 }] }])
@@ -34,7 +34,7 @@ describe('format tekstu z formatowaniem', () => {
   })
   it('stripControl usuwa znaki sterujące z wklejonego tekstu', () => {
     expect(stripControl('abc')).toBe('abc')
-    expect(stripControl('abcd')).toBe('abcd')
+    expect(stripControl('a\ue000b\ue105c\ue0ffd')).toBe('abcd')
   })
   it('pusty string i puste wiersze dają co najmniej jeden wiersz', () => {
     expect(parseRich('')).toEqual([{ align: 'left', runs: [] }])
@@ -48,6 +48,6 @@ describe('format tekstu z formatowaniem', () => {
   })
   it('styl 0 po pogrubieniu jest zapisywany, a na początku wiersza nie', () => {
     const s = serializeRich([{ align: 'left', runs: [{ text: 'a', marks: 0 }, { text: 'b', marks: 1 }, { text: 'c', marks: 0 }] }])
-    expect(s).toBe('abc')
+    expect(s).toBe('\ue000a\ue101b\ue100c')
   })
 })
