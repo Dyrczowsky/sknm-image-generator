@@ -8,6 +8,7 @@ import { posterRegistry } from './posters/registry'
 import { SCHEME_LABELS } from './posters/schemes'
 import { newHistoryEntry } from './history/remoteHistory'
 import { useHistory } from './history/useHistory'
+import { toPlain } from './richText'
 import { useNotes } from './notes/useNotes'
 import type { ProjectRow } from './projects/remoteProjects'
 import { useProjects } from './projects/useProjects'
@@ -136,7 +137,7 @@ function App() {
             await history.record(newHistoryEntry(snapshot))
           }
         : undefined
-    void exporter.download(node, form.title, record)
+    void exporter.download(node, toPlain(form.title), record)
   }
 
   // Skrót zakładki działa z każdej strony: wraca do edytora i ją otwiera.

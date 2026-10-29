@@ -11,7 +11,7 @@ const C = `${'c'.repeat(64)}.svg`
 const D = `${'d'.repeat(64)}.png`
 
 const snapshot = (form: Partial<SnapshotForm>): EditorSnapshot => ({
-  v: 1, poster_key: 'gosc', color_scheme: null, lang: 'pl', export: DEFAULT_EXPORT_SETTINGS,
+  v: 2, poster_key: 'gosc', color_scheme: null, lang: 'pl', export: DEFAULT_EXPORT_SETTINGS,
   form: { ...EMPTY_FORM, graphics: [], photos: {}, ...form },
 })
 

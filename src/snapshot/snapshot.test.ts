@@ -11,6 +11,7 @@ import {
 } from './snapshot'
 import type { EditorSnapshot, EditorState, SnapshotForm } from './snapshot'
 import { EMPTY_FORM } from '../editor/formState'
+import { MARK, toggleMark } from '../richText'
 import { DEFAULT_EXPORT_SETTINGS } from '../posters/formats'
 import type { ExportSettings } from '../posters/formats'
 import { MAX_GRAPHICS } from '../posters/theme'
@@ -84,7 +85,7 @@ const EMPTY_STATE: EditorState = {
 const EMPTY_SNAPSHOT_FORM: SnapshotForm = { ...EMPTY_FORM, graphics: [], photos: {} }
 
 const DEFAULT_SNAPSHOT: EditorSnapshot = {
-  v: 1,
+  v: 2,
   poster_key: 'wyklad',
   color_scheme: null,
   lang: 'pl',
@@ -217,7 +218,7 @@ describe('fromSnapshot', () => {
 
 describe('parseSnapshot: odmowy', () => {
   it('nowsza wersja → newer (nawet gdy reszta jest nieczytelna)', () => {
-    expect(parseSnapshot({ ...DEFAULT_SNAPSHOT, v: 2 }, LAYOUTS)).toEqual({ ok: false, reason: 'newer' })
+    expect(parseSnapshot({ ...DEFAULT_SNAPSHOT, v: 3 }, LAYOUTS)).toEqual({ ok: false, reason: 'newer' })
     expect(parseSnapshot({ v: 7 }, LAYOUTS)).toEqual({ ok: false, reason: 'newer' })
     expect(parseSnapshot({ v: 3, poster_key: 'nieznany' }, LAYOUTS)).toEqual({ ok: false, reason: 'newer' })
   })
@@ -498,7 +499,7 @@ describe('snapshotFromLegacyHistory', () => {
 
   it('sześć pól tekstowych, szablon i kolory z wpisu, reszta domyślna', () => {
     expect(snapshotFromLegacyHistory(entry, 'en')).toEqual({
-      v: 1,
+      v: 2,
       poster_key: 'warsztat',
       color_scheme: 'granat~zolty',
       lang: 'en',
@@ -553,7 +554,7 @@ describe('snapshotFromLegacyDraft', () => {
 
   it('dziewięć pól tekstowych, widoczność i kolory z wiersza, szablon z argumentu', () => {
     expect(snapshotFromLegacyDraft(row, 'gosc', 'en')).toEqual({
-      v: 1,
+      v: 2,
       poster_key: 'gosc',
       color_scheme: 'czern',
       lang: 'en',
@@ -592,5 +593,27 @@ describe('snapshotFromLegacyDraft', () => {
   it('wynik przechodzi parser bez zmian', () => {
     const snapshot = snapshotFromLegacyDraft(row, 'gosc', 'pl')
     expect(parsed(viaJson(snapshot))).toEqual(snapshot)
+  })
+})
+
+describe('wersje zapisu i formatowanie', () => {
+  it('v 1 jest przyjmowane i podnoszone do v 2', () => {
+    const result = parseSnapshot({ ...DEFAULT_SNAPSHOT, v: 1 }, LAYOUTS)
+    expect(result.ok && result.snapshot.v).toBe(2)
+  })
+
+  it('v 3 → newer, inna wersja → invalid', () => {
+    expect(parseSnapshot({ ...DEFAULT_SNAPSHOT, v: 3 }, LAYOUTS)).toEqual({ ok: false, reason: 'newer' })
+    expect(parseSnapshot({ ...DEFAULT_SNAPSHOT, v: 0 }, LAYOUTS)).toEqual({ ok: false, reason: 'invalid' })
+    expect(parseSnapshot({ ...DEFAULT_SNAPSHOT, v: 1.5 }, LAYOUTS)).toEqual({ ok: false, reason: 'invalid' })
+  })
+
+  it('sformatowane pola tekstowe i listy przechodzą parseSnapshot bez zmian', () => {
+    const title = toggleMark('Ala ma kota', 0, 3, MARK.bold)
+    const item = toggleMark('Punkt', 0, 5, MARK.italic)
+    const snapshot = { ...DEFAULT_SNAPSHOT, form: { ...EMPTY_SNAPSHOT_FORM, title, lists: { agenda: [{ title: item }] } } }
+    const result = parseSnapshot(viaJson(snapshot), LAYOUTS)
+    expect(result.ok && result.snapshot.form.title).toBe(title)
+    expect(result.ok && result.snapshot.form.lists.agenda[0].title).toBe(item)
   })
 })

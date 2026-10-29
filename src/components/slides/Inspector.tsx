@@ -2,6 +2,7 @@ import type { FieldSpec } from '../../slides/defineSlide'
 import { layoutOf } from '../../slides/komponenty'
 import { EMPTY_PHOTO, photoSrc } from '../../slides/types'
 import type { PhotoValue, Slide, SlideAspect, SlideData, SlideItem, SlideThemeKey, SlideValue } from '../../slides/types'
+import { applyPlainEdit, toPlain } from '../../richText'
 import { ImageUpload } from '../ImageUpload'
 import { UI_HEADING, UI_HINT, UI_LABEL } from '../styles'
 import { Button, Field, Icon, IconButton, Input, Popover, Select, Textarea } from '../ui'
@@ -166,9 +167,9 @@ function ListField({ field, items, onChange }: ListFieldProps) {
               {field.itemFields.map((itemField) => (
                 <Field key={itemField.key} label={itemField.label}>
                   {itemField.multiline ? (
-                    <Textarea size="sm" rows={3} value={item[itemField.key] ?? ''} onChange={(event) => setItem(index, itemField.key, event.target.value)} />
+                    <Textarea size="sm" rows={3} value={toPlain(item[itemField.key] ?? '')} onChange={(event) => setItem(index, itemField.key, applyPlainEdit(item[itemField.key] ?? '', event.target.value))} />
                   ) : (
-                    <Input size="sm" value={item[itemField.key] ?? ''} onChange={(event) => setItem(index, itemField.key, event.target.value)} />
+                    <Input size="sm" value={toPlain(item[itemField.key] ?? '')} onChange={(event) => setItem(index, itemField.key, applyPlainEdit(item[itemField.key] ?? '', event.target.value))} />
                   )}
                 </Field>
               ))}

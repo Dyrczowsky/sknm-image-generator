@@ -93,7 +93,8 @@ export interface Deck {
   updatedAt: number
 }
 
-export const DECK_VERSION = 1
+// v2: teksty slajdów mogą nieść formatowanie; starsze zapisy czytane bez zmian.
+export const DECK_VERSION = 2
 
 export const MIN_DURATION = 300
 export const MAX_DURATION = 1000
