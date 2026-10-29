@@ -29,7 +29,7 @@ function normalize(raw: string): { text: string; map: number[] } {
       map.push(i)
       if (raw[i + 1] === '\n') i++
     } else if (stripControl(ch)) {
-      text += ch === ' ' ? ' ' : ch
+      text += ch === '\u00a0' ? ' ' : ch
       map.push(i)
     }
   }
@@ -101,7 +101,9 @@ function walkText(w: Walk, node: Node, marks: number, align: Align) {
   }
   if (!text) return
   w.slots.push({ node, start: w.pos, len: text.length, map, endsNL: text.endsWith('\n') })
-  for (const ch of text) {
+  // Jednostki UTF-16, nie punkty kodowe: offsety w ops liczą tak samo.
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i]
     if (ch === '\n') newLine(w, align)
     else {
       appendChar(w.lines[w.lines.length - 1], ch, marks)
@@ -280,9 +282,9 @@ export function setOffsets(el: HTMLElement, start: number, end: number): void {
 }
 
 export function placeCaretAtEnd(el: HTMLElement): void {
-  const selection = window.getSelection()
+  const selection = el.ownerDocument.getSelection()
   if (!selection) return
-  const range = document.createRange()
+  const range = el.ownerDocument.createRange()
   range.selectNodeContents(el)
   range.collapse(false)
   selection.removeAllRanges()

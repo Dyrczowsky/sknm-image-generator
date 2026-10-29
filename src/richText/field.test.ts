@@ -1,0 +1,192 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { getOffsets } from './dom'
+import {
+  applyExternal, applyFormat, createField, endComposition, insertText, onBeforeInput, shortcutMark, syncFromDom,
+  toolbarState,
+} from './field'
+import { MARK } from './format'
+import { asEl, e, fakeDocument, inner, root, select, t } from './testDom'
+import type { FakeNode } from './testDom'
+
+const RICH = '\ue000'
+const CENTER = '\ue001'
+const style = (marks: number) => String.fromCharCode(0xe100 + marks)
+const B = MARK.bold
+
+// Pole z fokusem i narysowaną wartością.
+function setup(value: string, opts: { multiline?: boolean; alignable?: boolean } = {}) {
+  const onChange = vi.fn()
+  const f = createField({ onChange, multiline: opts.multiline ?? false, alignable: opts.alignable ?? false })
+  const el = root()
+  applyExternal(asEl(el), f, value, !f.alignable)
+  fakeDocument.activeElement = el
+  return { el, f, onChange }
+}
+
+// Zaznaczenie po offsetach tekstu (przez pierwszy węzeł tekstowy).
+function selectText(el: FakeNode, start: number, end = start) {
+  const node = el.childNodes[0]
+  select([node, start], [node, end])
+}
+
+function input(inputType: string, data: string | null = null) {
+  return { inputType, isComposing: false, data, dataTransfer: null, preventDefault: vi.fn() }
+}
+
+beforeEach(() => {
+  fakeDocument.activeElement = null
+})
+
+describe('Enter', () => {
+  it('pole wielowierszowe: splitLine, kursor na początku nowego wiersza', () => {
+    const { el, f, onChange } = setup('abcd', { multiline: true })
+    selectText(el, 2)
+    const event = input('insertParagraph')
+    onBeforeInput(asEl(el), f, event)
+    expect(event.preventDefault).toHaveBeenCalled()
+    expect(onChange).toHaveBeenCalledWith('ab\ncd')
+    expect(inner(el)).toBe('ab\ncd')
+    expect(getOffsets(asEl(el))).toEqual({ start: 3, end: 3 })
+  })
+
+  it('Enter na końcu: pusty ostatni wiersz z <br>, kursor w nim', () => {
+    const { el, f, onChange } = setup('ab', { multiline: true })
+    selectText(el, 2)
+    onBeforeInput(asEl(el), f, input('insertLineBreak'))
+    expect(onChange).toHaveBeenCalledWith('ab\n')
+    expect(inner(el)).toBe('ab\n<br>')
+    expect(getOffsets(asEl(el))).toEqual({ start: 3, end: 3 })
+  })
+
+  it('pole jednowierszowe: blur bez zmiany wartości', () => {
+    const { el, f, onChange } = setup('abcd')
+    selectText(el, 2)
+    const event = input('insertParagraph')
+    onBeforeInput(asEl(el), f, event)
+    expect(event.preventDefault).toHaveBeenCalled()
+    expect(fakeDocument.activeElement).toBeNull()
+    expect(onChange).not.toHaveBeenCalled()
+  })
+})
+
+describe('wklejanie', () => {
+  it('tekst wielowierszowy w polu jednowierszowym: wiersze sklejone spacją', () => {
+    const { el, f, onChange } = setup('ab')
+    selectText(el, 1)
+    insertText(asEl(el), f, 'x\r\ny')
+    expect(onChange).toHaveBeenCalledWith('ax yb')
+    expect(getOffsets(asEl(el))).toEqual({ start: 4, end: 4 })
+  })
+
+  it('wklejony tekst dziedziczy styl, znaki sterujące odpadają (beforeinput insertFromPaste)', () => {
+    const { el, f, onChange } = setup(`${RICH}${style(B)}ab`, { multiline: true })
+    const span = el.childNodes[0].childNodes[0]
+    select([span, 1])
+    const event = { ...input('insertFromPaste'), dataTransfer: { getData: () => `x\n${CENTER}y` } }
+    onBeforeInput(asEl(el), f, event as unknown as InputEvent)
+    expect(onChange).toHaveBeenCalledWith(`${RICH}${style(B)}ax\n${style(B)}yb`)
+  })
+})
+
+describe('applyFormat i state', () => {
+  it('pogrubienie zaznaczenia: nowa wartość, span w DOM i to samo zaznaczenie', () => {
+    const { el, f, onChange } = setup('Ala ma kota')
+    selectText(el, 4, 6)
+    applyFormat(asEl(el), f, { kind: 'mark', mark: B })
+    expect(onChange).toHaveBeenCalledWith(`${RICH}Ala ${style(B)}ma${style(0)} kota`)
+    expect(inner(el)).toContain('<span data-marks="1" style="fontWeight:bolder">ma</span>')
+    expect(getOffsets(asEl(el))).toEqual({ start: 4, end: 6 })
+    expect(toolbarState(asEl(el), f)).toEqual({ marks: B, align: null, alignable: false })
+  })
+
+  it('wyrównanie tylko w polu alignable', () => {
+    const plain = setup('ab')
+    selectText(plain.el, 1)
+    applyFormat(asEl(plain.el), plain.f, { kind: 'align', align: 'center' })
+    expect(plain.onChange).not.toHaveBeenCalled()
+
+    const { el, f, onChange } = setup('ab', { alignable: true })
+    selectText(el, 1)
+    applyFormat(asEl(el), f, { kind: 'align', align: 'center' })
+    expect(onChange).toHaveBeenCalledWith(`${RICH}${CENTER}ab`)
+    expect(toolbarState(asEl(el), f)).toEqual({ marks: 0, align: 'center', alignable: true })
+  })
+
+  it('bez zaznaczenia w polu: ostatnie zapamiętane zaznaczenie', () => {
+    const { el, f, onChange } = setup('abc')
+    f.saved = { start: 0, end: 1 }
+    select([root(t('x')), 0])
+    applyFormat(asEl(el), f, { kind: 'mark', mark: MARK.italic })
+    expect(onChange).toHaveBeenCalledWith(`${RICH}${style(MARK.italic)}a${style(0)}bc`)
+  })
+
+  it('beforeinput formatBold idzie przez applyFormat, historyUndo jest blokowane', () => {
+    const { el, f, onChange } = setup('ab')
+    selectText(el, 0, 2)
+    const bold = input('formatBold')
+    onBeforeInput(asEl(el), f, bold)
+    expect(bold.preventDefault).toHaveBeenCalled()
+    expect(onChange).toHaveBeenCalledWith(`${RICH}${style(B)}ab`)
+    const undo = input('historyUndo')
+    onBeforeInput(asEl(el), f, undo)
+    expect(undo.preventDefault).toHaveBeenCalled()
+    expect(onChange).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('pisanie i kompozycja IME', () => {
+  it('pisanie w spanie: wartość z DOM, bez przerysowania', () => {
+    const { el, f, onChange } = setup(`${RICH}${style(B)}ab`)
+    const span = el.childNodes[0]
+    span.childNodes[0].nodeValue = 'axb'
+    syncFromDom(asEl(el), f, true)
+    expect(onChange).toHaveBeenCalledWith(`${RICH}${style(B)}axb`)
+    expect(el.childNodes[0]).toBe(span)
+  })
+
+  it('obcy znacznik przeglądarki: przerysowanie do kształtu kanonicznego', () => {
+    const { el, f } = setup('a')
+    el.replaceChildren(t('a'), e('b', {}, t('x')))
+    syncFromDom(asEl(el), f, true)
+    expect(inner(el)).toBe('a<span data-marks="1" style="fontWeight:bolder">x</span>')
+  })
+
+  it('w trakcie kompozycji DOM nie jest ruszany, zmiana z zewnątrz czeka na compositionend', () => {
+    const { el, f } = setup('a')
+    f.composing = true
+    el.replaceChildren(t('a'), e('b', {}, t('x')))
+    syncFromDom(asEl(el), f, true)
+    expect(inner(el)).toBe('a<b>x</b>')
+    applyExternal(asEl(el), f, 'zzz', true)
+    expect(inner(el)).toBe('a<b>x</b>')
+    endComposition(asEl(el), f)
+    expect(inner(el)).toBe('zzz')
+    expect(f.synced).toBe('zzz')
+  })
+
+  it('beforeinput w trakcie kompozycji jest ignorowany', () => {
+    const { el, f } = setup('a', { multiline: true })
+    f.composing = true
+    const event = input('insertParagraph')
+    onBeforeInput(asEl(el), f, event)
+    expect(event.preventDefault).not.toHaveBeenCalled()
+  })
+})
+
+describe('shortcutMark', () => {
+  const key = (k: string, mods: Partial<Record<'ctrlKey' | 'metaKey' | 'shiftKey' | 'altKey', boolean>>) =>
+    ({ key: k, ctrlKey: false, metaKey: false, shiftKey: false, altKey: false, ...mods })
+
+  it('Mac: tylko ⌘, inne systemy: tylko Ctrl', () => {
+    expect(shortcutMark(key('b', { metaKey: true }), true)).toBe(B)
+    expect(shortcutMark(key('b', { ctrlKey: true }), true)).toBeNull()
+    expect(shortcutMark(key('I', { ctrlKey: true }), false)).toBe(MARK.italic)
+    expect(shortcutMark(key('u', { metaKey: true }), false)).toBeNull()
+  })
+
+  it('Shift, Alt i inne klawisze to nie skrót formatowania', () => {
+    expect(shortcutMark(key('b', { ctrlKey: true, shiftKey: true }), false)).toBeNull()
+    expect(shortcutMark(key('b', { ctrlKey: true, altKey: true }), false)).toBeNull()
+    expect(shortcutMark(key('k', { ctrlKey: true }), false)).toBeNull()
+  })
+})

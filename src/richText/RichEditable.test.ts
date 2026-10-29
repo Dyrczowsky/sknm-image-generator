@@ -22,7 +22,7 @@ describe('RichEditable', () => {
 
   it('puste pole ma data-empty (także wartość z samymi znacznikami)', () => {
     expect(openingTag(render(h(RichEditable, { ...base, value: '' })), '<div')).toContain('data-empty=""')
-    expect(openingTag(render(h(RichEditable, { ...base, value: '' })), '<div')).toContain('data-empty=""')
+    expect(openingTag(render(h(RichEditable, { ...base, value: '\ue000\ue001' })), '<div')).toContain('data-empty=""')
   })
 
   it('alignable daje data-alignable, marker plakatu i własny tag', () => {

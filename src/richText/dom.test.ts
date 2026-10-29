@@ -1,58 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import { MARK, serializeRich } from './format'
-import { isCanonical, offsetAt, pointAt, readDoc, renderDoc } from './dom'
+import { getOffsets, isCanonical, offsetAt, pointAt, readDoc, renderDoc, setOffsets } from './dom'
+import { asEl, e, inner, root, t } from './testDom'
 
-// Testy bez jsdom: minimalny DOM z tym, czego używa dom.ts.
-class FakeNode {
-  childNodes: FakeNode[] = []
-  attrs = new Map<string, string>()
-  style: Record<string, string> = {}
-  ownerDocument = fakeDocument
-  constructor(public nodeType: number, public nodeName: string, public nodeValue: string | null = null) {}
-  appendChild(child: FakeNode) {
-    this.childNodes.push(child)
-    return child
-  }
-  replaceChildren(...children: FakeNode[]) {
-    this.childNodes = children
-  }
-  setAttribute(name: string, value: string) {
-    this.attrs.set(name, value)
-  }
-  getAttribute(name: string) {
-    return this.attrs.get(name) ?? null
-  }
-}
-
-const fakeDocument = {
-  createElement: (tag: string) => new FakeNode(1, tag.toUpperCase()),
-  createTextNode: (text: string) => new FakeNode(3, '#text', text),
-}
-
-const t = (text: string) => fakeDocument.createTextNode(text)
-function e(tag: string, attrs: Record<string, string>, ...children: FakeNode[]) {
-  const node = fakeDocument.createElement(tag)
-  for (const [k, v] of Object.entries(attrs)) node.setAttribute(k, v)
-  node.childNodes = children
-  return node
-}
-const root = (...children: FakeNode[]) => e('div', {}, ...children)
-const asEl = (node: FakeNode) => node as unknown as HTMLElement
-
-// Zapis drzewa do porównań: atrybuty i styl w stałej kolejności.
-function html(node: FakeNode): string {
-  if (node.nodeType === 3) return node.nodeValue ?? ''
-  const attrs = [...node.attrs].map(([k, v]) => ` ${k}="${v}"`).join('')
-  const style = Object.entries(node.style).map(([k, v]) => `${k}:${v}`).join(';')
-  const tag = node.nodeName.toLowerCase()
-  if (tag === 'br') return '<br>'
-  return `<${tag}${attrs}${style ? ` style="${style}"` : ''}>${node.childNodes.map(html).join('')}</${tag}>`
-}
-const inner = (node: FakeNode) => node.childNodes.map(html).join('')
-
-const RICH = ''
-const CENTER = ''
-const RIGHT = ''
+const RICH = '\ue000'
+const CENTER = '\ue001'
+const RIGHT = '\ue002'
 const style = (marks: number) => String.fromCharCode(0xe100 + marks)
 const B = MARK.bold
 
@@ -113,7 +66,7 @@ describe('readDoc', () => {
   }
 
   it('twarde spacje to zwykłe spacje, \\r znika, znaki sterujące odpadają', () => {
-    expect(readDoc(asEl(root(t('a b\r\nc'))))).toBe('a b\nc')
+    expect(readDoc(asEl(root(t('a\u00a0b\r\nc\ue003'))))).toBe('a b\nc')
   })
 
   it('końcowy <br> przeglądarki nie jest nowym wierszem, środkowy jest', () => {
@@ -211,5 +164,30 @@ describe('offsetAt / pointAt', () => {
     expect(pointAt(asEl(empty), 0)).toEqual({ node: empty, offset: 0 })
     const node = t('ab')
     expect(pointAt(asEl(root(node)), 9)).toEqual({ node, offset: 2 })
+  })
+})
+
+describe('emoji (para surogatów = 2 jednostki UTF-16, jak w ops)', () => {
+  const PARTY = '\u{1f389}'
+
+  it('offsetAt w spanie po emoji', () => {
+    const span = t('ab')
+    const el = root(t(`${PARTY} `), e('span', { 'data-marks': '1' }, span))
+    expect(offsetAt(asEl(el), span as unknown as Node, 0)).toBe(3)
+    expect(readDoc(asEl(el))).toBe(`${RICH}${PARTY} ${style(B)}ab`)
+  })
+
+  it('pointAt po wierszu z emoji trafia do następnego wiersza', () => {
+    const el = rendered(`${RICH}Hi ${PARTY}\n${style(B)}x`)
+    // 'Hi 🎉' = 5 jednostek, '\n' = 1 → offset 6 to początek drugiego wiersza.
+    expect(pointAt(asEl(el), 6)).toEqual({ node: el.childNodes[1].childNodes[0], offset: 0 })
+  })
+
+  it('setOffsets → getOffsets wokół emoji bez przesunięcia', () => {
+    const el = rendered(`a${PARTY}b\n${PARTY}c`)
+    for (const [start, end] of [[1, 3], [3, 4], [5, 8], [0, 8]]) {
+      setOffsets(asEl(el), start, end)
+      expect(getOffsets(asEl(el))).toEqual({ start, end })
+    }
   })
 })
