@@ -3,6 +3,8 @@ import type { ReactElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import { posterRegistry } from '../registry'
+import { PosterEditContext } from '../edit'
+import { MARK, serializeRich } from '../../richText'
 import { BANNER_PAD, BANNER_SAFE_W, SHAPE_SIZE } from '../shape'
 import { PosterScaled } from '../../components/PosterScaled'
 import { CLUB_NAME } from '../copy'
@@ -97,6 +99,39 @@ describe('banery: HTML sprzed formatowania', () => {
 
     it(`${key}: wszystkie pola`, () => {
       expect(render(FULL)).toMatchSnapshot()
+    })
+  }
+})
+
+// Baner niesie tylko nazwę koła i stopkę (copy.ts) - żadne pole formularza nie
+// jest na nim rysowane, więc nie ma czego formatować ani edytować.
+describe('banery: pola formularza', () => {
+  const bold = (word: string) => serializeRich([{ align: 'left', runs: [{ text: word, marks: MARK.bold }, { text: ' zwykłe', marks: 0 }] }])
+  const CONTROL = /[\uE000-\uE1FF]/
+  const FORMATTED: RawPosterData = {
+    title: bold('Tytuł'),
+    subtitle: bold('Podtytuł'),
+    speaker: bold('Prelegent'),
+    location: bold('Sala'),
+    badge: bold('Plakietka'),
+    badge2: bold('Druga'),
+    body: bold('Treść'),
+    lists: { agenda: [{ time: '09:00', title: bold('Punkt'), subtitle: bold('Opis') }] },
+  }
+
+  for (const [key, entry] of Object.entries(posterRegistry)) {
+    it(`${key}: sformatowane pola nie zmieniają banera ani nie wyciekają znaczników`, () => {
+      const out = renderToStaticMarkup(h(entry.Banner, { data: FORMATTED }))
+      expect(out).not.toMatch(CONTROL)
+      expect(out).not.toContain('font-weight:bolder')
+      expect(out).toBe(renderToStaticMarkup(h(entry.Banner, { data: {} })))
+    })
+
+    it(`${key}: w edytorze baner nie ma pól edytowalnych na płótnie`, () => {
+      const out = renderToStaticMarkup(
+        h(PosterEditContext.Provider, { value: { editable: true, onText: () => {} } }, h(entry.Banner, { data: FORMATTED })),
+      )
+      expect(out).not.toContain('data-poster-edit')
     })
   }
 })

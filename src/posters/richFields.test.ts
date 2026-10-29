@@ -63,6 +63,9 @@ describe('plakaty: HTML bez formatowania jak przed zmianą', () => {
   }
 })
 
+// Etykieta pola tytułu, gdy inna niż „Tytuł".
+const TITLE_LABEL: Record<string, string> = { komunikat: 'Nagłówek', ogloszenie: 'Treść ogłoszenia / cytatu' }
+
 describe('plakaty: formatowanie pól tekstowych', () => {
   // Każde pole tekstowe sformatowane - żadne nie może pokazać surowych znaczników.
   const ALL_BOLD: RawPosterData = {
@@ -95,7 +98,9 @@ describe('plakaty: formatowanie pól tekstowych', () => {
     })
 
     it(`${key}: w edytorze tytuł jest edytowalny`, () => {
-      expect(editingHtml(entry.Component, {})).toMatch(/contentEditable="true"[^>]*data-poster-edit/)
+      const label = TITLE_LABEL[key] ?? 'Tytuł'
+      const tags = editingHtml(entry.Component, {}).match(/<[^>]*data-poster-edit[^>]*>/g) ?? []
+      expect(tags.some((tag) => tag.includes('contentEditable="true"') && tag.includes(`aria-label="${label}"`))).toBe(true)
     })
   }
 
