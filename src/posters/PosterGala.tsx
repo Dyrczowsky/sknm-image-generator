@@ -1,6 +1,7 @@
+import { toPlain } from '../richText'
 import type { PosterProps } from '../types'
 import { BRANDING_FULL, DEFAULT_BADGE } from './copy'
-import { withPlaceholders } from './fallback'
+import { PLACEHOLDERS, withPlaceholders } from './fallback'
 import { resolveScheme } from './schemes'
 import { usePosterShape } from './shape'
 import { fontMono, leading, TITLE_TRACKING } from './theme'
@@ -10,11 +11,12 @@ import { BrandingText } from './blocks/BrandingText'
 import { FooterLogos } from './blocks/FooterLogos'
 import { InfoLine } from './blocks/InfoLine'
 import { PosterFrame } from './blocks/PosterFrame'
+import { PosterText } from './blocks/PosterText'
 import { Sygnet } from './blocks/Sygnet'
 
 // GALA — złoto na grafitowym
 export function PosterGala({ data, scheme, accent, lang = 'pl' }: PosterProps) {
-  const { title, subtitle, event_date, event_time, location, badge, logoSlots, qrUrl, hidden, fx, titleScale, textScale } = withPlaceholders(data)
+  const { raw, event_date, event_time, logoSlots, qrUrl, hidden, fx, titleScale, textScale } = withPlaceholders(data)
   const { cssVars, sygnet, logoVariant } = resolveScheme('gala', scheme, accent)
   const { kx, ky } = usePosterShape()
 
@@ -29,12 +31,25 @@ export function PosterGala({ data, scheme, accent, lang = 'pl' }: PosterProps) {
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 30, position: 'relative', zIndex: 1 }}>
-        <Badge color="var(--gold)" style={{ font: `700 24px ${fontMono}`, letterSpacing: '.2em', ...fx('badge') }}>{badge || DEFAULT_BADGE.gala[lang]}</Badge>
-        <div style={{ fontSize: 126 * titleScale, fontWeight: 800, lineHeight: leading(0.94, titleScale), letterSpacing: TITLE_TRACKING, fontKerning: 'none', whiteSpace: 'pre-line', ...fx('title') }}>
-          {title}
-        </div>
-        {subtitle && (
-          <div style={{ fontSize: 34 * textScale, fontWeight: 500, lineHeight: leading(1.4, textScale), color: 'var(--muted-text)', maxWidth: '26ch', whiteSpace: 'pre-line', ...fx('subtitle') }}>{subtitle}</div>
+        <Badge color="var(--gold)" style={{ font: `700 24px ${fontMono}`, letterSpacing: '.2em', ...fx('badge') }}
+          field={{ path: 'badge', value: raw.badge, fallback: DEFAULT_BADGE.gala[lang], label: 'Etykieta' }}
+        />
+        <PosterText
+          path="title"
+          value={raw.title}
+          fallback={PLACEHOLDERS.title}
+          multiline
+          label="Tytuł"
+          style={{ fontSize: 126 * titleScale, fontWeight: 800, lineHeight: leading(0.94, titleScale), letterSpacing: TITLE_TRACKING, fontKerning: 'none', whiteSpace: 'pre-line', ...fx('title') }}
+        />
+        {toPlain(raw.subtitle ?? '') !== '' && (
+          <PosterText
+            path="subtitle"
+            value={raw.subtitle}
+            multiline
+            label="Opis / podtytuł"
+            style={{ fontSize: 34 * textScale, fontWeight: 500, lineHeight: leading(1.4, textScale), color: 'var(--muted-text)', maxWidth: '26ch', whiteSpace: 'pre-line', ...fx('subtitle') }}
+          />
         )}
       </div>
 
@@ -44,7 +59,7 @@ export function PosterGala({ data, scheme, accent, lang = 'pl' }: PosterProps) {
           <InfoLine
             parts={[
               { text: event_time, hidden: hidden('event_time') },
-              { text: location, hidden: hidden('location') },
+              { field: { path: 'location', value: raw.location, fallback: PLACEHOLDERS.location, label: 'Lokalizacja' }, hidden: hidden('location') },
             ]}
             style={{ paddingBottom: 10, whiteSpace: 'nowrap' }}
           />

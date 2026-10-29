@@ -46,6 +46,9 @@ export function withPlaceholders(data: RawPosterData) {
   // Stopka: domyślne logo PK (`null`), a za nim wgrane grafiki.
   const logoSlots: LogoSlotSource[] = showPkLogo ? [null, ...graphics] : graphics
   return {
+    // Surowe dane formularza: `value` pól edytowanych na plakacie (`PosterText`),
+    // które same wybierają wartość przykładową dla pustego pola.
+    raw: data,
     title: data.title || PLACEHOLDERS.title,
     subtitle: data.subtitle,
     speaker: data.speaker || PLACEHOLDERS.speaker,

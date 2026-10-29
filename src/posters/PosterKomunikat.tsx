@@ -1,6 +1,7 @@
+import { toPlain } from '../richText'
 import type { PosterProps } from '../types'
 import { BRANDING_SHORT, DEFAULT_BADGE, SITE_URL } from './copy'
-import { withPlaceholders } from './fallback'
+import { PLACEHOLDERS, withPlaceholders } from './fallback'
 import { resolveScheme } from './schemes'
 import { usePosterShape } from './shape'
 import { fontMono, leading, TITLE_TRACKING } from './theme'
@@ -9,6 +10,7 @@ import { BigDateNumber } from './blocks/BigDateNumber'
 import { BrandingText } from './blocks/BrandingText'
 import { FooterLogos } from './blocks/FooterLogos'
 import { PosterFrame } from './blocks/PosterFrame'
+import { PosterText } from './blocks/PosterText'
 import { Sygnet } from './blocks/Sygnet'
 import { FadingTriangles } from './blocks/Triangle'
 import { Wedges } from './blocks/Wedges'
@@ -18,7 +20,7 @@ import { Wedges } from './blocks/Wedges'
 // i podpis niosą kolor akcentu; data w stopce jest opcjonalna (checkbox
 // widoczności) — do dłuższych komunikatów, regulaminów, relacji.
 export function PosterKomunikat({ data, scheme, accent, lang = 'pl' }: PosterProps) {
-  const { title, subtitle, body, badge, event_date, logoSlots, qrUrl, fx, titleScale, textScale } = withPlaceholders(data)
+  const { raw, event_date, logoSlots, qrUrl, fx, titleScale, textScale } = withPlaceholders(data)
   const { cssVars, sygnet, logoVariant } = resolveScheme('komunikat', scheme, accent)
   const { kx } = usePosterShape()
 
@@ -30,15 +32,29 @@ export function PosterKomunikat({ data, scheme, accent, lang = 'pl' }: PosterPro
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 26, maxWidth: 860 * kx, position: 'relative', zIndex: 1 }}>
-        <Badge background="var(--accent)" color="var(--badge-text)" style={{ fontSize: 24, ...fx('badge') }}>{badge || DEFAULT_BADGE.komunikat[lang]}</Badge>
-        <div style={{ fontSize: 68 * titleScale, fontWeight: 800, lineHeight: leading(1.05, titleScale), letterSpacing: TITLE_TRACKING, fontKerning: 'none', whiteSpace: 'pre-line', ...fx('title') }}>
-          {title}
-        </div>
-        <div style={{ fontSize: 32 * textScale, fontWeight: 500, lineHeight: leading(1.5, textScale), color: 'var(--muted-text)', whiteSpace: 'pre-wrap', ...fx('body') }}>
-          {body}
-        </div>
-        {subtitle && (
-          <div style={{ font: `700 ${22 * textScale}px ${fontMono}`, letterSpacing: '.1em', color: 'var(--accent)', ...fx('subtitle') }}>— {subtitle.toUpperCase()}</div>
+        <Badge background="var(--accent)" color="var(--badge-text)" style={{ fontSize: 24, ...fx('badge') }}
+          field={{ path: 'badge', value: raw.badge, fallback: DEFAULT_BADGE.komunikat[lang], label: 'Etykieta' }}
+        />
+        <PosterText
+          path="title"
+          value={raw.title}
+          fallback={PLACEHOLDERS.title}
+          multiline
+          label="Nagłówek"
+          style={{ fontSize: 68 * titleScale, fontWeight: 800, lineHeight: leading(1.05, titleScale), letterSpacing: TITLE_TRACKING, fontKerning: 'none', whiteSpace: 'pre-line', ...fx('title') }}
+        />
+        <PosterText
+          path="body"
+          value={raw.body}
+          fallback={PLACEHOLDERS.body}
+          multiline
+          label="Treść komunikatu"
+          style={{ fontSize: 32 * textScale, fontWeight: 500, lineHeight: leading(1.5, textScale), color: 'var(--muted-text)', whiteSpace: 'pre-wrap', ...fx('body') }}
+        />
+        {toPlain(raw.subtitle ?? '') !== '' && (
+          <div style={{ font: `700 ${22 * textScale}px ${fontMono}`, letterSpacing: '.1em', color: 'var(--accent)', ...fx('subtitle') }}>
+            — <PosterText as="span" path="subtitle" value={raw.subtitle} transform="uppercase" inline label="Podpis / źródło" />
+          </div>
         )}
       </div>
 
