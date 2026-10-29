@@ -95,7 +95,7 @@ describe('format tekstu z formatowaniem', () => {
       { align: 'left', runs: [{ text: 'kota', marks: MARK.italic }] },
     ]
     expect(parseRich(serializeRich(doc))).toEqual(doc)
-    expect(serializeRich(doc).startsWith('')).toBe(true)
+    expect(serializeRich(doc).startsWith('\uE000')).toBe(true)
   })
   it('dokument bez formatowania serializuje się do zwykłego stringa', () => {
     expect(serializeRich(parseRich('a\nb'))).toBe('a\nb')
@@ -105,14 +105,14 @@ describe('format tekstu z formatowaniem', () => {
     expect(toPlain('zwykły\ntekst')).toBe('zwykły\ntekst')
   })
   it('uszkodzone znaczniki nie gubią tekstu', () => {
-    expect(toPlain('abc')).toBe('abc')
+    expect(toPlain('\uE000a\uE0FFb\uE1FFc')).toBe('abc')
   })
   it('sąsiednie runy o tych samych stylach są łączone', () => {
     const s = serializeRich([{ align: 'left', runs: [{ text: 'a', marks: 1 }, { text: 'b', marks: 1 }] }])
     expect(parseRich(s)[0].runs).toEqual([{ text: 'ab', marks: 1 }])
   })
   it('stripControl usuwa znaki sterujące z wklejonego tekstu', () => {
-    expect(stripControl('abc')).toBe('abc')
+    expect(stripControl('a\uE000b\uE105c')).toBe('abc')
   })
 })
 ```
@@ -191,7 +191,7 @@ it('splitLine: nowy wiersz dziedziczy wyrównanie', () => {
   expect(caret).toBe(3)
 })
 it('insertPlain: wklejone wiersze w polu jednowierszowym sklejone spacją, bez znaków sterujących', () => {
-  expect(insertPlain('ab', 1, 1, 'x\n\ny', false)).toEqual({ value: 'ax yb', caret: 4 })
+  expect(insertPlain('ab', 1, 1, 'x\n\ny\uE105', false)).toEqual({ value: 'ax yb', caret: 4 })
 })
 ```
 
@@ -250,7 +250,7 @@ it('insertPlain: wklejone wiersze w polu jednowierszowym sklejone spacją, bez z
 - [ ] **Step 1: Testy**
   - `parseSnapshot({ ...validV1 })` → `ok: true`, `snapshot.v === 2`; `v: 3` → `reason: 'newer'`
   - `newHistoryEntry(snapshotWith({ title: toggleMark('Ala', 0, 3, MARK.bold) })).title === 'Ala'`; `snapshot.form.title` zachowuje marker
-  - `FormField` z `title` sformatowanym: `<textarea>` zawiera `Ala`, a w HTML nie ma `` ani ``
+  - `FormField` z `title` sformatowanym: `<textarea>` zawiera `Ala`, a w HTML nie ma `\uE000` ani `\uE101`
   - `parseDeck({ id: 'a', v: 1, slides: [] })` → `ok: true`, `deck.v === 2`
 - [ ] **Step 2: FAIL → Step 3: zmiany z listy Files → Step 4: `npm test`**: PASS (popraw istniejące asercje `v: 1`)
 - [ ] **Step 5: Commit** `feat(richText): czysty tekst w formularzach, historii i nazwach; wersje zapisu`
@@ -354,7 +354,7 @@ it('insertPlain: wklejone wiersze w polu jednowierszowym sklejone spacją, bez z
 - [ ] **Step 1: Testy**
   - poza edytorem `EditableText` ze sformatowanym `value` → `<p style="white-space:pre-line">Ala <span style="font-weight:bolder">ma</span></p>`
   - poza edytorem zwykły tekst → dotychczasowe asercje bez zmian (zgodność wsteczna)
-  - eksport HTML slajdu ze sformatowanym tekstem zawiera `font-weight:bolder` i nie zawiera `data-rich-field`, `contenteditable` ani ``
+  - eksport HTML slajdu ze sformatowanym tekstem zawiera `font-weight:bolder` i nie zawiera `data-rich-field`, `contenteditable` ani `\uE000`
 - [ ] **Step 2: FAIL → Step 3 → Step 4: `npm test` PASS**
 - [ ] **Step 5: Ręcznie** (skill `run`): w edytorze prezentacji zaznacz słowo → pasek; B, akcent, wyrównanie w liście; Ctrl+Z cofa formatowanie (historia talii); miniatura i eksport HTML pokazują style.
 - [ ] **Step 6: Commit** `feat(slides): formatowanie tekstu na slajdach`
@@ -423,7 +423,7 @@ it('insertPlain: wklejone wiersze w polu jednowierszowym sklejone spacją, bez z
 **Reguła:** każde wyrenderowanie `title`, `subtitle`, `speaker`, `location`, `badge`, `badge2`, `body` oraz tekstów pozycji `lists.*` idzie przez `PosterText` z `path` = nazwa pola. `fallback` przejmuje to, co dziś daje `withPlaceholders` lub `||` (np. `DEFAULT_BADGE.komunikat[lang]`). `withPlaceholders` zwraca dodatkowo surowe `raw: RawPosterData`, z którego bierzemy `value`. `multiline` mają pola, które dziś są `textarea` (`fields.ts` i `Form*.tsx`). `inline` mają pola wewnątrz linii lub pigułki (InfoLine, pigułki, plakietki). `x.toUpperCase()` → `transform="uppercase"`. Stały prefiks (`— `) zostaje poza `PosterText`. Pole wpisane w string (np. sklejone z `·`) rozbij na elementy. Wątpliwe przypadki wypisz w opisie commita.
 
 - [ ] **Step 1: Test dla każdego layoutu** (pętla po `posterRegistry`):
-  - `title` z pogrubionym słowem renderuje `font-weight:bolder`, a HTML nie zawiera ``/``
+  - `title` z pogrubionym słowem renderuje `font-weight:bolder`, a HTML nie zawiera `\uE000`/`\uE101`
   - `data: {}` daje HTML identyczny z wynikiem sprzed zmian: zapisz go przed zmianą jako snapshot vitest (`toMatchSnapshot()`) w osobnym, wcześniejszym commicie
   - Komunikat/Ogłoszenie: `subtitle: 'abc'` → `text-transform:uppercase` i `— ` poza elementem z tekstem
 - [ ] **Step 2: Commit snapshotów „przed”** (test na `data: {}` i na danych z `<&` w tytule), potem FAIL testów formatowania
