@@ -7,6 +7,7 @@ import {
   Upload, User, X,
   Bookmark, CalendarDays, Columns2, FlipHorizontal2, Hash, Heading1, LayoutDashboard, LayoutGrid, List, Maximize, Play,
   Presentation, Quote, RectangleHorizontal, Redo2, Sparkles, Square, Undo2,
+  AlignCenter, AlignLeft, AlignRight, Bold, Italic, RemoveFormatting, Strikethrough, Underline,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
@@ -77,6 +78,15 @@ const ICONS = {
   mirror: FlipHorizontal2,
   aspectWide: RectangleHorizontal,
   aspectSquare: Square,
+  // Formatowanie tekstu
+  bold: Bold,
+  italic: Italic,
+  underline: Underline,
+  strike: Strikethrough,
+  alignLeft: AlignLeft,
+  alignCenter: AlignCenter,
+  alignRight: AlignRight,
+  clearFormat: RemoveFormatting,
   // Kierunki i zmiana kolejności
   chevronDown: ChevronDown,
   chevronUp: ChevronUp,

@@ -8,7 +8,7 @@ import { posterRegistry } from './posters/registry'
 import { SCHEME_LABELS } from './posters/schemes'
 import { newHistoryEntry } from './history/remoteHistory'
 import { useHistory } from './history/useHistory'
-import { toPlain } from './richText'
+import { FormatToolbar, toPlain } from './richText'
 import { useNotes } from './notes/useNotes'
 import type { ProjectRow } from './projects/remoteProjects'
 import { useProjects } from './projects/useProjects'
@@ -289,6 +289,7 @@ function App() {
         {page === 'notes' && <NotesPage sessionStatus={session.status} notes={notes} onSignInClick={openSignIn} />}
         {page === 'presentations' && <PresentationsPage decks={decks} />}
       </AppShell>
+      <FormatToolbar />
       <TicketDialog type={ticket} onClose={() => setTicket(null)} bugContext={bugContext} />
       <AuthDialog session={session} open={authOpen} onClose={() => setAuthOpen(false)} />
     </AssetLibraryContext>
