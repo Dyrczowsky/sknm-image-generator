@@ -18,6 +18,10 @@ jobs:
     #   github.event.pull_request.user.login == 'new-developer' ||
     #   github.event.pull_request.author_association == 'FIRST_TIME_CONTRIBUTOR'
 
+    # Pushes by bots (e.g. the Copilot agent) cannot get a Claude token -
+    # skip them instead of failing; the next human push gets reviewed.
+    if: github.event.sender.type != 'Bot'
+
     runs-on: ubuntu-latest
     permissions:
       contents: read
