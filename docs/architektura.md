@@ -542,7 +542,13 @@ src/richText/
   `--rich-accent` w `paletteVars` (`src/slides/themes.ts`), plakaty biorą
   `--accent` ze schematu.
 - **Pasek** jest montowany raz w `App.tsx`; pokazuje się przy aktywnym polu
-  zarejestrowanym w `fieldRegistry`.
+  zarejestrowanym w `fieldRegistry`. Z klawiatury: Alt+F10 w polu daje fokus
+  pierwszemu przyciskowi (pole pamięta zaznaczenie), Escape wraca do pola.
+- **Pole** czyta tylko nasze spany (`data-marks`) i znaczniki semantyczne
+  (`<b>`, `<i>`, `<u>`, `<s>`); obce spany ze stylem przeglądarki nie wnoszą
+  formatowania. Pole inline zachowuje wyrównania wierszy z zapisu, a
+  jednowierszowe nie rusza zapisanych `\n` (spacją staje się tylko nowy).
+  White-space `pre-line` dostają z urzędu tylko pola wielowierszowe.
 - **Formularze i inspektor** nie edytują formatu: pokazują `toPlain(...)`, a
   zmianę zapisują przez `applyPlainEdit`, który zachowuje formatowanie
   niezmienionych fragmentów. Historia, nazwy plików, nazwy projektów i adresy
