@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { PAGES } from '../utils/route'
+import { LOCAL_PAGES, PAGES } from '../utils/route'
 import type { Page } from '../utils/route'
 import { Badge, Icon } from './ui'
 import type { IconName } from './ui'
@@ -8,7 +8,8 @@ interface TopBarProps {
   // Strona, na której jest użytkownik - jej odnośnik dostaje `aria-current`.
   page: Page
   // Czy aplikacja ma dane wspólne (Supabase). Bez nich strony Projekty /
-  // Grafiki / Historia / Notatki nie istnieją, więc nawigacja znika.
+  // Grafiki / Historia / Notatki nie istnieją, więc nawigacja zostaje tylko
+  // z `LOCAL_PAGES` (Edytor, Prezentacje).
   remote: boolean
   // Liczba otwartych notatek - pigułka przy „Notatki".
   openNotes?: number
@@ -24,6 +25,7 @@ const PAGE_ICON: Record<Page, IconName> = {
   assets: 'graphics',
   history: 'history',
   notes: 'notes',
+  presentations: 'presentations',
 }
 
 // Odnośnik strony: wygląd przycisku `ghost`; bieżąca strona ma płytkę tła
@@ -36,7 +38,7 @@ const LINK =
 // język plakatu i konto. Do 900 px nawigacja schodzi do drugiego wiersza
 // i przewija się w poziomie.
 export function TopBar({ page, remote, openNotes = 0, help, language, account }: TopBarProps) {
-  const pages = remote ? PAGES : []
+  const pages = remote ? PAGES : PAGES.filter((item) => LOCAL_PAGES.includes(item.page))
   return (
     <header className="flex flex-none flex-wrap items-center gap-x-4 gap-y-1 border-b border-border bg-surface px-4 py-2 min-[900px]:h-14 min-[900px]:flex-nowrap min-[900px]:py-0">
       <p className="m-0 flex flex-none items-baseline gap-2 whitespace-nowrap text-[1.0625rem] font-bold leading-none tracking-[-0.01em]">

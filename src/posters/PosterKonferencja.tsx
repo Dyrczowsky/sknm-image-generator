@@ -1,13 +1,15 @@
+import { toPlain } from '../richText'
 import type { ListItem, PosterProps } from '../types'
 import { formatFullDate } from '../utils/formatDate'
 import { DEFAULT_BADGE, SITE_URL } from './copy'
-import { withPlaceholders } from './fallback'
+import { PLACEHOLDERS, withPlaceholders } from './fallback'
 import { resolveScheme } from './schemes'
 import { usePosterShape } from './shape'
 import { colors, fontMono, leading, TITLE_TRACKING } from './theme'
 import { Badge } from './blocks/Badge'
 import { FooterLogos } from './blocks/FooterLogos'
 import { PosterFrame } from './blocks/PosterFrame'
+import { PosterText } from './blocks/PosterText'
 import { Sygnet } from './blocks/Sygnet'
 
 const DEFAULT_AGENDA: ListItem[] = [
@@ -18,7 +20,7 @@ const DEFAULT_AGENDA: ListItem[] = [
 
 // KONFERENCJA — nagłówek + lista programu
 export function PosterKonferencja({ data, scheme, accent, lang = 'pl' }: PosterProps) {
-  const { title, event_date, location, badge, badge2, logoSlots, qrUrl, lists, hidden, fx, titleScale, fillAgenda } = withPlaceholders(data)
+  const { raw, event_date, logoSlots, qrUrl, lists, hidden, fx, titleScale, fillAgenda } = withPlaceholders(data)
   const agenda = lists.agenda?.length ? lists.agenda : DEFAULT_AGENDA
   const { cssVars, sygnet, logoVariant } = resolveScheme('konferencja', scheme, accent)
   // W pionie wiersze programu dostają więcej oddechu, żeby krótka lista nie
@@ -31,14 +33,19 @@ export function PosterKonferencja({ data, scheme, accent, lang = 'pl' }: PosterP
     <PosterFrame vars={cssVars} grow={fillAgenda}>
       <div style={{ background: 'var(--panel)', color: 'var(--panel-text)', padding: '56px 72px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: 32 }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          <Badge color="var(--header-badge)" style={fx('badge')}>{badge || DEFAULT_BADGE.seminarium[lang]}</Badge>
-          <div style={{ fontSize: 76 * titleScale, fontWeight: 800, lineHeight: leading(0.96, titleScale), letterSpacing: TITLE_TRACKING, fontKerning: 'none', whiteSpace: 'pre-line', ...fx('title') }}>
-            {title}
-          </div>
+          <Badge color="var(--header-badge)" style={fx('badge')} field={{ path: 'badge', value: raw.badge, fallback: DEFAULT_BADGE.seminarium[lang], label: 'Etykieta nagłówka' }} />
+          <PosterText
+            path="title"
+            value={raw.title}
+            fallback={PLACEHOLDERS.title}
+            multiline
+            label="Tytuł"
+            style={{ fontSize: 76 * titleScale, fontWeight: 800, lineHeight: leading(0.96, titleScale), letterSpacing: TITLE_TRACKING, fontKerning: 'none', whiteSpace: 'pre-line', ...fx('title') }}
+          />
           <div style={{ fontSize: 28, fontWeight: 600 }}>
             <span style={fx('event_date')}>{formatFullDate(event_date, lang)}</span>
             {!hidden('event_date') && !hidden('location') && <span>{' · '}</span>}
-            <span style={fx('location')}>{location}</span>
+            <PosterText as="span" path="location" value={raw.location} fallback={PLACEHOLDERS.location} inline label="Lokalizacja" style={fx('location')} />
           </div>
         </div>
         <Sygnet name={sygnet} style={{ flex: '0 0 auto', alignSelf: 'flex-start', marginTop: 16 }} />
@@ -62,9 +69,22 @@ export function PosterKonferencja({ data, scheme, accent, lang = 'pl' }: PosterP
               {/* Etykiety godzin są koralowe we wszystkich schematach - literał, nie rola. */}
               <div style={{ font: `700 26px ${fontMono}`, color: colors.coral }}>{item.time}</div>
               <div>
-                <div style={{ fontSize: 36, fontWeight: 700, lineHeight: 1.15, fontKerning: 'none' }}>{item.title}</div>
-                {item.subtitle && (
-                  <div style={{ fontSize: 26, fontWeight: 500, color: 'var(--muted-text)' }}>{item.subtitle}</div>
+                {/* Pusta lista w formularzu: edycja punktu domyślnego zapisuje cały program domyślny. */}
+                <PosterText
+                  path={`lists.agenda.${i}.title`}
+                  value={item.title}
+                  listSeed={DEFAULT_AGENDA}
+                  label={`Nazwa punktu, punkt ${i + 1}`}
+                  style={{ fontSize: 36, fontWeight: 700, lineHeight: 1.15, fontKerning: 'none' }}
+                />
+                {toPlain(item.subtitle ?? '') !== '' && (
+                  <PosterText
+                    path={`lists.agenda.${i}.subtitle`}
+                    value={item.subtitle}
+                    listSeed={DEFAULT_AGENDA}
+                    label={`Prelegent / opis, punkt ${i + 1}`}
+                    style={{ fontSize: 26, fontWeight: 500, color: 'var(--muted-text)' }}
+                  />
                 )}
               </div>
             </div>
@@ -74,7 +94,9 @@ export function PosterKonferencja({ data, scheme, accent, lang = 'pl' }: PosterP
 
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24 }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <Badge color="var(--footer-badge)" style={{ font: `700 20px ${fontMono}`, letterSpacing: '.12em', ...fx('badge2') }}>{badge2 || DEFAULT_BADGE.wiecejInformacji[lang]}</Badge>
+            <Badge color="var(--footer-badge)" style={{ font: `700 20px ${fontMono}`, letterSpacing: '.12em', ...fx('badge2') }}
+              field={{ path: 'badge2', value: raw.badge2, fallback: DEFAULT_BADGE.wiecejInformacji[lang], label: 'Etykieta stopki' }}
+            />
             <div style={{ fontSize: 24, fontWeight: 600, color: 'var(--muted-text)' }}>{SITE_URL}</div>
           </div>
           <FooterLogos qrUrl={qrUrl} slots={logoSlots} variant={logoVariant} />

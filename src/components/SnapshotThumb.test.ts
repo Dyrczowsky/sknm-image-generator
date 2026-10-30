@@ -12,7 +12,7 @@ import { SnapshotThumb } from './SnapshotThumb'
 const h = createElement as unknown as (type: unknown, props: object | null, ...children: unknown[]) => ReactElement
 
 const snap = (over: Partial<EditorSnapshot> = {}): EditorSnapshot => ({
-  v: 1, poster_key: 'wyklad', color_scheme: null, lang: 'pl', export: { ...DEFAULT_EXPORT_SETTINGS },
+  v: 2, poster_key: 'wyklad', color_scheme: null, lang: 'pl', export: { ...DEFAULT_EXPORT_SETTINGS },
   form: { ...EMPTY_FORM, graphics: [], photos: {}, title: 'Mój wykład' }, ...over,
 })
 const render = (snapshot: EditorSnapshot, box = 120) => renderToStaticMarkup(h(SnapshotThumb, { snapshot, box }))

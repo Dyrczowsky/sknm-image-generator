@@ -8,6 +8,7 @@ import { posterRegistry } from './posters/registry'
 import { SCHEME_LABELS } from './posters/schemes'
 import { newHistoryEntry } from './history/remoteHistory'
 import { useHistory } from './history/useHistory'
+import { FormatToolbar, toPlain } from './richText'
 import { useNotes } from './notes/useNotes'
 import type { ProjectRow } from './projects/remoteProjects'
 import { useProjects } from './projects/useProjects'
@@ -15,6 +16,7 @@ import { isMacPlatform } from './shortcuts/shortcuts'
 import type { ShortcutId } from './shortcuts/shortcuts'
 import { useShortcuts } from './shortcuts/useShortcuts'
 import { parseSnapshot, snapshotFromLegacyHistory } from './snapshot/snapshot'
+import { useDecks } from './slides/useDecks'
 import { useSession } from './supabase/useSession'
 import { AppShell } from './components/AppShell'
 import { AuthControl } from './components/AuthControl'
@@ -29,9 +31,10 @@ import { AssetsPage } from './pages/AssetsPage'
 import { EditorPage } from './pages/EditorPage'
 import { HistoryPage } from './pages/HistoryPage'
 import { NotesPage } from './pages/NotesPage'
+import { PresentationsPage } from './pages/PresentationsPage'
 import { ProjectsPage } from './pages/ProjectsPage'
 import type { BugContextInput } from './utils/issueUrl'
-import { PAGES, useHashRoute } from './utils/route'
+import { LOCAL_PAGES, PAGES, useHashRoute } from './utils/route'
 import type { Page } from './utils/route'
 import { EDITOR_TAB_STORAGE_KEY, parseEditorTab, serializeEditorTab } from './utils/uiState'
 import type { EditorTab } from './utils/uiState'
@@ -64,6 +67,8 @@ function App() {
   const notes = useNotes(member)
   const projects = useProjects(userId)
   const library = useAssetLibrary(member)
+  // Prezentacje są lokalne (IndexedDB), więc działają także bez Supabase.
+  const decks = useDecks()
   const [authOpen, setAuthOpen] = useState(false)
   const [helpOpen, setHelpOpen] = useState(false)
   const posterRef = useRef<HTMLDivElement | null>(null)
@@ -85,9 +90,9 @@ function App() {
   const ready = editor.ready && workspace.ready
   const { form, template, colors } = editor
   // Bez Supabase aplikacja nie ma logowania ani stron z danymi wspólnymi -
-  // adres takiej strony pokazuje wtedy edytor.
+  // adres takiej strony pokazuje wtedy edytor (strony lokalne działają zawsze).
   const shared = session.status !== 'unconfigured'
-  const page: Page = shared ? route : 'editor'
+  const page: Page = shared || LOCAL_PAGES.includes(route) ? route : 'editor'
   const openSignIn = () => setAuthOpen(true)
 
   // Wejście na stronę odświeża jej listę - nie ma synchronizacji na żywo.
@@ -132,7 +137,7 @@ function App() {
             await history.record(newHistoryEntry(snapshot))
           }
         : undefined
-    void exporter.download(node, form.title, record)
+    void exporter.download(node, toPlain(form.title), record)
   }
 
   // Skrót zakładki działa z każdej strony: wraca do edytora i ją otwiera.
@@ -159,7 +164,7 @@ function App() {
   }
 
   const openNotes = notes.items.filter((note) => !note.done).length
-  const enabledShortcuts: ShortcutId[] = ['save', 'export', 'tabTemplate', 'tabContent', 'tabLook', 'help']
+  const enabledShortcuts: ShortcutId[] = ['save', 'export', 'tabTemplate', 'tabContent', 'tabLook', 'formatToolbar', 'help']
   const openProject = workspace.project
 
   // Wpis historii otwiera się jako nowa, niezapisana praca - nigdy nie
@@ -282,7 +287,9 @@ function App() {
           <HistoryPage sessionStatus={session.status} history={history} lang={lang} onSignInClick={openSignIn} onRestore={restoreHistory} />
         )}
         {page === 'notes' && <NotesPage sessionStatus={session.status} notes={notes} onSignInClick={openSignIn} />}
+        {page === 'presentations' && <PresentationsPage decks={decks} />}
       </AppShell>
+      <FormatToolbar />
       <TicketDialog type={ticket} onClose={() => setTicket(null)} bugContext={bugContext} />
       <AuthDialog session={session} open={authOpen} onClose={() => setAuthOpen(false)} />
     </AssetLibraryContext>

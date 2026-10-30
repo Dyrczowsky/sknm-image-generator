@@ -8,6 +8,7 @@ renderująca plakaty 1080×1080 i eksportująca je do PNG przez `html-to-image`.
 - [architektura.md](./architektura.md) - jak to jest poskładane (warstwy, przepływ danych, baza)
 - [stylowanie.md](./stylowanie.md) - Tailwind CSS w UI aplikacji + dlaczego plakaty mają style inline
 - [dodawanie-szablonu.md](./dodawanie-szablonu.md) - krok po kroku: nowy layout plakatu
+- [dodawanie-slajdu.md](./dodawanie-slajdu.md) - krok po kroku: nowy układ slajdu w prezentacjach
 - [supabase.md](./supabase.md) - logowanie, wspólna historia i notatki: konfiguracja projektu i zmiennych
 - [dodawanie-schematu-kolorow.md](./dodawanie-schematu-kolorow.md) - krok po kroku: nowy schemat kolorów ("motyw") dla istniejącego layoutu
 

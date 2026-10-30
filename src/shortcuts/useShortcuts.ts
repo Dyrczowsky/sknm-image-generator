@@ -20,7 +20,10 @@ export function useShortcuts(handlers: Handlers): void {
   useEffect(() => {
     const isMac = isMacPlatform()
     const onKeyDown = (event: KeyboardEvent) => {
-      if (document.querySelector('dialog[open]')) return
+      // Otwarte okno modalne (natywny <dialog> albo nakładka z aria-modal, np.
+      // pokaz slajdów) ma własną klawiaturę - Ctrl+Enter nie może wtedy pobrać
+      // plakatu, a Alt+1 przełączyć strony spod pokazu.
+      if (document.querySelector('dialog[open], [aria-modal="true"]')) return
       for (const shortcut of SHORTCUTS) {
         const handler = ref.current[shortcut.id]
         if (!handler || !matchesCombo(event, shortcut.combo, isMac)) continue

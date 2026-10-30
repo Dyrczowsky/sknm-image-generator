@@ -1,4 +1,5 @@
 import type { FormProps } from '../types'
+import { applyPlainEdit, toPlain } from '../richText'
 import { Field, IconButton, Input, Textarea } from '../components/ui'
 import { setField, setFieldVisible } from '../editor/formState'
 import { placeholderFor } from '../posters/fallback'
@@ -18,9 +19,9 @@ export function FormField({ field, value, onChange }: FormFieldProps) {
   const visible = value.visibility[name] !== false
   const control = {
     placeholder: field.placeholder ?? placeholderFor(name),
-    value: value[name],
+    value: toPlain(value[name]),
     className: visible ? undefined : 'opacity-60',
-    onChange: (e: { target: { value: string } }) => onChange(setField(name, e.target.value)),
+    onChange: (e: { target: { value: string } }) => onChange(setField(name, applyPlainEdit(value[name], e.target.value))),
   }
   const toggle = (
     <IconButton

@@ -46,15 +46,12 @@ export function withPlaceholders(data: RawPosterData) {
   // Stopka: domyślne logo PK (`null`), a za nim wgrane grafiki.
   const logoSlots: LogoSlotSource[] = showPkLogo ? [null, ...graphics] : graphics
   return {
-    title: data.title || PLACEHOLDERS.title,
-    subtitle: data.subtitle,
-    speaker: data.speaker || PLACEHOLDERS.speaker,
+    // Surowe dane formularza: `value` pól edytowanych na plakacie (`PosterText`),
+    // które same wybierają wartość przykładową dla pustego pola.
+    raw: data,
+    // Data i godzina z formularza (nieedytowane na plakacie), z wartością przykładową.
     event_date: data.event_date || PLACEHOLDERS.event_date,
     event_time: data.event_time || PLACEHOLDERS.event_time,
-    location: data.location || PLACEHOLDERS.location,
-    badge: data.badge,
-    badge2: data.badge2,
-    body: data.body || PLACEHOLDERS.body,
     logoSlots,
     qrUrl: data.qrUrl ?? '',
     photos: data.photos ?? {},

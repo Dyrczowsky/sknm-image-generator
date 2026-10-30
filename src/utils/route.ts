@@ -1,14 +1,18 @@
 import { useCallback, useSyncExternalStore } from 'react'
 
-export type Page = 'editor' | 'projects' | 'assets' | 'history' | 'notes'
+export type Page = 'editor' | 'projects' | 'assets' | 'history' | 'notes' | 'presentations'
 
 export const PAGES: readonly { page: Page; hash: string; label: string }[] = [
   { page: 'editor', hash: '#/', label: 'Edytor' },
+  { page: 'presentations', hash: '#/prezentacje', label: 'Prezentacje' },
   { page: 'projects', hash: '#/projekty', label: 'Projekty' },
   { page: 'assets', hash: '#/grafiki', label: 'Grafiki' },
   { page: 'history', hash: '#/historia', label: 'Historia' },
   { page: 'notes', hash: '#/notatki', label: 'Notatki' },
 ]
+
+// Strony, które działają bez Supabase - dane zostają na tym urządzeniu.
+export const LOCAL_PAGES: readonly Page[] = ['editor', 'presentations']
 
 // Tolerancyjny odczyt strony z `location.hash`. Rozpoznajemy tylko ścieżki
 // (`#/projekty`, bez wielkości liter, z końcowym `/` i sufiksem `?...`).
