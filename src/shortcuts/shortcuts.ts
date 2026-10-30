@@ -1,6 +1,6 @@
 // Jedyny rejestr skrótów klawiszowych: z niego korzysta i obsługa klawiszy
 // (useShortcuts), i okienko pomocy (ShortcutsHelp).
-export type ShortcutId = 'save' | 'export' | 'tabTemplate' | 'tabContent' | 'tabLook' | 'help'
+export type ShortcutId = 'save' | 'export' | 'tabTemplate' | 'tabContent' | 'tabLook' | 'formatToolbar' | 'help'
 
 // `mod` = ⌘ na Macu, Ctrl gdzie indziej. `alt` = Alt (⌥ na Macu).
 // `code` - fizyczny klawisz (`KeyboardEvent.code`); potrzebny przy Alt, bo na
@@ -26,6 +26,8 @@ export const SHORTCUTS: readonly Shortcut[] = [
   { id: 'tabTemplate', combo: { key: '1', alt: true, code: 'Digit1' }, label: 'Zakładka „Szablon"', allowInInputs: true },
   { id: 'tabContent', combo: { key: '2', alt: true, code: 'Digit2' }, label: 'Zakładka „Treść"', allowInInputs: true },
   { id: 'tabLook', combo: { key: '3', alt: true, code: 'Digit3' }, label: 'Zakładka „Wygląd"', allowInInputs: true },
+  // Obsługuje samo pole z formatowaniem (RichEditable), tu tylko wpis do pomocy.
+  { id: 'formatToolbar', combo: { key: 'F10', alt: true }, label: 'Pasek formatowania (w polu tekstu)', allowInInputs: true },
   { id: 'help', combo: { key: '?' }, label: 'Pokaż skróty klawiszowe', allowInInputs: false },
 ]
 

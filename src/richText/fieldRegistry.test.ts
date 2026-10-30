@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { registerRichField, richFieldFor } from './fieldRegistry'
+import { listenToolbarRequests, registerRichField, requestToolbar, richFieldFor } from './fieldRegistry'
 import type { RichFieldHandle } from './fieldRegistry'
 
 const handle: RichFieldHandle = {
   applyFormat: () => {},
   state: () => ({ marks: 0, align: null, alignable: false }),
+  focus: () => {},
 }
 
 // Węzły jako zwykłe obiekty z parentNode - tylko tego używa rejestr.
@@ -32,5 +33,15 @@ describe('fieldRegistry', () => {
     unregisterOld()
     expect(richFieldFor(field)?.handle).toBe(fresh)
     unregisterNew()
+  })
+
+  it('requestToolbar (Alt+F10) trafia do nasłuchu paska; bez paska zwraca false', () => {
+    expect(requestToolbar(field)).toBe(false)
+    const seen: HTMLElement[] = []
+    const stop = listenToolbarRequests((el) => seen.push(el))
+    expect(requestToolbar(field)).toBe(true)
+    expect(seen).toEqual([field])
+    stop()
+    expect(requestToolbar(field)).toBe(false)
   })
 })

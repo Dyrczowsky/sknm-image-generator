@@ -1,13 +1,16 @@
 import { useEffect, useLayoutEffect, useRef } from 'react'
 import type { ClipboardEvent, CSSProperties, KeyboardEvent, ReactElement, Ref } from 'react'
-import { isMacPlatform } from '../shortcuts/shortcuts'
-import { getOffsets, renderDoc } from './dom'
+import { isMacPlatform, matchesCombo, SHORTCUTS } from '../shortcuts/shortcuts'
+import { renderDoc } from './dom'
 import {
-  applyExternal, applyFormat, createField, endComposition, insertText, isEmpty, onBeforeInput, shortcutMark,
-  syncFromDom, toolbarState,
+  applyExternal, applyFormat, createField, endComposition, insertText, isEmpty, onBeforeInput, restoreFocus,
+  saveSelection, shortcutMark, syncFromDom, toolbarState,
 } from './field'
-import { registerRichField } from './fieldRegistry'
+import { registerRichField, requestToolbar } from './fieldRegistry'
 import type { ChangeMeta } from './fieldRegistry'
+
+// Alt+F10: fokus na pierwszym przycisku paska formatowania (jak w Wordzie).
+const TOOLBAR_COMBO = SHORTCUTS.find((s) => s.id === 'formatToolbar')!.combo
 
 export type EditableTag = 'div' | 'span' | 'p' | 'h1' | 'h2' | 'h3' | 'b' | 'i' | 'figcaption'
 
@@ -55,16 +58,14 @@ export function RichEditable({
     const f = field.current
     const doc = el.ownerDocument
     const beforeInput = (event: InputEvent) => onBeforeInput(el, f, event)
-    const selectionChange = () => {
-      const offsets = getOffsets(el)
-      if (offsets) f.saved = offsets
-    }
+    const selectionChange = () => saveSelection(el, f)
     // React nie daje natywnego `beforeinput` z `inputType`.
     el.addEventListener('beforeinput', beforeInput)
     doc.addEventListener('selectionchange', selectionChange)
     const unregister = registerRichField(el, {
       applyFormat: (op) => applyFormat(el, f, op),
       state: () => toolbarState(el, f),
+      focus: () => restoreFocus(el, f),
     })
     return () => {
       el.removeEventListener('beforeinput', beforeInput)
@@ -96,7 +97,14 @@ export function RichEditable({
     // przełączają slajdy) w trakcie pisania.
     event.stopPropagation()
     if (event.nativeEvent.isComposing) return
-    const mark = shortcutMark(event, isMacPlatform())
+    const mac = isMacPlatform()
+    if (matchesCombo(event, TOOLBAR_COMBO, mac)) {
+      event.preventDefault()
+      saveSelection(event.currentTarget, field.current)
+      requestToolbar(event.currentTarget)
+      return
+    }
+    const mark = shortcutMark(event, mac)
     if (mark !== null) {
       // Zapasowo dla przeglądarek bez `formatBold` w beforeinput.
       event.preventDefault()
@@ -129,6 +137,7 @@ export function RichEditable({
       role="textbox"
       aria-label={ariaLabel}
       aria-multiline={multiline || undefined}
+      aria-keyshortcuts="Alt+F10"
       {...{ [marker]: '' }}
       data-rich-field=""
       data-alignable={alignable ? '' : undefined}

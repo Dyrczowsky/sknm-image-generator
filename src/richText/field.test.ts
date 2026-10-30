@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { getOffsets } from './dom'
 import {
-  applyExternal, applyFormat, createField, endComposition, insertText, onBeforeInput, shortcutMark, syncFromDom,
-  toolbarState,
+  applyExternal, applyFormat, createField, endComposition, insertText, onBeforeInput, restoreFocus, saveSelection,
+  shortcutMark, syncFromDom, toolbarState,
 } from './field'
 import { MARK } from './format'
 import { asEl, e, fakeDocument, inner, root, select, t } from './testDom'
@@ -257,5 +257,38 @@ describe('pole jednowierszowe z \\n w zapisie', () => {
     el.replaceChildren(e('div', { 'data-align': 'center' }, t('a')), e('div', { 'data-align': 'center' }, t('b')))
     syncFromDom(asEl(el), f, true)
     expect(onChange).toHaveBeenCalledWith(`${RICH}${CENTER}a b`)
+  })
+})
+
+describe('fokus w pasku (Alt+F10)', () => {
+  it('saveSelection zapisuje zaznaczenie tylko, gdy pole ma fokus', () => {
+    const { el, f } = setup('abcd')
+    selectText(el, 1, 3)
+    saveSelection(asEl(el), f)
+    expect(f.saved).toEqual({ start: 1, end: 3 })
+    // Fokus w pasku, a przerysowanie po blur zwinęło zaznaczenie w polu.
+    fakeDocument.activeElement = root()
+    selectText(el, 0)
+    saveSelection(asEl(el), f)
+    expect(f.saved).toEqual({ start: 1, end: 3 })
+  })
+
+  it('applyFormat z fokusem w pasku działa na zapamiętanym zaznaczeniu', () => {
+    const { el, f, onChange } = setup('abcd')
+    f.saved = { start: 1, end: 3 }
+    fakeDocument.activeElement = root()
+    selectText(el, 0)
+    applyFormat(asEl(el), f, { kind: 'mark', mark: B })
+    expect(onChange).toHaveBeenCalledWith(`${RICH}a${style(B)}bc${style(0)}d`, { kind: 'format' })
+    expect(toolbarState(asEl(el), f).marks).toBe(B)
+  })
+
+  it('restoreFocus oddaje fokus polu i przywraca zaznaczenie', () => {
+    const { el, f } = setup('abcd')
+    f.saved = { start: 1, end: 3 }
+    fakeDocument.activeElement = root()
+    restoreFocus(asEl(el), f)
+    expect(fakeDocument.activeElement).toBe(el)
+    expect(getOffsets(asEl(el))).toEqual({ start: 1, end: 3 })
   })
 })

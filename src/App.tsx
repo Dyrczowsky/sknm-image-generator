@@ -164,7 +164,7 @@ function App() {
   }
 
   const openNotes = notes.items.filter((note) => !note.done).length
-  const enabledShortcuts: ShortcutId[] = ['save', 'export', 'tabTemplate', 'tabContent', 'tabLook', 'help']
+  const enabledShortcuts: ShortcutId[] = ['save', 'export', 'tabTemplate', 'tabContent', 'tabLook', 'formatToolbar', 'help']
   const openProject = workspace.project
 
   // Wpis historii otwiera się jako nowa, niezapisana praca - nigdy nie

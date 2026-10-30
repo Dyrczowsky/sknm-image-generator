@@ -27,6 +27,8 @@ describe('RichEditable', () => {
     expect(tag).toContain('data-slide-edit=""')
     expect(tag).toContain('data-rich-field=""')
     expect(tag).toContain('data-placeholder="Tytuł"')
+    // Skrót do paska formatowania (fokus na pierwszym przycisku).
+    expect(tag).toContain('aria-keyshortcuts="Alt+F10"')
     expect(tag).toContain('white-space:pre-line')
     expect(tag).not.toContain('data-empty')
     expect(tag).not.toContain('data-alignable')

@@ -27,6 +27,9 @@ export class FakeNode {
   contains(node: FakeNode): boolean {
     return node === this || this.childNodes.some((child) => child.contains(node))
   }
+  focus() {
+    fakeDocument.activeElement = this
+  }
   blur() {
     if (fakeDocument.activeElement === this) fakeDocument.activeElement = null
   }

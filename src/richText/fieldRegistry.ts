@@ -14,6 +14,8 @@ export interface ToolbarState { marks: number; align: Align | null; alignable: b
 export interface RichFieldHandle {
   applyFormat(op: FormatOp): void
   state(): ToolbarState
+  // Fokus z powrotem w polu, z zapamiętanym zaznaczeniem (Escape w pasku).
+  focus(): void
 }
 
 const fields = new WeakMap<Node, RichFieldHandle>()
@@ -33,4 +35,22 @@ export function richFieldFor(node: Node | null): { el: HTMLElement; handle: Rich
     if (handle) return { el: n as HTMLElement, handle }
   }
   return null
+}
+
+// Alt+F10 w polu: pasek pokazuje się dla tego pola i dostaje fokus.
+let toolbarListener: ((el: HTMLElement) => void) | null = null
+
+/** Nasłuch próśb o pasek (jeden - FormatToolbar); zwraca funkcję wyłączenia. */
+export function listenToolbarRequests(listener: (el: HTMLElement) => void): () => void {
+  toolbarListener = listener
+  return () => {
+    if (toolbarListener === listener) toolbarListener = null
+  }
+}
+
+/** Prośba pola o pasek z fokusem; false, gdy paska nie ma. */
+export function requestToolbar(el: HTMLElement): boolean {
+  if (!toolbarListener) return false
+  toolbarListener(el)
+  return true
 }

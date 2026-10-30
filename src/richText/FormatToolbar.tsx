@@ -9,7 +9,7 @@ import { MARK } from './format'
 import type { Align } from './format'
 import { placeToolbar } from './placeToolbar'
 import type { Box } from './placeToolbar'
-import { richFieldFor } from './fieldRegistry'
+import { listenToolbarRequests, richFieldFor } from './fieldRegistry'
 import type { FormatOp, ToolbarState } from './fieldRegistry'
 
 const ALIGN_UNAVAILABLE = 'Wyrównanie niedostępne w tym polu'
@@ -93,36 +93,78 @@ export function ToolbarButtons({ state, onFormat }: { state: ToolbarState; onFor
 
 interface Shown { anchor: Box; state: ToolbarState }
 
+interface SelectionSnapshot { anchorNode: Node | null; anchorOffset: number; focusNode: Node | null; focusOffset: number }
+
+function snapshot(sel: Selection | null): SelectionSnapshot | null {
+  if (!sel) return null
+  return { anchorNode: sel.anchorNode, anchorOffset: sel.anchorOffset, focusNode: sel.focusNode, focusOffset: sel.focusOffset }
+}
+
+function sameSelection(a: SelectionSnapshot | null, b: SelectionSnapshot | null): boolean {
+  return a !== null && b !== null && a.anchorNode === b.anchorNode && a.anchorOffset === b.anchorOffset
+    && a.focusNode === b.focusNode && a.focusOffset === b.focusOffset
+}
+
+const toBox = (rect: DOMRect): Box => ({ top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right })
+
+// Kotwica paska otwartego klawiaturą: zaznaczenie w polu, a gdy go nie widać
+// (zwinięte, przerysowane po blur) - samo pole.
+function anchorIn(el: HTMLElement): Box {
+  const sel = document.getSelection()
+  if (sel && sel.rangeCount > 0 && !sel.isCollapsed && el.contains(sel.anchorNode)) {
+    const rect = sel.getRangeAt(0).getBoundingClientRect()
+    if (rect.width || rect.height) return toBox(rect)
+  }
+  return toBox(el.getBoundingClientRect())
+}
+
 // Pływający pasek nad zaznaczeniem w polu z formatowaniem (portal do body).
 // Pokazuje się przy niepustym zaznaczeniu w jednym polu, które (lub pasek)
 // ma fokus; chowa się przy zwinięciu zaznaczenia, utracie fokusu i Escape.
+// Alt+F10 w polu pokazuje pasek (też bez zaznaczenia) z fokusem na pierwszym
+// przycisku; Escape w pasku wraca do pola z jego zaznaczeniem, Tab wychodzi.
 export function FormatToolbar(): ReactElement | null {
   const [shown, setShown] = useState<Shown | null>(null)
   const panelRef = useRef<HTMLDivElement>(null)
   const fieldRef = useRef<ReturnType<typeof richFieldFor>>(null)
-  const dismissed = useRef(false)
+  // Zaznaczenie, przy którym pasek schowano Escape - póki się nie zmieni, pasek nie wraca.
+  const dismissed = useRef<SelectionSnapshot | null>(null)
+  // Pole, dla którego pasek otwarto klawiaturą (Alt+F10), i czy dać fokus przyciskowi.
+  const forced = useRef<HTMLElement | null>(null)
+  const focusFirst = useRef(false)
+  const refreshRef = useRef<() => void>(() => {})
 
   useEffect(() => {
+    const hide = () => {
+      fieldRef.current = null
+      forced.current = null
+      setShown(null)
+    }
+    const show = (field: NonNullable<ReturnType<typeof richFieldFor>>, anchor: Box) => {
+      fieldRef.current = field
+      setShown({ anchor, state: field.handle.state() })
+    }
     const refresh = () => {
-      const hide = () => {
-        fieldRef.current = null
-        setShown(null)
+      const focus = document.activeElement
+      const inPanel = !!focus && !!panelRef.current?.contains(focus)
+      // Tryb klawiatury trwa, póki fokus jest w pasku (albo w polu tuż przed
+      // przeniesieniem go na przycisk); powrót do pola to zwykły tryb.
+      if (forced.current) {
+        const field = richFieldFor(forced.current)
+        const inField = !!field && !!focus && field.el.contains(focus) && focusFirst.current
+        if (field && (inPanel || inField)) return show(field, anchorIn(field.el))
+        forced.current = null
       }
       const sel = document.getSelection()
       if (dismissed.current || !sel || sel.rangeCount === 0 || sel.isCollapsed) return hide()
       const field = richFieldFor(sel.anchorNode)
       if (!field || richFieldFor(sel.focusNode)?.el !== field.el) return hide()
-      const focus = document.activeElement
-      if (!focus || !(field.el.contains(focus) || panelRef.current?.contains(focus))) return hide()
-      const rect = sel.getRangeAt(0).getBoundingClientRect()
-      fieldRef.current = field
-      setShown({
-        anchor: { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right },
-        state: field.handle.state(),
-      })
+      if (!focus || !(field.el.contains(focus) || inPanel)) return hide()
+      show(field, toBox(sel.getRangeAt(0).getBoundingClientRect()))
     }
+    refreshRef.current = refresh
     const onSelection = () => {
-      dismissed.current = false
+      if (!sameSelection(dismissed.current, snapshot(document.getSelection()))) dismissed.current = null
       refresh()
     }
     let timer: ReturnType<typeof setTimeout> | undefined
@@ -133,9 +175,16 @@ export function FormatToolbar(): ReactElement | null {
     const onKey = (event: globalThis.KeyboardEvent) => {
       if (event.key !== 'Escape' || !fieldRef.current) return
       event.stopPropagation()
-      dismissed.current = true
+      forced.current = null
+      dismissed.current = snapshot(document.getSelection())
       refresh()
     }
+    const stopRequests = listenToolbarRequests((el) => {
+      forced.current = el
+      focusFirst.current = true
+      dismissed.current = null
+      refresh()
+    })
     document.addEventListener('selectionchange', onSelection)
     document.addEventListener('focusout', onFocusOut)
     document.addEventListener('keydown', onKey)
@@ -143,6 +192,7 @@ export function FormatToolbar(): ReactElement | null {
     window.addEventListener('resize', refresh)
     return () => {
       clearTimeout(timer)
+      stopRequests()
       document.removeEventListener('selectionchange', onSelection)
       document.removeEventListener('focusout', onFocusOut)
       document.removeEventListener('keydown', onKey)
@@ -158,9 +208,15 @@ export function FormatToolbar(): ReactElement | null {
     const { width, height } = panel.getBoundingClientRect()
     const pos = placeToolbar(shown.anchor, { width, height }, { width: document.documentElement.clientWidth, height: window.innerHeight })
     panel.style.visibility = pos ? 'visible' : 'hidden'
-    if (!pos) return
-    panel.style.top = `${pos.top}px`
-    panel.style.left = `${pos.left}px`
+    if (pos) {
+      panel.style.top = `${pos.top}px`
+      panel.style.left = `${pos.left}px`
+    }
+    // Otwarty klawiaturą: fokus na pierwszym przycisku (pole pamięta zaznaczenie).
+    if (focusFirst.current) {
+      focusFirst.current = false
+      panel.querySelector<HTMLButtonElement>('button')?.focus()
+    }
   }, [shown])
 
   if (!shown) return null
@@ -173,13 +229,27 @@ export function FormatToolbar(): ReactElement | null {
     const rect = sel && sel.rangeCount > 0 ? sel.getRangeAt(0).getBoundingClientRect() : null
     setShown((prev) => {
       if (!prev) return prev
-      const anchor = rect ? { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right } : prev.anchor
+      const anchor = forced.current ? anchorIn(field.el) : rect && (rect.width || rect.height) ? toBox(rect) : prev.anchor
       return { anchor, state: field.handle.state() }
     })
   }
 
+  // Escape w pasku: fokus i zaznaczenie wracają do pola, pasek się chowa
+  // (i nie wraca, póki zaznaczenie się nie zmieni).
+  const onKeyDown = (event: KeyboardEvent) => {
+    if (event.key !== 'Escape') return
+    const field = fieldRef.current
+    event.preventDefault()
+    event.stopPropagation()
+    forced.current = null
+    field?.handle.focus()
+    dismissed.current = snapshot(document.getSelection())
+    refreshRef.current()
+  }
+
   return createPortal(
     <div ref={panelRef} style={{ position: 'fixed', top: 0, left: 0 }} onMouseDown={(event) => event.preventDefault()}
+      onKeyDown={onKeyDown}
       className="z-40 rounded-xl border border-border bg-surface p-1 shadow-pop"
     >
       <ToolbarButtons state={shown.state} onFormat={onFormat} />

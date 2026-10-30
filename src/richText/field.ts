@@ -49,9 +49,25 @@ export function shortcutMark(
   return KEY_MARKS[event.key.toLowerCase()] ?? null
 }
 
+// Bez fokusu (np. fokus w pasku po Alt+F10) zaznaczenie w DOM pola bywa już
+// zwinięte przez przerysowanie po blur - liczy się wtedy zapamiętane.
 function offsetsOf(el: HTMLElement, f: Field): Offsets {
   const end = toPlain(f.synced ?? '').length
-  return getOffsets(el) ?? f.saved ?? { start: end, end }
+  const live = el.ownerDocument.activeElement === el ? getOffsets(el) : null
+  return live ?? f.saved ?? { start: end, end }
+}
+
+/** Zapamiętuje zaznaczenie (selectionchange) - tylko przy fokusie w polu. */
+export function saveSelection(el: HTMLElement, f: Field) {
+  if (el.ownerDocument.activeElement !== el) return
+  const offsets = getOffsets(el)
+  if (offsets) f.saved = offsets
+}
+
+/** Fokus z powrotem w polu z zapamiętanym zaznaczeniem (Escape w pasku). */
+export function restoreFocus(el: HTMLElement, f: Field) {
+  el.focus()
+  if (f.saved) setOffsets(el, f.saved.start, f.saved.end)
 }
 
 /** Wartość z zewnątrz (pierwszy render, cofnij, panel): rysuje DOM, zachowuje kursor przy fokusie. */
