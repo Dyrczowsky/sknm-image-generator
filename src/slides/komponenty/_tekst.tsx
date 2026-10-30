@@ -1,7 +1,7 @@
 import { createElement, useCallback, useEffect, useLayoutEffect, useRef } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
 import { useSlideEdit } from '../defineSlide'
-import { RichEditable, RichText } from '../../richText'
+import { RichEditable, RichText, toPlain } from '../../richText'
 import type { EditableTag } from '../../richText'
 
 // Tekst slajdu (EditableText) i dopasowanie fontu do pudełka (AutoFit).
@@ -38,11 +38,12 @@ export function EditableText(props: EditableTextProps) {
 }
 
 function StaticText({ value, as = 'div', style, multiline, alignable }: EditableTextProps) {
-  // Pusty tekst: element zostaje (odstępy flexa, siatka), tylko bez treści.
+  // Pusty tekst (także same znaczniki formatu): element zostaje (odstępy
+  // flexa, siatka), tylko bez treści.
   return createElement(
     as,
     { style: { whiteSpace: 'pre-line', ...style } },
-    value ? <RichText value={value} inline={!(alignable ?? multiline)} /> : undefined,
+    toPlain(value) ? <RichText value={value} inline={!(alignable ?? multiline)} /> : undefined,
   )
 }
 
@@ -53,7 +54,8 @@ function EditableField({ path, value, as = 'div', style, multiline = false, alig
       value={value}
       onChange={(v) => onText(path, v)}
       as={as}
-      style={style}
+      // Slajdy: pre-line także w polach jednowierszowych - jak StaticText.
+      style={{ whiteSpace: 'pre-line', ...style }}
       multiline={multiline}
       alignable={alignable ?? multiline}
       placeholder={placeholder}

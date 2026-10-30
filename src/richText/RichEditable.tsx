@@ -118,7 +118,9 @@ export function RichEditable({
     <Tag
       // Tag jest unią, więc TS widzi tu ref <div>; każdy z tagów to HTMLElement.
       ref={ref as Ref<HTMLDivElement>}
-      style={{ whiteSpace: 'pre-line', ...style }}
+      // Wielowierszowe: wiersze widoczne (pre-line). Jednowierszowe dziedziczą
+      // white-space szablonu (np. `nowrap` w InfoLine) - jak w wersji statycznej.
+      style={multiline ? { whiteSpace: 'pre-line', ...style } : style}
       contentEditable
       suppressContentEditableWarning
       spellCheck

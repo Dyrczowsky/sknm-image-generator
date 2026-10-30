@@ -25,6 +25,10 @@ describe('EditableText', () => {
     expect(render(h(EditableText, { path: 'x', value: '' }))).toBe('<div style="white-space:pre-line"></div>')
   })
 
+  it('poza edytorem same znaczniki formatu (bez tekstu) nie rysują nic', () => {
+    expect(render(h(EditableText, { path: 'x', value: '\uE000\uE001\uE101', multiline: true }))).toBe('<div style="white-space:pre-line"></div>')
+  })
+
   it('w edytorze: pole tekstowe z podpowiedzią i dostępną nazwą', () => {
     const tag = openingTag(editable({ path: 'quote', value: 'Cytat', multiline: true, placeholder: 'Treść cytatu' }), '<div')
     // SSR pisze nazwy atrybutów jak w JSX; HTML i tak ignoruje wielkość liter.

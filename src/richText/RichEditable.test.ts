@@ -6,9 +6,15 @@ const base = { onChange: () => {}, ariaLabel: 'Nagłówek', marker: 'data-slide-
 
 describe('RichEditable', () => {
   it('white-space z propsu style wygrywa z domyślnym pre-line', () => {
-    const tag = openingTag(render(h(RichEditable, { ...base, value: 'a', style: { whiteSpace: 'pre-wrap' } })), '<div')
+    const tag = openingTag(render(h(RichEditable, { ...base, value: 'a', multiline: true, style: { whiteSpace: 'pre-wrap' } })), '<div')
     expect(tag).toContain('white-space:pre-wrap')
     expect(tag).not.toContain('pre-line')
+  })
+
+  it('pole jednowierszowe nie narzuca white-space (dziedziczy z szablonu, np. nowrap)', () => {
+    expect(openingTag(render(h(RichEditable, { ...base, value: 'a' })), '<div')).not.toContain('white-space')
+    const tag = openingTag(render(h(RichEditable, { ...base, value: 'a', style: { whiteSpace: 'nowrap' } })), '<div')
+    expect(tag).toContain('white-space:nowrap')
   })
 
   it('pole contentEditable="true" z rolą, nazwą i znacznikiem', () => {
