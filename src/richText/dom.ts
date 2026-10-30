@@ -4,7 +4,7 @@
 //   `white-space: pre-line`) i `<span data-marks="N" style=…>` dla runów
 //   z formatowaniem; pusty ostatni wiersz dostaje końcowy `<br>`, żeby był widoczny;
 // - z wyrównaniem: każdy wiersz to `<div data-align=…>` z runami, pusty wiersz `<div><br></div>`.
-// readDoc czyta też to, co dokłada przeglądarka (`<b>`, `<div>`, `<br>`, spany ze stylem).
+// readDoc czyta też to, co dokłada przeglądarka (`<b>`, `<div>`, `<br>`; spany ze stylem bez formatowania).
 // Używa tylko podstawowego API węzłów (testy działają na atrapie DOM).
 
 import { hasAlignment, MARK, parseRich, serializeRich, stripControl } from './format'
@@ -70,7 +70,12 @@ function attr(node: Node, name: string): string | null {
   return (node as Element).getAttribute(name)
 }
 
-/** Formatowanie elementu: nasz span ma data-marks, obce znaczniki przeglądarki tłumaczymy. */
+/**
+ * Formatowanie elementu: nasz span ma data-marks, a z obcych ufamy tylko
+ * znacznikom semantycznym (<b>, <i>, <u>, <s>…). Styl inline obcych spanów
+ * pomijamy: Chrome przy scalaniu wierszy przepisuje do nich wyliczony styl
+ * otoczenia (np. font-weight 800 tytułu), który formatowaniem nie jest.
+ */
 function elementMarks(node: Node, marks: number): number {
   const own = attr(node, 'data-marks')
   if (own !== null && /^\d+$/.test(own)) return Number(own) & 31
@@ -80,11 +85,6 @@ function elementMarks(node: Node, marks: number): number {
   if (name === 'I' || name === 'EM') m |= MARK.italic
   if (name === 'U') m |= MARK.underline
   if (name === 'S' || name === 'STRIKE' || name === 'DEL') m |= MARK.strike
-  const css = attr(node, 'style') ?? ''
-  if (/font-weight\s*:\s*(bold|bolder|[6-9]00)/i.test(css)) m |= MARK.bold
-  if (/font-style\s*:\s*italic/i.test(css)) m |= MARK.italic
-  if (/text-decoration[\w-]*\s*:[^;]*underline/i.test(css)) m |= MARK.underline
-  if (/text-decoration[\w-]*\s*:[^;]*line-through/i.test(css)) m |= MARK.strike
   return m
 }
 

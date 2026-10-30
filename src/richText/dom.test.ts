@@ -79,10 +79,20 @@ describe('readDoc', () => {
     expect(readDoc(asEl(root(e('div', {}, t('a')), e('div', {}, e('br', {})))))).toBe('a\n')
   })
 
-  it('obce znaczniki przeglądarki: <b>, <i> i span ze stylem', () => {
-    const el = root(e('b', {}, t('a')), e('span', { style: 'font-style: italic;' }, t('b')))
+  it('obce znaczniki przeglądarki: <b>, <em>, <u>, <s>', () => {
+    const el = root(e('b', {}, t('a')), e('em', {}, t('b')), e('u', {}, t('c')), e('s', {}, t('d')))
     expect(readDoc(asEl(el))).toBe(serializeRich([{ align: 'left', runs: [
-      { text: 'a', marks: B }, { text: 'b', marks: MARK.italic }] }]))
+      { text: 'a', marks: B }, { text: 'b', marks: MARK.italic }, { text: 'c', marks: MARK.underline },
+      { text: 'd', marks: MARK.strike }] }]))
+  })
+
+  it('obcy span ze stylem (np. po Backspace w Chrome) nie dodaje formatowania, dziedziczy otoczenie', () => {
+    // Tytuł plakatu ma font-weight 800 - Chrome przepisuje go do spanu przy scalaniu wierszy.
+    const css = 'font-weight: 800; font-style: italic; text-decoration: underline line-through; color: rgb(1, 2, 3);'
+    const el = root(t('a'), e('span', { style: css }, t('b')))
+    expect(readDoc(asEl(el))).toBe('ab')
+    const inBold = root(e('span', { 'data-marks': '1' }, t('a'), e('span', { style: css }, t('b'))))
+    expect(readDoc(asEl(inBold))).toBe(`${RICH}${style(B)}ab`)
   })
 
   it('scalone wiersze (Backspace między divami) biorą wyrównanie pierwszego', () => {
