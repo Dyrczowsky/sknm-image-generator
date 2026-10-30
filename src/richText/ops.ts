@@ -135,3 +135,49 @@ export function applyPlainEdit(value: string, nextPlain: string): string {
   replaceRange(flat, p, old.length - q, cleanText(nextPlain.slice(p, nextPlain.length - q), true))
   return collapse(flat)
 }
+
+/**
+ * Wartość po edycji w DOM (`read`) względem poprzedniej (`prev`). Zmieniony fragment
+ * to różnica wspólnego początku i końca. Pole jednowierszowe: tylko w nim '\n'
+ * (ciąg '\n') staje się spacją - wiersze już zapisane zostają. `keepAligns`: DOM
+ * pola inline nie zna wyrównań, więc wiersze biorą je z `prev`.
+ */
+export function mergeDomEdit(prev: string, read: string, opts: { multiline: boolean; keepAligns: boolean }): string {
+  const before = expand(prev)
+  const after = expand(read)
+  const old = before.cells.map((c) => c.ch).join('')
+  const now = after.cells.map((c) => c.ch).join('')
+  const max = Math.min(old.length, now.length)
+  let p = 0
+  while (p < max && old[p] === now[p]) p++
+  let q = 0
+  while (q < max - p && old[old.length - 1 - q] === now[now.length - 1 - q]) q++
+  const end = now.length - q
+
+  const cells: Cell[] = []
+  const aligns: Align[] = [after.aligns[0]]
+  let line = 0
+  let added = 0
+  for (let i = 0; i < after.cells.length; i++) {
+    const c = after.cells[i]
+    if (c.ch !== '\n') {
+      cells.push(c)
+      continue
+    }
+    line++
+    const inserted = i >= p && i < end
+    if (opts.multiline || !inserted) {
+      cells.push(c)
+      aligns.push(after.aligns[line])
+      if (inserted) added++
+    } else if (!(i > p && now[i - 1] === '\n')) {
+      cells.push({ ch: ' ', marks: inheritedMarks(after.cells, i) })
+    }
+  }
+  if (!opts.keepAligns) return collapse({ cells, aligns })
+  const at = lineOf(before.cells, p)
+  const removed = before.cells.slice(p, old.length - q).filter((c) => c.ch === '\n').length
+  const kept = before.aligns.slice()
+  kept.splice(at + 1, removed, ...Array<Align>(added).fill(kept[at]))
+  return collapse({ cells, aligns: kept })
+}

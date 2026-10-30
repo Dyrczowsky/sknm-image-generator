@@ -5,7 +5,7 @@ import { getOffsets, isCanonical, rangeOffsets, readDoc, renderDoc, setOffsets }
 import type { Offsets } from './dom'
 import type { FormatOp, ToolbarState } from './fieldRegistry'
 import { MARK, toPlain } from './format'
-import { alignIn, applyPlainEdit, clearMarks, insertPlain, marksIn, setAlign, splitLine, toggleMark } from './ops'
+import { alignIn, clearMarks, insertPlain, marksIn, mergeDomEdit, setAlign, splitLine, toggleMark } from './ops'
 
 // Stan pola poza Reactem: treść jest niekontrolowana, a natywne zdarzenia
 // (beforeinput, selectionchange) i rejestr paska czytają zawsze świeże propsy.
@@ -90,14 +90,14 @@ function commit(el: HTMLElement, f: Field, next: string, start: number, end: num
 
 /** DOM → wartość po zwykłym pisaniu. `canonize`: przerysuj, gdy przeglądarka dołożyła obcy kształt. */
 export function syncFromDom(el: HTMLElement, f: Field, canonize: boolean) {
-  let next = readDoc(el)
-  let force = false
-  const plain = toPlain(next)
-  // Pole jednowierszowe: nowe linie, które przecisnęła przeglądarka, to spacje.
-  if (!f.multiline && plain.includes('\n')) {
-    next = applyPlainEdit(next, plain.replace(/\n+/g, ' '))
-    force = true
-  }
+  const read = readDoc(el)
+  // Pole inline nie ma w DOM wyrównań wierszy - bierzemy je z ostatniej wartości.
+  // Pole jednowierszowe: nowe linie, które przecisnęła przeglądarka, to spacje
+  // (te już zapisane, np. z innego układu, zostają).
+  const next = f.inline || !f.multiline
+    ? mergeDomEdit(f.synced ?? '', read, { multiline: f.multiline, keepAligns: f.inline })
+    : read
+  const force = toPlain(next) !== toPlain(read)
   el.toggleAttribute('data-empty', isEmpty(next))
   if (next !== f.synced) {
     f.synced = next

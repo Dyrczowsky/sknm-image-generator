@@ -190,3 +190,69 @@ describe('shortcutMark', () => {
     expect(shortcutMark(key('k', { ctrlKey: true }), false)).toBeNull()
   })
 })
+
+describe('pole inline: wyrównanie wierszy z zapisu', () => {
+  // Zapis z innego układu: drugi wiersz wyśrodkowany, pole tutaj inline (bez bloków).
+  const stored = `${RICH}ab\n${CENTER}cd`
+
+  it('fokus i blur bez zmian nie wołają onChange', () => {
+    const { el, f, onChange } = setup(stored, { multiline: true })
+    expect(inner(el)).toBe('ab\ncd')
+    syncFromDom(asEl(el), f, false)
+    syncFromDom(asEl(el), f, true)
+    expect(onChange).not.toHaveBeenCalled()
+  })
+
+  it('pisanie zachowuje wyrównanie wierszy', () => {
+    const { el, f, onChange } = setup(stored, { multiline: true })
+    el.childNodes[0].nodeValue = 'abx\ncd'
+    syncFromDom(asEl(el), f, true)
+    expect(onChange).toHaveBeenCalledWith(`${RICH}abx\n${CENTER}cd`)
+  })
+
+  it('usunięcie podziału wiersza: wiersz dostaje wyrównanie pierwszego', () => {
+    const { el, f, onChange } = setup(stored, { multiline: true })
+    el.childNodes[0].nodeValue = 'abcd'
+    syncFromDom(asEl(el), f, true)
+    expect(onChange).toHaveBeenCalledWith('abcd')
+  })
+
+  it('pogrubienie zachowuje wyrównanie', () => {
+    const { el, f, onChange } = setup(stored, { multiline: true })
+    selectText(el, 0, 2)
+    applyFormat(asEl(el), f, { kind: 'mark', mark: B })
+    expect(onChange).toHaveBeenCalledWith(`${RICH}${style(B)}ab\n${CENTER}cd`)
+  })
+})
+
+describe('pole jednowierszowe z \\n w zapisie', () => {
+  it('fokus i blur bez zmian nie wołają onChange', () => {
+    const { el, f, onChange } = setup('a\nb')
+    syncFromDom(asEl(el), f, false)
+    syncFromDom(asEl(el), f, true)
+    expect(onChange).not.toHaveBeenCalled()
+    expect(inner(el)).toBe('a\nb')
+  })
+
+  it('pisanie zachowuje istniejący \\n', () => {
+    const { el, f, onChange } = setup('a\nb')
+    el.childNodes[0].nodeValue = 'a\nbx'
+    syncFromDom(asEl(el), f, true)
+    expect(onChange).toHaveBeenCalledWith('a\nbx')
+  })
+
+  it('nowy \\n wciśnięty przez przeglądarkę zamienia się w spację', () => {
+    const { el, f, onChange } = setup('a\nbc')
+    el.childNodes[0].nodeValue = 'a\nb\n\nc'
+    syncFromDom(asEl(el), f, true)
+    expect(onChange).toHaveBeenCalledWith('a\nb c')
+    expect(inner(el)).toBe('a\nb c')
+  })
+
+  it('pole z blokami (alignable): nowy \\n spacją, wyrównania z DOM', () => {
+    const { el, f, onChange } = setup(`${RICH}${CENTER}ab`, { alignable: true })
+    el.replaceChildren(e('div', { 'data-align': 'center' }, t('a')), e('div', { 'data-align': 'center' }, t('b')))
+    syncFromDom(asEl(el), f, true)
+    expect(onChange).toHaveBeenCalledWith(`${RICH}${CENTER}a b`)
+  })
+})
