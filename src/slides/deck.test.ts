@@ -168,6 +168,11 @@ describe('parseDeck', () => {
     expect(parseDeck({ id: 'a', v: DECK_VERSION + 1 })).toEqual({ ok: false, reason: 'newer' })
   })
 
+  it('starszy zapis (v 1) jest przyjmowany i podnoszony do v 2', () => {
+    const res = parseDeck({ id: 'a', v: 1, slides: [] })
+    expect(res.ok && res.deck.v).toBe(2)
+  })
+
   it('naprawia brakujące i błędne pola', () => {
     const res = parseDeck({ id: 'a', theme: 'x', transition: 5, duration: 1, viewAspect: '4:3', updatedAt: 'x', slides: 'nie' })
     expect(res.ok).toBe(true)

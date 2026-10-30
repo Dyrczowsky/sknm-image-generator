@@ -1,6 +1,7 @@
 import { createContext, useContext } from 'react'
 import type { ComponentType } from 'react'
 import type { IconName } from '../components/ui'
+import type { ChangeMeta } from '../richText'
 import type { SlideAspect, SlideBackground, SlideData, SlideThemeKey } from './types'
 
 // Grupy w galerii „Nowy slajd".
@@ -109,7 +110,8 @@ export function useSlideAspect(): SlideAspect {
 export interface SlideEdit {
   editable: boolean
   // `path` - ścieżka w `data`, np. `heading` albo `cards.2.title`.
-  onText: (path: string, value: string) => void
+  // `meta` - zmiana z formatowania: osobny krok cofania (nie skleja się z pisaniem).
+  onText: (path: string, value: string, meta?: ChangeMeta) => void
   // AutoFit zgłasza, czy tekst się nie mieści nawet po zmniejszeniu.
   onOverflow: (id: string, overflowing: boolean) => void
 }

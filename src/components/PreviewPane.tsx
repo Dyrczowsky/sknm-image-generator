@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import type { ComponentType, CSSProperties, RefObject } from 'react'
 import type { PosterExport } from '../editor/usePosterExport'
+import { PosterEditContext, setFormPath } from '../posters/edit'
+import type { PosterEdit } from '../posters/edit'
 import { SHAPE_SIZE } from '../posters/shape'
-import type { AccentName, PosterLang, PosterProps, RawPosterData } from '../types'
+import type { AccentName, FormUpdate, PosterLang, PosterProps, RawPosterData } from '../types'
 import { fitWidth, stagePadding } from '../utils/fit'
 import { useElementSize } from '../utils/useElementSize'
 import { ExportBar } from './ExportBar'
@@ -21,6 +23,8 @@ interface PreviewPaneProps {
   accent?: AccentName
   lang: PosterLang
   exporter: PosterExport
+  // Zmiana tekstu wpisanego wprost na podglądzie.
+  onChange: (update: FormUpdate) => void
   // Panel schowany (telefon, widok „Edycja"): poza kolejką fokusu i czytnikami.
   inert?: boolean
   className?: string
@@ -35,7 +39,7 @@ interface PreviewPaneProps {
 // plakatu, ale nie więcej wysokości, niż zostaje w oknie telefonu między
 // górnymi paskami (ok. 21 rem z dwuwierszowym paskiem eksportu) a dolnym
 // paskiem „Pobierz" (ok. 4 rem) - wysoki plakat A4 też widać w całości.
-export function PreviewPane({ posterRef, Component, data, scheme, accent, lang, exporter, inert, className }: PreviewPaneProps) {
+export function PreviewPane({ posterRef, Component, data, scheme, accent, lang, exporter, onChange, inert, className }: PreviewPaneProps) {
   const [stageRef, stage] = useElementSize<HTMLDivElement>()
   // Plakat może urosnąć w dół ponad kształt (Konferencja z długim programem),
   // więc podgląd dopasowuje się do zmierzonej wysokości układu.
@@ -44,6 +48,12 @@ export function PreviewPane({ posterRef, Component, data, scheme, accent, lang, 
   const shape = { width: base.width, height: Math.max(base.height, layoutHeight) }
   const size = fitWidth(stage, shape, stagePadding(stage)) || UNMEASURED_SIZE
   const ratio = { '--preview-ratio': `${shape.width} / ${shape.height}` } as CSSProperties
+  // Tekst edytowalny na podglądzie; w trakcie eksportu (i w schowanym panelu)
+  // plakat jest statyczny, żeby do pliku nie trafiły znaczniki edycji.
+  const edit: PosterEdit = {
+    editable: !exporter.exporting && !inert,
+    onText: (path, value, seed) => onChange(setFormPath(path, value, seed)),
+  }
 
   return (
     <section aria-label="Podgląd i eksport" inert={inert} className={`flex min-w-0 flex-col bg-sunken${className ? ` ${className}` : ''}`}>
@@ -54,7 +64,9 @@ export function PreviewPane({ posterRef, Component, data, scheme, accent, lang, 
         className="relative aspect-(--preview-ratio) max-h-[max(14rem,calc(100dvh-27rem))] min-h-40 w-full overflow-hidden min-[900px]:aspect-auto min-[900px]:max-h-none min-[900px]:min-h-0 min-[900px]:flex-1"
       >
         <div className="absolute inset-0 flex items-center justify-center">
-          <PosterPreview posterRef={posterRef} Component={Component} data={data} scheme={scheme} accent={accent} lang={lang} shape={exporter.shape} size={size} layoutHeight={layoutHeight} onLayoutHeight={setLayoutHeight} />
+          <PosterEditContext.Provider value={edit}>
+            <PosterPreview posterRef={posterRef} Component={Component} data={data} scheme={scheme} accent={accent} lang={lang} shape={exporter.shape} size={size} layoutHeight={layoutHeight} onLayoutHeight={setLayoutHeight} />
+          </PosterEditContext.Provider>
         </div>
         {exporter.note && (
           <p

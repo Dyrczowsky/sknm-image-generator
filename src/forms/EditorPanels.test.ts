@@ -5,6 +5,7 @@ import { AssetLibraryContext } from '../assets/AssetLibraryContext'
 import { h, openingTag, render } from '../components/ui/testUtils'
 import { EMPTY_FORM } from '../editor/formState'
 import { posterRegistry } from '../posters/registry'
+import { MARK, toggleMark } from '../richText'
 import type { FormValues } from '../types'
 import { ContentPanel, LookPanel } from './EditorPanels'
 
@@ -186,5 +187,21 @@ describe('podział paneli', () => {
       expect(html).not.toContain('<form')
       expect(html.slice(0, 80)).not.toMatch(/class="[^"]*\bp[xy]?-\d/)
     }
+  })
+})
+
+describe('pola formularza z formatowaniem', () => {
+  it('textarea i input pokazują czysty tekst bez znaków sterujących', () => {
+    const html = content('wyklad', form({ title: toggleMark('Ala', 0, 3, MARK.bold), body: toggleMark('Kot', 0, 3, MARK.italic) }))
+    expect(html).toContain('Ala')
+    expect(html).not.toContain('\uE000')
+    expect(html).not.toContain('\uE101')
+    expect(html).not.toContain('\uE102')
+  })
+
+  it('punkt programu pokazuje czysty tekst', () => {
+    const html = content('konferencja', form({ lists: { agenda: [{ title: toggleMark('Otwarcie', 0, 8, MARK.bold) }] } }))
+    expect(html).toContain('Otwarcie')
+    expect(html).not.toContain('\uE000')
   })
 })

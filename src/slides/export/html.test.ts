@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import { MAX_DURATION, TRANSITION_KEYS } from '../types'
-import { buildHtmlDocument, escapeHtml } from './html'
+import { createElement as h } from 'react'
+import { renderToStaticMarkup } from 'react-dom/server'
+import { EditableText } from '../komponenty/_tekst'
+import { buildHtmlDocument, EDITOR_ATTRS, escapeHtml } from './html'
 import type { PlayerSlide } from './html'
 import { PLAYER_CSS, PLAYER_SCRIPT } from './player'
 
@@ -96,5 +99,19 @@ describe('escapeHtml', () => {
 describe('PLAYER_SCRIPT', () => {
   it('jest poprawnym JS', () => {
     expect(() => new Function(PLAYER_SCRIPT)).not.toThrow()
+  })
+})
+
+describe('eksport sformatowanego tekstu', () => {
+  it('slajd poza edytorem ma style, bez pól edytora i znaków sterujących', () => {
+    const html = renderToStaticMarkup(h(EditableText, { path: 'x', value: '\uE000Ala \uE101ma', as: 'p' }))
+    expect(html).toContain('font-weight:bolder')
+    for (const forbidden of ['data-rich-field', 'contenteditable', '\uE000', '\uE100', '\uE101']) {
+      expect(html.toLowerCase()).not.toContain(forbidden.toLowerCase())
+    }
+  })
+
+  it('atrybuty pola formatowania są zdejmowane z kopii slajdu', () => {
+    expect(EDITOR_ATTRS).toEqual(expect.arrayContaining(['data-rich-field', 'data-alignable']))
   })
 })

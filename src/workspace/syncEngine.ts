@@ -1,5 +1,6 @@
 import { ProjectConflictError, projectNameFrom } from '../projects/remoteProjects'
 import type { ProjectRow } from '../projects/remoteProjects'
+import { toPlain } from '../richText'
 import type { EditorSnapshot } from '../snapshot/snapshot'
 import { bindingOf, bootDecision, reconcileBinding, reduceSaveStatus } from './syncState'
 import type { BindingAction, BootDecision, ProjectBinding, SaveEvent, SaveStatus, Workspace } from './syncState'
@@ -113,7 +114,7 @@ export function createWorkspaceEngine(deps: EngineDeps) {
     emit()
     try {
       await deps.upload(sent)
-      const row = target ? await deps.save(target.id, target.revision, sent) : await deps.create(projectNameFrom(sent.form.title), sent)
+      const row = target ? await deps.save(target.id, target.revision, sent) : await deps.create(projectNameFrom(toPlain(sent.form.title)), sent)
       // Po wczytaniu innego dokumentu wiersz nadal jest w chmurze i lista ma
       // o nim wiedzieć; po odpięciu (np. usunięciu projektu) wróciłby na listę.
       if (detachedAt === detachments) deps.onSaved?.(row)

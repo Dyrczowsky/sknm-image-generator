@@ -1,13 +1,14 @@
 import type { PosterProps } from '../types'
 import { getDay, getMonthShort } from '../utils/formatDate'
 import { BRANDING_EVENT } from './copy'
-import { withPlaceholders } from './fallback'
+import { PLACEHOLDERS, withPlaceholders } from './fallback'
 import { resolveScheme } from './schemes'
 import { fontMono, leading, TITLE_TRACKING, typography } from './theme'
 import { BrandingText } from './blocks/BrandingText'
 import { FooterLogos } from './blocks/FooterLogos'
 import { InfoLine } from './blocks/InfoLine'
 import { PosterFrame } from './blocks/PosterFrame'
+import { PosterText } from './blocks/PosterText'
 import { Sygnet } from './blocks/Sygnet'
 import { Triangle } from './blocks/Triangle'
 import { PhotoGallery } from './PhotoGallery'
@@ -16,7 +17,7 @@ const TRIANGLE_COLORS = ['var(--tri1)', 'var(--tri2)', 'var(--tri3)']
 
 // DATA — liczba jako grafika
 export function PosterData({ data, scheme, accent, lang = 'pl' }: PosterProps) {
-  const { title, subtitle, event_date, event_time, location, logoSlots, qrUrl, photos, hidden, fx, titleScale, textScale } = withPlaceholders(data)
+  const { raw, event_date, event_time, logoSlots, qrUrl, photos, hidden, fx, titleScale, textScale } = withPlaceholders(data)
   const { cssVars, sygnet, logoVariant } = resolveScheme('data', scheme, accent)
 
   return (
@@ -46,13 +47,18 @@ export function PosterData({ data, scheme, accent, lang = 'pl' }: PosterProps) {
           labelStyle={{ font: `400 18px ${fontMono}` }}
         />
         <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-          <div style={{ fontSize: 60 * titleScale, fontWeight: 800, lineHeight: leading(1, titleScale), letterSpacing: TITLE_TRACKING, color: 'var(--title)', fontKerning: 'none', whiteSpace: 'pre-line', ...fx('title') }}>
-            {title}
-          </div>
+          <PosterText
+            path="title"
+            value={raw.title}
+            fallback={PLACEHOLDERS.title}
+            multiline
+            label="Tytuł"
+            style={{ fontSize: 60 * titleScale, fontWeight: 800, lineHeight: leading(1, titleScale), letterSpacing: TITLE_TRACKING, color: 'var(--title)', fontKerning: 'none', whiteSpace: 'pre-line', ...fx('title') }}
+          />
           <InfoLine
-            parts={[{ text: subtitle, hidden: hidden('subtitle') }]}
+            parts={[{ field: { path: 'subtitle', value: raw.subtitle, multiline: true, label: 'Opis / podtytuł' }, hidden: hidden('subtitle') }]}
             partsStyle={{ fontSize: typography.body.fontSize * textScale, lineHeight: leading(typography.body.lineHeight, textScale), whiteSpace: 'pre-line' }}
-            secondLine={location}
+            secondLine={{ path: 'location', value: raw.location, fallback: PLACEHOLDERS.location, label: 'Lokalizacja' }}
             secondLineHidden={hidden('location')}
             style={{ color: 'var(--muted-text)', maxWidth: '24ch' }}
           />

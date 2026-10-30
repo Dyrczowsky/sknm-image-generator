@@ -1,7 +1,7 @@
 import type { PosterProps } from '../types'
 import { getDay, getMonthShort } from '../utils/formatDate'
 import { DEFAULT_BADGE, FREE_ENTRY } from './copy'
-import { withPlaceholders } from './fallback'
+import { PLACEHOLDERS, withPlaceholders } from './fallback'
 import { resolveScheme } from './schemes'
 import { usePosterShape } from './shape'
 import { fontMono, leading, TITLE_TRACKING } from './theme'
@@ -9,12 +9,13 @@ import { Badge } from './blocks/Badge'
 import { FooterLogos } from './blocks/FooterLogos'
 import { InfoLine } from './blocks/InfoLine'
 import { PosterFrame } from './blocks/PosterFrame'
+import { PosterText } from './blocks/PosterText'
 import { Sygnet } from './blocks/Sygnet'
 import { PhotoGallery } from './PhotoGallery'
 
 // GOŚĆ — zdjęcie + pas
 export function PosterGosc({ data, scheme, accent, lang = 'pl' }: PosterProps) {
-  const { title, speaker, event_date, event_time, location, badge, badge2, logoSlots, qrUrl, photos, hidden, fx, titleScale } = withPlaceholders(data)
+  const { raw, event_date, event_time, logoSlots, qrUrl, photos, hidden, fx, titleScale } = withPlaceholders(data)
   const { cssVars, sygnet, logoVariant } = resolveScheme('gosc', scheme, accent)
 
   const { shape, height } = usePosterShape()
@@ -54,20 +55,31 @@ export function PosterGosc({ data, scheme, accent, lang = 'pl' }: PosterProps) {
         {dateBox}
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 820 }}>
-          <Badge color="var(--accent)" style={fx('badge')}>{badge || DEFAULT_BADGE.seminarium[lang]}</Badge>
-          <div style={{ fontSize: 82 * titleScale, fontWeight: 800, lineHeight: leading(0.98, titleScale), letterSpacing: TITLE_TRACKING, fontKerning: 'none', whiteSpace: 'pre-line', ...fx('title') }}>
-            {title}
-          </div>
+          <Badge color="var(--accent)" style={fx('badge')} field={{ path: 'badge', value: raw.badge, fallback: DEFAULT_BADGE.seminarium[lang], label: 'Etykieta' }} />
+          <PosterText
+            path="title"
+            value={raw.title}
+            fallback={PLACEHOLDERS.title}
+            multiline
+            label="Tytuł"
+            style={{ fontSize: 82 * titleScale, fontWeight: 800, lineHeight: leading(0.98, titleScale), letterSpacing: TITLE_TRACKING, fontKerning: 'none', whiteSpace: 'pre-line', ...fx('title') }}
+          />
           <InfoLine
-            parts={[{ text: speaker, hidden: hidden('speaker') }]}
-            secondLine={location}
+            parts={[{ field: { path: 'speaker', value: raw.speaker, fallback: PLACEHOLDERS.speaker, label: 'Prelegent / organizator' }, hidden: hidden('speaker') }]}
+            secondLine={{ path: 'location', value: raw.location, fallback: PLACEHOLDERS.location, label: 'Lokalizacja' }}
             secondLineHidden={hidden('location')}
             style={{ fontSize: 32, color: 'var(--muted-text)', lineHeight: 1.35 }}
           />
         </div>
 
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24 }}>
-          <div style={{ fontSize: 22, fontWeight: 600, color: 'var(--accent)', ...fx('badge2') }}>{badge2 || FREE_ENTRY[lang]}</div>
+          <PosterText
+            path="badge2"
+            value={raw.badge2}
+            fallback={FREE_ENTRY[lang]}
+            label="Linia na dole"
+            style={{ fontSize: 22, fontWeight: 600, color: 'var(--accent)', ...fx('badge2') }}
+          />
           <FooterLogos qrUrl={qrUrl} slots={logoSlots} variant={logoVariant} />
         </div>
       </div>

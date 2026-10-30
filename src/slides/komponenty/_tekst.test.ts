@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { SlideEditContext } from '../defineSlide'
 import type { SlideEdit } from '../defineSlide'
 import { h, openingTag, render } from '../../components/ui/testUtils'
-import { EditableText, findFitFactor, fit, normalizeEditedText } from './_tekst'
+import { EditableText, findFitFactor, fit } from './_tekst'
 
 const EDITING: SlideEdit = { editable: true, onText: () => {}, onOverflow: () => {} }
 
@@ -14,14 +14,27 @@ describe('EditableText', () => {
     expect(html).toBe('<p style="white-space:pre-line">Ala\nma kota</p>')
   })
 
+  it('poza edytorem sformatowany tekst rysuje style w tym samym elemencie', () => {
+    const value = '\uE000Ala \uE101ma'
+    expect(render(h(EditableText, { path: 'x', value, as: 'p' }))).toBe(
+      '<p style="white-space:pre-line">Ala <span style="font-weight:bolder">ma</span></p>',
+    )
+  })
+
   it('poza edytorem pusty tekst zostawia sam element', () => {
     expect(render(h(EditableText, { path: 'x', value: '' }))).toBe('<div style="white-space:pre-line"></div>')
+  })
+
+  it('poza edytorem same znaczniki formatu (bez tekstu) nie rysują nic', () => {
+    expect(render(h(EditableText, { path: 'x', value: '\uE000\uE001\uE101', multiline: true }))).toBe('<div style="white-space:pre-line"></div>')
   })
 
   it('w edytorze: pole tekstowe z podpowiedzią i dostępną nazwą', () => {
     const tag = openingTag(editable({ path: 'quote', value: 'Cytat', multiline: true, placeholder: 'Treść cytatu' }), '<div')
     // SSR pisze nazwy atrybutów jak w JSX; HTML i tak ignoruje wielkość liter.
-    expect(tag).toContain('contentEditable="plaintext-only"')
+    expect(tag).toContain('contentEditable="true"')
+    expect(tag).toContain('data-rich-field=""')
+    expect(tag).toContain('data-alignable=""')
     expect(tag).toContain('spellCheck="true"')
     expect(tag).toContain('data-slide-edit=""')
     expect(tag).toContain('role="textbox"')
@@ -36,17 +49,6 @@ describe('EditableText', () => {
     expect(tag).toContain('data-empty=""')
     expect(tag).toContain('aria-label="cards.2.title"')
     expect(tag).not.toContain('aria-multiline')
-  })
-})
-
-describe('normalizeEditedText', () => {
-  it('twarde spacje i końcowe puste wiersze przeglądarki znikają', () => {
-    expect(normalizeEditedText('a b\n\n', true)).toBe('a b')
-  })
-
-  it('pole jednowierszowe nie przyjmuje nowych linii', () => {
-    expect(normalizeEditedText('a\nb', false)).toBe('a b')
-    expect(normalizeEditedText('a\nb', true)).toBe('a\nb')
   })
 })
 

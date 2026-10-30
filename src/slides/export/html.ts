@@ -45,7 +45,7 @@ const FONT_FACES: { family: string; weight: string; url: string; range: string }
 ]
 
 // Atrybuty edycji na slajdzie - w pliku do pokazu nic nie jest edytowalne.
-const EDITOR_ATTRS = ['data-slide-edit', 'contenteditable', 'role', 'aria-label', 'aria-multiline', 'spellcheck', 'data-placeholder', 'data-empty', 'tabindex']
+export const EDITOR_ATTRS = ['data-slide-edit', 'contenteditable', 'role', 'aria-label', 'aria-multiline', 'spellcheck', 'data-placeholder', 'data-empty', 'data-rich-field', 'data-alignable', 'tabindex']
 
 const MIME_BY_EXT: Record<string, string> = {
   svg: 'image/svg+xml',

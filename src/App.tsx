@@ -8,6 +8,7 @@ import { posterRegistry } from './posters/registry'
 import { SCHEME_LABELS } from './posters/schemes'
 import { newHistoryEntry } from './history/remoteHistory'
 import { useHistory } from './history/useHistory'
+import { FormatToolbar, toPlain } from './richText'
 import { useNotes } from './notes/useNotes'
 import type { ProjectRow } from './projects/remoteProjects'
 import { useProjects } from './projects/useProjects'
@@ -136,7 +137,7 @@ function App() {
             await history.record(newHistoryEntry(snapshot))
           }
         : undefined
-    void exporter.download(node, form.title, record)
+    void exporter.download(node, toPlain(form.title), record)
   }
 
   // Skrót zakładki działa z każdej strony: wraca do edytora i ją otwiera.
@@ -163,7 +164,7 @@ function App() {
   }
 
   const openNotes = notes.items.filter((note) => !note.done).length
-  const enabledShortcuts: ShortcutId[] = ['save', 'export', 'tabTemplate', 'tabContent', 'tabLook', 'help']
+  const enabledShortcuts: ShortcutId[] = ['save', 'export', 'tabTemplate', 'tabContent', 'tabLook', 'formatToolbar', 'help']
   const openProject = workspace.project
 
   // Wpis historii otwiera się jako nowa, niezapisana praca - nigdy nie
@@ -288,6 +289,7 @@ function App() {
         {page === 'notes' && <NotesPage sessionStatus={session.status} notes={notes} onSignInClick={openSignIn} />}
         {page === 'presentations' && <PresentationsPage decks={decks} />}
       </AppShell>
+      <FormatToolbar />
       <TicketDialog type={ticket} onClose={() => setTicket(null)} bugContext={bugContext} />
       <AuthDialog session={session} open={authOpen} onClose={() => setAuthOpen(false)} />
     </AssetLibraryContext>

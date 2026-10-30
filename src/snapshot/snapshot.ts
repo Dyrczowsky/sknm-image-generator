@@ -1,3 +1,4 @@
+import { toPlain } from '../richText'
 import { EMPTY_FORM, textFieldsOf } from '../editor/formState'
 import { DEFAULT_EXPORT_SETTINGS, normalizeExportSettings } from '../posters/formats'
 import type { ExportSettings } from '../posters/formats'
@@ -9,7 +10,9 @@ import type { DraftRow, FieldVisibility, FormTextField, FormValues, HistoryEntry
 // trzymają lokalna kopia robocza, projekty w chmurze i wpisy historii.
 // Obrazów tu nie ma: zamiast data URL-i są refy do magazynu grafik
 // (`<sha256>.<jpg|png|svg>`), więc snapshot jest małym JSON-em.
-export const SNAPSHOT_VERSION = 1
+// v2: pola tekstowe mogą nieść formatowanie (znaki sterujące z src/richText/);
+// v1 czyta się bez zmian, bo zwykły tekst jest poprawnym tekstem z formatowaniem.
+export const SNAPSHOT_VERSION = 2
 
 export interface SnapshotPhoto {
   asset: string
@@ -27,7 +30,7 @@ export type SnapshotForm = Omit<FormValues, 'graphics' | 'photos'> & {
 }
 
 export interface EditorSnapshot {
-  v: 1
+  v: 2
   poster_key: string
   color_scheme: string | null
   lang: PosterLang
@@ -223,7 +226,7 @@ export function parseSnapshot(raw: unknown, knownLayouts: readonly string[]): Pa
   if (typeof v !== 'number') return { ok: false, reason: 'invalid' }
   // Wersja idzie pierwsza: nowszy zapis może mieć inny kształt reszty pól.
   if (v > SNAPSHOT_VERSION) return { ok: false, reason: 'newer' }
-  if (v !== SNAPSHOT_VERSION) return { ok: false, reason: 'invalid' }
+  if (v !== SNAPSHOT_VERSION && v !== 1) return { ok: false, reason: 'invalid' }
   if (typeof posterKey !== 'string' || posterKey.length === 0) return { ok: false, reason: 'invalid' }
   if (!knownLayouts.includes(posterKey)) return { ok: false, reason: 'unknownLayout' }
   return {
@@ -251,7 +254,8 @@ export function assetRefsOf(snapshot: EditorSnapshot): string[] {
   return [...refs]
 }
 
-const hasText = (value: string): boolean => value.trim().length > 0
+// Znaki sterujące formatu się nie liczą: pole tylko z wyrównaniem jest puste.
+const hasText = (value: string): boolean => toPlain(value).trim().length > 0
 
 // Czy użytkownik nie wpisał nic, czego szkoda byłoby stracić: żadnego tekstu,
 // obrazu, wpisu listy ani kodu QR. Szablon, kolory, język, widoczność pól,

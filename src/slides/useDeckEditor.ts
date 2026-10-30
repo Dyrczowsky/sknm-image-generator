@@ -11,6 +11,7 @@ import {
 } from './deck'
 import { canRedo, canUndo, initHistory, pushHistory, redo as redoHistory, replacePresent, undo as undoHistory } from './history'
 import type { History } from './history'
+import type { ChangeMeta } from '../richText'
 import { layoutOf } from './komponenty'
 import type { Deck, Slide, SlideAspect, SlideData, SlideValue } from './types'
 
@@ -79,17 +80,20 @@ export function moveTo(state: EditorState, from: number, to: number): EditorStat
 }
 
 // Pisanie na slajdzie: kolejne litery w tym samym polu sklejają się w jedno cofnięcie.
+// Formatowanie (`meta.kind === 'format'`) to zawsze osobny krok.
 export function textKey(slideId: string, path: string): string {
   return `text:${slideId}:${path}`
 }
 
-export function setTextAt(state: EditorState, index: number, path: string, value: string, now?: number): EditorState {
+export function setTextAt(
+  state: EditorState, index: number, path: string, value: string, now?: number, meta?: ChangeMeta,
+): EditorState {
   const deck = state.history.present
   const slide = deck.slides[index]
   if (!slide) return state
   const next = setDataPath(deck, index, path, value)
   if (next === deck) return state
-  return commit(state, next, state.selected, textKey(slide.id, path), now)
+  return commit(state, next, state.selected, meta?.kind === 'format' ? undefined : textKey(slide.id, path), now)
 }
 
 export function updateSlideAt(state: EditorState, index: number, patch: SlidePatch, key?: string, now?: number): EditorState {
@@ -239,7 +243,7 @@ export interface DeckEditor {
   duplicate(index?: number): void
   remove(index?: number): void
   move(from: number, to: number): void
-  setText(path: string, value: string): void
+  setText(path: string, value: string, meta?: ChangeMeta): void
   updateSlide(patch: SlidePatch, index?: number): void
   // Pole danych zaznaczonego slajdu (panel właściwości). `key` skleja kroki historii.
   setData(key: string, value: SlideValue, historyKey?: string): void
@@ -276,7 +280,7 @@ export function useDeckEditor(initial: Deck, save: (deck: Deck) => void): DeckEd
       duplicate: (index?: number) => update((s) => duplicateAt(s, index ?? s.selected)),
       remove: (index?: number) => update((s) => removeAt(s, index ?? s.selected)),
       move: (from: number, to: number) => update((s) => moveTo(s, from, to)),
-      setText: (path: string, value: string) => update((s) => setTextAt(s, s.selected, path, value)),
+      setText: (path: string, value: string, meta?: ChangeMeta) => update((s) => setTextAt(s, s.selected, path, value, undefined, meta)),
       updateSlide: (patch: SlidePatch, index?: number) => update((s) => updateSlideAt(s, index ?? s.selected, patch)),
       setData: (key: string, value: SlideValue, historyKey?: string) =>
         update((s) => {

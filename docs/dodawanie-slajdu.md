@@ -106,6 +106,13 @@ Powtarzalne elementy bierz stamtąd zamiast pisać od zera:
 tak samo: `path={\`cards.${i}.title\`}`. Ścieżka musi istnieć w `data`, inaczej
 zapis jest ignorowany.
 
+Tekst z `EditableText` można formatować pływającym paskiem (B / I / U / S,
+akcent, wyczyść); zapis to zwykły string ze znakami sterującymi, więc w
+komponencie nic więcej nie robisz. Prop `alignable` włącza wyrównanie wierszy
+(domyślnie tak jak `multiline`; ustaw jawnie tylko, gdy ma być inaczej). Gdy
+wartość z `data` pokazujesz poza `EditableText` (nazwa, alt-tekst), przepuść ją
+przez `toPlain` z `src/richText`.
+
 `AutoFit` zmniejsza font, dopóki tekst mieści się w `maxHeight` / `maxWidth`
 (nie mniej niż 70%). Tekst, który nawet wtedy nie mieści się, edytor pokazuje
 jako przepełniony. Każdy długi tekst na slajdzie owijaj w `AutoFit`.

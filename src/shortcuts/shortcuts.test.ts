@@ -78,9 +78,17 @@ describe('formatCombo', () => {
 
 describe('SHORTCUTS', () => {
   it('rejestr ma zapis, eksport, trzy zakładki edytora i pomoc; pomoc nie działa w polach', () => {
-    expect(SHORTCUTS.map((s) => s.id)).toEqual(['save', 'export', 'tabTemplate', 'tabContent', 'tabLook', 'help'])
+    expect(SHORTCUTS.map((s) => s.id)).toEqual(['save', 'export', 'tabTemplate', 'tabContent', 'tabLook', 'formatToolbar', 'help'])
     expect(SHORTCUTS.find((s) => s.id === 'help')?.allowInInputs).toBe(false)
     expect(SHORTCUTS.find((s) => s.id === 'save')?.allowInInputs).toBe(true)
+  })
+  it('pasek formatowania to Alt+F10 (⌥F10 na Macu), działa w polu tekstu', () => {
+    const toolbar = SHORTCUTS.find((s) => s.id === 'formatToolbar')!
+    expect(formatCombo(toolbar.combo, false)).toBe('Alt+F10')
+    expect(formatCombo(toolbar.combo, true)).toBe('⌥F10')
+    expect(toolbar.allowInInputs).toBe(true)
+    expect(matchesCombo(ev({ key: 'F10', altKey: true }), toolbar.combo, false)).toBe(true)
+    expect(matchesCombo(ev({ key: 'F10' }), toolbar.combo, false)).toBe(false)
   })
   it('zakładki edytora to Alt+1/2/3 w kolejności zakładek', () => {
     const tabs = SHORTCUTS.filter((s) => s.id.startsWith('tab'))
