@@ -49,15 +49,9 @@ export function withPlaceholders(data: RawPosterData) {
     // Surowe dane formularza: `value` pól edytowanych na plakacie (`PosterText`),
     // które same wybierają wartość przykładową dla pustego pola.
     raw: data,
-    title: data.title || PLACEHOLDERS.title,
-    subtitle: data.subtitle,
-    speaker: data.speaker || PLACEHOLDERS.speaker,
+    // Data i godzina z formularza (nieedytowane na plakacie), z wartością przykładową.
     event_date: data.event_date || PLACEHOLDERS.event_date,
     event_time: data.event_time || PLACEHOLDERS.event_time,
-    location: data.location || PLACEHOLDERS.location,
-    badge: data.badge,
-    badge2: data.badge2,
-    body: data.body || PLACEHOLDERS.body,
     logoSlots,
     qrUrl: data.qrUrl ?? '',
     photos: data.photos ?? {},
