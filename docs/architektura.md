@@ -76,6 +76,7 @@ src/
 ├── notes/             wspólne notatki: zapytania + useNotes
 ├── projects/          projekty w chmurze (tabela sknm_projects): zapytania + useProjects
 │
+├── richText/          formatowanie tekstu: format zapisu, edytor, pasek (patrz „Formatowanie tekstu")
 ├── snapshot/          snapshot.ts - wersjonowany opis całego stanu plakatu (bez obrazów)
 ├── assets/            wgrane grafiki adresowane treścią: IndexedDB + Storage + rejestr + biblioteka
 ├── workspace/         kopia robocza: syncState (decyzje), syncEngine (harmonogram), useWorkspace
@@ -510,6 +511,52 @@ wypada ze snapshotu (do bazy nie może trafić data URL).
   pliku (duplikat w Storage albo w tabeli) liczy się jako sukces.
 - `gcLocal` przy starcie usuwa lokalne kopie, których kopia robocza nie
   używa, ale tylko te już wgrane do Storage.
+
+## Formatowanie tekstu
+
+Tekst ze slajdów i plakatów można formatować pływającym paskiem (B / I / U / S,
+akcent, wyczyść; wyrównanie wierszy w polach wielowierszowych). Całość siedzi w
+`src/richText/`, a banery nie biorą w tym udziale: nie rysują tekstu z
+formularza (nazwa koła jest stała).
+
+**Format zapisu - jeden string.** Zwykły tekst zostaje bez zmian, więc stare
+zapisy i pola bez formatowania są nadal poprawne. Tekst z formatowaniem zaczyna
+się znakiem U+E000; potem wiersze rozdzielone `\n`, każdy opcjonalnie z U+E001
+(środek) albo U+E002 (prawo) na początku, a styl przełączają znaki U+E100+maski
+(bit 1 pogrubienie, 2 kursywa, 4 podkreślenie, 8 przekreślenie, 16 akcent).
+Znaków sterujących nie zapisuj w kodzie dosłownie, tylko jako sekwencje `\uE000`.
+Z tego powodu `SNAPSHOT_VERSION` wynosi 2 (wczytywany jest też 1), a
+`DECK_VERSION` 2.
+
+```
+src/richText/
+├── format.ts          parseRich / serializeRich / toPlain / stripControl / hasFormatting
+├── ops.ts             operacje na zakresach (styl, wyrównanie) + applyPlainEdit dla pól formularza
+├── RichText.tsx       rysowanie tylko do odczytu (+ runStyle.ts: style przebiegu)
+├── dom.ts, field.ts   odczyt/zapis DOM edytora i model pola
+├── RichEditable.tsx   edytor contentEditable
+└── fieldRegistry.ts, FormatToolbar.tsx, placeToolbar.ts   aktywne pole + pływający pasek
+```
+
+- **Kolor akcentu** to `var(--rich-accent, var(--accent))`. Slajdy ustawiają
+  `--rich-accent` w `paletteVars` (`src/slides/themes.ts`), plakaty biorą
+  `--accent` ze schematu.
+- **Pasek** jest montowany raz w `App.tsx`; pokazuje się przy aktywnym polu
+  zarejestrowanym w `fieldRegistry`.
+- **Formularze i inspektor** nie edytują formatu: pokazują `toPlain(...)`, a
+  zmianę zapisują przez `applyPlainEdit`, który zachowuje formatowanie
+  niezmienionych fragmentów. Historia, nazwy plików, nazwy projektów i adresy
+  zgłoszeń też używają `toPlain`.
+- **Plakaty:** `PosterEditContext` (`src/posters/edit.ts`) niesie `editable` i
+  `onText(path, value, seed?)`; `setFormPath` zamienia ścieżkę (`title`,
+  `lists.agenda.2.title`) na zmianę formularza, a `listSeed` zasiewa listę, którą
+  szablon rysuje przy pustym polu. Podgląd jest edytowalny, dopóki nie trwa
+  eksport i nie jest `inert`; eksport rysuje statycznie (`flushSync` w
+  `usePosterExport`). Ctrl/⌘+Z na polach podglądu plakatu nie robi nic.
+  `withPlaceholders` zwraca surowe pola w `raw`, bo formatowanie musi dojść do
+  `PosterText` nietknięte. Użycie: [dodawanie-szablonu.md](./dodawanie-szablonu.md).
+- **Slajdy:** `EditableText` opakowuje `RichEditable`; patrz
+  [dodawanie-slajdu.md](./dodawanie-slajdu.md).
 
 ## Skróty klawiszowe
 
