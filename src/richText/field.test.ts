@@ -44,7 +44,9 @@ describe('Enter', () => {
     const event = input('insertParagraph')
     onBeforeInput(asEl(el), f, event)
     expect(event.preventDefault).toHaveBeenCalled()
+    // Pisanie (tu Enter) bez drugiego argumentu - skleja się w historii.
     expect(onChange).toHaveBeenCalledWith('ab\ncd')
+    expect(onChange.mock.calls[0]).toHaveLength(1)
     expect(inner(el)).toBe('ab\ncd')
     expect(getOffsets(asEl(el))).toEqual({ start: 3, end: 3 })
   })
@@ -93,7 +95,8 @@ describe('applyFormat i state', () => {
     const { el, f, onChange } = setup('Ala ma kota')
     selectText(el, 4, 6)
     applyFormat(asEl(el), f, { kind: 'mark', mark: B })
-    expect(onChange).toHaveBeenCalledWith(`${RICH}Ala ${style(B)}ma${style(0)} kota`)
+    // Drugi argument: zmiana z paska - w historii slajdów osobny krok.
+    expect(onChange).toHaveBeenCalledWith(`${RICH}Ala ${style(B)}ma${style(0)} kota`, { kind: 'format' })
     expect(inner(el)).toContain('<span data-marks="1" style="fontWeight:bolder">ma</span>')
     expect(getOffsets(asEl(el))).toEqual({ start: 4, end: 6 })
     expect(toolbarState(asEl(el), f)).toEqual({ marks: B, align: null, alignable: false })
@@ -108,7 +111,7 @@ describe('applyFormat i state', () => {
     const { el, f, onChange } = setup('ab', { alignable: true })
     selectText(el, 1)
     applyFormat(asEl(el), f, { kind: 'align', align: 'center' })
-    expect(onChange).toHaveBeenCalledWith(`${RICH}${CENTER}ab`)
+    expect(onChange).toHaveBeenCalledWith(`${RICH}${CENTER}ab`, { kind: 'format' })
     expect(toolbarState(asEl(el), f)).toEqual({ marks: 0, align: 'center', alignable: true })
   })
 
@@ -117,7 +120,7 @@ describe('applyFormat i state', () => {
     f.saved = { start: 0, end: 1 }
     select([root(t('x')), 0])
     applyFormat(asEl(el), f, { kind: 'mark', mark: MARK.italic })
-    expect(onChange).toHaveBeenCalledWith(`${RICH}${style(MARK.italic)}a${style(0)}bc`)
+    expect(onChange).toHaveBeenCalledWith(`${RICH}${style(MARK.italic)}a${style(0)}bc`, { kind: 'format' })
   })
 
   it('beforeinput formatBold idzie przez applyFormat, historyUndo jest blokowane', () => {
@@ -126,7 +129,7 @@ describe('applyFormat i state', () => {
     const bold = input('formatBold')
     onBeforeInput(asEl(el), f, bold)
     expect(bold.preventDefault).toHaveBeenCalled()
-    expect(onChange).toHaveBeenCalledWith(`${RICH}${style(B)}ab`)
+    expect(onChange).toHaveBeenCalledWith(`${RICH}${style(B)}ab`, { kind: 'format' })
     const undo = input('historyUndo')
     onBeforeInput(asEl(el), f, undo)
     expect(undo.preventDefault).toHaveBeenCalled()
@@ -221,7 +224,7 @@ describe('pole inline: wyrównanie wierszy z zapisu', () => {
     const { el, f, onChange } = setup(stored, { multiline: true })
     selectText(el, 0, 2)
     applyFormat(asEl(el), f, { kind: 'mark', mark: B })
-    expect(onChange).toHaveBeenCalledWith(`${RICH}${style(B)}ab\n${CENTER}cd`)
+    expect(onChange).toHaveBeenCalledWith(`${RICH}${style(B)}ab\n${CENTER}cd`, { kind: 'format' })
   })
 })
 

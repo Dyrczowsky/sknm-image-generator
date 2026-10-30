@@ -96,6 +96,16 @@ describe('useDeckEditor - czyste akcje', () => {
     expect(redoIn(undone).history.present.slides[0].data.title).toBe('Ala')
   })
 
+  it('formatowanie z paska to osobny krok, nie skleja się z pisaniem przed ani po', () => {
+    let state = initEditor(deckOf('tytul'))
+    state = setTextAt(state, 0, 'title', 'Ala', 1000)
+    state = setTextAt(state, 0, 'title', '\uE000\uE101Ala', 1100, { kind: 'format' })
+    expect(state.history.past).toHaveLength(2)
+    state = setTextAt(state, 0, 'title', '\uE000\uE101Alax', 1200)
+    expect(state.history.past).toHaveLength(3)
+    expect(undoIn(state).history.present.slides[0].data.title).toBe('\uE000\uE101Ala')
+  })
+
   it('pisanie w innym polu to osobny krok', () => {
     let state = initEditor(deckOf('tytul'))
     state = setTextAt(state, 0, 'title', 'X', 1000)

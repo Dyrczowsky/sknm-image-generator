@@ -5,6 +5,10 @@ import type { Align } from './format'
 
 export type FormatOp = { kind: 'mark'; mark: number } | { kind: 'clear' } | { kind: 'align'; align: Align }
 
+// Drugi argument onChange pola: zmiana z formatowania (pasek, skrót), nie z pisania.
+// Historia slajdów robi z niej osobny krok cofania.
+export interface ChangeMeta { kind: 'format' }
+
 export interface ToolbarState { marks: number; align: Align | null; alignable: boolean }
 
 export interface RichFieldHandle {

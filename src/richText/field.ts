@@ -3,7 +3,7 @@
 
 import { getOffsets, isCanonical, rangeOffsets, readDoc, renderDoc, setOffsets } from './dom'
 import type { Offsets } from './dom'
-import type { FormatOp, ToolbarState } from './fieldRegistry'
+import type { ChangeMeta, FormatOp, ToolbarState } from './fieldRegistry'
 import { MARK, toPlain } from './format'
 import { alignIn, clearMarks, insertPlain, marksIn, mergeDomEdit, setAlign, splitLine, toggleMark } from './ops'
 
@@ -21,7 +21,7 @@ export interface Field {
   deferred: string | null
   // Ostatnie zaznaczenie w polu - pasek działa też, gdy zaznaczenie na chwilę zniknęło.
   saved: Offsets | null
-  onChange: (value: string) => void
+  onChange: (value: string, meta?: ChangeMeta) => void
   multiline: boolean
   alignable: boolean
 }
@@ -76,7 +76,7 @@ export function applyExternal(el: HTMLElement, f: Field, value: string, inline: 
 }
 
 /** Nowa wartość z operacji: rysuje DOM, ustawia zaznaczenie, zgłasza zmianę. */
-function commit(el: HTMLElement, f: Field, next: string, start: number, end: number) {
+function commit(el: HTMLElement, f: Field, next: string, start: number, end: number, meta?: ChangeMeta) {
   const changed = next !== f.synced
   f.synced = next
   if (changed) {
@@ -85,7 +85,9 @@ function commit(el: HTMLElement, f: Field, next: string, start: number, end: num
   }
   if (el.ownerDocument.activeElement === el) setOffsets(el, start, end)
   f.saved = { start, end }
-  if (changed) f.onChange(next)
+  if (!changed) return
+  if (meta) f.onChange(next, meta)
+  else f.onChange(next)
 }
 
 /** DOM → wartość po zwykłym pisaniu. `canonize`: przerysuj, gdy przeglądarka dołożyła obcy kształt. */
@@ -128,7 +130,7 @@ export function applyFormat(el: HTMLElement, f: Field, op: FormatOp) {
   if (op.kind === 'mark') next = toggleMark(value, start, end, op.mark)
   else if (op.kind === 'clear') next = clearMarks(value, start, end)
   else if (f.alignable) next = setAlign(value, start, end, op.align)
-  commit(el, f, next, start, end)
+  commit(el, f, next, start, end, { kind: 'format' })
 }
 
 export function toolbarState(el: HTMLElement, f: Field): ToolbarState {

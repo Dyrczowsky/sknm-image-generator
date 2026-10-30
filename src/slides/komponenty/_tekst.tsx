@@ -52,7 +52,7 @@ function EditableField({ path, value, as = 'div', style, multiline = false, alig
   return (
     <RichEditable
       value={value}
-      onChange={(v) => onText(path, v)}
+      onChange={(v, meta) => onText(path, v, meta)}
       as={as}
       // Slajdy: pre-line także w polach jednowierszowych - jak StaticText.
       style={{ whiteSpace: 'pre-line', ...style }}

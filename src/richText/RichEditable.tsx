@@ -7,12 +7,14 @@ import {
   syncFromDom, toolbarState,
 } from './field'
 import { registerRichField } from './fieldRegistry'
+import type { ChangeMeta } from './fieldRegistry'
 
 export type EditableTag = 'div' | 'span' | 'p' | 'h1' | 'h2' | 'h3' | 'b' | 'i' | 'figcaption'
 
 export interface RichEditableProps {
   value: string
-  onChange: (value: string) => void
+  // `meta` przy zmianie z formatowania (pasek, skrót) - patrz ChangeMeta.
+  onChange: (value: string, meta?: ChangeMeta) => void
   as?: EditableTag
   style?: CSSProperties
   multiline?: boolean

@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { SlideEditContext } from '../../slides/defineSlide'
 import type { SlideEdit } from '../../slides/defineSlide'
+import type { ChangeMeta } from '../../richText'
 import { SLIDE_SIZE } from '../../slides/shape'
 import { SlideScaled } from '../../slides/SlideScaled'
 import { SlideView } from '../../slides/SlideView'
@@ -15,7 +16,7 @@ interface SlideCanvasProps {
   aspect: SlideAspect
   // Czy zaznaczony slajd ma tekst, który się nie mieści.
   overflowing: boolean
-  onText: (path: string, value: string) => void
+  onText: (path: string, value: string, meta?: ChangeMeta) => void
   onOverflow: (slideId: string, id: string, overflowing: boolean) => void
 }
 
