@@ -1,3 +1,4 @@
+import { toPlain } from '../richText'
 import { posterRegistry } from '../posters/registry'
 import { ACCENT_LABELS, SCHEME_LABELS } from '../posters/schemes'
 import { decodeScheme } from '../utils/colorScheme'
@@ -28,7 +29,7 @@ function HistoryCard({ entry, onRestore, onDelete, lang = 'pl' }: HistoryCardPro
   // Stary wpis (snapshot null) albo nieczytelny snapshot: miniatura z wąskich kolumn.
   const parsed = parseSnapshot(entry.snapshot, KNOWN_LAYOUTS)
   const snapshot = parsed.ok ? parsed.snapshot : snapshotFromLegacyHistory(entry, lang)
-  const when = [entry.event_date, entry.event_time, entry.location].filter(Boolean).join(' • ')
+  const when = [entry.event_date, entry.event_time, toPlain(entry.location)].filter(Boolean).join(' • ')
   const look = `${poster?.name ?? entry.poster_key}${scheme ? ` · ${SCHEME_LABELS[scheme] ?? scheme}${accent ? ` / ${ACCENT_LABELS[accent]}` : ''}` : ''}`
 
   return (
@@ -37,7 +38,7 @@ function HistoryCard({ entry, onRestore, onDelete, lang = 'pl' }: HistoryCardPro
       <button
         type="button"
         tabIndex={-1}
-        aria-label={`Przywróć: ${entry.title || 'wpis bez tytułu'}`}
+        aria-label={`Przywróć: ${toPlain(entry.title) || 'wpis bez tytułu'}`}
         className={`${THUMB_FIELD} cursor-pointer border-0 transition-colors hover:bg-fg/[0.06]`}
         onClick={() => onRestore(entry)}
       >
@@ -48,7 +49,7 @@ function HistoryCard({ entry, onRestore, onDelete, lang = 'pl' }: HistoryCardPro
 
       <div className="flex flex-1 flex-col gap-3 p-3.5">
         <div className="flex min-w-0 flex-col gap-1">
-          <strong className="truncate text-[0.9375rem]" title={entry.title}>{entry.title || '(bez tytułu)'}</strong>
+          <strong className="truncate text-[0.9375rem]" title={toPlain(entry.title)}>{toPlain(entry.title) || '(bez tytułu)'}</strong>
           {when && <span className="truncate">{when}</span>}
           <span className="truncate text-[0.8125rem] text-muted">{look}</span>
           <span className="truncate text-[0.8125rem] text-muted">{formatTimestamp(entry.created_at)}</span>

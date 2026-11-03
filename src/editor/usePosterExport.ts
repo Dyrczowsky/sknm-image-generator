@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { flushSync } from 'react-dom'
 import type { FileType, Medium, Orientation } from '../types'
 import { downloadPoster } from '../posters/export'
 import { DEFAULT_EXPORT_SETTINGS, DEFAULT_FORMAT, formatsFor, isPrintFormat, normalizeExportSettings, shapeFor } from '../posters/formats'
@@ -58,8 +59,12 @@ export function usePosterExport() {
   // (dopisanie do historii); jego porażka nie unieważnia pobranego pliku.
   const download = async (node: HTMLElement, title: string, onSaved?: () => Promise<void>) => {
     if (exporting) return
-    setExporting(true)
-    setNote(null)
+    // Synchronicznie: podgląd z `exporting` rysuje plakat statycznie (bez pól
+    // edycji), zanim html-to-image odczyta węzeł.
+    flushSync(() => {
+      setExporting(true)
+      setNote(null)
+    })
     try {
       const { dpi } = await downloadPoster(node, fileBasename(title), { formatKey: format, orientation, fileType })
       const notes = [dpi !== undefined && dpi < FULL_PRINT_DPI && `Zapisano w ${dpi} dpi — przeglądarka nie obsłużyła ${FULL_PRINT_DPI} dpi.`]

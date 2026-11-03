@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { EMPTY_FORM } from '../editor/formState'
+import { MARK, toggleMark } from '../richText'
 import { DEFAULT_EXPORT_SETTINGS } from '../posters/formats'
 import type { EditorSnapshot } from '../snapshot/snapshot'
 import { fakeSupabase } from '../supabase/fakeClient'
@@ -13,7 +14,7 @@ const ENTRY: NewHistoryEntry = {
 const STORED = { id: 7, created_at: '2031-03-01T10:00:00+00:00', ...ENTRY }
 
 const snap = (over: Partial<EditorSnapshot> = {}): EditorSnapshot => ({
-  v: 1, poster_key: 'gosc', color_scheme: 'czern~zloty', lang: 'pl', export: { ...DEFAULT_EXPORT_SETTINGS },
+  v: 2, poster_key: 'gosc', color_scheme: 'czern~zloty', lang: 'pl', export: { ...DEFAULT_EXPORT_SETTINGS },
   form: { ...EMPTY_FORM, title: 'Tytuł', speaker: 'dr X', badge: 'PLAKIETKA', graphics: ['a.png'], photos: {} },
   ...over,
 })
@@ -24,6 +25,16 @@ describe('newHistoryEntry', () => {
     expect(newHistoryEntry(snapshot)).toEqual({
       poster_key: 'gosc', title: 'Tytuł', subtitle: '', speaker: 'dr X', event_date: '', event_time: '', location: '', color_scheme: 'czern~zloty', snapshot,
     })
+  })
+
+  it('wąskie kolumny dostają czysty tekst, snapshot zachowuje formatowanie', () => {
+    const title = toggleMark('Ala', 0, 3, MARK.bold)
+    const snapshot = snap({ form: { ...EMPTY_FORM, title, graphics: [], photos: {} } })
+    const entry = newHistoryEntry(snapshot)
+    expect(entry.title).toBe('Ala')
+    expect(entry.snapshot).toBe(snapshot)
+    expect(snapshot.form.title).toBe(title)
+    expect(snapshot.form.title).toContain('\uE000')
   })
 
   it('brak kolorystyki → null', () => {

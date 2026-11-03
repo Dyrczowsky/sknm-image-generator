@@ -13,15 +13,16 @@ i rozwiązuje schemat kolorów. Kontener to zawsze `PosterFrame` (1080×1080).
 
 ```tsx
 import type { PosterProps } from '../types'
-import { withPlaceholders } from './fallback'
+import { PLACEHOLDERS, withPlaceholders } from './fallback'
 import { resolveScheme } from './schemes'
 import { FooterLogos } from './blocks/FooterLogos'
 import { InfoLine } from './blocks/InfoLine'
 import { PosterFrame } from './blocks/PosterFrame'
+import { PosterText } from './blocks/PosterText'
 import { Sygnet } from './blocks/Sygnet'
 
 export function PosterPiknik({ data, scheme, accent, lang = 'pl' }: PosterProps) {
-  const { title, subtitle, event_date, location, logoSlots, qrUrl, hidden, fx, titleScale, textScale } = withPlaceholders(data)
+  const { raw, event_date, logoSlots, qrUrl, hidden, fx, titleScale, textScale } = withPlaceholders(data)
   const { cssVars, sygnet, logoVariant } = resolveScheme('piknik', scheme, accent)
 
   return (
@@ -29,9 +30,16 @@ export function PosterPiknik({ data, scheme, accent, lang = 'pl' }: PosterProps)
       <Sygnet name={sygnet} />
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-        <div style={{ fontSize: 96 * titleScale, fontWeight: 800, lineHeight: 0.95, ...fx('title') }}>{title}</div>
-        <div style={{ fontSize: 32 * textScale, color: 'var(--accent)', ...fx('subtitle') }}>{subtitle}</div>
-        <InfoLine parts={[{ text: event_date, hidden: hidden('event_date') }, { text: location, hidden: hidden('location') }]} />
+        <PosterText path="title" value={raw.title} fallback={PLACEHOLDERS.title} multiline label="Tytuł"
+          style={{ fontSize: 96 * titleScale, fontWeight: 800, lineHeight: 0.95, whiteSpace: 'pre-line', ...fx('title') }} />
+        <PosterText path="subtitle" value={raw.subtitle} multiline label="Opis / podtytuł"
+          style={{ fontSize: 32 * textScale, color: 'var(--accent)', whiteSpace: 'pre-line', ...fx('subtitle') }} />
+        <InfoLine
+          parts={[
+            { text: event_date, hidden: hidden('event_date') },
+            { field: { path: 'location', value: raw.location, fallback: PLACEHOLDERS.location, label: 'Lokalizacja' }, hidden: hidden('location') },
+          ]}
+        />
       </div>
 
       {/* Stopka: logo PK w prawym dolnym rogu (ta sama pozycja we wszystkich
@@ -51,14 +59,27 @@ Reguły:
   etykieta miesiąca w layoucie `data`).
 - Powtarzalne fragmenty (sygnet, plakietka, stopka z logo, linia info, wielka liczba
   dnia, trójkąty, kliny) bierz z `src/posters/blocks/` zamiast pisać od zera.
+- **Tekst z formularza przez `PosterText`** (`blocks/PosterText.tsx`): na podglądzie
+  w edytorze można go kliknąć, zmienić i sformatować (pasek formatowania), poza
+  edytorem rysuje się statycznie z formatowaniem. `value` to surowe pole z `raw`,
+  `fallback` - to, co plakat pokazuje przy pustym polu (`PLACEHOLDERS`,
+  `DEFAULT_BADGE[...][lang]`), `label` - podpis pola jak w formularzu. Pola
+  `textarea` dostają `multiline`, pola w linii/pigułce `inline`, wielkie litery
+  `transform="uppercase"` (nie `.toUpperCase()` - zapis zostaje bez zmian).
+  Pole bez wartości zastępczej rysuj warunkowo przez
+  `toPlain(raw.<pole> ?? '') !== ''` (same znaczniki formatu to też puste pole).
+  Plakietka: `<Badge field={{ path, value, fallback, label }} />`, `InfoLine`:
+  część `{ field: {...}, hidden }`, `secondLine={{ path, value, ... }}`.
+  Pozycje list: `path="lists.<lista>.<i>.<klucz>"` + `listSeed` (lista, którą
+  szablon rysuje, gdy w formularzu jej brak). Daty i godziny zostają zwykłym tekstem.
 - Wbudowany tekst w dwóch językach (domyślna plakietka, linie brandingu, adres
   strony) trzymaj w `src/posters/copy.ts` i wybieraj przez `[lang]`, np.
-  `{badge || DEFAULT_BADGE.piknik[lang]}`.
+  `fallback: DEFAULT_BADGE.piknik[lang]`.
 - Wymiary i typografię trzymaj w skali z `src/posters/theme.ts`, gdzie pasuje.
 - **Widoczność pól:** dołóż `fx` (i `hidden`) z `withPlaceholders(data)` i rozlej
   `...fx('<pole>')` na element każdego pola tekstowego, np.
-  `<div style={{ fontSize: 96, ...fx('title') }}>{title}</div>`. Pola przekazywane
-  do `InfoLine` podajesz jako `{ text, hidden: hidden('<pole>') }`. Ukryte pole
+  `<PosterText path="title" ... style={{ fontSize: 96, ...fx('title') }} />`. Pola
+  przekazywane do `InfoLine` podajesz jako `{ text | field, hidden: hidden('<pole>') }`. Ukryte pole
   dostaje `display: none` i wypada z układu - plakat sam się przekłada. Jeśli pole
   siedzi w osobnym kontenerze z tłem/ramką (np. pływające pudełko z datą), owiń
   ten kontener warunkiem `{!hidden('<pole>') && ...}`, żeby nie zostało puste

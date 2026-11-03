@@ -1,7 +1,7 @@
 import type { PosterProps } from '../types'
 import { getDay, getMonthShort } from '../utils/formatDate'
 import { BRANDING_FULL, DEFAULT_BADGE, RECRUITMENT_PITCH, SITE_URL, SOCIAL_HANDLE } from './copy'
-import { withPlaceholders } from './fallback'
+import { PLACEHOLDERS, withPlaceholders } from './fallback'
 import { resolveScheme } from './schemes'
 import { usePosterShape } from './shape'
 import { fontMono, leading, TITLE_TRACKING } from './theme'
@@ -10,6 +10,7 @@ import { BrandingText } from './blocks/BrandingText'
 import { FooterLogos } from './blocks/FooterLogos'
 import { InfoLine } from './blocks/InfoLine'
 import { PosterFrame } from './blocks/PosterFrame'
+import { PosterText } from './blocks/PosterText'
 import { Sygnet } from './blocks/Sygnet'
 
 // Górna krawędź dolnej bandy: zygzak z sześciu zębów o głębokości 130 px.
@@ -18,7 +19,7 @@ const BAND_ZIGZAG =
 
 // REKRUTACJA — wzór z sygnetu
 export function PosterRekrutacja({ data, scheme, accent, lang = 'pl' }: PosterProps) {
-  const { title, subtitle, event_date, event_time, location, badge, logoSlots, qrUrl, hidden, fx, titleScale, textScale } = withPlaceholders(data)
+  const { raw, event_date, event_time, logoSlots, qrUrl, hidden, fx, titleScale, textScale } = withPlaceholders(data)
   const { cssVars, sygnet, logoVariant } = resolveScheme('rekrutacja', scheme, accent)
   const { kx } = usePosterShape()
 
@@ -30,12 +31,22 @@ export function PosterRekrutacja({ data, scheme, accent, lang = 'pl' }: PosterPr
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 26, position: 'relative', maxWidth: 900 * kx }}>
-        <div style={{ fontSize: 150 * titleScale, fontWeight: 800, lineHeight: leading(0.88, titleScale), letterSpacing: TITLE_TRACKING, fontKerning: 'none', whiteSpace: 'pre-line', ...fx('title') }}>
-          {title}
-        </div>
-        <div style={{ fontSize: 38 * textScale, fontWeight: 600, lineHeight: leading(1.3, textScale), color: 'var(--sub-color)', whiteSpace: 'pre-line', ...fx('subtitle') }}>
-          {subtitle || RECRUITMENT_PITCH[lang]}
-        </div>
+        <PosterText
+          path="title"
+          value={raw.title}
+          fallback={PLACEHOLDERS.title}
+          multiline
+          label="Tytuł"
+          style={{ fontSize: 150 * titleScale, fontWeight: 800, lineHeight: leading(0.88, titleScale), letterSpacing: TITLE_TRACKING, fontKerning: 'none', whiteSpace: 'pre-line', ...fx('title') }}
+        />
+        <PosterText
+          path="subtitle"
+          value={raw.subtitle}
+          fallback={RECRUITMENT_PITCH[lang]}
+          multiline
+          label="Opis / podtytuł"
+          style={{ fontSize: 38 * textScale, fontWeight: 600, lineHeight: leading(1.3, textScale), color: 'var(--sub-color)', whiteSpace: 'pre-line', ...fx('subtitle') }}
+        />
       </div>
 
       {/* Pas + stopka jako jedna bryła: górna krawędź to zygzak (dekoracja),
@@ -49,17 +60,25 @@ export function PosterRekrutacja({ data, scheme, accent, lang = 'pl' }: PosterPr
         }}
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <Badge color="var(--badge-color)" style={{ font: `700 26px ${fontMono}`, letterSpacing: '.1em', ...fx('badge') }}>{badge || DEFAULT_BADGE.rekrutacja[lang]}</Badge>
+          <Badge color="var(--badge-color)" style={{ font: `700 26px ${fontMono}`, letterSpacing: '.1em', ...fx('badge') }}
+            field={{ path: 'badge', value: raw.badge, fallback: DEFAULT_BADGE.rekrutacja[lang], label: 'Etykieta' }}
+          />
           <InfoLine
             parts={[
               { text: `${getDay(event_date)} ${getMonthShort(event_date, { lang })}`, hidden: hidden('event_date') },
               { text: event_time, hidden: hidden('event_time') },
-              { text: location, hidden: hidden('location') },
+              { field: { path: 'location', value: raw.location, fallback: PLACEHOLDERS.location, label: 'Lokalizacja' }, hidden: hidden('location') },
             ]}
             style={{ fontSize: 36, fontWeight: 800, lineHeight: 1.05, fontKerning: 'none', whiteSpace: 'nowrap' }}
           />
           <div style={{ fontSize: 26, fontWeight: 500, opacity: 0.85 }}>
-            {SITE_URL}{hidden('speaker') ? '' : ` · ${data.speaker || SOCIAL_HANDLE}`}
+            {SITE_URL}
+            {!hidden('speaker') && (
+              <>
+                {' · '}
+                <PosterText as="span" path="speaker" value={raw.speaker} fallback={SOCIAL_HANDLE} inline label="Profil w stopce (obok adresu strony)" />
+              </>
+            )}
           </div>
         </div>
         <FooterLogos qrUrl={qrUrl} slots={logoSlots} variant={logoVariant} />

@@ -8,7 +8,7 @@ import { WORKSPACE_KEY, createWorkspaceStore, localStart } from './workspaceStor
 const LAYOUTS = ['wyklad', 'gosc']
 const REF = `${'a'.repeat(64)}.png`
 const SNAPSHOT: EditorSnapshot = {
-  v: 1, poster_key: 'wyklad', color_scheme: 'czern~zloty', lang: 'en',
+  v: 2, poster_key: 'wyklad', color_scheme: 'czern~zloty', lang: 'en',
   export: { medium: 'social', format: 'a3', orientation: 'landscape', fileType: 'pdf' },
   form: { ...EMPTY_FORM, title: 'Wykład', titleScale: 1.2, graphics: [REF], photos: { speaker: [{ asset: REF, x: 10, y: 90 }] } },
 }
@@ -62,7 +62,7 @@ describe('createWorkspaceStore', () => {
   })
 
   it('odmawia kopii z nowszej wersji aplikacji i z nieznanym layoutem', async () => {
-    expect(await memory({ snapshot: { ...SNAPSHOT, v: 2 }, project: BINDING, dirty: true }).store.read(LAYOUTS)).toEqual({ kind: 'rejected', reason: 'newer' })
+    expect(await memory({ snapshot: { ...SNAPSHOT, v: 3 }, project: BINDING, dirty: true }).store.read(LAYOUTS)).toEqual({ kind: 'rejected', reason: 'newer' })
     expect(await memory({ snapshot: { ...SNAPSHOT, poster_key: 'nowy' }, project: null, dirty: false }).store.read(LAYOUTS)).toEqual({ kind: 'rejected', reason: 'unknownLayout' })
   })
 

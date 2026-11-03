@@ -2,6 +2,7 @@ import type { FormProps } from '../types'
 import { Button, ConfirmButton, Input } from '../components/ui'
 import { UI_LABEL } from '../components/styles'
 import { addListItem, removeListItem, setFillAgenda, setListItemField } from '../editor/formState'
+import { applyPlainEdit, toPlain } from '../richText'
 import { DEFAULT_BADGE } from '../posters/copy'
 import { FIELDS, badgeField } from './fields'
 import type { FieldSpec } from './fields'
@@ -57,8 +58,8 @@ function AgendaField({ value, onChange }: FormProps) {
                   size="sm"
                   aria-label={`${column.label}, punkt ${index + 1}`}
                   placeholder={column.placeholder}
-                  value={item[column.name] ?? ''}
-                  onChange={(e) => onChange(setListItemField('agenda', index, column.name, e.target.value))}
+                  value={toPlain(item[column.name] ?? '')}
+                  onChange={(e) => onChange(setListItemField('agenda', index, column.name, applyPlainEdit(item[column.name] ?? '', e.target.value)))}
                   className={column.className}
                 />
               ))}

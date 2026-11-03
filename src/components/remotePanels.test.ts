@@ -147,7 +147,7 @@ describe('HistoryList', () => {
   })
 
   const snapshot = (export_: Partial<EditorSnapshot['export']>): EditorSnapshot => ({
-    v: 1, poster_key: 'wyklad', color_scheme: null, lang: 'pl', export: { ...DEFAULT_EXPORT_SETTINGS, ...export_ },
+    v: 2, poster_key: 'wyklad', color_scheme: null, lang: 'pl', export: { ...DEFAULT_EXPORT_SETTINGS, ...export_ },
     form: { ...EMPTY_FORM, graphics: [], photos: {}, title: 'Mój wykład' },
   })
 

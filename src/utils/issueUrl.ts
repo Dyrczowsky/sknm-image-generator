@@ -1,3 +1,4 @@
+import { toPlain } from '../richText'
 import { FORM_TEXT_FIELDS } from '../types'
 import type { FormValues, PosterLang } from '../types'
 
@@ -56,8 +57,8 @@ function fitUrl(build: (body: string) => string, body: string, limits: { maxLeng
 function fieldsSummary(form: FormValues): string {
   return listOrDash(
     FORM_TEXT_FIELDS
-      .filter((name) => typeof form[name] === 'string' && form[name].trim() !== '')
-      .map((name) => `${name}="${form[name]}"`),
+      .filter((name) => typeof form[name] === 'string' && toPlain(form[name]).trim() !== '')
+      .map((name) => `${name}="${toPlain(form[name])}"`),
   )
 }
 

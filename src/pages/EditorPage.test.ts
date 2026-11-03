@@ -95,10 +95,11 @@ describe('EditorPage', () => {
     expect(preview).toContain('max-[900px]:fixed')
     expect(preview).not.toMatch(/class="[^"]*\b(max-\[900px\]:hidden|hidden|invisible)\b/)
     expect(preview).not.toContain(' hidden=""')
-    // Węzeł plakatu w pełnej rozdzielczości (źródło eksportu) i tytuł z formularza.
+    // Węzeł plakatu w pełnej rozdzielczości (źródło eksportu) z polem tytułu
+    // edytowalnym na podglądzie (treść pola wpisuje dopiero przeglądarka).
     const body = html.slice(section(html, 'Podgląd i eksport'))
     expect(body).toContain('width:1080px;height:1080px')
-    expect(body).toContain('Tytuł z formularza')
+    expect(body).toMatch(/contentEditable="true"[^>]*aria-label="Tytuł"[^>]*data-poster-edit=""/)
   })
 
   it('przełącznik „Edycja | Podgląd" jest tylko poniżej 900 px, a zakładki chowają się przez CSS dopiero w widoku podglądu', () => {

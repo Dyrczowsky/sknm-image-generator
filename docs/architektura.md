@@ -76,6 +76,7 @@ src/
 ├── notes/             wspólne notatki: zapytania + useNotes
 ├── projects/          projekty w chmurze (tabela sknm_projects): zapytania + useProjects
 │
+├── richText/          formatowanie tekstu: format zapisu, edytor, pasek (patrz „Formatowanie tekstu")
 ├── snapshot/          snapshot.ts - wersjonowany opis całego stanu plakatu (bez obrazów)
 ├── assets/            wgrane grafiki adresowane treścią: IndexedDB + Storage + rejestr + biblioteka
 ├── workspace/         kopia robocza: syncState (decyzje), syncEngine (harmonogram), useWorkspace
@@ -153,6 +154,7 @@ Strona wynika z `location.hash` (`src/utils/route.ts`, `useHashRoute`):
 | `#/grafiki` | Grafiki |
 | `#/historia` | Historia |
 | `#/notatki` | Notatki |
+| `#/prezentacje` | Prezentacje (lokalnie, także bez Supabase) |
 
 Tablica `PAGES` jest jedynym źródłem nazw, hashy i kolejności w nawigacji
 (`TopBar` rysuje z niej zwykłe odnośniki `<a href="#/...">`, więc działają
@@ -169,8 +171,8 @@ odświeżeniu, a hash nigdy nie trafia na serwer. Drugi powód: linki z Supabase
 edytor, a ekran ustawiania hasła pokazuje `AuthDialog`, gdy sesja ma status `settingPassword`.
 
 Bez Supabase (`session.status === 'unconfigured'`) nie ma stron z danymi
-wspólnymi: `TopBar` nie rysuje nawigacji, a `App` wymusza stronę edytora, nawet
-gdy hash mówi co innego. Wejście na stronę poboczną (zalogowany) odświeża jej
+wspólnymi: `TopBar` rysuje tylko odnośniki z `LOCAL_PAGES` (Edytor, Prezentacje),
+a `App` wymusza stronę edytora dla pozostałych adresów, nawet gdy hash mówi co innego. Wejście na stronę poboczną (zalogowany) odświeża jej
 listę - nie ma synchronizacji na żywo. Tytuł karty to „<strona> — Generator
 obrazów SKNM". `/poster/<klucz>[/<schemat>]` to osobny, ścieżkowy podgląd
 szablonu (`main.tsx` → `PosterPreviewPage`), działający poza `App`.
@@ -280,6 +282,98 @@ nie mają własnych hooków danych - dostają je z `App`.
 | **Notatki** (`NotesPage`) | wspólna lista zadań (`NotesPanel`); liczba otwartych pokazuje się jako pigułka przy „Notatki" w górnym pasku |
 
 Karty i siatki: [stylowanie.md](./stylowanie.md#strony-i-karty).
+
+## Prezentacje
+
+Prezentacje w stylu PowerPointa (slajdy z układów, pokaz, przejścia, eksport).
+Działają **tylko lokalnie**, bez Supabase i bez logowania: prezentacja żyje w
+IndexedDB tej przeglądarki. Strona `#/prezentacje` (`PresentationsPage`) jest
+osobnym światem obok edytora plakatów i nie korzysta z jego snapshotu.
+
+```
+src/slides/
+├── types.ts, defineSlide.ts, themes.ts, shape.ts   typy, definicja układu, motywy, rozmiar 1600×900 / 1200×1200
+├── deck.ts, history.ts, starter.ts                  czyste operacje na prezentacji, cofnij/ponów, startowa prezentacja
+├── deckStore.ts, useDecks.ts                        zapis w IndexedDB, hook dla strony
+├── SlideView.tsx, SlideScaled.tsx                   rysowanie slajdu i skalowanie do szerokości ekranu
+├── present.ts, transitions.ts                       nawigacja pokazu, rejestr przejść
+├── export/offscreen.tsx, export/raster.ts           renderowanie poza oknem, PNG i PDF
+├── export/html.ts                                   samodzielny plik HTML (oba formaty + odtwarzacz z player.ts)
+└── komponenty/                                      WSZYSTKIE układy: jeden plik = jeden układ + index.ts, _wspolne.tsx, _tekst.tsx
+src/components/slides/                               edytor i pokaz (UI)
+src/pages/PresentationsPage.tsx                      strona listy i edytora prezentacji
+```
+
+**Model danych.** `Deck` (`types.ts`) to nazwa, motyw (`granat`, `kremowy`,
+`ciemny`), domyślne przejście i jego czas (300-1000 ms), lista `Slide`. Slajd
+to `layout` (klucz układu), `data` (treść wg `defaults` układu), tło
+(`jasne` / `ciemne`), `mirrored`, `reveal` (pokazuj po kolei) i opcjonalne
+`transition`. Jedna prezentacja renderuje się w **16:9 i 1:1** z tej samej
+treści: każdy układ sam przestawia się na kwadrat (`useSlideAspect()`).
+`viewAspect` to tylko ostatni wybór przełącznika w edytorze.
+
+**Zapis.** `deckStore.ts` trzyma lekką listę `sknm-deck-index` (do ekranu
+wyboru) i osobny wpis `sknm-deck:<id>` na każdą prezentację, więc lista nie
+wczytuje treści. Zapis treści idzie przed indeksem. `useDecks` opóźnia zapis o
+400 ms i wymusza go przy ukryciu karty, `pagehide` i odmontowaniu, a `load`
+zawsze opróżnia kolejkę przed odczytem. Zdjęcia w bazie są **refami** (nazwa
+grafiki z `src/assets/`), jak w snapshotach plakatów: `toStored` zamienia data
+URL na ref, `fromStored` wczytuje je z powrotem; brakujące grafiki dostają
+`src: null` i pokazują zakreskowane miejsce. Prezentacja nowszej wersji
+(`v` większe niż `DECK_VERSION`) nie jest czytana. `parseDeck` naprawia resztę
+zamiast ją odrzucać (szczegóły w [dodawanie-slajdu.md](./dodawanie-slajdu.md)).
+
+**Historia.** `history.ts` to ogólny stos cofnij / ponów (limit 100 wpisów).
+Ciągłe pisanie w jedno pole skleja się w jedno cofnięcie: wpis z kluczem pola
+przesuwa okno o sekundę (`COALESCE_MS`) z każdą literą. Po cofnięciu kolejna
+zmiana już się nie skleja. Zmiana bez śladu w historii (np. `updatedAt`)
+idzie przez `replacePresent`.
+
+**Rysowanie.** `SlideView` dostaje slajd i ustawia `SlideRenderContext`
+(proporcja, motyw, tło, lustro, numer slajdu, bieżący krok, `reveal`), a potem
+rysuje komponent układu. Edycję na slajdzie włącza `SlideEditContext`:
+`editable` plus `onText(path, value)` i `onOverflow`. Poza edytorem
+(miniatury, pokaz, eksport) działa `READ_ONLY_EDIT`, więc każdy `EditableText`
+rysuje zwykły tekst. Komponenty widzą kolory tylko jako `var(--s-…)` ustawione
+przez `paletteVars` na korzeniu slajdu. `SlideScaled` skaluje pełny układ
+CSS-em `transform` do szerokości na ekranie, a wysokość wynika z proporcji.
+
+**Dopasowanie tekstu.** `AutoFit` mierzy tekst po każdym renderze w
+`useLayoutEffect` i zapisuje mnożnik w zmiennej `--fit` wprost w `style`
+elementu, bez stanu Reacta. Font w `fit(px)` to `calc(px * var(--fit))`.
+Zmniejsza go najwyżej do 70%. Gdy tekst nadal się nie mieści, zgłasza to przez
+`onOverflow`, a edytor dostaje tę informację.
+
+**Pokaz i kroki.** `reveal` i `steps` układu dają liczbę kroków slajdu
+(`stepsForDeck`; bez `reveal` slajd ma 0). `present.ts` to czysta nawigacja
+po pozycji `{ slide, step }`: `next` najpierw odsłania kolejne elementy, potem
+przechodzi do następnego slajdu; `prev` działa odwrotnie i wraca do slajdu w
+pełni odsłoniętego; `goto` zawsze wraca na krok 0. `Step` w komponencie ukrywa
+element, dopóki `step < index`. W edytorze, miniaturach i eksporcie krok to
+`Infinity`, więc wszystko jest widoczne.
+
+**Przejścia.** `transitions.ts` to rejestr dziesięciu przejść (`TRANSITIONS`,
+kolejność galerii to `TRANSITION_KEYS`). `transitionFrames(key, kierunek)`
+zwraca klatki dla Web Animations API na dwóch warstwach (wychodząca i
+wchodząca). Klatki to zwykłe obiekty bez funkcji, z dozwolonymi właściwościami
+`opacity`, `transform`, `clipPath`, `filter`, bo tę samą tabelę wkłada się do
+samodzielnego HTML jako JSON. Przy `prefers-reduced-motion` każde przejście
+(poza `brak`) zamienia się w krótkie przenikanie (25% czasu), a `clampDuration`
+pilnuje zakresu 300-1000 ms.
+
+**Eksport.** `renderOffscreen` (`export/offscreen.tsx`) montuje wszystkie
+slajdy w osobnym węźle poza ekranem (`left: -200vw`, `inert`,
+`aria-hidden`). Zwraca węzły dopiero po fontach, zdjęciach i dwóch klatkach
+(AutoFit musi się zmierzyć). `setStep` pozwala wyrenderować kolejne kroki bez
+przejść CSS. Tak jak poster editor, ten węzeł **nie może być
+`display: none` ani `visibility: hidden`**: eksport kopiuje obliczone style, a
+ukrycie daje pusty plik lub gorsze wygładzanie tekstu (patrz
+„Edytor zostaje zamontowany" wyżej). `export/raster.ts` rasteryzuje każdy
+slajd przez `html-to-image` (`toCanvas`, w rozdzielczości 1920×1080 albo
+1080×1080), rysując go dwa razy, bo WebKit przy pierwszym przebiegu często
+pomija obrazy i fonty. PNG idzie plik po pliku z przerwą na pobrania, a PDF składa
+`buildPdfPages` z `posters/pdf.ts`. Eksport HTML (`export/html.ts`) jest
+samodzielnym plikiem z tym samym modelem i tabelą przejść.
 
 ## Snapshot i kopia robocza
 
@@ -417,6 +511,58 @@ wypada ze snapshotu (do bazy nie może trafić data URL).
   pliku (duplikat w Storage albo w tabeli) liczy się jako sukces.
 - `gcLocal` przy starcie usuwa lokalne kopie, których kopia robocza nie
   używa, ale tylko te już wgrane do Storage.
+
+## Formatowanie tekstu
+
+Tekst ze slajdów i plakatów można formatować pływającym paskiem (B / I / U / S,
+akcent, wyczyść; wyrównanie wierszy w polach wielowierszowych). Całość siedzi w
+`src/richText/`, a banery nie biorą w tym udziale: nie rysują tekstu z
+formularza (nazwa koła jest stała).
+
+**Format zapisu - jeden string.** Zwykły tekst zostaje bez zmian, więc stare
+zapisy i pola bez formatowania są nadal poprawne. Tekst z formatowaniem zaczyna
+się znakiem U+E000; potem wiersze rozdzielone `\n`, każdy opcjonalnie z U+E001
+(środek) albo U+E002 (prawo) na początku, a styl przełączają znaki U+E100+maski
+(bit 1 pogrubienie, 2 kursywa, 4 podkreślenie, 8 przekreślenie, 16 akcent).
+Znaków sterujących nie zapisuj w kodzie dosłownie, tylko jako sekwencje `\uE000`.
+Z tego powodu `SNAPSHOT_VERSION` wynosi 2 (wczytywany jest też 1), a
+`DECK_VERSION` 2.
+
+```
+src/richText/
+├── format.ts          parseRich / serializeRich / toPlain / stripControl / hasFormatting
+├── ops.ts             operacje na zakresach (styl, wyrównanie) + applyPlainEdit dla pól formularza
+├── RichText.tsx       rysowanie tylko do odczytu (+ runStyle.ts: style przebiegu)
+├── dom.ts, field.ts   odczyt/zapis DOM edytora i model pola
+├── RichEditable.tsx   edytor contentEditable
+└── fieldRegistry.ts, FormatToolbar.tsx, placeToolbar.ts   aktywne pole + pływający pasek
+```
+
+- **Kolor akcentu** to `var(--rich-accent, var(--accent))`. Slajdy ustawiają
+  `--rich-accent` w `paletteVars` (`src/slides/themes.ts`), plakaty biorą
+  `--accent` ze schematu.
+- **Pasek** jest montowany raz w `App.tsx`; pokazuje się przy aktywnym polu
+  zarejestrowanym w `fieldRegistry`. Z klawiatury: Alt+F10 w polu daje fokus
+  pierwszemu przyciskowi (pole pamięta zaznaczenie), Escape wraca do pola.
+- **Pole** czyta tylko nasze spany (`data-marks`) i znaczniki semantyczne
+  (`<b>`, `<i>`, `<u>`, `<s>`); obce spany ze stylem przeglądarki nie wnoszą
+  formatowania. Pole inline zachowuje wyrównania wierszy z zapisu, a
+  jednowierszowe nie rusza zapisanych `\n` (spacją staje się tylko nowy).
+  White-space `pre-line` dostają z urzędu tylko pola wielowierszowe.
+- **Formularze i inspektor** nie edytują formatu: pokazują `toPlain(...)`, a
+  zmianę zapisują przez `applyPlainEdit`, który zachowuje formatowanie
+  niezmienionych fragmentów. Historia, nazwy plików, nazwy projektów i adresy
+  zgłoszeń też używają `toPlain`.
+- **Plakaty:** `PosterEditContext` (`src/posters/edit.ts`) niesie `editable` i
+  `onText(path, value, seed?)`; `setFormPath` zamienia ścieżkę (`title`,
+  `lists.agenda.2.title`) na zmianę formularza, a `listSeed` zasiewa listę, którą
+  szablon rysuje przy pustym polu. Podgląd jest edytowalny, dopóki nie trwa
+  eksport i nie jest `inert`; eksport rysuje statycznie (`flushSync` w
+  `usePosterExport`). Ctrl/⌘+Z na polach podglądu plakatu nie robi nic.
+  `withPlaceholders` zwraca surowe pola w `raw`, bo formatowanie musi dojść do
+  `PosterText` nietknięte. Użycie: [dodawanie-szablonu.md](./dodawanie-szablonu.md).
+- **Slajdy:** `EditableText` opakowuje `RichEditable`; patrz
+  [dodawanie-slajdu.md](./dodawanie-slajdu.md).
 
 ## Skróty klawiszowe
 

@@ -125,6 +125,7 @@ export function EditorPage({ editor, exporter, lang, posterRef, tab, onTabChange
       accent={colors.accent}
       lang={lang}
       exporter={exporter}
+      onChange={editor.updateForm}
       inert={narrow && view === 'edit'}
       className={`${banner ? BANNER_PREVIEW : 'min-[900px]:min-h-0'} ${view === 'edit' ? NARROW_OFFSCREEN : ''}`}
     />

@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { toPlain } from '../richText'
 import type { EditorSnapshot } from '../snapshot/snapshot'
 import type { HistoryEntry, NewHistoryEntry } from '../types'
 
@@ -13,7 +14,9 @@ export const HISTORY_LIMIT = 50
 export function newHistoryEntry(snapshot: EditorSnapshot): NewHistoryEntry {
   const { title, subtitle, speaker, event_date, event_time, location } = snapshot.form
   return {
-    poster_key: snapshot.poster_key, title, subtitle, speaker, event_date, event_time, location,
+    // Wąskie kolumny (lista historii) dostają czysty tekst; formatowanie żyje w `snapshot`.
+    poster_key: snapshot.poster_key, title: toPlain(title), subtitle: toPlain(subtitle), speaker: toPlain(speaker),
+    event_date, event_time, location: toPlain(location),
     color_scheme: snapshot.color_scheme, snapshot,
   }
 }

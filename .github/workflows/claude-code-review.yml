@@ -21,7 +21,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      pull-requests: read
+      # write: the review posts a summary comment on the PR (gh pr comment).
+      pull-requests: write
       issues: read
       id-token: write
 
@@ -39,7 +40,12 @@ jobs:
           plugin_marketplaces: 'https://github.com/anthropics/claude-code.git'
           plugins: 'code-review@claude-code-plugins'
           prompt: '/code-review:code-review --comment ${{ github.repository }}/pull/${{ github.event.pull_request.number }}'
-          claude_args: '--allowedTools "mcp__github_inline_comment__create_inline_comment"'
+          # Besides inline comments on problems, the review always ends with one
+          # summary comment - "Looks good to me" when it found nothing, so a clean
+          # PR does not just get silence.
+          claude_args: |
+            --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment:*)"
+            --append-system-prompt "When the review is finished, post exactly one top-level summary comment on the pull request with: gh pr comment ${{ github.event.pull_request.number }} --repo ${{ github.repository }} --body followed by the text in single quotes. If you found no issues, the body starts with the line 'Looks good to me ✅' followed by one or two sentences on what the PR changes. If you found issues, the body starts with 'Found N issue(s) - see the inline comments' followed by one line per issue. Write the summary in the language of the PR description. Never post more than one summary comment, and never approve or request changes on the PR."
           # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
           # or https://code.claude.com/docs/en/cli-reference for available options
 

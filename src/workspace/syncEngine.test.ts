@@ -9,7 +9,7 @@ import type { EngineState } from './syncEngine'
 import type { ProjectBinding, Workspace } from './syncState'
 
 const snap = (title: string): EditorSnapshot => ({
-  v: 1, poster_key: 'wyklad', color_scheme: null, lang: 'pl', export: DEFAULT_EXPORT_SETTINGS,
+  v: 2, poster_key: 'wyklad', color_scheme: null, lang: 'pl', export: DEFAULT_EXPORT_SETTINGS,
   form: { ...EMPTY_FORM, graphics: [], photos: {}, title },
 })
 const BINDING: ProjectBinding = { id: 7, name: 'Wykład', ownerId: 'ola', revision: 3 }

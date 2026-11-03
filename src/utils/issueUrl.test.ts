@@ -1,3 +1,4 @@
+import { MARK, toggleMark } from '../richText'
 import { describe, expect, it } from 'vitest'
 import {
   buildBugIssueUrl,
@@ -41,6 +42,14 @@ describe('formatBugContext', () => {
     expect(s).toContain('zdjęcia ×1')
     expect(s).not.toContain('data:')
     expect(s).not.toContain('base64')
+  })
+
+  it('pola tekstowe w podsumowaniu to czysty tekst, bez znaków sterujących', () => {
+    const form: FormValues = { ...emptyForm, title: toggleMark('Ala', 0, 3, MARK.bold), subtitle: '\uE000\uE001' }
+    const s = formatBugContext(ctx({ form }))
+    expect(s).toContain('title="Ala"')
+    expect(s).not.toContain('subtitle=')
+    expect(s).not.toMatch(/[\uE000-\uE1FF]/)
   })
 
   it('puste schemeKey / qrUrl → „—"', () => {

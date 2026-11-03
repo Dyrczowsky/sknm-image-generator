@@ -18,6 +18,9 @@ interface AppShellProps {
 // (lewy panel edytora, treść strony pobocznej). Węziej przewija się dokument.
 export function AppShell({ page, topBar, editor, children }: AppShellProps) {
   const onEditor = page === 'editor'
+  // Prezentacje mają własny edytor na wysokość okna - przewija się w nich
+  // lista albo panele, nie cała strona.
+  const fixedHeight = page === 'presentations'
   return (
     <div className="flex min-h-dvh flex-col bg-bg text-fg min-[900px]:h-dvh min-[900px]:overflow-hidden">
       {topBar}
@@ -32,7 +35,7 @@ export function AppShell({ page, topBar, editor, children }: AppShellProps) {
           {editor}
         </div>
         {!onEditor && (
-          <div data-page={page} className="min-h-0 flex-1 min-[900px]:overflow-y-auto">
+          <div data-page={page} className={`min-h-0 flex-1 ${fixedHeight ? 'flex flex-col min-[900px]:overflow-hidden' : 'min-[900px]:overflow-y-auto'}`}>
             {children}
           </div>
         )}

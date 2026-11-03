@@ -41,7 +41,7 @@ async function rendered<T>(render: () => Promise<T>): Promise<T> {
   return render()
 }
 
-function context2d(canvas: HTMLCanvasElement): CanvasRenderingContext2D {
+export function context2d(canvas: HTMLCanvasElement): CanvasRenderingContext2D {
   const ctx = canvas.getContext('2d')
   if (!ctx) throw new Error('brak kontekstu 2d')
   return ctx
@@ -70,7 +70,7 @@ function saveAs(href: string, filename: string) {
   link.click()
 }
 
-function saveBlob(blob: Blob, filename: string) {
+export function saveBlob(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob)
   saveAs(url, filename)
   setTimeout(() => URL.revokeObjectURL(url), BLOB_URL_TTL_MS)
@@ -125,7 +125,7 @@ async function rasterise(node: HTMLElement, shape: PosterShape, target: Size): P
   return canvas
 }
 
-function canvasToPngBlob(canvas: HTMLCanvasElement): Promise<Blob> {
+export function canvasToPngBlob(canvas: HTMLCanvasElement): Promise<Blob> {
   return new Promise((resolve, reject) => {
     canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error('toBlob zwrócił null'))), 'image/png')
   })
@@ -133,7 +133,7 @@ function canvasToPngBlob(canvas: HTMLCanvasElement): Promise<Blob> {
 
 // zlib/deflate przez natywny CompressionStream - format, którego oczekuje
 // filtr /FlateDecode w PDF.
-async function deflate(bytes: Uint8Array<ArrayBuffer>): Promise<Uint8Array<ArrayBuffer>> {
+export async function deflate(bytes: Uint8Array<ArrayBuffer>): Promise<Uint8Array<ArrayBuffer>> {
   const stream = new Blob([bytes]).stream().pipeThrough(new CompressionStream('deflate'))
   return new Uint8Array(await new Response(stream).arrayBuffer())
 }

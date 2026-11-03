@@ -32,11 +32,19 @@ describe('TopBar', () => {
     }
   })
 
-  it('bez danych wspólnych (brak Supabase) nie ma nawigacji ani odnośników do stron', () => {
+  it('bez danych wspólnych (brak Supabase) nawigacja zostaje tylko z stronami lokalnymi', () => {
     const html = bar({ remote: false })
-    expect(html).not.toContain('<nav')
-    expect(html).not.toContain('<a ')
+    expect(html.match(/<nav/g)).toHaveLength(1)
+    const links = [...html.matchAll(/<a [^>]*href="([^"]+)"/g)].map((m) => m[1])
+    expect(links).toEqual(['#/', '#/prezentacje'])
+    expect(html).not.toContain('href="#/projekty"')
     expect(html).toContain('POMOC')
+  })
+
+  it('z danymi wspólnymi (Supabase) nawigacja ma wszystkie strony', () => {
+    const html = bar({ remote: true })
+    const links = [...html.matchAll(/<a [^>]*href="([^"]+)"/g)].map((m) => m[1])
+    expect(links).toEqual(PAGES.map((p) => p.hash))
   })
 
   it('pomoc, język plakatu i konto stoją w tej kolejności, za nawigacją', () => {

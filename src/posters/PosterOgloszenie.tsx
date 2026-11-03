@@ -1,11 +1,13 @@
+import { toPlain } from '../richText'
 import type { PosterProps } from '../types'
 import { BRANDING_SHORT, SITE_URL } from './copy'
-import { withPlaceholders } from './fallback'
+import { PLACEHOLDERS, withPlaceholders } from './fallback'
 import { resolveScheme } from './schemes'
 import { fontMono, leading, TITLE_TRACKING } from './theme'
 import { BrandingText } from './blocks/BrandingText'
 import { FooterLogos } from './blocks/FooterLogos'
 import { PosterFrame } from './blocks/PosterFrame'
+import { PosterText } from './blocks/PosterText'
 import { Sygnet } from './blocks/Sygnet'
 import { Triangle } from './blocks/Triangle'
 
@@ -13,7 +15,7 @@ import { Triangle } from './blocks/Triangle'
 // Jedyny szablon bez narożnikowego stosu informacji — do krótkich ogłoszeń,
 // cytatów i podziękowań.
 export function PosterOgloszenie({ data, scheme, accent, lang = 'pl' }: PosterProps) {
-  const { title, subtitle, logoSlots, qrUrl, fx, titleScale, textScale } = withPlaceholders(data)
+  const { raw, logoSlots, qrUrl, fx, titleScale, textScale } = withPlaceholders(data)
   const { cssVars, sygnet, logoVariant } = resolveScheme('ogloszenie', scheme, accent)
 
   return (
@@ -28,11 +30,18 @@ export function PosterOgloszenie({ data, scheme, accent, lang = 'pl' }: PosterPr
           <Triangle width={46} height={40} color="var(--accent)" />
           <Triangle width={46} height={40} color="var(--accent)" />
         </div>
-        <div style={{ fontSize: 72 * titleScale, fontWeight: 800, lineHeight: leading(1.08, titleScale), letterSpacing: TITLE_TRACKING, maxWidth: '18ch', textWrap: 'balance', fontKerning: 'none', whiteSpace: 'pre-line', ...fx('title') }}>
-          {title}
-        </div>
-        {subtitle && (
-          <div style={{ font: `700 ${24 * textScale}px ${fontMono}`, letterSpacing: '.1em', color: 'var(--accent)', ...fx('subtitle') }}>— {subtitle.toUpperCase()}</div>
+        <PosterText
+          path="title"
+          value={raw.title}
+          fallback={PLACEHOLDERS.title}
+          multiline
+          label="Treść ogłoszenia / cytatu"
+          style={{ fontSize: 72 * titleScale, fontWeight: 800, lineHeight: leading(1.08, titleScale), letterSpacing: TITLE_TRACKING, maxWidth: '18ch', textWrap: 'balance', fontKerning: 'none', whiteSpace: 'pre-line', ...fx('title') }}
+        />
+        {toPlain(raw.subtitle ?? '') !== '' && (
+          <div style={{ font: `700 ${24 * textScale}px ${fontMono}`, letterSpacing: '.1em', color: 'var(--accent)', ...fx('subtitle') }}>
+            — <PosterText as="span" path="subtitle" value={raw.subtitle} transform="uppercase" inline label="Autor / podpis" />
+          </div>
         )}
       </div>
 

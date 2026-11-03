@@ -1,13 +1,16 @@
 import { createElement } from 'react'
 import type { ReactElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
-import { describe, expect, it } from 'vitest'
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import { posterRegistry } from '../registry'
+import { PosterEditContext } from '../edit'
+import { MARK, serializeRich } from '../../richText'
 import { BANNER_PAD, BANNER_SAFE_W, SHAPE_SIZE } from '../shape'
 import { PosterScaled } from '../../components/PosterScaled'
 import { CLUB_NAME } from '../copy'
 import { schemesFor } from '../schemes'
 import { DEFAULT_TEMPLATES } from '../../db/schema'
+import type { RawPosterData } from '../../types'
 
 const h = createElement as unknown as (type: unknown, props: object | null, ...children: unknown[]) => ReactElement
 
@@ -57,4 +60,78 @@ describe('banery', () => {
     const keys = DEFAULT_TEMPLATES.map((t) => t.poster_key)
     for (const key of Object.keys(posterRegistry)) expect(keys).toContain(key)
   })
+})
+
+// Wszystkie pola tekstowe wypełnione (z <&) - baner ma je ignorować.
+const FULL: RawPosterData = {
+  title: 'Tytuł <b> & co',
+  subtitle: 'Podtytuł <i> & co',
+  speaker: 'Prelegent & <x>',
+  location: 'Sala <1> & 2',
+  badge: 'Plakietka & <p>',
+  badge2: 'Druga & <p>',
+  body: 'Treść & <t>\nDruga linia',
+  event_date: '2026-11-12',
+  event_time: '18:30',
+  lists: { agenda: [{ time: '09:00', title: 'Punkt <a> & b', subtitle: 'Opis & <c>' }] },
+}
+
+describe('banery: HTML sprzed formatowania', () => {
+  // Data/godzina przykładowa to „dziś" - zegar stoi w miejscu.
+  beforeAll(() => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date(2026, 9, 29, 12, 0))
+  })
+  afterAll(() => {
+    vi.useRealTimers()
+  })
+
+  for (const [key, entry] of Object.entries(posterRegistry)) {
+    const render = (data: RawPosterData) => renderToStaticMarkup(h(entry.Banner, { data }))
+
+    it(`${key}: puste dane`, () => {
+      expect(render({})).toMatchSnapshot()
+    })
+
+    it(`${key}: tytuł z <&`, () => {
+      expect(render({ title: 'A <b> & C' })).toMatchSnapshot()
+    })
+
+    it(`${key}: wszystkie pola`, () => {
+      expect(render(FULL)).toMatchSnapshot()
+    })
+  }
+})
+
+// Baner niesie tylko nazwę koła i stopkę (copy.ts) - żadne pole formularza nie
+// jest na nim rysowane, więc nie ma czego formatować ani edytować.
+describe('banery: pola formularza', () => {
+  const bold = (word: string) => serializeRich([{ align: 'left', runs: [{ text: word, marks: MARK.bold }, { text: ' zwykłe', marks: 0 }] }])
+  const CONTROL = /[\uE000-\uE1FF]/
+  const FORMATTED: RawPosterData = {
+    title: bold('Tytuł'),
+    subtitle: bold('Podtytuł'),
+    speaker: bold('Prelegent'),
+    location: bold('Sala'),
+    badge: bold('Plakietka'),
+    badge2: bold('Druga'),
+    body: bold('Treść'),
+    lists: { agenda: [{ time: '09:00', title: bold('Punkt'), subtitle: bold('Opis') }] },
+  }
+
+  for (const [key, entry] of Object.entries(posterRegistry)) {
+    it(`${key}: sformatowane pola nie zmieniają banera ani nie wyciekają znaczników`, () => {
+      const out = renderToStaticMarkup(h(entry.Banner, { data: FORMATTED }))
+      expect(out).not.toMatch(CONTROL)
+      expect(out).not.toContain('font-weight:bolder')
+      expect(out).toBe(renderToStaticMarkup(h(entry.Banner, { data: {} })))
+    })
+
+    it(`${key}: w edytorze baner nie ma pól edytowalnych na płótnie`, () => {
+      const out = renderToStaticMarkup(
+        h(PosterEditContext.Provider, { value: { editable: true, onText: () => {} } }, h(entry.Banner, { data: FORMATTED })),
+      )
+      expect(out).not.toContain('data-poster-edit')
+    })
+  }
 })

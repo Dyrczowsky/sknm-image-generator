@@ -10,7 +10,7 @@ import { ProjectsList } from './ProjectsList'
 
 const noop = () => {}
 const SNAPSHOT: EditorSnapshot = {
-  v: 1, poster_key: 'wyklad', color_scheme: null, lang: 'pl', export: DEFAULT_EXPORT_SETTINGS,
+  v: 2, poster_key: 'wyklad', color_scheme: null, lang: 'pl', export: DEFAULT_EXPORT_SETTINGS,
   form: { ...EMPTY_FORM, graphics: [], photos: {}, title: 'Mój wykład' },
 }
 const row = (id: number, patch: Partial<ProjectRow> = {}): ProjectRow => ({
