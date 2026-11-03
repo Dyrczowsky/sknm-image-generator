@@ -1,13 +1,14 @@
 import type { PosterProps } from '../../types'
 import { CLUB_NAME, SITE_URL } from '../copy'
 import { withPlaceholders } from '../fallback'
+import { PosterText } from '../blocks/PosterText'
 import { resolveScheme } from '../schemes'
 import { BANNER_PAD, useBannerLayout } from '../shape'
 import { Badge } from '../blocks/Badge'
 import { PosterFrame } from '../blocks/PosterFrame'
 import { Sygnet } from '../blocks/Sygnet'
 import { PhotoGallery } from '../PhotoGallery'
-import { BANNER_SYGNET_W, BannerLogos, NAME_TRACKING } from './common'
+import { BANNER_SYGNET_W, BannerLogos, NAME_TRACKING, BannerEventLine } from './common'
 import { leading } from '../theme'
 
 // Szerokość zdjęcia wewnątrz bezpiecznej kolumny; na okładce strony zdjęcie
@@ -16,7 +17,7 @@ const PHOTO_W = 360
 
 // GOŚĆ (baner) — zdjęcie na całą wysokość po lewej, nazwa koła po prawej.
 export function BannerGosc({ data, scheme, accent, lang = 'pl' }: PosterProps) {
-  const { logoSlots, qrUrl, photos, titleScale } = withPlaceholders(data)
+  const { raw, logoSlots, qrUrl, photos, titleScale } = withPlaceholders(data)
   const { cssVars, sygnet, logoVariant } = resolveScheme('gosc', scheme, accent)
   const { padX, padY, height } = useBannerLayout()
 
@@ -44,9 +45,8 @@ export function BannerGosc({ data, scheme, accent, lang = 'pl' }: PosterProps) {
         <Badge color="var(--accent)" style={{ fontSize: 18, paddingTop: 6 }}>SKNM</Badge>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          <div style={{ fontSize: 58 * titleScale, lineHeight: leading(1, titleScale), fontWeight: 800, letterSpacing: NAME_TRACKING, fontKerning: 'none', textWrap: 'balance' }}>
-            {CLUB_NAME[lang]}
-          </div>
+          <PosterText path="bannerTitle" value={raw.bannerTitle} fallback={CLUB_NAME[lang]} multiline label="Tekst banera" style={{ fontSize: 58 * titleScale, lineHeight: leading(1, titleScale), fontWeight: 800, letterSpacing: NAME_TRACKING, fontKerning: 'none', textWrap: 'balance' }} />
+          <BannerEventLine data={data} lang={lang} />
         </div>
 
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24 }}>

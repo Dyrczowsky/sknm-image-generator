@@ -1,4 +1,4 @@
-import type { FormProps, RegistryEntry } from '../types'
+import type { FormProps, PosterLang, RegistryEntry } from '../types'
 import { FormBanner } from './FormBanner'
 import { LookFields } from './LookFields'
 
@@ -14,16 +14,18 @@ export interface EditorPanelProps extends FormProps {
   // layoutu. Czyta go tylko `ContentPanel`; `LookPanel` jest taki sam dla
   // plakatu i banera i go pomija (propsy mają wspólny kształt dla `EditorPage`).
   banner: boolean
+  // Język plakatu (podpowiedź nazwy koła w formularzu banera).
+  lang?: PosterLang
 }
 
 // Zakładka „Treść": pola tekstowe layoutu, program (Konferencja), zdjęcia
 // i kod QR. Komponent `Form` z rejestru to tylko tę część - rozmiar tekstu
 // i logotypy renderuje `LookPanel`.
-export function ContentPanel({ poster, banner, value, onChange }: EditorPanelProps) {
+export function ContentPanel({ poster, banner, lang, value, onChange }: EditorPanelProps) {
   if (!poster) return null
-  // Baner ma wspólny, krótki formularz - dane wydarzenia zostają w stanie
+  // Baner ma wspólny, krótki formularz - pola tylko plakatu zostają w stanie
   // i wracają po przejściu na „Social media i druk".
-  if (banner) return <FormBanner value={value} onChange={onChange} photo={poster.bannerPhoto} />
+  if (banner) return <FormBanner value={value} onChange={onChange} photo={poster.bannerPhoto} lang={lang} />
   const LayoutForm = poster.Form
   return <LayoutForm value={value} onChange={onChange} />
 }

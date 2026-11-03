@@ -127,11 +127,61 @@ describe('banery: pola formularza', () => {
       expect(out).toBe(renderToStaticMarkup(h(entry.Banner, { data: {} })))
     })
 
-    it(`${key}: w edytorze baner nie ma pól edytowalnych na płótnie`, () => {
-      const out = renderToStaticMarkup(
-        h(PosterEditContext.Provider, { value: { editable: true, onText: () => {} } }, h(entry.Banner, { data: FORMATTED })),
-      )
-      expect(out).not.toContain('data-poster-edit')
+    it(`${key}: w edytorze edytowalny jest tylko tekst banera (i miejsce, gdy linia wydarzenia jest włączona)`, () => {
+      const editing = (data: RawPosterData) =>
+        renderToStaticMarkup(h(PosterEditContext.Provider, { value: { editable: true, onText: () => {} } }, h(entry.Banner, { data })))
+      const out = editing(FORMATTED)
+      expect(out.split('data-poster-edit=""').length - 1).toBe(1)
+      expect(out).toContain('aria-label="Tekst banera"')
+      const withEvent = editing({ ...FORMATTED, bannerShowEvent: true })
+      expect(withEvent.split('data-poster-edit=""').length - 1).toBe(2)
+      expect(withEvent).toContain('aria-label="Lokalizacja"')
+    })
+  }
+})
+
+describe('banery: tekst banera i linia wydarzenia', () => {
+  it('Warsztat bez zdjęcia: w edycji opakowanie tytułu nie znika, gdy miejsce zostaje wyczyszczone', () => {
+    const Banner = posterRegistry.warsztatBezZdjecia.Banner
+    const editing = (data: RawPosterData) =>
+      renderToStaticMarkup(h(PosterEditContext.Provider, { value: { editable: true, onText: () => {} } }, h(Banner, { data })))
+    const filled = editing({ location: 'Sala', bannerShowEvent: true })
+    const cleared = editing({ location: '', bannerShowEvent: true })
+    expect(cleared).toContain('aria-label="Lokalizacja"')
+    // Ta sama struktura: tylko treść pola miejsca się różni.
+    expect(cleared.replace(/>Sala</, '><').replace(/ data-empty=""/g, '')).toBe(filled.replace(/>Sala</, '><').replace(/ data-empty=""/g, ''))
+  })
+
+  const render = (Banner: (typeof posterRegistry)[string]['Banner'], data: RawPosterData, lang: 'pl' | 'en' = 'pl') =>
+    renderToStaticMarkup(h(PosterScaled, { size: 820, shape: 'cover' }, h(Banner, { data, lang })))
+  const CONTROL = /[\uE000-\uE1FF]/
+
+  for (const [key, entry] of Object.entries(posterRegistry)) {
+    it(`${key}: własny tekst zastępuje nazwę koła`, () => {
+      const out = render(entry.Banner, { bannerTitle: 'GALA_25' })
+      expect(out).toContain('GALA_25')
+      expect(out).not.toContain(CLUB_NAME.pl)
+    })
+
+    it(`${key}: same znaczniki formatu = nazwa koła (PL/EN)`, () => {
+      expect(render(entry.Banner, { bannerTitle: '\uE000' })).toContain(CLUB_NAME.pl)
+      expect(render(entry.Banner, { bannerTitle: '' }, 'en')).toContain(CLUB_NAME.en)
+    })
+
+    it(`${key}: sformatowany tekst banera rysuje formatowanie bez wycieku znaczników`, () => {
+      const bannerTitle = serializeRich([{ align: 'left', runs: [{ text: 'Gala', marks: MARK.bold }, { text: ' 25', marks: 0 }] }])
+      const out = render(entry.Banner, { bannerTitle })
+      expect(out).toContain('font-weight:bolder')
+      expect(out).not.toMatch(CONTROL)
+    })
+
+    it(`${key}: linia wydarzenia po włączeniu przełącznika`, () => {
+      const data = { event_date: '2026-11-27', event_time: '15:00', location: 'SALA_Y' }
+      expect(render(entry.Banner, data)).not.toContain('SALA_Y')
+      const out = render(entry.Banner, { ...data, bannerShowEvent: true })
+      expect(out).toContain('SALA_Y')
+      expect(out).toContain('15:00')
+      expect(out).toContain('27 lis')
     })
   }
 })

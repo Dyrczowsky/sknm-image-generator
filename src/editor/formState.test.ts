@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  downloadTitle,
   EMPTY_FORM,
   addGraphics,
   addListItem,
@@ -20,6 +21,7 @@ import {
   textFieldsOf,
 } from './formState'
 import { MAX_GRAPHICS } from '../posters/theme'
+import { MARK, toggleMark } from '../richText'
 
 const withGraphics = (...graphics: string[]) => ({ ...EMPTY_FORM, graphics })
 
@@ -31,7 +33,7 @@ describe('formFromRow', () => {
 
   it('textFieldsOf pomija kolumny spoza pól tekstowych', () => {
     const row = { title: 'T', id: 7, color_scheme: 'czern' } as Parameters<typeof textFieldsOf>[0]
-    expect(textFieldsOf(row)).toEqual({ title: 'T', subtitle: '', speaker: '', event_date: '', event_time: '', location: '', badge: '', badge2: '', body: '' })
+    expect(textFieldsOf(row)).toEqual({ title: 'T', subtitle: '', speaker: '', event_date: '', event_time: '', location: '', badge: '', badge2: '', body: '', bannerTitle: '' })
   })
 })
 
@@ -112,5 +114,17 @@ describe('suwaki rozmiaru', () => {
     const apart = { ...EMPTY_FORM, scaleLinked: false, titleScale: 1.3, textScale: 0.7 }
     expect(setScaleLinked(true)(apart)).toMatchObject({ scaleLinked: true, titleScale: 1.3, textScale: 1.3 })
     expect(setScaleLinked(false)({ ...apart, scaleLinked: true })).toMatchObject({ titleScale: 1.3, textScale: 0.7 })
+  })
+})
+
+describe('downloadTitle', () => {
+  it('baner z własnym tekstem: nazwa pliku z tekstu banera (czysty tekst)', () => {
+    const form = { ...EMPTY_FORM, title: 'Plakat', bannerTitle: toggleMark('Gala 25', 0, 4, MARK.bold) }
+    expect(downloadTitle(form, 'banner')).toBe('Gala 25')
+  })
+
+  it('baner bez tekstu i plakat: tytuł plakatu jak dotąd', () => {
+    expect(downloadTitle({ ...EMPTY_FORM, title: 'Plakat' }, 'banner')).toBe('Plakat')
+    expect(downloadTitle({ ...EMPTY_FORM, title: 'Plakat', bannerTitle: 'Gala' }, 'social')).toBe('Plakat')
   })
 })

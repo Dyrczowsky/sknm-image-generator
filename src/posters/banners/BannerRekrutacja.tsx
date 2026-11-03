@@ -1,12 +1,13 @@
 import type { PosterProps } from '../../types'
 import { CLUB_NAME, SITE_URL, SOCIAL_HANDLE } from '../copy'
 import { withPlaceholders } from '../fallback'
+import { PosterText } from '../blocks/PosterText'
 import { resolveScheme } from '../schemes'
 import { useBannerLayout } from '../shape'
 import { fontMono, leading } from '../theme'
 import { PosterFrame } from '../blocks/PosterFrame'
 import { Sygnet } from '../blocks/Sygnet'
-import { BANNER_SYGNET_W, BannerLogos, NAME_TRACKING } from './common'
+import { BANNER_SYGNET_W, BannerLogos, NAME_TRACKING, BannerEventLine } from './common'
 
 // Zygzak pasa: głębokość zęba i jego przybliżona szerokość - liczba zębów
 // wynika z szerokości ramki, żeby wzór był równie gęsty w obu banerach.
@@ -24,7 +25,7 @@ function zigzag(width: number): string {
 
 // REKRUTACJA (baner) — duża nazwa koła, pas z zygzakiem wzdłuż dołu.
 export function BannerRekrutacja({ data, scheme, accent, lang = 'pl' }: PosterProps) {
-  const { logoSlots, qrUrl, titleScale } = withPlaceholders(data)
+  const { raw, logoSlots, qrUrl, titleScale } = withPlaceholders(data)
   const { cssVars, sygnet, logoVariant } = resolveScheme('rekrutacja', scheme, accent)
   const { padX, padY, width } = useBannerLayout()
 
@@ -35,9 +36,8 @@ export function BannerRekrutacja({ data, scheme, accent, lang = 'pl' }: PosterPr
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14, position: 'relative' }}>
-        <div style={{ fontSize: 72 * titleScale, fontWeight: 800, lineHeight: leading(0.94, titleScale), letterSpacing: NAME_TRACKING, fontKerning: 'none', textWrap: 'balance' }}>
-          {CLUB_NAME[lang]}
-        </div>
+        <PosterText path="bannerTitle" value={raw.bannerTitle} fallback={CLUB_NAME[lang]} multiline label="Tekst banera" style={{ fontSize: 72 * titleScale, fontWeight: 800, lineHeight: leading(0.94, titleScale), letterSpacing: NAME_TRACKING, fontKerning: 'none', textWrap: 'balance' }} />
+        <BannerEventLine data={data} lang={lang} />
       </div>
 
       {/* Pas + stopka jako jedna bryła, jak w wersji kwadratowej - tylko niższa. */}

@@ -1,12 +1,13 @@
 import type { PosterProps } from '../../types'
 import { CLUB_NAME, SITE_URL } from '../copy'
 import { withPlaceholders } from '../fallback'
+import { PosterText } from '../blocks/PosterText'
 import { resolveScheme } from '../schemes'
 import { useBannerLayout } from '../shape'
 import { PosterFrame } from '../blocks/PosterFrame'
 import { Sygnet } from '../blocks/Sygnet'
 import { PhotoGallery } from '../PhotoGallery'
-import { BANNER_SYGNET_W, BannerLogos, NAME_TRACKING } from './common'
+import { BANNER_SYGNET_W, BannerLogos, NAME_TRACKING, BannerEventLine } from './common'
 import { leading } from '../theme'
 
 // Zdjęcie: tyle wchodzi w bezpieczną kolumnę (reszta to prawy margines),
@@ -16,7 +17,7 @@ const SLANT = 170
 
 // WARSZTAT (baner) — skośne zdjęcie przy prawej krawędzi, nazwa koła po lewej.
 export function BannerWarsztat({ data, scheme, accent, lang = 'pl' }: PosterProps) {
-  const { logoSlots, qrUrl, photos, titleScale } = withPlaceholders(data)
+  const { raw, logoSlots, qrUrl, photos, titleScale } = withPlaceholders(data)
   const { cssVars, sygnet, logoVariant } = resolveScheme('warsztat', scheme, accent)
   const { padX, padY } = useBannerLayout()
 
@@ -34,9 +35,8 @@ export function BannerWarsztat({ data, scheme, accent, lang = 'pl' }: PosterProp
         <Sygnet name={sygnet} width={BANNER_SYGNET_W} />
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 660 }}>
-          <div style={{ fontSize: 54 * titleScale, lineHeight: leading(0.98, titleScale), color: 'var(--title)', fontWeight: 800, letterSpacing: NAME_TRACKING, fontKerning: 'none', textWrap: 'balance' }}>
-            {CLUB_NAME[lang]}
-          </div>
+          <PosterText path="bannerTitle" value={raw.bannerTitle} fallback={CLUB_NAME[lang]} multiline label="Tekst banera" style={{ fontSize: 54 * titleScale, lineHeight: leading(0.98, titleScale), color: 'var(--title)', fontWeight: 800, letterSpacing: NAME_TRACKING, fontKerning: 'none', textWrap: 'balance' }} />
+          <BannerEventLine data={data} lang={lang} />
         </div>
 
         {/* Pigułka i stopka w jednym rzędzie: logo leży na zdjęciu, więc slot

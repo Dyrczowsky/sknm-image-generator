@@ -48,7 +48,7 @@ src/
 │   ├── PosterForm         szkielet Treści layoutu: teksty, własne grupy, zdjęcia, kod QR
 │   ├── fields.ts          FieldSpec + gotowe pola (FIELDS, badgeField)
 │   ├── FormWyklad...      po jednym pliku na layout: lista pól dla PosterForm
-│   ├── FormBanner         Treść zakładki „Baner" (wspólna dla layoutów)
+│   ├── FormBanner         Treść zakładki „Baner" (wspólna dla layoutów): tekst banera, data i miejsce, zdjęcie, QR
 │   ├── LookFields         zakładka Wygląd (wspólna dla layoutów i banera): rozmiar tekstu + logotypy
 │   ├── TitleTextScaleFields, ScaleSlider   suwaki rozmiaru
 │   ├── LogosField         logo PK i grafiki stopki
@@ -60,7 +60,7 @@ src/
 ├── posters/           renderowanie plakatów
 │   ├── registry.ts       poster_key → { name, Component, Banner, Form, bannerPhoto? }
 │   ├── PosterWyklad...    9 komponentów layoutów (style inline, patrz stylowanie.md)
-│   ├── banners/          banerowe wersje layoutów (BannerWyklad, ...) + wspólna stopka (common.tsx)
+│   ├── banners/          banerowe wersje layoutów (BannerWyklad, ...) + wspólna stopka i linia wydarzenia (common.tsx)
 │   ├── blocks/           współdzielone bloki plakatu (PosterFrame, Sygnet, Badge, FooterLogos, ...)
 │   ├── copy.ts           wbudowany tekst PL/EN (nazwa koła, branding, domyślne plakietki)
 │   ├── theme.ts          tokeny wizualne plakatów (kolory, typografia)

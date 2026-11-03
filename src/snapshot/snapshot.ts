@@ -199,6 +199,7 @@ function parseForm(raw: unknown): SnapshotForm {
     badge: text('badge'),
     badge2: text('badge2'),
     body: text('body'),
+    bannerTitle: text('bannerTitle'),
     visibility: parseVisibility(source.visibility),
     graphics: parseGraphics(source.graphics),
     showPkLogo: flagOr(source.showPkLogo, EMPTY_FORM.showPkLogo),
@@ -211,6 +212,7 @@ function parseForm(raw: unknown): SnapshotForm {
     scaleLinked: flagOr(source.scaleLinked, EMPTY_FORM.scaleLinked),
     fillAgenda: flagOr(source.fillAgenda, EMPTY_FORM.fillAgenda),
     wideSubtitle: flagOr(source.wideSubtitle, EMPTY_FORM.wideSubtitle),
+    bannerShowEvent: flagOr(source.bannerShowEvent, EMPTY_FORM.bannerShowEvent),
   }
 }
 

@@ -110,7 +110,7 @@ export function EditorPage({ editor, exporter, lang, posterRef, tab, onTabChange
           />
         </div>
       }
-      content={<ContentPanel poster={poster} banner={banner} value={form} onChange={editor.updateForm} />}
+      content={<ContentPanel poster={poster} banner={banner} lang={lang} value={form} onChange={editor.updateForm} />}
       look={<LookPanel poster={poster} banner={banner} value={form} onChange={editor.updateForm} />}
     />
   )

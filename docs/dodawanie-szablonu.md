@@ -213,9 +213,11 @@ Każdy layout ma też szeroką wersję dla rodzaju grafiki „Baner" (okładka s
 1640×624 i okładka wydarzenia 1920×1005 na Facebooku). To osobny komponent z
 tymi samymi propsami (`PosterProps`), tym samym kluczem w `resolveScheme` i tymi
 samymi blokami, ale to **wizytówka koła, nie plakat**: zachowuje charakter
-layoutu (kliny, zygzak, zdjęcie...), a zamiast tytułu, prelegenta i daty pokazuje
-stałą nazwę koła `CLUB_NAME[lang]` (`posters/copy.ts`). Najprościej skopiować
-najbliższy istniejący baner (np. `BannerOgloszenie.tsx`).
+layoutu (kliny, zygzak, zdjęcie...), a zamiast tytułu i prelegenta pokazuje
+duży tekst banera - własne pole `bannerTitle`, puste = nazwa koła
+`CLUB_NAME[lang]` (`posters/copy.ts`) - i opcjonalną linię z datą, godziną i
+miejscem. Najprościej skopiować najbliższy istniejący baner (np.
+`BannerOgloszenie.tsx`).
 
 Reguły:
 
@@ -228,9 +230,16 @@ Reguły:
 - Stopka: `<BannerLogos qrUrl={qrUrl} slots={logoSlots} variant={logoVariant} />`
   z `banners/common.tsx` (mniejszy QR, ten sam układ co `FooterLogos` w plakacie).
   Sygnet: `<Sygnet name={sygnet} width={BANNER_SYGNET_W} />`.
-- Z `withPlaceholders(data)` bierz tylko `logoSlots`, `qrUrl`, `photos` oraz
-  suwaki: nazwę koła mnóż przez `titleScale`, resztę tekstu przez
-  `textScale`.
+- Duży tekst: `<PosterText path="bannerTitle" value={raw.bannerTitle}
+  fallback={CLUB_NAME[lang]} multiline label="Tekst banera" style={...} />` -
+  edytowalny na podglądzie. Tuż pod nim `<BannerEventLine data={data}
+  lang={lang} />` (`banners/common.tsx`): rysuje się tylko przy włączonym
+  `bannerShowEvent` i pomija puste pola (bez wartości przykładowych, oko z
+  formularza plakatu nie działa). Jeśli dodatkowy element zmieniłby układ
+  pustego banera, owiń tytuł z linią tylko przy `hasBannerEvent(data)`
+  (`banners/eventLine.ts`) - jak `BannerWarsztatBezZdjecia`.
+- Z `withPlaceholders(data)` bierz tylko `raw`, `logoSlots`, `qrUrl`, `photos`
+  oraz suwaki: duży tekst mnóż przez `titleScale`, resztę przez `textScale`.
 - Jeśli baner ma miejsce na zdjęcie, ustaw w rejestrze `bannerPhoto: true` -
   wspólny formularz banera (`FormBanner`) pokaże wtedy galerię zdjęć.
 - Wariant samego banera (np. `warsztatBezZdjecia` - Warsztat bez zdjęcia,
