@@ -54,14 +54,14 @@ export function PosterGala({ data, scheme, accent, lang = 'pl' }: PosterProps) {
       </div>
 
       <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 32, position: 'relative', zIndex: 1 }}>
-        <div style={{ display: 'flex', gap: 20, alignItems: 'flex-end' }}>
+        <div style={{ display: 'flex', gap: 20, alignItems: 'last baseline' }}>
           <BigDateNumber event_date={event_date} color="var(--gold)" style={fx('event_date')} lang={lang} />
           <InfoLine
             parts={[
               { text: event_time, hidden: hidden('event_time') },
               { field: { path: 'location', value: raw.location, fallback: PLACEHOLDERS.location, label: 'Lokalizacja' }, hidden: hidden('location') },
             ]}
-            style={{ paddingBottom: 10, whiteSpace: 'nowrap' }}
+            style={{ whiteSpace: 'nowrap' }}
           />
         </div>
         <FooterLogos qrUrl={qrUrl} slots={logoSlots} variant={logoVariant} />
