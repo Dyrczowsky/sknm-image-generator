@@ -16,7 +16,7 @@ import { Sygnet } from './blocks/Sygnet'
 
 // GALA — złoto na grafitowym
 export function PosterGala({ data, scheme, accent, lang = 'pl' }: PosterProps) {
-  const { raw, event_date, event_time, logoSlots, qrUrl, hidden, fx, titleScale, textScale } = withPlaceholders(data)
+  const { raw, event_date, event_time, logoSlots, qrUrl, hidden, fx, titleScale, textScale, wideSubtitle } = withPlaceholders(data)
   const { cssVars, sygnet, logoVariant } = resolveScheme('gala', scheme, accent)
   const { kx, ky } = usePosterShape()
 
@@ -48,7 +48,7 @@ export function PosterGala({ data, scheme, accent, lang = 'pl' }: PosterProps) {
             value={raw.subtitle}
             multiline
             label="Opis / podtytuł"
-            style={{ fontSize: 34 * textScale, fontWeight: 500, lineHeight: leading(1.4, textScale), color: 'var(--muted-text)', maxWidth: '26ch', whiteSpace: 'pre-line', ...fx('subtitle') }}
+            style={{ fontSize: 34 * textScale, fontWeight: 500, lineHeight: leading(1.4, textScale), color: 'var(--muted-text)', maxWidth: wideSubtitle ? undefined : '26ch', whiteSpace: 'pre-line', ...fx('subtitle') }}
           />
         )}
       </div>

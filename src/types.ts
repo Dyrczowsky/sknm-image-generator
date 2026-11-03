@@ -38,6 +38,8 @@ export interface FormValues extends Record<FormTextField, string> {
   // Konferencja: punkty programu rozkładają się równomiernie na całą wysokość
   // obszaru listy (zamiast stałych odstępów).
   fillAgenda: boolean
+  // Gala, Data: opis na całą szerokość plakatu zamiast wąskiej kolumny.
+  wideSubtitle: boolean
 }
 
 // Przekształcenie stanu formularza. Formularze zgłaszają zmiany jako takie

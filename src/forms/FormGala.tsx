@@ -7,5 +7,5 @@ const GALA_FIELDS = [badgeField(DEFAULT_BADGE.gala.pl), FIELDS.title, FIELDS.sub
 
 // Formularz Gali - pełny zestaw pól wydarzenia, bez zdjęć.
 export function FormGala(props: FormProps) {
-  return <PosterForm {...props} fields={GALA_FIELDS} />
+  return <PosterForm {...props} fields={GALA_FIELDS} wideSubtitle />
 }

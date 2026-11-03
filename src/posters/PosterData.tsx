@@ -17,7 +17,7 @@ const TRIANGLE_COLORS = ['var(--tri1)', 'var(--tri2)', 'var(--tri3)']
 
 // DATA — liczba jako grafika
 export function PosterData({ data, scheme, accent, lang = 'pl' }: PosterProps) {
-  const { raw, event_date, event_time, logoSlots, qrUrl, photos, hidden, fx, titleScale, textScale } = withPlaceholders(data)
+  const { raw, event_date, event_time, logoSlots, qrUrl, photos, hidden, fx, titleScale, textScale, wideSubtitle } = withPlaceholders(data)
   const { cssVars, sygnet, logoVariant } = resolveScheme('data', scheme, accent)
 
   return (
@@ -60,7 +60,7 @@ export function PosterData({ data, scheme, accent, lang = 'pl' }: PosterProps) {
             partsStyle={{ fontSize: typography.body.fontSize * textScale, lineHeight: leading(typography.body.lineHeight, textScale), whiteSpace: 'pre-line' }}
             secondLine={{ path: 'location', value: raw.location, fallback: PLACEHOLDERS.location, label: 'Lokalizacja' }}
             secondLineHidden={hidden('location')}
-            style={{ color: 'var(--muted-text)', maxWidth: '24ch' }}
+            style={{ color: 'var(--muted-text)', maxWidth: wideSubtitle ? undefined : '24ch' }}
           />
         </div>
       </div>
