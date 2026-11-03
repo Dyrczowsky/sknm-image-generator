@@ -141,6 +141,17 @@ describe('banery: pola formularza', () => {
 })
 
 describe('banery: tekst banera i linia wydarzenia', () => {
+  it('Warsztat bez zdjęcia: w edycji opakowanie tytułu nie znika, gdy miejsce zostaje wyczyszczone', () => {
+    const Banner = posterRegistry.warsztatBezZdjecia.Banner
+    const editing = (data: RawPosterData) =>
+      renderToStaticMarkup(h(PosterEditContext.Provider, { value: { editable: true, onText: () => {} } }, h(Banner, { data })))
+    const filled = editing({ location: 'Sala', bannerShowEvent: true })
+    const cleared = editing({ location: '', bannerShowEvent: true })
+    expect(cleared).toContain('aria-label="Lokalizacja"')
+    // Ta sama struktura: tylko treść pola miejsca się różni.
+    expect(cleared.replace(/>Sala</, '><').replace(/ data-empty=""/g, '')).toBe(filled.replace(/>Sala</, '><').replace(/ data-empty=""/g, ''))
+  })
+
   const render = (Banner: (typeof posterRegistry)[string]['Banner'], data: RawPosterData, lang: 'pl' | 'en' = 'pl') =>
     renderToStaticMarkup(h(PosterScaled, { size: 820, shape: 'cover' }, h(Banner, { data, lang })))
   const CONTROL = /[\uE000-\uE1FF]/

@@ -3,6 +3,7 @@ import { CLUB_NAME, SITE_URL } from '../copy'
 import { withPlaceholders } from '../fallback'
 import { PosterText } from '../blocks/PosterText'
 import { hasBannerEvent } from './eventLine'
+import { usePosterEdit } from '../edit'
 import { resolveScheme } from '../schemes'
 import { BANNER_PAD, BANNER_SAFE_W, useBannerLayout } from '../shape'
 import { PosterFrame } from '../blocks/PosterFrame'
@@ -17,6 +18,7 @@ export function BannerWarsztatBezZdjecia({ data, scheme, accent, lang = 'pl' }: 
   const { raw, logoSlots, qrUrl, titleScale } = withPlaceholders(data)
   const { cssVars, sygnet, logoVariant } = resolveScheme('warsztat', scheme, accent)
   const { padX, padY } = useBannerLayout()
+  const { editable } = usePosterEdit()
 
   return (
     <PosterFrame vars={cssVars}>
@@ -25,7 +27,7 @@ export function BannerWarsztatBezZdjecia({ data, scheme, accent, lang = 'pl' }: 
       <div style={{ position: 'absolute', inset: `${padY}px ${padX}px`, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'space-between', gap: 16, textAlign: 'center' }}>
         <Sygnet name={sygnet} width={BANNER_SYGNET_W} />
 
-        {hasBannerEvent(data) ? (
+        {hasBannerEvent(data, editable) ? (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
             <PosterText path="bannerTitle" value={raw.bannerTitle} fallback={CLUB_NAME[lang]} multiline label="Tekst banera" style={{ fontSize: 76 * titleScale, lineHeight: leading(0.96, titleScale), maxWidth: BANNER_SAFE_W - 2 * BANNER_PAD, color: 'var(--title)', fontWeight: 800, letterSpacing: NAME_TRACKING, fontKerning: 'none', textWrap: 'balance' }} />
             <BannerEventLine data={data} lang={lang} />
