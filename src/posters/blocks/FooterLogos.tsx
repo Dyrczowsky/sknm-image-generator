@@ -3,7 +3,7 @@ import { LOGO_CLEAR, QR_SIZE } from '../theme'
 import { LogoSlots } from './LogoSlots'
 import type { LogoSlotSource } from './LogoSlots'
 import { QrSlot } from './QrSlot'
-import type { LogoVariant } from '../../types'
+import type { LogoVariant, QrSide } from '../../types'
 
 interface FooterLogosProps {
   qrUrl: string
@@ -12,6 +12,8 @@ interface FooterLogosProps {
   // Bok kwadratu kodu QR; banery podają mniejszy.
   qrSize?: number
   slotStyle?: CSSProperties
+  // Kod QR przy lewej krawędzi stopki (domyślnie) albo przy logotypach.
+  qrSide?: QrSide
 }
 
 // Stopka plakatu: kod QR maksymalnie w lewo, logotypy w prawym dolnym rogu.
@@ -26,7 +28,7 @@ interface FooterLogosProps {
 // rozpychało układu - QR pojawia się w miejscu, które i tak jest już puste.
 // `flexWrap: wrap` - nadmiar grafik (np. hurtowo wgrane logotypy patronów)
 // schodzi do kolejnego wiersza zamiast wychodzić poza kadr.
-export function FooterLogos({ qrUrl, slots, variant, qrSize = QR_SIZE, slotStyle }: FooterLogosProps) {
+export function FooterLogos({ qrUrl, slots, variant, qrSize = QR_SIZE, slotStyle, qrSide = 'left' }: FooterLogosProps) {
   return (
     <div
       style={{
@@ -43,7 +45,7 @@ export function FooterLogos({ qrUrl, slots, variant, qrSize = QR_SIZE, slotStyle
         marginBottom: -LOGO_CLEAR,
       }}
     >
-      <QrSlot value={qrUrl} size={qrSize} />
+      <QrSlot value={qrUrl} size={qrSize} pushLeft={qrSide === 'left'} />
       <LogoSlots slots={slots} variant={variant} slotStyle={slotStyle} />
     </div>
   )

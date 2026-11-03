@@ -13,7 +13,7 @@ import type { FormValues } from '../types'
 const emptyForm: FormValues = {
   title: '', subtitle: '', speaker: '', event_date: '', event_time: '',
   location: '', badge: '', badge2: '', body: '', visibility: {}, graphics: [],
-  showPkLogo: false, qrUrl: '', photos: {}, lists: {}, titleScale: 1,
+  showPkLogo: false, qrUrl: '', qrSide: 'left', photos: {}, lists: {}, titleScale: 1,
   textScale: 1, scaleLinked: false, fillAgenda: false, wideSubtitle: false,
 }
 

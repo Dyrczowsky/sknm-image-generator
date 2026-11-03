@@ -15,7 +15,7 @@ import { Triangle } from './blocks/Triangle'
 // Jedyny szablon bez narożnikowego stosu informacji — do krótkich ogłoszeń,
 // cytatów i podziękowań.
 export function PosterOgloszenie({ data, scheme, accent, lang = 'pl' }: PosterProps) {
-  const { raw, logoSlots, qrUrl, fx, titleScale, textScale } = withPlaceholders(data)
+  const { raw, logoSlots, qrUrl, qrSide, fx, titleScale, textScale } = withPlaceholders(data)
   const { cssVars, sygnet, logoVariant } = resolveScheme('ogloszenie', scheme, accent)
 
   return (
@@ -47,7 +47,7 @@ export function PosterOgloszenie({ data, scheme, accent, lang = 'pl' }: PosterPr
 
       <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24 }}>
         <div style={{ font: `700 20px ${fontMono}`, letterSpacing: '.12em', opacity: 0.85 }}>{SITE_URL}</div>
-        <FooterLogos qrUrl={qrUrl} slots={logoSlots} variant={logoVariant} />
+        <FooterLogos qrUrl={qrUrl} qrSide={qrSide} slots={logoSlots} variant={logoVariant} />
       </div>
     </PosterFrame>
   )

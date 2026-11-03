@@ -20,7 +20,7 @@ import { Wedges } from './blocks/Wedges'
 // i podpis niosą kolor akcentu; data w stopce jest opcjonalna (checkbox
 // widoczności) — do dłuższych komunikatów, regulaminów, relacji.
 export function PosterKomunikat({ data, scheme, accent, lang = 'pl' }: PosterProps) {
-  const { raw, event_date, logoSlots, qrUrl, fx, titleScale, textScale } = withPlaceholders(data)
+  const { raw, event_date, logoSlots, qrUrl, qrSide, fx, titleScale, textScale } = withPlaceholders(data)
   const { cssVars, sygnet, logoVariant } = resolveScheme('komunikat', scheme, accent)
   const { kx } = usePosterShape()
 
@@ -63,7 +63,7 @@ export function PosterKomunikat({ data, scheme, accent, lang = 'pl' }: PosterPro
           <BigDateNumber event_date={event_date} style={fx('event_date')} lang={lang} />
           <div style={{ font: `700 20px ${fontMono}`, letterSpacing: '.12em', opacity: 0.85, paddingBottom: 10 }}>{SITE_URL}</div>
         </div>
-        <FooterLogos qrUrl={qrUrl} slots={logoSlots} variant={logoVariant} />
+        <FooterLogos qrUrl={qrUrl} qrSide={qrSide} slots={logoSlots} variant={logoVariant} />
       </div>
 
       <Wedges />

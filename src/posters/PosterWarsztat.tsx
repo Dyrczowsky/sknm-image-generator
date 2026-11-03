@@ -15,7 +15,7 @@ import { PhotoGallery } from './PhotoGallery'
 
 // WARSZTAT — skos
 export function PosterWarsztat({ data, scheme, accent, lang = 'pl' }: PosterProps) {
-  const { raw, event_date, event_time, logoSlots, qrUrl, photos, fx, titleScale, textScale } = withPlaceholders(data)
+  const { raw, event_date, event_time, logoSlots, qrUrl, qrSide, photos, fx, titleScale, textScale } = withPlaceholders(data)
   const { cssVars, sygnet, logoVariant } = resolveScheme('warsztat', scheme, accent)
   const { kx } = usePosterShape()
 
@@ -75,7 +75,7 @@ export function PosterWarsztat({ data, scheme, accent, lang = 'pl' }: PosterProp
               w prawym dolnym rogu. Logo leży na zdjęciu, więc każdy slot
               dostaje tło `slot-bg` - czytelną kartę pod znakiem. */}
           <div style={{ display: 'flex' }}>
-            <FooterLogos qrUrl={qrUrl} slots={logoSlots} variant={logoVariant} slotStyle={{ background: 'var(--slot-bg)' }} />
+            <FooterLogos qrUrl={qrUrl} qrSide={qrSide} slots={logoSlots} variant={logoVariant} slotStyle={{ background: 'var(--slot-bg)' }} />
           </div>
         </div>
       </div>
