@@ -61,6 +61,7 @@ export function withPlaceholders(data: RawPosterData) {
     titleScale: data.titleScale ?? 1,
     textScale: data.textScale ?? 1,
     fillAgenda: data.fillAgenda ?? false,
+    wideSubtitle: data.wideSubtitle ?? false,
     // `true` gdy użytkownik wyłączył widoczność danego pola.
     hidden: (name: FormTextField): boolean => visibility[name] === false,
     // Styl do rozlania na element pola: ukryte pole dostaje `display: none`

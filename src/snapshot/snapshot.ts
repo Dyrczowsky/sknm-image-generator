@@ -209,6 +209,7 @@ function parseForm(raw: unknown): SnapshotForm {
     textScale: numberOr(source.textScale, EMPTY_FORM.textScale, MIN_SCALE, MAX_SCALE),
     scaleLinked: flagOr(source.scaleLinked, EMPTY_FORM.scaleLinked),
     fillAgenda: flagOr(source.fillAgenda, EMPTY_FORM.fillAgenda),
+    wideSubtitle: flagOr(source.wideSubtitle, EMPTY_FORM.wideSubtitle),
   }
 }
 

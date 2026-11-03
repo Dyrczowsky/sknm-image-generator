@@ -27,6 +27,7 @@ export const EMPTY_FORM: FormValues = {
   textScale: 1,
   scaleLinked: true,
   fillAgenda: false,
+  wideSubtitle: false,
 }
 
 // Pola tekstowe wiersza bazy (stary draft / wąskie kolumny historii); kolumny, których wiersz nie
@@ -79,6 +80,8 @@ export const moveGraphic = (index: number, direction: -1 | 1): FormUpdate => (fo
 
 export const setShowPkLogo = (showPkLogo: boolean): FormUpdate => (form) => ({ ...form, showPkLogo })
 export const setFillAgenda = (fillAgenda: boolean): FormUpdate => (form) => ({ ...form, fillAgenda })
+
+export const setWideSubtitle = (wideSubtitle: boolean): FormUpdate => (form) => ({ ...form, wideSubtitle })
 
 export const setQrUrl = (qrUrl: string): FormUpdate => (form) => ({ ...form, qrUrl })
 

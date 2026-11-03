@@ -6,5 +6,5 @@ const DATA_FIELDS = [FIELDS.title, FIELDS.subtitle, FIELDS.speaker, FIELDS.date,
 
 // Formularz Daty - pola wydarzenia bez plakietki + zdjęcie z wydarzenia.
 export function FormData(props: FormProps) {
-  return <PosterForm {...props} fields={DATA_FIELDS} photoLabel="Zdjęcie z wydarzenia" />
+  return <PosterForm {...props} fields={DATA_FIELDS} photoLabel="Zdjęcie z wydarzenia" wideSubtitle />
 }
