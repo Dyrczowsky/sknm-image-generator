@@ -7,6 +7,7 @@ import type { LogoSlotSource } from '../blocks/LogoSlots'
 import { PosterText } from '../blocks/PosterText'
 import { Triangle } from '../blocks/Triangle'
 import { TITLE_TRACKING, leading, typography } from '../theme'
+import { hasBannerEvent } from './eventLine'
 import type { LogoVariant, PosterLang, RawPosterData } from '../../types'
 
 // Skala banera (wysokość układu 624 px): sygnet i kod QR są mniejsze niż na
@@ -76,7 +77,7 @@ interface BannerEventLineProps {
 // przeciwieństwie do plakatów puste pole znika (bez wartości przykładowych),
 // a bez żadnej części linii nie ma wcale.
 export function BannerEventLine({ data, lang, style }: BannerEventLineProps) {
-  if (!data.bannerShowEvent) return null
+  if (!hasBannerEvent(data)) return null
   const date = data.event_date ?? ''
   const time = data.event_time ?? ''
   const location = data.location ?? ''
@@ -84,7 +85,6 @@ export function BannerEventLine({ data, lang, style }: BannerEventLineProps) {
   if (date) parts.push(`${getDay(date)} ${getMonthShort(date, { lang })}`)
   if (time) parts.push(time)
   if (toPlain(location) !== '') parts.push(<PosterText path="location" value={location} as="span" inline label="Lokalizacja" />)
-  if (parts.length === 0) return null
   const textScale = data.textScale ?? 1
   return (
     <div style={{ ...typography.body, fontSize: typography.body.fontSize * textScale, lineHeight: leading(typography.body.lineHeight, textScale), ...style }}>

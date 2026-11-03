@@ -1,6 +1,7 @@
 import type { PosterProps } from '../../types'
 import { CLUB_NAME, SITE_URL } from '../copy'
 import { withPlaceholders } from '../fallback'
+import { PosterText } from '../blocks/PosterText'
 import { resolveScheme } from '../schemes'
 import { useBannerLayout } from '../shape'
 import { BrandingText } from '../blocks/BrandingText'
@@ -8,12 +9,12 @@ import { PosterFrame } from '../blocks/PosterFrame'
 import { Sygnet } from '../blocks/Sygnet'
 import { FadingTriangles } from '../blocks/Triangle'
 import { Wedges } from '../blocks/Wedges'
-import { BANNER_SYGNET_W, BannerLogos, NAME_TRACKING } from './common'
+import { BANNER_SYGNET_W, BannerLogos, NAME_TRACKING, BannerEventLine } from './common'
 import { leading } from '../theme'
 
 // WYKŁAD (baner) — nazwa koła na tle klinów, stos trójkątów przy lewej krawędzi.
 export function BannerWyklad({ data, scheme, accent, lang = 'pl' }: PosterProps) {
-  const { logoSlots, qrUrl, titleScale } = withPlaceholders(data)
+  const { raw, logoSlots, qrUrl, titleScale } = withPlaceholders(data)
   const { cssVars, sygnet, logoVariant } = resolveScheme('wyklad', scheme, accent)
   const { padX, padY } = useBannerLayout()
 
@@ -25,9 +26,8 @@ export function BannerWyklad({ data, scheme, accent, lang = 'pl' }: PosterProps)
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14, position: 'relative', zIndex: 1 }}>
-        <div style={{ fontSize: 76 * titleScale, lineHeight: leading(0.96, titleScale), maxWidth: 960, fontWeight: 800, letterSpacing: NAME_TRACKING, fontKerning: 'none', textWrap: 'balance' }}>
-          {CLUB_NAME[lang]}
-        </div>
+        <PosterText path="bannerTitle" value={raw.bannerTitle} fallback={CLUB_NAME[lang]} multiline label="Tekst banera" style={{ fontSize: 76 * titleScale, lineHeight: leading(0.96, titleScale), maxWidth: 960, fontWeight: 800, letterSpacing: NAME_TRACKING, fontKerning: 'none', textWrap: 'balance' }} />
+        <BannerEventLine data={data} lang={lang} />
       </div>
 
       <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-end', gap: 24, position: 'relative', zIndex: 1 }}>

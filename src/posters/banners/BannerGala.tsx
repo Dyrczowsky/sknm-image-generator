@@ -1,6 +1,7 @@
 import type { PosterProps } from '../../types'
 import { CLUB_NAME, SITE_URL } from '../copy'
 import { withPlaceholders } from '../fallback'
+import { PosterText } from '../blocks/PosterText'
 import { resolveScheme } from '../schemes'
 import { useBannerLayout, usePosterShape } from '../shape'
 import { fontMono, leading } from '../theme'
@@ -8,11 +9,11 @@ import { Badge } from '../blocks/Badge'
 import { BrandingText } from '../blocks/BrandingText'
 import { PosterFrame } from '../blocks/PosterFrame'
 import { Sygnet } from '../blocks/Sygnet'
-import { BANNER_SYGNET_W, BannerLogos, NAME_TRACKING } from './common'
+import { BANNER_SYGNET_W, BannerLogos, NAME_TRACKING, BannerEventLine } from './common'
 
 // GALA (baner) — złota linia pod nagłówkiem, nazwa koła, złote akcenty.
 export function BannerGala({ data, scheme, accent, lang = 'pl' }: PosterProps) {
-  const { logoSlots, qrUrl, titleScale, textScale } = withPlaceholders(data)
+  const { raw, logoSlots, qrUrl, titleScale, textScale } = withPlaceholders(data)
   const { cssVars, sygnet, logoVariant } = resolveScheme('gala', scheme, accent)
   const { kx, ky } = usePosterShape()
   const { padX, padY } = useBannerLayout()
@@ -29,9 +30,8 @@ export function BannerGala({ data, scheme, accent, lang = 'pl' }: PosterProps) {
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16, position: 'relative', zIndex: 1 }}>
         <Badge color="var(--gold)" style={{ font: `700 ${18 * textScale}px ${fontMono}`, letterSpacing: '.2em' }}>SKNM</Badge>
-        <div style={{ fontSize: 66 * titleScale, lineHeight: leading(0.98, titleScale), maxWidth: 1000, fontWeight: 800, letterSpacing: NAME_TRACKING, fontKerning: 'none', textWrap: 'balance' }}>
-          {CLUB_NAME[lang]}
-        </div>
+        <PosterText path="bannerTitle" value={raw.bannerTitle} fallback={CLUB_NAME[lang]} multiline label="Tekst banera" style={{ fontSize: 66 * titleScale, lineHeight: leading(0.98, titleScale), maxWidth: 1000, fontWeight: 800, letterSpacing: NAME_TRACKING, fontKerning: 'none', textWrap: 'balance' }} />
+        <BannerEventLine data={data} lang={lang} />
       </div>
 
       <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-end', gap: 32, position: 'relative', zIndex: 1 }}>

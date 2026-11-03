@@ -1,16 +1,17 @@
 import type { PosterProps } from '../../types'
 import { CLUB_NAME, SITE_URL } from '../copy'
 import { withPlaceholders } from '../fallback'
+import { PosterText } from '../blocks/PosterText'
 import { resolveScheme } from '../schemes'
 import { BANNER_PAD, useBannerLayout } from '../shape'
 import { fontMono, leading } from '../theme'
 import { PosterFrame } from '../blocks/PosterFrame'
 import { Sygnet } from '../blocks/Sygnet'
-import { BANNER_SYGNET_W, BannerLogos, MarginChips, NAME_TRACKING } from './common'
+import { BANNER_SYGNET_W, BannerLogos, MarginChips, NAME_TRACKING, BannerEventLine } from './common'
 
 // DATA (baner) — wielki skrót „SKNM" w miejscu liczby dnia, pod nim pełna nazwa.
 export function BannerData({ data, scheme, accent, lang = 'pl' }: PosterProps) {
-  const { logoSlots, qrUrl, titleScale, textScale } = withPlaceholders(data)
+  const { raw, logoSlots, qrUrl, titleScale, textScale } = withPlaceholders(data)
   const { cssVars, sygnet, logoVariant } = resolveScheme('data', scheme, accent)
   const { padX, padY } = useBannerLayout()
 
@@ -24,9 +25,8 @@ export function BannerData({ data, scheme, accent, lang = 'pl' }: PosterProps) {
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 18, marginTop: -64 }}>
         <div style={{ fontSize: 250, fontWeight: 800, lineHeight: 0.78, letterSpacing: '-.03em' }}>SKNM</div>
-        <div style={{ fontSize: 35 * titleScale, fontWeight: 800, lineHeight: leading(1.05, titleScale), color: 'var(--month-color)', letterSpacing: NAME_TRACKING, fontKerning: 'none' }}>
-          {CLUB_NAME[lang]}
-        </div>
+        <PosterText path="bannerTitle" value={raw.bannerTitle} fallback={CLUB_NAME[lang]} multiline label="Tekst banera" style={{ fontSize: 35 * titleScale, fontWeight: 800, lineHeight: leading(1.05, titleScale), color: 'var(--month-color)', letterSpacing: NAME_TRACKING, fontKerning: 'none' }} />
+        <BannerEventLine data={data} lang={lang} />
       </div>
 
       <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24 }}>

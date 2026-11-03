@@ -1,13 +1,14 @@
 import type { PosterProps } from '../../types'
 import { CLUB_NAME, SITE_URL } from '../copy'
 import { withPlaceholders } from '../fallback'
+import { PosterText } from '../blocks/PosterText'
 import { resolveScheme } from '../schemes'
 import { useBannerLayout } from '../shape'
 import { fontMono, leading } from '../theme'
 import { Badge } from '../blocks/Badge'
 import { PosterFrame } from '../blocks/PosterFrame'
 import { Sygnet } from '../blocks/Sygnet'
-import { BANNER_SYGNET_W, BannerLogos, NAME_TRACKING } from './common'
+import { BANNER_SYGNET_W, BannerLogos, NAME_TRACKING, BannerEventLine } from './common'
 
 // Liczba pustych linii po prawej stronie banera.
 const RULES = 4
@@ -17,7 +18,7 @@ const PANEL_W = 580
 // KONFERENCJA (baner) — panel z nazwą koła po lewej, po prawej puste
 // linie jak w programie konferencji.
 export function BannerKonferencja({ data, scheme, accent, lang = 'pl' }: PosterProps) {
-  const { logoSlots, qrUrl, titleScale, textScale } = withPlaceholders(data)
+  const { raw, logoSlots, qrUrl, titleScale, textScale } = withPlaceholders(data)
   const { cssVars, sygnet, logoVariant } = resolveScheme('konferencja', scheme, accent)
   const { padX, padY } = useBannerLayout()
 
@@ -27,9 +28,8 @@ export function BannerKonferencja({ data, scheme, accent, lang = 'pl' }: PosterP
         <Sygnet name={sygnet} width={BANNER_SYGNET_W} />
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <Badge color="var(--header-badge)" style={{ fontSize: 18 }}>SKNM</Badge>
-          <div style={{ fontSize: 44 * titleScale, lineHeight: leading(1.02, titleScale), fontWeight: 800, letterSpacing: NAME_TRACKING, fontKerning: 'none', textWrap: 'balance' }}>
-            {CLUB_NAME[lang]}
-          </div>
+          <PosterText path="bannerTitle" value={raw.bannerTitle} fallback={CLUB_NAME[lang]} multiline label="Tekst banera" style={{ fontSize: 44 * titleScale, lineHeight: leading(1.02, titleScale), fontWeight: 800, letterSpacing: NAME_TRACKING, fontKerning: 'none', textWrap: 'balance' }} />
+          <BannerEventLine data={data} lang={lang} />
         </div>
       </div>
 
