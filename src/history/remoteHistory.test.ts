@@ -37,6 +37,19 @@ describe('newHistoryEntry', () => {
     expect(snapshot.form.title).toContain('\uE000')
   })
 
+  it('długie teksty: wąskie kolumny przycięte do limitów bazy, snapshot bez zmian', () => {
+    const long = 'ą'.repeat(499) + '😀' + 'x'.repeat(100)
+    const snapshot = snap({ form: { ...EMPTY_FORM, title: long, subtitle: long, speaker: long, location: long, graphics: [], photos: {} } })
+    const entry = newHistoryEntry(snapshot)
+    // Emoji to jeden znak (`char_length`), więc mieści się jako 500. znak.
+    expect(entry.subtitle).toBe('ą'.repeat(499) + '😀')
+    expect(entry.title).toBe(entry.subtitle)
+    expect(Array.from(entry.speaker)).toHaveLength(200)
+    expect(Array.from(entry.location)).toHaveLength(200)
+    expect(entry.snapshot).toBe(snapshot)
+    expect(snapshot.form.subtitle).toBe(long)
+  })
+
   it('brak kolorystyki → null', () => {
     expect(newHistoryEntry(snap({ color_scheme: null })).color_scheme).toBeNull()
   })
