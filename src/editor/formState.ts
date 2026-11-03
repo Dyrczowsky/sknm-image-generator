@@ -1,5 +1,6 @@
 import { FORM_TEXT_FIELDS } from '../types'
-import type { FormTextField, FormUpdate, FormValues, QrSide } from '../types'
+import type { FormTextField, FormUpdate, FormValues, Medium, QrSide } from '../types'
+import { toPlain } from '../richText'
 import { MAX_GRAPHICS } from '../posters/theme'
 
 // Stan pustego formularza: wartości domyślne, a także tło, na którym parser
@@ -44,6 +45,13 @@ export function textFieldsOf(row: TextFieldsRow): Record<FormTextField, string> 
 // Formularz odtworzony z wiersza bazy: pola tekstowe z wiersza, reszta domyślna.
 export function formFromRow(row: TextFieldsRow): FormValues {
   return { ...EMPTY_FORM, ...textFieldsOf(row) }
+}
+
+// Tekst, z którego powstaje nazwa pobieranego pliku: baner z własnym tekstem
+// bierze go, poza tym (plakat, baner z nazwą koła) - tytuł plakatu.
+export function downloadTitle(form: FormValues, medium: Medium): string {
+  const banner = toPlain(form.bannerTitle)
+  return medium === 'banner' && banner.trim() ? banner : toPlain(form.title)
 }
 
 // --- Przekształcenia stanu (FormUpdate) ---

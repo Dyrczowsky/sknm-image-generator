@@ -51,19 +51,38 @@ describe('ContentPanel (Treść)', () => {
     expect(html).toContain('>Treść komunikatu</label>')
   })
 
-  it('baner bez bannerPhoto: tylko Kod QR i podpowiedź o trybie', () => {
+  it('baner bez bannerPhoto: Tekst i Kod QR, bez podpowiedzi o trybie', () => {
     const html = content('wyklad', form(), true)
-    expect(headings(html)).toEqual(['Kod QR'])
-    expect(html).toContain('Social media i druk')
-    expect(html).not.toContain('Social media”')
+    expect(headings(html)).toEqual(['Tekst', 'Kod QR'])
+    expect(html).not.toContain('dotyczą tylko trybu')
     expect(html).not.toContain('type="file"')
   })
 
-  it('baner z bannerPhoto (Gość): Zdjęcia i Kod QR, bez pól tekstowych', () => {
+  it('baner z bannerPhoto (Gość): Tekst, Zdjęcia i Kod QR, bez pól plakatu', () => {
     const html = content('gosc', form(), true)
-    expect(headings(html)).toEqual(['Zdjęcia', 'Kod QR'])
+    expect(headings(html)).toEqual(['Tekst', 'Zdjęcia', 'Kod QR'])
     expect(html).not.toContain('>Tytuł</label>')
     expect(html).toContain('type="file"')
+  })
+
+  it('baner: pole „Tekst banera” z nazwą koła jako podpowiedzią, bez oka', () => {
+    const html = content('wyklad', form(), true)
+    expect(html).toContain('>Tekst banera</label>')
+    expect(html).toContain('placeholder="Studenckie Koło Naukowe Matematyków Politechniki Krakowskiej"')
+    expect(html).not.toContain('Pokaż na plakacie')
+  })
+
+  it('baner: data, godzina i miejsce dopiero po włączeniu przełącznika, bez oka', () => {
+    const off = content('wyklad', form(), true)
+    expect(off).toContain('Pokaż datę i miejsce')
+    expect(off).not.toContain('>Data</label>')
+    expect(off).not.toContain('>Lokalizacja</label>')
+    const on = content('wyklad', form({ bannerShowEvent: true, location: 'Działownia' }), true)
+    expect(on).toContain('>Data</label>')
+    expect(on).toContain('>Godzina</label>')
+    expect(on).toContain('>Lokalizacja</label>')
+    expect(on).toContain('value="Działownia"')
+    expect(on).not.toContain('Pokaż na plakacie')
   })
 
   it('każde pole tekstowe ma <label for> wskazujący jego id', () => {

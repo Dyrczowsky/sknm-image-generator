@@ -7,6 +7,9 @@ import type { FieldSpec } from './fields'
 
 interface FormFieldProps extends FormProps {
   field: FieldSpec
+  // Ikona oka (widoczność na plakacie). Bez niej np. w formularzu banera,
+  // na który oko nie działa.
+  visibilityToggle?: boolean
 }
 
 // Pojedyncze pole tekstowe/data/godzina/akapit. Przełącznik oka przy etykiecie
@@ -14,9 +17,9 @@ interface FormFieldProps extends FormProps {
 // razem z nim);
 // steruje widocznością pola na plakacie - ukryte pole znika z układu, a jego
 // wejście zostaje edytowalne (tylko przygaszone).
-export function FormField({ field, value, onChange }: FormFieldProps) {
+export function FormField({ field, value, onChange, visibilityToggle = true }: FormFieldProps) {
   const { name, label, type = 'text' } = field
-  const visible = value.visibility[name] !== false
+  const visible = !visibilityToggle || value.visibility[name] !== false
   const control = {
     placeholder: field.placeholder ?? placeholderFor(name),
     value: toPlain(value[name]),
@@ -33,7 +36,7 @@ export function FormField({ field, value, onChange }: FormFieldProps) {
   )
 
   return (
-    <Field label={label} action={toggle}>
+    <Field label={label} action={visibilityToggle ? toggle : undefined}>
       {type === 'textarea' ? <Textarea rows={field.rows ?? 5} {...control} /> : <Input type={type} {...control} />}
     </Field>
   )
