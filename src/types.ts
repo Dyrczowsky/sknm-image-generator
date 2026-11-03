@@ -10,6 +10,8 @@ export type ListItem = Record<string, string>
 // nowe pole formularza musi tam zostać obsłużone.
 export const FORM_TEXT_FIELDS = [
   'title', 'subtitle', 'speaker', 'event_date', 'event_time', 'location', 'badge', 'badge2', 'body',
+  // Duży tekst banera (pusty = nazwa koła); osobny od tytułu plakatu.
+  'bannerTitle',
 ] as const
 export type FormTextField = (typeof FORM_TEXT_FIELDS)[number]
 
@@ -44,6 +46,8 @@ export interface FormValues extends Record<FormTextField, string> {
   fillAgenda: boolean
   // Gala, Data: opis na całą szerokość plakatu zamiast wąskiej kolumny.
   wideSubtitle: boolean
+  // Baner: linia z datą, godziną i miejscem (wartości wspólne z plakatem).
+  bannerShowEvent: boolean
 }
 
 // Przekształcenie stanu formularza. Formularze zgłaszają zmiany jako takie

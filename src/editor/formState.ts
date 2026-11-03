@@ -17,6 +17,7 @@ export const EMPTY_FORM: FormValues = {
   badge: '',
   badge2: '',
   body: '',
+  bannerTitle: '',
   visibility: {},
   graphics: [],
   showPkLogo: true,
@@ -29,6 +30,7 @@ export const EMPTY_FORM: FormValues = {
   scaleLinked: true,
   fillAgenda: false,
   wideSubtitle: false,
+  bannerShowEvent: false,
 }
 
 // Pola tekstowe wiersza bazy (stary draft / wąskie kolumny historii); kolumny, których wiersz nie
@@ -81,6 +83,8 @@ export const moveGraphic = (index: number, direction: -1 | 1): FormUpdate => (fo
 
 export const setShowPkLogo = (showPkLogo: boolean): FormUpdate => (form) => ({ ...form, showPkLogo })
 export const setFillAgenda = (fillAgenda: boolean): FormUpdate => (form) => ({ ...form, fillAgenda })
+
+export const setBannerShowEvent = (bannerShowEvent: boolean): FormUpdate => (form) => ({ ...form, bannerShowEvent })
 
 export const setWideSubtitle = (wideSubtitle: boolean): FormUpdate => (form) => ({ ...form, wideSubtitle })
 

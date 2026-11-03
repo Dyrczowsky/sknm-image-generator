@@ -73,6 +73,7 @@ describe('PosterText', () => {
 describe('setFormPath', () => {
   it('ustawia pole formularza', () => {
     expect(setFormPath('title', 'x')(EMPTY_FORM).title).toBe('x')
+    expect(setFormPath('bannerTitle', 'Gala 25')(EMPTY_FORM).bannerTitle).toBe('Gala 25')
   })
 
   it('zmienia tylko wskazaną pozycję listy', () => {

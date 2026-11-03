@@ -64,6 +64,8 @@ const FULL_FORM: FormValues = {
   scaleLinked: false,
   fillAgenda: true,
   wideSubtitle: true,
+  bannerTitle: 'Gala 25-lecia',
+  bannerShowEvent: true,
 }
 
 const FULL_EXPORT: ExportSettings = { medium: 'banner', format: 'fbEvent', orientation: 'landscape', fileType: 'pdf' }
@@ -448,6 +450,22 @@ describe('isBlank i formatowanie', () => {
   it('pole tylko z wyrównaniem (bez tekstu) jest puste', () => {
     const snapshot = { ...DEFAULT_SNAPSHOT, form: { ...EMPTY_SNAPSHOT_FORM, title: '\uE000\uE001' } }
     expect(isBlank(snapshot)).toBe(true)
+  })
+})
+
+describe('tekst banera', () => {
+  it('stary zapis bez pól banera: pusty tekst i wyłączona linia wydarzenia', () => {
+    const result = parseSnapshot({ v: 2, poster_key: LAYOUTS[0], form: { title: 'T' } }, LAYOUTS)
+    if (!result.ok) throw new Error('parse')
+    expect(result.snapshot.form.bannerTitle).toBe('')
+    expect(result.snapshot.form.bannerShowEvent).toBe(false)
+  })
+
+  it('niepoprawne typy dają wartości domyślne', () => {
+    const result = parseSnapshot({ v: 2, poster_key: LAYOUTS[0], form: { bannerTitle: 5, bannerShowEvent: 'tak' } }, LAYOUTS)
+    if (!result.ok) throw new Error('parse')
+    expect(result.snapshot.form.bannerTitle).toBe('')
+    expect(result.snapshot.form.bannerShowEvent).toBe(false)
   })
 })
 
