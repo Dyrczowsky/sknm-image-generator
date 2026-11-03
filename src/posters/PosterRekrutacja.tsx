@@ -19,7 +19,7 @@ const BAND_ZIGZAG =
 
 // REKRUTACJA — wzór z sygnetu
 export function PosterRekrutacja({ data, scheme, accent, lang = 'pl' }: PosterProps) {
-  const { raw, event_date, event_time, logoSlots, qrUrl, hidden, fx, titleScale, textScale } = withPlaceholders(data)
+  const { raw, event_date, event_time, logoSlots, qrUrl, qrSide, hidden, fx, titleScale, textScale } = withPlaceholders(data)
   const { cssVars, sygnet, logoVariant } = resolveScheme('rekrutacja', scheme, accent)
   const { kx } = usePosterShape()
 
@@ -81,7 +81,7 @@ export function PosterRekrutacja({ data, scheme, accent, lang = 'pl' }: PosterPr
             )}
           </div>
         </div>
-        <FooterLogos qrUrl={qrUrl} slots={logoSlots} variant={logoVariant} />
+        <FooterLogos qrUrl={qrUrl} qrSide={qrSide} slots={logoSlots} variant={logoVariant} />
       </div>
     </PosterFrame>
   )

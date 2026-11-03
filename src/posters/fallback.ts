@@ -54,6 +54,7 @@ export function withPlaceholders(data: RawPosterData) {
     event_time: data.event_time || PLACEHOLDERS.event_time,
     logoSlots,
     qrUrl: data.qrUrl ?? '',
+    qrSide: data.qrSide === 'right' ? ('right' as const) : ('left' as const),
     photos: data.photos ?? {},
     lists: data.lists ?? {},
     // Mnożnik rozmiaru tytułu/pozostałego tekstu z suwaków w formularzu;

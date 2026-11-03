@@ -47,7 +47,7 @@ export function PosterForm({ value, onChange, fields, photoLabel, wideSubtitle, 
         </FormGroup>
       )}
       <FormGroup title="Kod QR">
-        <QrField value={value} onChange={onChange} />
+        <QrField value={value} onChange={onChange} withSide />
       </FormGroup>
     </div>
   )

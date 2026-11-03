@@ -18,6 +18,8 @@ export type FormTextField = (typeof FORM_TEXT_FIELDS)[number]
 // `withPlaceholders` w posters/fallback.ts).
 export type FieldVisibility = Partial<Record<FormTextField, boolean>>
 
+export type QrSide = 'left' | 'right'
+
 export interface FormValues extends Record<FormTextField, string> {
   // `body` to dłuższy akapit treści (np. szablon „Komunikat rozszerzony").
   visibility: FieldVisibility
@@ -27,6 +29,8 @@ export interface FormValues extends Record<FormTextField, string> {
   showPkLogo: boolean
   // Link/tekst do zakodowania w kodzie QR w stopce. Pusty = brak QR.
   qrUrl: string
+  // Strona kodu QR w stopce: przy lewej krawędzi (nad datą) albo przy logotypach.
+  qrSide: QrSide
   photos: Record<string, PhotoValue[]>
   lists: Record<string, ListItem[]>
   // Mnożnik rozmiaru tytułu/pozostałego tekstu (suwaki w zakładce „Wygląd") - 1 =

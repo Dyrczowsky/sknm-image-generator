@@ -1,5 +1,5 @@
 import { FORM_TEXT_FIELDS } from '../types'
-import type { FormTextField, FormUpdate, FormValues } from '../types'
+import type { FormTextField, FormUpdate, FormValues, QrSide } from '../types'
 import { MAX_GRAPHICS } from '../posters/theme'
 
 // Stan pustego formularza: wartości domyślne, a także tło, na którym parser
@@ -21,6 +21,7 @@ export const EMPTY_FORM: FormValues = {
   graphics: [],
   showPkLogo: true,
   qrUrl: '',
+  qrSide: 'left',
   photos: {},
   lists: {},
   titleScale: 1,
@@ -84,6 +85,8 @@ export const setFillAgenda = (fillAgenda: boolean): FormUpdate => (form) => ({ .
 export const setWideSubtitle = (wideSubtitle: boolean): FormUpdate => (form) => ({ ...form, wideSubtitle })
 
 export const setQrUrl = (qrUrl: string): FormUpdate => (form) => ({ ...form, qrUrl })
+
+export const setQrSide = (qrSide: QrSide): FormUpdate => (form) => ({ ...form, qrSide })
 
 // Galeria zdjęć pod kluczem `fieldKey`. Nowe zdjęcie zaczyna z kadrem na środku.
 const updatePhotos = (fieldKey: string, change: (photos: FormValues['photos'][string]) => FormValues['photos'][string]): FormUpdate => (form) => ({

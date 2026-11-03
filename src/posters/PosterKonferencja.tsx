@@ -20,7 +20,7 @@ const DEFAULT_AGENDA: ListItem[] = [
 
 // KONFERENCJA — nagłówek + lista programu
 export function PosterKonferencja({ data, scheme, accent, lang = 'pl' }: PosterProps) {
-  const { raw, event_date, logoSlots, qrUrl, lists, hidden, fx, titleScale, fillAgenda } = withPlaceholders(data)
+  const { raw, event_date, logoSlots, qrUrl, qrSide, lists, hidden, fx, titleScale, fillAgenda } = withPlaceholders(data)
   const agenda = lists.agenda?.length ? lists.agenda : DEFAULT_AGENDA
   const { cssVars, sygnet, logoVariant } = resolveScheme('konferencja', scheme, accent)
   // W pionie wiersze programu dostają więcej oddechu, żeby krótka lista nie
@@ -99,7 +99,7 @@ export function PosterKonferencja({ data, scheme, accent, lang = 'pl' }: PosterP
             />
             <div style={{ fontSize: 24, fontWeight: 600, color: 'var(--muted-text)' }}>{SITE_URL}</div>
           </div>
-          <FooterLogos qrUrl={qrUrl} slots={logoSlots} variant={logoVariant} />
+          <FooterLogos qrUrl={qrUrl} qrSide={qrSide} slots={logoSlots} variant={logoVariant} />
         </div>
       </div>
     </PosterFrame>

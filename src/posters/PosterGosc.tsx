@@ -15,7 +15,7 @@ import { PhotoGallery } from './PhotoGallery'
 
 // GOŚĆ — zdjęcie + pas
 export function PosterGosc({ data, scheme, accent, lang = 'pl' }: PosterProps) {
-  const { raw, event_date, event_time, logoSlots, qrUrl, photos, hidden, fx, titleScale } = withPlaceholders(data)
+  const { raw, event_date, event_time, logoSlots, qrUrl, qrSide, photos, hidden, fx, titleScale } = withPlaceholders(data)
   const { cssVars, sygnet, logoVariant } = resolveScheme('gosc', scheme, accent)
 
   const { shape, height } = usePosterShape()
@@ -80,7 +80,7 @@ export function PosterGosc({ data, scheme, accent, lang = 'pl' }: PosterProps) {
             label="Linia na dole"
             style={{ fontSize: 22, fontWeight: 600, color: 'var(--accent)', ...fx('badge2') }}
           />
-          <FooterLogos qrUrl={qrUrl} slots={logoSlots} variant={logoVariant} />
+          <FooterLogos qrUrl={qrUrl} qrSide={qrSide} slots={logoSlots} variant={logoVariant} />
         </div>
       </div>
     </PosterFrame>

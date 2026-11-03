@@ -17,7 +17,7 @@ const TRIANGLE_COLORS = ['var(--tri1)', 'var(--tri2)', 'var(--tri3)']
 
 // DATA — liczba jako grafika
 export function PosterData({ data, scheme, accent, lang = 'pl' }: PosterProps) {
-  const { raw, event_date, event_time, logoSlots, qrUrl, photos, hidden, fx, titleScale, textScale, wideSubtitle } = withPlaceholders(data)
+  const { raw, event_date, event_time, logoSlots, qrUrl, qrSide, photos, hidden, fx, titleScale, textScale, wideSubtitle } = withPlaceholders(data)
   const { cssVars, sygnet, logoVariant } = resolveScheme('data', scheme, accent)
 
   return (
@@ -71,7 +71,7 @@ export function PosterData({ data, scheme, accent, lang = 'pl' }: PosterProps) {
             <Triangle key={color} width={56} height={44} color={color} />
           ))}
         </div>
-        <FooterLogos qrUrl={qrUrl} slots={logoSlots} variant={logoVariant} />
+        <FooterLogos qrUrl={qrUrl} qrSide={qrSide} slots={logoSlots} variant={logoVariant} />
       </div>
     </PosterFrame>
   )
