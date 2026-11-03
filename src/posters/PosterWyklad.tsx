@@ -34,7 +34,7 @@ export function PosterWyklad({ data, scheme, accent, lang = 'pl' }: PosterProps)
       </div>
 
       <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24, position: 'relative', zIndex: 1 }}>
-        <div style={{ display: 'flex', gap: 24, alignItems: 'flex-end' }}>
+        <div style={{ display: 'flex', gap: 24, alignItems: 'last baseline' }}>
           <BigDateNumber event_date={event_date} style={fx('event_date')} lang={lang} />
           <InfoLine
             parts={[
@@ -44,7 +44,7 @@ export function PosterWyklad({ data, scheme, accent, lang = 'pl' }: PosterProps)
             secondLine={subtitle}
             secondLineHidden={hidden('subtitle')}
             secondLineStyle={{ fontSize: typography.body.fontSize * textScale, lineHeight: leading(typography.body.lineHeight, textScale), whiteSpace: 'pre' }}
-            style={{ paddingBottom: 10, whiteSpace: 'nowrap' }}
+            style={{ whiteSpace: 'nowrap' }}
           />
         </div>
         <FooterLogos qrUrl={qrUrl} slots={logoSlots} variant={logoVariant} />
