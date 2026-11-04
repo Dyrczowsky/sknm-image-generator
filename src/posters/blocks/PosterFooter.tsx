@@ -1,5 +1,7 @@
 import type { CSSProperties, ReactNode } from 'react'
-import { LOGO_CLEAR, QR_SIZE } from '../theme'
+import { useElementSize } from '../../utils/useElementSize'
+import { LOGO_CLEAR, POSTER_QR } from '../theme'
+import type { QrSizing } from '../theme'
 import { FooterLogos } from './FooterLogos'
 import type { LogoSlotSource } from './LogoSlots'
 import { QrSlot } from './QrSlot'
@@ -10,7 +12,8 @@ interface PosterFooterProps {
   qrSide: QrSide
   // `inline` - kod w rzędzie stopki, `above` - we własnym wierszu nad nią.
   qrPlacement: QrPlacement
-  qrSize?: number
+  // Rozmiary kodu (plakat/baner), patrz `QrSizing`.
+  qrSizing?: QrSizing
   // Treść lewego rogu stopki (data, adres strony, etykieta...). Opcjonalna.
   lead?: ReactNode
   slots: LogoSlotSource[]
@@ -34,15 +37,23 @@ interface PosterFooterProps {
 //   above  + left   własny wiersz nad stopką, przy lewym marginesie
 //   above  + right  własny wiersz nad stopką, nad logotypami
 //
+// Rozmiar: po lewej kod ma wysokość treści lewego rogu (mierzonej na żywo,
+// w granicach `min`-`max`) - stoi obok tekstu jak jego równy sąsiad; przy
+// logotypach ma wysokość logo. Bez pomiaru (render statyczny, brak treści)
+// - `min`.
+//
 // Wysunięcia o `LOGO_CLEAR` kładą moduły QR dokładnie na marginesie kadru,
 // tak jak grafiki w FooterLogos (slot ma symetryczny padding `LOGO_CLEAR`).
 export function PosterFooter({
-  qrUrl, qrSide, qrPlacement, qrSize = QR_SIZE, lead, slots, variant, slotStyle, gap = 24, rowStyle, logosStyle, style,
+  qrUrl, qrSide, qrPlacement, qrSizing = POSTER_QR, lead, slots, variant, slotStyle, gap = 24, rowStyle, logosStyle, style,
 }: PosterFooterProps) {
   const hasQr = qrUrl.trim() !== ''
   const above = hasQr && qrPlacement === 'above'
   const inlineLeft = hasQr && !above && qrSide === 'left'
   const inlineRight = hasQr && !above && qrSide === 'right'
+  const [leadRef, leadSize] = useElementSize<HTMLDivElement>()
+  const leftSize = Math.min(qrSizing.max, Math.max(qrSizing.min, leadSize.height))
+  const qrSize = qrSide === 'left' ? leftSize : qrSizing.right
 
   const row = (
     <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap, ...rowStyle }}>
@@ -55,11 +66,15 @@ export function PosterFooter({
               <QrSlot value={qrUrl} size={qrSize} />
             </div>
           )}
-          {lead}
+          {lead && (
+            <div ref={leadRef} style={{ display: 'flex', alignItems: 'flex-end', minWidth: 0 }}>
+              {lead}
+            </div>
+          )}
         </div>
       )}
       <div style={{ display: 'flex', flex: 1, minWidth: 0, ...logosStyle }}>
-        <FooterLogos qrUrl={inlineRight ? qrUrl : ''} qrSize={qrSize} slots={slots} variant={variant} slotStyle={slotStyle} />
+        <FooterLogos qrUrl={inlineRight ? qrUrl : ''} qrSize={qrSizing.right} slots={slots} variant={variant} slotStyle={slotStyle} />
       </div>
     </div>
   )

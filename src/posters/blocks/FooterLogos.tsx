@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react'
-import { LOGO_CLEAR, QR_SIZE } from '../theme'
+import { LOGO_CLEAR, LOGO_HEIGHT } from '../theme'
 import { LogoSlots } from './LogoSlots'
 import type { LogoSlotSource } from './LogoSlots'
 import { QrSlot } from './QrSlot'
@@ -9,7 +9,7 @@ interface FooterLogosProps {
   qrUrl: string
   slots: LogoSlotSource[]
   variant?: LogoVariant
-  // Bok kwadratu kodu QR; banery podają mniejszy.
+  // Bok kwadratu kodu QR (domyślnie wysokość logo).
   qrSize?: number
   slotStyle?: CSSProperties
 }
@@ -27,7 +27,7 @@ interface FooterLogosProps {
 // rozpychało układu - QR pojawia się w miejscu, które i tak jest już puste.
 // `flexWrap: wrap` - nadmiar grafik (np. hurtowo wgrane logotypy patronów)
 // schodzi do kolejnego wiersza zamiast wychodzić poza kadr.
-export function FooterLogos({ qrUrl, slots, variant, qrSize = QR_SIZE, slotStyle }: FooterLogosProps) {
+export function FooterLogos({ qrUrl, slots, variant, qrSize = LOGO_HEIGHT, slotStyle }: FooterLogosProps) {
   return (
     <div
       style={{

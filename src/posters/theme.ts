@@ -104,6 +104,10 @@ export const LOGO_CLEAR = Math.round(LOGO_HEIGHT / 4)
 // Ile grafik/logotypów mieści się w rzędzie stopki przy LOGO_HEIGHT.
 export const MAX_GRAPHICS = 4
 
-// Bok kwadratu kodu QR w stopce plakatu (banery mają mniejszy, patrz
-// banners/common.tsx).
-export const QR_SIZE = 96
+// Bok kwadratu kodu QR w stopce (patrz PosterFooter). Po lewej kod ma
+// wysokość treści stopki obok (`min`-`max`), przy logotypach - wysokość logo.
+// `min` 64 px ≈ 12 mm na A4: poniżej wydrukowany kod skanuje się zawodnie.
+export interface QrSizing { min: number; max: number; right: number }
+export const POSTER_QR: QrSizing = { min: 64, max: 96, right: LOGO_HEIGHT }
+// Baner (układ 624 px) żyje tylko na ekranie, więc kod może zejść do wysokości logo.
+export const BANNER_QR: QrSizing = { min: LOGO_HEIGHT, max: 72, right: LOGO_HEIGHT }
