@@ -114,7 +114,11 @@ export function PosterFooter({
       data-footer-stacked={stacked || undefined}
       style={{
         display: 'flex',
-        alignItems: 'flex-end',
+        // Kod QR, treść i logotypy mają wspólny środek w pionie: logo nie ma
+        // linii bazowej, a przy różnych wysokościach dosunięcie do dołu
+        // rozjeżdża i górne, i dolne krawędzie. Najwyższy element stoi na
+        // dolnym marginesie, więc stopka ląduje w tym samym miejscu.
+        alignItems: 'center',
         justifyContent: 'space-between',
         gap,
         ...rowStyle,
@@ -122,11 +126,12 @@ export function PosterFooter({
       }}
     >
       {(inlineLeft || lead) && (
-        <div data-footer-lead style={{ display: 'flex', alignItems: 'flex-end', gap, minWidth: 0, flex: '0 1 auto', ...(stacked && { alignSelf: 'flex-start' }) }}>
+        <div data-footer-lead style={{ display: 'flex', alignItems: 'center', gap, minWidth: 0, flex: '0 1 auto', ...(stacked && { alignSelf: 'flex-start' }) }}>
           {inlineLeft && (
-            // Lewy i dolny margines zjada padding slotu (moduły na krawędzi
-            // kadru), prawy - żeby odstęp do tekstu był równy `gap`.
-            <div data-qr-inline="left" style={{ display: 'flex', margin: `0 ${-LOGO_CLEAR}px ${-LOGO_CLEAR}px ${-LOGO_CLEAR}px` }}>
+            // Ujemne marginesy zjadają padding slotu: z lewej moduły na
+            // krawędzi kadru, z góry i z dołu po równo (środek kodu = środek
+            // rzędu), z prawej - odstęp do tekstu równy `gap`.
+            <div data-qr-inline="left" style={{ display: 'flex', margin: -LOGO_CLEAR }}>
               <QrSlot value={qrUrl} size={qrSize} />
             </div>
           )}

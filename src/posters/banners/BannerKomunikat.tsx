@@ -31,9 +31,9 @@ export function BannerKomunikat({ data, scheme, accent, lang = 'pl' }: PosterPro
         {/* Układ dwukolumnowy: kod „po lewej" stoi na lewym marginesie przed
             adresem strony (jedna linijka - kod w rozmiarze minimalnym),
             „przy logotypach" - w prawej kolumnie. */}
-        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 24 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
           {qrSide === 'left' && qrUrl.trim() !== '' && (
-            <div data-qr-inline="left" style={{ display: 'flex', margin: `0 ${-LOGO_CLEAR}px ${-LOGO_CLEAR}px ${-LOGO_CLEAR}px` }}>
+            <div data-qr-inline="left" style={{ display: 'flex', margin: -LOGO_CLEAR }}>
               <QrSlot value={qrUrl} size={BANNER_QR.min} />
             </div>
           )}

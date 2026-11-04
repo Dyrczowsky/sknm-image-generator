@@ -43,11 +43,15 @@ export function FooterLogos({ qrUrl, slots, variant, logoHeight = LOGO_HEIGHT, q
         flexWrap: 'wrap',
         justifyContent: spread ? 'space-between' : 'flex-end',
         gap: LOGO_CLEAR,
-        alignItems: 'flex-end',
+        // Logo i kod QR o różnej wysokości - wspólny środek (patrz PosterFooter).
+        alignItems: 'center',
         minHeight: Math.max(qrSize, logoHeight) + LOGO_CLEAR * 2,
         marginRight: -LOGO_CLEAR,
         // Jak z prawej: pole ochronne pierwszej grafiki wychodzi na margines kadru.
         ...(spread && { marginLeft: -LOGO_CLEAR }),
+        // Pole ochronne wysunięte w pionie po równo: środek rzędu to środek
+        // grafik, a najwyższa siada dokładnie na dolnym marginesie kadru.
+        marginTop: -LOGO_CLEAR,
         marginBottom: -LOGO_CLEAR,
       }}
     >
