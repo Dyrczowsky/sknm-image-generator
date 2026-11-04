@@ -55,6 +55,7 @@ export function PosterGala({ data, scheme, accent, lang = 'pl' }: PosterProps) {
 
       <PosterFooter
         qrUrl={qrUrl} qrSide={qrSide} qrPlacement={qrPlacement} slots={logoSlots} variant={logoVariant}
+        matchLogo={false}
         gap={32}
         style={{ position: 'relative', zIndex: 1 }}
         lead={

@@ -101,13 +101,20 @@ export const posterBaseStyle: CSSProperties = {
 export const LOGO_HEIGHT = 48
 export const LOGO_CLEAR = Math.round(LOGO_HEIGHT / 4)
 
+// Logo rośnie do wysokości treści stopki obok, najwyżej do tej wartości
+// (patrz PosterFooter); LOGO_HEIGHT to jego minimum.
+export const LOGO_MAX_HEIGHT = 72
+// Najmniejsza wysokość logo w stopce, która nie może się spiętrzyć (brak
+// miejsca w pionie) - zamiast spychać logotypy poza kadr, ściska je do tej wartości.
+export const LOGO_SQUEEZE_HEIGHT = 32
+
 // Ile grafik/logotypów mieści się w rzędzie stopki przy LOGO_HEIGHT.
 export const MAX_GRAPHICS = 4
 
 // Bok kwadratu kodu QR w stopce (patrz PosterFooter). Po lewej kod ma
 // wysokość treści stopki obok (`min`-`max`), przy logotypach - wysokość logo.
 // `min` 64 px ≈ 12 mm na A4: poniżej wydrukowany kod skanuje się zawodnie.
-export interface QrSizing { min: number; max: number; right: number }
-export const POSTER_QR: QrSizing = { min: 64, max: 96, right: LOGO_HEIGHT }
+export interface QrSizing { min: number; max: number }
+export const POSTER_QR: QrSizing = { min: 64, max: 96 }
 // Baner (układ 624 px) żyje tylko na ekranie, więc kod może zejść do wysokości logo.
-export const BANNER_QR: QrSizing = { min: LOGO_HEIGHT, max: 72, right: LOGO_HEIGHT }
+export const BANNER_QR: QrSizing = { min: LOGO_HEIGHT, max: 72 }

@@ -9,9 +9,12 @@ interface FooterLogosProps {
   qrUrl: string
   slots: LogoSlotSource[]
   variant?: LogoVariant
+  // Wysokość grafik (domyślnie LOGO_HEIGHT).
+  logoHeight?: number
   // Bok kwadratu kodu QR (domyślnie wysokość logo).
   qrSize?: number
   slotStyle?: CSSProperties
+  onRatio?: (i: number, ratio: number) => void
 }
 
 // Logotypy w prawym dolnym rogu stopki, z kodem QR tuż przed nimi (gdy
@@ -27,7 +30,7 @@ interface FooterLogosProps {
 // rozpychało układu - QR pojawia się w miejscu, które i tak jest już puste.
 // `flexWrap: wrap` - nadmiar grafik (np. hurtowo wgrane logotypy patronów)
 // schodzi do kolejnego wiersza zamiast wychodzić poza kadr.
-export function FooterLogos({ qrUrl, slots, variant, qrSize = LOGO_HEIGHT, slotStyle }: FooterLogosProps) {
+export function FooterLogos({ qrUrl, slots, variant, logoHeight = LOGO_HEIGHT, qrSize = logoHeight, slotStyle, onRatio }: FooterLogosProps) {
   return (
     <div
       style={{
@@ -38,13 +41,13 @@ export function FooterLogos({ qrUrl, slots, variant, qrSize = LOGO_HEIGHT, slotS
         justifyContent: 'flex-end',
         gap: LOGO_CLEAR,
         alignItems: 'flex-end',
-        minHeight: qrSize + LOGO_CLEAR * 2,
+        minHeight: Math.max(qrSize, logoHeight) + LOGO_CLEAR * 2,
         marginRight: -LOGO_CLEAR,
         marginBottom: -LOGO_CLEAR,
       }}
     >
       <QrSlot value={qrUrl} size={qrSize} />
-      <LogoSlots slots={slots} variant={variant} slotStyle={slotStyle} />
+      <LogoSlots slots={slots} variant={variant} slotStyle={slotStyle} height={logoHeight} onRatio={onRatio} />
     </div>
   )
 }
