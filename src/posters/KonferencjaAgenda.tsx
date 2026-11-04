@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { toPlain } from '../richText'
 import type { ListItem } from '../types'
 import { useElementSize } from '../utils/useElementSize'
@@ -37,6 +37,20 @@ export function KonferencjaAgenda({ agenda, seed, startPad, spread, grow, canGro
   // Rozmiar samego programu: przełamanie tekstu (np. po wczytaniu fontu)
   // mierzy na nowo, ale nie zaczyna dopasowania od zera (to robi `key`).
   const [listSizeRef, listSize] = useElementSize<HTMLDivElement>()
+  const setBox = useCallback(
+    (node: HTMLDivElement | null) => {
+      boxRef.current = node
+      return sizeRef(node)
+    },
+    [sizeRef],
+  )
+  const setList = useCallback(
+    (node: HTMLDivElement | null) => {
+      listRef.current = node
+      return listSizeRef(node)
+    },
+    [listSizeRef],
+  )
   // Każda zmiana treści albo miejsca zaczyna dopasowanie od nowa - inaczej
   // skrócenie programu zostawiłoby go w zmniejszonym tekście.
   const key = JSON.stringify([agenda, startPad, spread, grow, box.width, box.height])
@@ -82,18 +96,12 @@ export function KonferencjaAgenda({ agenda, seed, startPad, spread, grow, canGro
 
   return (
     <div
-      ref={(node) => {
-        boxRef.current = node
-        return sizeRef(node)
-      }}
+      ref={setBox}
       // `position: relative` - offsetTop wierszy liczy się od tego pudełka.
       style={{ flex: 1, position: 'relative', display: 'flex', flexDirection: 'column', ...(!grow && { minHeight: 0, overflow: 'hidden' }) }}
     >
       <div
-        ref={(node) => {
-          listRef.current = node
-          return listSizeRef(node)
-        }}
+        ref={setList}
         style={{
           display: 'grid',
           gridTemplateColumns: `repeat(${fit.columns}, minmax(0, 1fr))`,

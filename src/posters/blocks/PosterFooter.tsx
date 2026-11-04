@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useCallback, useLayoutEffect, useRef, useState } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
+import { textInkHeight } from '../../utils/textInk'
 import { useElementSize } from '../../utils/useElementSize'
 import { LOGO_CLEAR, LOGO_HEIGHT, LOGO_MAX_HEIGHT, LOGO_SQUEEZE_HEIGHT, POSTER_QR } from '../theme'
 import type { QrSizing } from '../theme'
@@ -70,8 +71,25 @@ export function PosterFooter({
   const hasQr = qrUrl.trim() !== ''
   const above = hasQr && qrPlacement === 'above'
   const qrInline = hasQr && !above
-  const [leadRef, leadSize] = useElementSize<HTMLDivElement>()
-  const clamp = (min: number, max: number) => Math.min(max, Math.max(min, leadSize.height))
+  const [leadSizeRef, leadSize] = useElementSize<HTMLDivElement>()
+  const leadNode = useRef<HTMLDivElement | null>(null)
+  const leadRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      leadNode.current = node
+      return leadSizeRef(node)
+    },
+    [leadSizeRef],
+  )
+  // Wysokość samego tekstu (wielkie litery → linia bazowa), bez interlinii
+  // pudełka - inaczej logo i kod wychodzą ponad tekst. Treść bez tekstu
+  // (trójkąty w „Dacie") i render statyczny: wysokość pudełka.
+  const [ink, setInk] = useState<number | null>(null)
+  useLayoutEffect(() => {
+    const next = leadNode.current ? textInkHeight(leadNode.current) : null
+    setInk((prev) => (prev !== null && next !== null && Math.abs(prev - next) < 0.5 ? prev : next))
+  }, [leadSize.height, leadSize.width])
+  const leadHeight = Math.round(ink ?? leadSize.height)
+  const clamp = (min: number, max: number) => Math.min(max, Math.max(min, leadHeight))
   const [rowRef, rowBox] = useElementSize<HTMLDivElement>()
   const [logosRef, logosBox] = useElementSize<HTMLDivElement>()
   // Proporcje grafik po wczytaniu, z adresem - zmiana grafiki na tej pozycji
