@@ -1,11 +1,11 @@
 import type { PosterProps } from '../types'
+import { PosterFooter } from './blocks/PosterFooter'
 import { getDay, getMonthShort } from '../utils/formatDate'
 import { BRANDING_EVENT } from './copy'
 import { PLACEHOLDERS, withPlaceholders } from './fallback'
 import { resolveScheme } from './schemes'
 import { fontMono, leading, TITLE_TRACKING, typography } from './theme'
 import { BrandingText } from './blocks/BrandingText'
-import { FooterLogos } from './blocks/FooterLogos'
 import { InfoLine } from './blocks/InfoLine'
 import { PosterFrame } from './blocks/PosterFrame'
 import { PosterText } from './blocks/PosterText'
@@ -17,7 +17,7 @@ const TRIANGLE_COLORS = ['var(--tri1)', 'var(--tri2)', 'var(--tri3)']
 
 // DATA — liczba jako grafika
 export function PosterData({ data, scheme, accent, lang = 'pl' }: PosterProps) {
-  const { raw, event_date, event_time, logoSlots, qrUrl, qrSide, photos, hidden, fx, titleScale, textScale, wideSubtitle } = withPlaceholders(data)
+  const { raw, event_date, event_time, logoSlots, qrUrl, qrSide, qrPlacement, photos, hidden, fx, titleScale, textScale, wideSubtitle } = withPlaceholders(data)
   const { cssVars, sygnet, logoVariant } = resolveScheme('data', scheme, accent)
 
   return (
@@ -65,14 +65,16 @@ export function PosterData({ data, scheme, accent, lang = 'pl' }: PosterProps) {
         </div>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24 }}>
-        <div style={{ display: 'flex', gap: 6 }}>
-          {TRIANGLE_COLORS.map((color) => (
-            <Triangle key={color} width={56} height={44} color={color} />
-          ))}
-        </div>
-        <FooterLogos qrUrl={qrUrl} qrSide={qrSide} slots={logoSlots} variant={logoVariant} />
-      </div>
+      <PosterFooter
+        qrUrl={qrUrl} qrSide={qrSide} qrPlacement={qrPlacement} slots={logoSlots} variant={logoVariant}
+        lead={
+          <div style={{ display: 'flex', gap: 6 }}>
+            {TRIANGLE_COLORS.map((color) => (
+              <Triangle key={color} width={56} height={44} color={color} />
+            ))}
+          </div>
+        }
+      />
     </PosterFrame>
   )
 }

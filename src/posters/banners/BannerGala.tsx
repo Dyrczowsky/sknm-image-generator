@@ -9,11 +9,11 @@ import { Badge } from '../blocks/Badge'
 import { BrandingText } from '../blocks/BrandingText'
 import { PosterFrame } from '../blocks/PosterFrame'
 import { Sygnet } from '../blocks/Sygnet'
-import { BANNER_SYGNET_W, BannerLogos, NAME_TRACKING, BannerEventLine } from './common'
+import { BANNER_SYGNET_W, BannerFooter, NAME_TRACKING, BannerEventLine } from './common'
 
 // GALA (baner) — złota linia pod nagłówkiem, nazwa koła, złote akcenty.
 export function BannerGala({ data, scheme, accent, lang = 'pl' }: PosterProps) {
-  const { raw, logoSlots, qrUrl, titleScale, textScale } = withPlaceholders(data)
+  const { raw, logoSlots, qrUrl, qrSide, titleScale, textScale } = withPlaceholders(data)
   const { cssVars, sygnet, logoVariant } = resolveScheme('gala', scheme, accent)
   const { kx, ky } = usePosterShape()
   const { padX, padY } = useBannerLayout()
@@ -34,9 +34,7 @@ export function BannerGala({ data, scheme, accent, lang = 'pl' }: PosterProps) {
         <BannerEventLine data={data} lang={lang} />
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-end', gap: 32, position: 'relative', zIndex: 1 }}>
-        <BannerLogos qrUrl={qrUrl} slots={logoSlots} variant={logoVariant} />
-      </div>
+      <BannerFooter qrUrl={qrUrl} qrSide={qrSide} slots={logoSlots} variant={logoVariant} gap={32} style={{ position: 'relative', zIndex: 1 }} />
     </PosterFrame>
   )
 }

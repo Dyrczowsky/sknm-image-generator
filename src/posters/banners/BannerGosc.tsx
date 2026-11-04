@@ -8,7 +8,7 @@ import { Badge } from '../blocks/Badge'
 import { PosterFrame } from '../blocks/PosterFrame'
 import { Sygnet } from '../blocks/Sygnet'
 import { PhotoGallery } from '../PhotoGallery'
-import { BANNER_SYGNET_W, BannerLogos, NAME_TRACKING, BannerEventLine } from './common'
+import { BANNER_SYGNET_W, BannerFooter, NAME_TRACKING, BannerEventLine } from './common'
 import { leading } from '../theme'
 
 // Szerokość zdjęcia wewnątrz bezpiecznej kolumny; na okładce strony zdjęcie
@@ -17,7 +17,7 @@ const PHOTO_W = 360
 
 // GOŚĆ (baner) — zdjęcie na całą wysokość po lewej, nazwa koła po prawej.
 export function BannerGosc({ data, scheme, accent, lang = 'pl' }: PosterProps) {
-  const { raw, logoSlots, qrUrl, photos, titleScale } = withPlaceholders(data)
+  const { raw, logoSlots, qrUrl, qrSide, photos, titleScale } = withPlaceholders(data)
   const { cssVars, sygnet, logoVariant } = resolveScheme('gosc', scheme, accent)
   const { padX, padY, height } = useBannerLayout()
 
@@ -49,10 +49,10 @@ export function BannerGosc({ data, scheme, accent, lang = 'pl' }: PosterProps) {
           <BannerEventLine data={data} lang={lang} />
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24 }}>
-          <div style={{ fontSize: 20, fontWeight: 600, color: 'var(--accent)', paddingBottom: 6 }}>{SITE_URL}</div>
-          <BannerLogos qrUrl={qrUrl} slots={logoSlots} variant={logoVariant} />
-        </div>
+        <BannerFooter
+          qrUrl={qrUrl} qrSide={qrSide} slots={logoSlots} variant={logoVariant}
+          lead={<div style={{ fontSize: 20, fontWeight: 600, color: 'var(--accent)', paddingBottom: 6 }}>{SITE_URL}</div>}
+        />
       </div>
     </PosterFrame>
   )

@@ -61,7 +61,7 @@ src/
 │   ├── registry.ts       poster_key → { name, Component, Banner, Form, bannerPhoto? }
 │   ├── PosterWyklad...    9 komponentów layoutów (style inline, patrz stylowanie.md)
 │   ├── banners/          banerowe wersje layoutów (BannerWyklad, ...) + wspólna stopka i linia wydarzenia (common.tsx)
-│   ├── blocks/           współdzielone bloki plakatu (PosterFrame, Sygnet, Badge, FooterLogos, ...)
+│   ├── blocks/           współdzielone bloki plakatu (PosterFrame, Sygnet, Badge, PosterFooter, ...)
 │   ├── copy.ts           wbudowany tekst PL/EN (nazwa koła, branding, domyślne plakietki)
 │   ├── theme.ts          tokeny wizualne plakatów (kolory, typografia)
 │   ├── schemes.ts        schematy kolorów per layout + resolveScheme() + schemesFor() + oś akcentu (accentsFor)

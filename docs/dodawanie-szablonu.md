@@ -15,14 +15,14 @@ i rozwiązuje schemat kolorów. Kontener to zawsze `PosterFrame` (1080×1080).
 import type { PosterProps } from '../types'
 import { PLACEHOLDERS, withPlaceholders } from './fallback'
 import { resolveScheme } from './schemes'
-import { FooterLogos } from './blocks/FooterLogos'
+import { PosterFooter } from './blocks/PosterFooter'
 import { InfoLine } from './blocks/InfoLine'
 import { PosterFrame } from './blocks/PosterFrame'
 import { PosterText } from './blocks/PosterText'
 import { Sygnet } from './blocks/Sygnet'
 
 export function PosterPiknik({ data, scheme, accent, lang = 'pl' }: PosterProps) {
-  const { raw, event_date, logoSlots, qrUrl, hidden, fx, titleScale, textScale } = withPlaceholders(data)
+  const { raw, event_date, logoSlots, qrUrl, qrSide, qrPlacement, hidden, fx, titleScale, textScale } = withPlaceholders(data)
   const { cssVars, sygnet, logoVariant } = resolveScheme('piknik', scheme, accent)
 
   return (
@@ -43,9 +43,14 @@ export function PosterPiknik({ data, scheme, accent, lang = 'pl' }: PosterProps)
       </div>
 
       {/* Stopka: logo PK w prawym dolnym rogu (ta sama pozycja we wszystkich
-          szablonach), kod QR odbity maksymalnie w lewo. `logoSlots` to logo PK
-          (o ile włączone) i grafiki wgrane w zakładce „Wygląd". */}
-      <FooterLogos qrUrl={qrUrl} slots={logoSlots} variant={logoVariant} />
+          szablonach), treść lewego rogu w `lead`. Kod QR stoi tam, gdzie
+          wybrał użytkownik (lewy margines / przy logo, w stopce / nad nią) -
+          nigdy „w środku" za tekstem. `logoSlots` to logo PK (o ile włączone)
+          i grafiki wgrane w zakładce „Wygląd". */}
+      <PosterFooter
+        qrUrl={qrUrl} qrSide={qrSide} qrPlacement={qrPlacement} slots={logoSlots} variant={logoVariant}
+        lead={<div>sknm.pk.edu.pl</div>}
+      />
     </PosterFrame>
   )
 }
@@ -227,8 +232,10 @@ Reguły:
   `PosterFrame` przez `style={{ padding: ... }}`. Tekst, logo i QR muszą zostać
   w środkowej kolumnie (między `padX` z lewej i z prawej); poza nią może wyjść
   tylko dekoracja i zdjęcia - Facebook przycina boki okładki na telefonie.
-- Stopka: `<BannerLogos qrUrl={qrUrl} slots={logoSlots} variant={logoVariant} />`
-  z `banners/common.tsx` (mniejszy QR, ten sam układ co `FooterLogos` w plakacie).
+- Stopka: `<BannerFooter qrUrl={qrUrl} qrSide={qrSide} slots={logoSlots} variant={logoVariant} lead={...} />`
+  z `banners/common.tsx` (mniejszy QR, ten sam układ co `PosterFooter` w plakacie,
+  zawsze w rzędzie stopki - baner jest za niski na wiersz nad nią). Gdy kolumna
+  jest wąska, adres strony daj linijkę wyżej zamiast w `lead` (patrz BannerKonferencja).
   Sygnet: `<Sygnet name={sygnet} width={BANNER_SYGNET_W} />`.
 - Duży tekst: `<PosterText path="bannerTitle" value={raw.bannerTitle}
   fallback={CLUB_NAME[lang]} multiline label="Tekst banera" style={...} />` -

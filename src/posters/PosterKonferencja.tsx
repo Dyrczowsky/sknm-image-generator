@@ -1,4 +1,5 @@
 import { toPlain } from '../richText'
+import { PosterFooter } from './blocks/PosterFooter'
 import type { ListItem, PosterProps } from '../types'
 import { formatFullDate } from '../utils/formatDate'
 import { DEFAULT_BADGE, SITE_URL } from './copy'
@@ -7,7 +8,6 @@ import { resolveScheme } from './schemes'
 import { usePosterShape } from './shape'
 import { colors, fontMono, leading, TITLE_TRACKING } from './theme'
 import { Badge } from './blocks/Badge'
-import { FooterLogos } from './blocks/FooterLogos'
 import { PosterFrame } from './blocks/PosterFrame'
 import { PosterText } from './blocks/PosterText'
 import { Sygnet } from './blocks/Sygnet'
@@ -92,15 +92,19 @@ export function PosterKonferencja({ data, scheme, accent, lang = 'pl' }: PosterP
           <div style={{ borderTop: '2px solid var(--line-rest)' }} />
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24 }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <Badge color="var(--footer-badge)" style={{ font: `700 20px ${fontMono}`, letterSpacing: '.12em', ...fx('badge2') }}
-              field={{ path: 'badge2', value: raw.badge2, fallback: DEFAULT_BADGE.wiecejInformacji[lang], label: 'Etykieta stopki' }}
-            />
-            <div style={{ fontSize: 24, fontWeight: 600, color: 'var(--muted-text)' }}>{SITE_URL}</div>
-          </div>
-          <FooterLogos qrUrl={qrUrl} qrSide={qrSide} slots={logoSlots} variant={logoVariant} />
-        </div>
+        {/* Layout wypełniony po brzegi - wiersz z kodem nad stopką wypchnąłby
+            ją poza kadr, więc kod zawsze stoi w rzędzie stopki. */}
+        <PosterFooter
+          qrUrl={qrUrl} qrSide={qrSide} qrPlacement="inline" slots={logoSlots} variant={logoVariant}
+          lead={
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <Badge color="var(--footer-badge)" style={{ font: `700 20px ${fontMono}`, letterSpacing: '.12em', ...fx('badge2') }}
+                field={{ path: 'badge2', value: raw.badge2, fallback: DEFAULT_BADGE.wiecejInformacji[lang], label: 'Etykieta stopki' }}
+              />
+              <div style={{ fontSize: 24, fontWeight: 600, color: 'var(--muted-text)' }}>{SITE_URL}</div>
+            </div>
+          }
+        />
       </div>
     </PosterFrame>
   )

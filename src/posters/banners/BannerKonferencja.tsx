@@ -8,7 +8,7 @@ import { fontMono, leading } from '../theme'
 import { Badge } from '../blocks/Badge'
 import { PosterFrame } from '../blocks/PosterFrame'
 import { Sygnet } from '../blocks/Sygnet'
-import { BANNER_SYGNET_W, BannerLogos, NAME_TRACKING, BannerEventLine } from './common'
+import { BANNER_SYGNET_W, BannerFooter, NAME_TRACKING, BannerEventLine } from './common'
 
 // Liczba pustych linii po prawej stronie banera.
 const RULES = 4
@@ -18,7 +18,7 @@ const PANEL_W = 580
 // KONFERENCJA (baner) — panel z nazwą koła po lewej, po prawej puste
 // linie jak w programie konferencji.
 export function BannerKonferencja({ data, scheme, accent, lang = 'pl' }: PosterProps) {
-  const { raw, logoSlots, qrUrl, titleScale, textScale } = withPlaceholders(data)
+  const { raw, logoSlots, qrUrl, qrSide, titleScale, textScale } = withPlaceholders(data)
   const { cssVars, sygnet, logoVariant } = resolveScheme('konferencja', scheme, accent)
   const { padX, padY } = useBannerLayout()
 
@@ -41,9 +41,12 @@ export function BannerKonferencja({ data, scheme, accent, lang = 'pl' }: PosterP
           ))}
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24, flex: '0 0 auto' }}>
-          <div style={{ font: `700 ${18 * textScale}px ${fontMono}`, letterSpacing: '.12em', color: 'var(--muted-text)', paddingBottom: 6 }}>{SITE_URL}</div>
-          <BannerLogos qrUrl={qrUrl} slots={logoSlots} variant={logoVariant} />
+        {/* Prawa kolumna jest wąska: adres w jednym rzędzie z kodem i logo
+            wchodził na logotyp, więc stoi linijkę wyżej, a rząd stopki niesie
+            tylko kod QR (lewy margines kolumny albo przy logo) i logotypy. */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, flex: '0 0 auto' }}>
+          <div style={{ font: `700 ${18 * textScale}px ${fontMono}`, letterSpacing: '.12em', color: 'var(--muted-text)' }}>{SITE_URL}</div>
+          <BannerFooter qrUrl={qrUrl} qrSide={qrSide} slots={logoSlots} variant={logoVariant} />
         </div>
       </div>
     </PosterFrame>

@@ -1,4 +1,5 @@
 import type { PosterProps } from '../types'
+import { PosterFooter } from './blocks/PosterFooter'
 import { getDay, getMonthShort } from '../utils/formatDate'
 import { DEFAULT_BADGE, FREE_ENTRY } from './copy'
 import { PLACEHOLDERS, withPlaceholders } from './fallback'
@@ -6,7 +7,6 @@ import { resolveScheme } from './schemes'
 import { usePosterShape } from './shape'
 import { fontMono, leading, TITLE_TRACKING } from './theme'
 import { Badge } from './blocks/Badge'
-import { FooterLogos } from './blocks/FooterLogos'
 import { InfoLine } from './blocks/InfoLine'
 import { PosterFrame } from './blocks/PosterFrame'
 import { PosterText } from './blocks/PosterText'
@@ -15,7 +15,7 @@ import { PhotoGallery } from './PhotoGallery'
 
 // GOŚĆ — zdjęcie + pas
 export function PosterGosc({ data, scheme, accent, lang = 'pl' }: PosterProps) {
-  const { raw, event_date, event_time, logoSlots, qrUrl, qrSide, photos, hidden, fx, titleScale } = withPlaceholders(data)
+  const { raw, event_date, event_time, logoSlots, qrUrl, qrSide, qrPlacement, photos, hidden, fx, titleScale } = withPlaceholders(data)
   const { cssVars, sygnet, logoVariant } = resolveScheme('gosc', scheme, accent)
 
   const { shape, height } = usePosterShape()
@@ -72,16 +72,18 @@ export function PosterGosc({ data, scheme, accent, lang = 'pl' }: PosterProps) {
           />
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24 }}>
-          <PosterText
-            path="badge2"
-            value={raw.badge2}
-            fallback={FREE_ENTRY[lang]}
-            label="Linia na dole"
-            style={{ fontSize: 22, fontWeight: 600, color: 'var(--accent)', ...fx('badge2') }}
-          />
-          <FooterLogos qrUrl={qrUrl} qrSide={qrSide} slots={logoSlots} variant={logoVariant} />
-        </div>
+        <PosterFooter
+          qrUrl={qrUrl} qrSide={qrSide} qrPlacement={qrPlacement} slots={logoSlots} variant={logoVariant}
+          lead={
+            <PosterText
+              path="badge2"
+              value={raw.badge2}
+              fallback={FREE_ENTRY[lang]}
+              label="Linia na dole"
+              style={{ fontSize: 22, fontWeight: 600, color: 'var(--accent)', ...fx('badge2') }}
+            />
+          }
+        />
       </div>
     </PosterFrame>
   )

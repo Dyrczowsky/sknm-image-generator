@@ -9,12 +9,12 @@ import { PosterFrame } from '../blocks/PosterFrame'
 import { Sygnet } from '../blocks/Sygnet'
 import { FadingTriangles } from '../blocks/Triangle'
 import { Wedges } from '../blocks/Wedges'
-import { BANNER_SYGNET_W, BannerLogos, NAME_TRACKING, BannerEventLine } from './common'
+import { BANNER_SYGNET_W, BannerFooter, NAME_TRACKING, BannerEventLine } from './common'
 import { leading } from '../theme'
 
 // WYKŁAD (baner) — nazwa koła na tle klinów, stos trójkątów przy lewej krawędzi.
 export function BannerWyklad({ data, scheme, accent, lang = 'pl' }: PosterProps) {
-  const { raw, logoSlots, qrUrl, titleScale } = withPlaceholders(data)
+  const { raw, logoSlots, qrUrl, qrSide, titleScale } = withPlaceholders(data)
   const { cssVars, sygnet, logoVariant } = resolveScheme('wyklad', scheme, accent)
   const { padX, padY } = useBannerLayout()
 
@@ -30,9 +30,7 @@ export function BannerWyklad({ data, scheme, accent, lang = 'pl' }: PosterProps)
         <BannerEventLine data={data} lang={lang} />
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-end', gap: 24, position: 'relative', zIndex: 1 }}>
-        <BannerLogos qrUrl={qrUrl} slots={logoSlots} variant={logoVariant} />
-      </div>
+      <BannerFooter qrUrl={qrUrl} qrSide={qrSide} slots={logoSlots} variant={logoVariant} style={{ position: 'relative', zIndex: 1 }} />
 
       <Wedges />
       <FadingTriangles width={24} height={20} color="var(--chips)" gap={8} left={padX - 36} bottom={padY} />

@@ -86,7 +86,7 @@ function AgendaField({ value, onChange }: FormProps) {
 // Formularz Konferencji - pola nagłówka i stopki + program.
 export function FormKonferencja(props: FormProps) {
   return (
-    <PosterForm {...props} fields={KONFERENCJA_FIELDS}>
+    <PosterForm {...props} fields={KONFERENCJA_FIELDS} qrInlineOnly>
       <AgendaField {...props} />
     </PosterForm>
   )

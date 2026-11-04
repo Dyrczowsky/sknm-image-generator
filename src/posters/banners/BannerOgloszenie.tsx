@@ -8,11 +8,11 @@ import { fontMono, leading } from '../theme'
 import { PosterFrame } from '../blocks/PosterFrame'
 import { Sygnet } from '../blocks/Sygnet'
 import { Triangle } from '../blocks/Triangle'
-import { BannerLogos, MarginChips, NAME_TRACKING, BannerEventLine } from './common'
+import { BannerFooter, MarginChips, NAME_TRACKING, BannerEventLine } from './common'
 
 // OGŁOSZENIE (baner) — wyśrodkowana nazwa koła pod sygnetem.
 export function BannerOgloszenie({ data, scheme, accent, lang = 'pl' }: PosterProps) {
-  const { raw, logoSlots, qrUrl, titleScale, textScale } = withPlaceholders(data)
+  const { raw, logoSlots, qrUrl, qrSide, titleScale, textScale } = withPlaceholders(data)
   const { cssVars, sygnet, logoVariant } = resolveScheme('ogloszenie', scheme, accent)
   const { padX, padY } = useBannerLayout()
 
@@ -30,9 +30,7 @@ export function BannerOgloszenie({ data, scheme, accent, lang = 'pl' }: PosterPr
         </div>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-end', gap: 24 }}>
-        <BannerLogos qrUrl={qrUrl} slots={logoSlots} variant={logoVariant} />
-      </div>
+      <BannerFooter qrUrl={qrUrl} qrSide={qrSide} slots={logoSlots} variant={logoVariant} />
     </PosterFrame>
   )
 }

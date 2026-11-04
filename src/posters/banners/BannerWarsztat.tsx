@@ -7,7 +7,7 @@ import { useBannerLayout } from '../shape'
 import { PosterFrame } from '../blocks/PosterFrame'
 import { Sygnet } from '../blocks/Sygnet'
 import { PhotoGallery } from '../PhotoGallery'
-import { BANNER_SYGNET_W, BannerLogos, NAME_TRACKING, BannerEventLine } from './common'
+import { BANNER_SYGNET_W, BannerFooter, NAME_TRACKING, BannerEventLine } from './common'
 import { leading } from '../theme'
 
 // Zdjęcie: tyle wchodzi w bezpieczną kolumnę (reszta to prawy margines),
@@ -17,7 +17,7 @@ const SLANT = 170
 
 // WARSZTAT (baner) — skośne zdjęcie przy prawej krawędzi, nazwa koła po lewej.
 export function BannerWarsztat({ data, scheme, accent, lang = 'pl' }: PosterProps) {
-  const { raw, logoSlots, qrUrl, photos, titleScale } = withPlaceholders(data)
+  const { raw, logoSlots, qrUrl, qrSide, photos, titleScale } = withPlaceholders(data)
   const { cssVars, sygnet, logoVariant } = resolveScheme('warsztat', scheme, accent)
   const { padX, padY } = useBannerLayout()
 
@@ -41,10 +41,11 @@ export function BannerWarsztat({ data, scheme, accent, lang = 'pl' }: PosterProp
 
         {/* Pigułka i stopka w jednym rzędzie: logo leży na zdjęciu, więc slot
             dostaje tło `slot-bg`, jak w wersji kwadratowej. */}
-        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 24 }}>
-          <div style={{ background: 'var(--pill-fill)', color: 'var(--pill-text)', fontSize: 22, fontWeight: 700, padding: '9px 15px', flex: '0 0 auto' }}>{SITE_URL}</div>
-          <BannerLogos qrUrl={qrUrl} slots={logoSlots} variant={logoVariant} slotStyle={{ background: 'var(--slot-bg)' }} />
-        </div>
+        <BannerFooter
+          qrUrl={qrUrl} qrSide={qrSide} slots={logoSlots} variant={logoVariant}
+          slotStyle={{ background: 'var(--slot-bg)' }}
+          lead={<div style={{ background: 'var(--pill-fill)', color: 'var(--pill-text)', fontSize: 22, fontWeight: 700, padding: '9px 15px', flex: '0 0 auto' }}>{SITE_URL}</div>}
+        />
       </div>
     </PosterFrame>
   )

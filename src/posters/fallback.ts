@@ -55,6 +55,7 @@ export function withPlaceholders(data: RawPosterData) {
     logoSlots,
     qrUrl: data.qrUrl ?? '',
     qrSide: data.qrSide === 'right' ? ('right' as const) : ('left' as const),
+    qrPlacement: data.qrPlacement === 'inline' ? ('inline' as const) : ('above' as const),
     photos: data.photos ?? {},
     lists: data.lists ?? {},
     // Mnożnik rozmiaru tytułu/pozostałego tekstu z suwaków w formularzu;

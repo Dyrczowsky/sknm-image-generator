@@ -1,4 +1,5 @@
 import { toPlain } from '../richText'
+import { PosterFooter } from './blocks/PosterFooter'
 import type { PosterProps } from '../types'
 import { getDay, getMonthShort } from '../utils/formatDate'
 import { DEFAULT_BADGE } from './copy'
@@ -7,7 +8,6 @@ import { resolveScheme } from './schemes'
 import { usePosterShape } from './shape'
 import { leading, TITLE_TRACKING } from './theme'
 import { Badge } from './blocks/Badge'
-import { FooterLogos } from './blocks/FooterLogos'
 import { PosterFrame } from './blocks/PosterFrame'
 import { PosterText } from './blocks/PosterText'
 import { Sygnet } from './blocks/Sygnet'
@@ -15,7 +15,7 @@ import { PhotoGallery } from './PhotoGallery'
 
 // WARSZTAT — skos
 export function PosterWarsztat({ data, scheme, accent, lang = 'pl' }: PosterProps) {
-  const { raw, event_date, event_time, logoSlots, qrUrl, qrSide, photos, fx, titleScale, textScale } = withPlaceholders(data)
+  const { raw, event_date, event_time, logoSlots, qrUrl, qrSide, qrPlacement, photos, fx, titleScale, textScale } = withPlaceholders(data)
   const { cssVars, sygnet, logoVariant } = resolveScheme('warsztat', scheme, accent)
   const { kx } = usePosterShape()
 
@@ -74,9 +74,7 @@ export function PosterWarsztat({ data, scheme, accent, lang = 'pl' }: PosterProp
           {/* Stopka jak w pozostałych szablonach: QR maksymalnie w lewo, logo
               w prawym dolnym rogu. Logo leży na zdjęciu, więc każdy slot
               dostaje tło `slot-bg` - czytelną kartę pod znakiem. */}
-          <div style={{ display: 'flex' }}>
-            <FooterLogos qrUrl={qrUrl} qrSide={qrSide} slots={logoSlots} variant={logoVariant} slotStyle={{ background: 'var(--slot-bg)' }} />
-          </div>
+          <PosterFooter qrUrl={qrUrl} qrSide={qrSide} qrPlacement={qrPlacement} slots={logoSlots} variant={logoVariant} slotStyle={{ background: 'var(--slot-bg)' }} />
         </div>
       </div>
     </PosterFrame>

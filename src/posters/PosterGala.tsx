@@ -1,4 +1,5 @@
 import { toPlain } from '../richText'
+import { PosterFooter } from './blocks/PosterFooter'
 import type { PosterProps } from '../types'
 import { BRANDING_FULL, DEFAULT_BADGE } from './copy'
 import { PLACEHOLDERS, withPlaceholders } from './fallback'
@@ -8,8 +9,6 @@ import { fontMono, leading, TITLE_TRACKING } from './theme'
 import { Badge } from './blocks/Badge'
 import { BigDateNumber } from './blocks/BigDateNumber'
 import { BrandingText } from './blocks/BrandingText'
-import { FooterLogos } from './blocks/FooterLogos'
-import { FooterWithQr } from './blocks/FooterWithQr'
 import { InfoLine } from './blocks/InfoLine'
 import { PosterFrame } from './blocks/PosterFrame'
 import { PosterText } from './blocks/PosterText'
@@ -17,7 +16,7 @@ import { Sygnet } from './blocks/Sygnet'
 
 // GALA — złoto na grafitowym
 export function PosterGala({ data, scheme, accent, lang = 'pl' }: PosterProps) {
-  const { raw, event_date, event_time, logoSlots, qrUrl, qrSide, hidden, fx, titleScale, textScale, wideSubtitle } = withPlaceholders(data)
+  const { raw, event_date, event_time, logoSlots, qrUrl, qrSide, qrPlacement, hidden, fx, titleScale, textScale, wideSubtitle } = withPlaceholders(data)
   const { cssVars, sygnet, logoVariant } = resolveScheme('gala', scheme, accent)
   const { kx, ky } = usePosterShape()
 
@@ -54,8 +53,11 @@ export function PosterGala({ data, scheme, accent, lang = 'pl' }: PosterProps) {
         )}
       </div>
 
-      <FooterWithQr qrUrl={qrUrl} qrSide={qrSide} style={{ position: 'relative', zIndex: 1 }}>
-        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 32 }}>
+      <PosterFooter
+        qrUrl={qrUrl} qrSide={qrSide} qrPlacement={qrPlacement} slots={logoSlots} variant={logoVariant}
+        gap={32}
+        style={{ position: 'relative', zIndex: 1 }}
+        lead={
           <div style={{ display: 'flex', gap: 20, alignItems: 'last baseline' }}>
             <BigDateNumber event_date={event_date} color="var(--gold)" style={fx('event_date')} lang={lang} />
             <InfoLine
@@ -66,9 +68,8 @@ export function PosterGala({ data, scheme, accent, lang = 'pl' }: PosterProps) {
               style={{ whiteSpace: 'nowrap' }}
             />
           </div>
-          <FooterLogos qrUrl="" slots={logoSlots} variant={logoVariant} />
-        </div>
-      </FooterWithQr>
+        }
+      />
     </PosterFrame>
   )
 }

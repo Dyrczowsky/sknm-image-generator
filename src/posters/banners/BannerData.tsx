@@ -7,11 +7,11 @@ import { BANNER_PAD, useBannerLayout } from '../shape'
 import { fontMono, leading } from '../theme'
 import { PosterFrame } from '../blocks/PosterFrame'
 import { Sygnet } from '../blocks/Sygnet'
-import { BANNER_SYGNET_W, BannerLogos, MarginChips, NAME_TRACKING, BannerEventLine } from './common'
+import { BANNER_SYGNET_W, BannerFooter, MarginChips, NAME_TRACKING, BannerEventLine } from './common'
 
 // DATA (baner) — wielki skrót „SKNM" w miejscu liczby dnia, pod nim pełna nazwa.
 export function BannerData({ data, scheme, accent, lang = 'pl' }: PosterProps) {
-  const { raw, logoSlots, qrUrl, titleScale, textScale } = withPlaceholders(data)
+  const { raw, logoSlots, qrUrl, qrSide, titleScale, textScale } = withPlaceholders(data)
   const { cssVars, sygnet, logoVariant } = resolveScheme('data', scheme, accent)
   const { padX, padY } = useBannerLayout()
 
@@ -29,10 +29,10 @@ export function BannerData({ data, scheme, accent, lang = 'pl' }: PosterProps) {
         <BannerEventLine data={data} lang={lang} />
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24 }}>
-        <div style={{ font: `700 ${18 * textScale}px ${fontMono}`, letterSpacing: '.12em', paddingBottom: 6 }}>{SITE_URL}</div>
-        <BannerLogos qrUrl={qrUrl} slots={logoSlots} variant={logoVariant} />
-      </div>
+      <BannerFooter
+        qrUrl={qrUrl} qrSide={qrSide} slots={logoSlots} variant={logoVariant}
+        lead={<div style={{ font: `700 ${18 * textScale}px ${fontMono}`, letterSpacing: '.12em', paddingBottom: 6 }}>{SITE_URL}</div>}
+      />
     </PosterFrame>
   )
 }
