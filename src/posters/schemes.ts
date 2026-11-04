@@ -13,7 +13,7 @@ export type Role =
   | 'band' | 'subColor' | 'footerText'
   | 'pillFill' | 'pillText' | 'slotBg' | 'qr' | 'qrBorder' | 'qrText'
   | 'tri1' | 'tri2' | 'tri3' | 'monthColor'
-  | 'dateBg' | 'dateText'
+  | 'dateBg' | 'dateText' | 'dateBorder' | 'dateSubText'
 
 // Blok jednego schematu: podzbiór ról + opcjonalny sygnet/logoVariant + (dla
 // schematów parametryzowanych osią akcentu) `accents` / `defaultAccent`.
@@ -96,7 +96,7 @@ const gala: LayoutSchemes = {
 // Gość — `accent` niesie kolor tekstu Badge i linku „Wstęp wolny". Tło
 // narożnego trójkąta bierze `sygnetBg` z fallbackiem do `accent`
 // (`var(--sygnet-bg, var(--accent))` w komponencie) — recepta akcentu dla
-// metalu (zloty/srebrny) ustawia je jawnie na granat, żeby złoty/srebrny
+// metalu (zloty/srebrny) ustawia je na ciemne tło strony, żeby złoty/srebrny
 // sygnet nie zniknął na złotym/srebrnym akcencie. Pudełko z datą niesie
 // `dateBg`/`dateText` — dla schematów z osią akcentu liczy je recepta (razem
 // z `accent`), dla `szary` (bez osi) zostaje literałem w bloku. Brak schematu
@@ -349,17 +349,18 @@ function accentSygnet(accent: AccentName): Partial<SchemeBlock> {
 const accentRecipes: Record<string, AccentRecipe | undefined> = {
   ogloszenie: (accent, ctx) => ({ accent: accentColor(accent, ctx), ...accentSygnet(accent) }),
 
-  // Metal dostaje granatowe tło trójkąta z sygnetem (`sygnetBg`), żeby złoty/
-  // srebrny sygnet nie zniknął na złotym/srebrnym akcencie.
+  // Metal (paleta Gali): trójkąt z sygnetem i pudełko daty w kolorze ciemnego
+  // tła strony, metal tylko na sygnecie, dniu i ramce pudełka (`dateBorder`).
+  // Miesiąc/godzina (mono 22px) idą kremem (`dateSubText`) — złoto na ink ma
+  // 3,8:1, za mało dla małego tekstu. Pełne wypełnienie złotem było mętne, a granatowy trójkąt
+  // gryzł się z paletą ink + złoto.
   gosc: (accent, ctx) => {
     const fill = accentColor(accent, ctx)
-    return {
-      accent: fill,
-      dateBg: fill,
-      dateText: textOnAccent(accent, colors.ink),
-      ...accentSygnet(accent),
-      ...(isMetal(accent) && { sygnetBg: colors.navy }),
+    if (isMetal(accent)) {
+      const dark = ctx.pageBg && isDarkBg(ctx.pageBg) ? ctx.pageBg : colors.ink
+      return { accent: fill, dateBg: dark, dateText: fill, dateBorder: fill, dateSubText: colors.goldPanelText, sygnetBg: dark, ...accentSygnet(accent) }
     }
+    return { accent: fill, dateBg: fill, dateText: textOnAccent(accent, colors.ink) }
   },
 
   wyklad: (accent, ctx) => {
