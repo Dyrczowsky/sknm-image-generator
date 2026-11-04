@@ -72,8 +72,13 @@ export function KonferencjaAgenda({ agenda, seed, startPad, spread, grow, canGro
 
   const s = fit.scale
   const perColumn = agendaRows(agenda.length, fit.columns)
-  const indexed = agenda.map((item, i) => ({ item, i }))
-  const columns = fit.columns === 1 ? [indexed] : [indexed.slice(0, perColumn), indexed.slice(perColumn)]
+  const columnIndexes = Array.from({ length: fit.columns }, (_, c) => c)
+  // Jedna siatka na obie kolumny: punkt `i` stoi w kolumnie i / perColumn,
+  // w wierszu i % perColumn. Wiersz siatki jest wspólny, więc sąsiednie
+  // punkty mają równą wysokość i linie obu kolumn biegną na tej samej
+  // wysokości. Ostatni wiersz siatki to linia zamykająca każdą kolumnę.
+  // „Dopasuj program" w kwadracie: wiersze dzielą się wysokością po równo.
+  const track = grow ? 'minmax(auto, 1fr)' : 'auto'
 
   return (
     <div
@@ -89,49 +94,64 @@ export function KonferencjaAgenda({ agenda, seed, startPad, spread, grow, canGro
           listRef.current = node
           return listSizeRef(node)
         }}
-        style={{ display: 'flex', gap: COLUMN_GAP, alignItems: grow ? 'stretch' : 'flex-start', ...(grow && { flex: 1 }) }}>
-        {columns.map((column, c) => (
-          <div key={c} style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
-            {column.map(({ item, i }) => (
-              <div
-                key={i}
-                data-agenda-row={i}
-                style={{
-                  ...(cut.has(i) && { visibility: 'hidden' }),
-                  display: 'grid',
-                  gridTemplateColumns: `${Math.round(140 * s)}px 1fr`,
-                  gap: Math.round(24 * s),
-                  padding: `${fit.pad}px 0`,
-                  borderTop: `2px solid ${i === 0 ? 'var(--line-first)' : 'var(--line-rest)'}`,
-                  alignItems: 'baseline',
-                  ...(grow && { flex: 1, alignContent: 'center' }),
-                }}
-              >
-                {/* Etykiety godzin są koralowe we wszystkich schematach - literał, nie rola. */}
-                <div style={{ font: `700 ${26 * s}px ${fontMono}`, color: colors.coral }}>{item.time}</div>
-                <div>
-                  {/* Pusta lista w formularzu: edycja punktu domyślnego zapisuje cały program domyślny. */}
+        style={{
+          display: 'grid',
+          gridTemplateColumns: `repeat(${fit.columns}, minmax(0, 1fr))`,
+          gridTemplateRows: `repeat(${perColumn}, ${track}) auto`,
+          columnGap: COLUMN_GAP,
+          ...(grow && { flex: 1 }),
+        }}
+      >
+        {agenda.map((item, i) => {
+          const column = Math.floor(i / perColumn)
+          const row = i % perColumn
+          return (
+            <div
+              key={i}
+              data-agenda-row={i}
+              style={{
+                ...(cut.has(i) && { visibility: 'hidden' }),
+                gridColumn: column + 1,
+                gridRow: row + 1,
+                display: 'grid',
+                gridTemplateColumns: `${Math.round(140 * s)}px 1fr`,
+                gap: Math.round(24 * s),
+                padding: `${fit.pad}px 0`,
+                // Pierwsza linia każdej kolumny w kolorze akcentu - kolumny są równorzędne.
+                borderTop: `2px solid ${row === 0 ? 'var(--line-first)' : 'var(--line-rest)'}`,
+                alignItems: 'baseline',
+                alignContent: grow ? 'center' : 'start',
+              }}
+            >
+              {/* Etykiety godzin są koralowe we wszystkich schematach - literał, nie rola. */}
+              <div style={{ font: `700 ${26 * s}px ${fontMono}`, color: colors.coral }}>{item.time}</div>
+              {/* Co najmniej jedna linijka tytułu: pusty punkt też jest wierszem,
+                  a nie zlepionymi liniami. */}
+              <div style={{ minHeight: Math.ceil(36 * s * 1.15) }}>
+                {/* Pusta lista w formularzu: edycja punktu domyślnego zapisuje cały program domyślny. */}
+                <PosterText
+                  path={`lists.agenda.${i}.title`}
+                  value={item.title}
+                  listSeed={seed}
+                  label={`Nazwa punktu, punkt ${i + 1}`}
+                  style={{ fontSize: 36 * s, fontWeight: 700, lineHeight: 1.15, fontKerning: 'none' }}
+                />
+                {toPlain(item.subtitle ?? '') !== '' && (
                   <PosterText
-                    path={`lists.agenda.${i}.title`}
-                    value={item.title}
+                    path={`lists.agenda.${i}.subtitle`}
+                    value={item.subtitle}
                     listSeed={seed}
-                    label={`Nazwa punktu, punkt ${i + 1}`}
-                    style={{ fontSize: 36 * s, fontWeight: 700, lineHeight: 1.15, fontKerning: 'none' }}
+                    label={`Prelegent / opis, punkt ${i + 1}`}
+                    style={{ fontSize: 26 * s, fontWeight: 500, color: 'var(--muted-text)' }}
                   />
-                  {toPlain(item.subtitle ?? '') !== '' && (
-                    <PosterText
-                      path={`lists.agenda.${i}.subtitle`}
-                      value={item.subtitle}
-                      listSeed={seed}
-                      label={`Prelegent / opis, punkt ${i + 1}`}
-                      style={{ fontSize: 26 * s, fontWeight: 500, color: 'var(--muted-text)' }}
-                    />
-                  )}
-                </div>
+                )}
               </div>
-            ))}
-            <div style={{ borderTop: '2px solid var(--line-rest)' }} />
-          </div>
+            </div>
+          )
+        })}
+        {columnIndexes.map((c) => (
+          // Linia tuż pod ostatnim punktem kolumny (prawa bywa o punkt krótsza).
+          <div key={`end-${c}`} style={{ gridColumn: c + 1, gridRow: Math.min(perColumn, agenda.length - c * perColumn) + 1, borderTop: '2px solid var(--line-rest)' }} />
         ))}
       </div>
     </div>
