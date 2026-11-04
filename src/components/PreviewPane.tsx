@@ -44,6 +44,7 @@ export function PreviewPane({ posterRef, Component, data, scheme, accent, lang, 
   // Plakat może urosnąć w dół ponad kształt (Konferencja z długim programem),
   // więc podgląd dopasowuje się do zmierzonej wysokości układu.
   const [layoutHeight, setLayoutHeight] = useState(0)
+  const [notice, setNotice] = useState<string | null>(null)
   const base = SHAPE_SIZE[exporter.shape]
   const shape = { width: base.width, height: Math.max(base.height, layoutHeight) }
   const size = fitWidth(stage, shape, stagePadding(stage)) || UNMEASURED_SIZE
@@ -53,6 +54,7 @@ export function PreviewPane({ posterRef, Component, data, scheme, accent, lang, 
   const edit: PosterEdit = {
     editable: !exporter.exporting && !inert,
     onText: (path, value, seed) => onChange(setFormPath(path, value, seed)),
+    onNotice: setNotice,
   }
 
   return (
@@ -68,6 +70,15 @@ export function PreviewPane({ posterRef, Component, data, scheme, accent, lang, 
             <PosterPreview posterRef={posterRef} Component={Component} data={data} scheme={scheme} accent={accent} lang={lang} shape={exporter.shape} size={size} layoutHeight={layoutHeight} onLayoutHeight={setLayoutHeight} />
           </PosterEditContext.Provider>
         </div>
+        {notice && !exporter.note && (
+          <p
+            role="alert"
+            className="absolute inset-x-3 bottom-3 m-0 mx-auto flex w-fit max-w-[calc(100%-1.5rem)] items-start gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-[0.8125rem] leading-snug text-fg shadow-pop"
+          >
+            <Icon name="warning" className="mt-px text-warning" />
+            <span>{notice}</span>
+          </p>
+        )}
         {exporter.note && (
           <p
             role="status"

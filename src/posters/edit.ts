@@ -11,11 +11,16 @@ export interface PosterEdit {
   // `path`: nazwa pola formularza (`title`) albo pozycja listy (`lists.agenda.2.title`).
   // `seed`: lista, którą szablon rysuje, gdy w formularzu jej brak (np. program domyślny).
   onText: (path: string, value: string, seed?: ListItem[]) => void
+  // Ostrzeżenie szablonu dla edytora (np. „program się nie mieści"), pokazane
+  // pod podglądem - poza węzłem plakatu, więc nie trafia do pliku. `null`
+  // = brak ostrzeżenia.
+  onNotice?: (message: string | null) => void
 }
 
 export const READ_ONLY_POSTER_EDIT: PosterEdit = {
   editable: false,
   onText: () => {},
+  onNotice: () => {},
 }
 
 export const PosterEditContext: Context<PosterEdit> = createContext<PosterEdit>(READ_ONLY_POSTER_EDIT)
