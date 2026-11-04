@@ -101,7 +101,7 @@ export function PosterFooter({
     : fitLogoHeight({
         wanted: matchLogo ? clamp(LOGO_HEIGHT, LOGO_MAX_HEIGHT) : LOGO_HEIGHT,
         min: stack ? LOGO_HEIGHT : LOGO_SQUEEZE_HEIGHT,
-        avail: logosBox.width,
+        avail: logosBox.width + (stacked ? LOGO_CLEAR : 0),
         ratios: known,
         qrInRow: inlineRight,
         clear: LOGO_CLEAR,
@@ -138,7 +138,7 @@ export function PosterFooter({
         </div>
       )}
       <div ref={logosRef} style={{ display: 'flex', flex: stacked ? '0 0 auto' : 1, minWidth: 0, ...logosStyle }}>
-        <FooterLogos qrUrl={inlineRight ? qrUrl : ''} logoHeight={logoHeight} onRatio={onRatio} slots={slots} variant={variant} slotStyle={slotStyle} />
+        <FooterLogos qrUrl={inlineRight ? qrUrl : ''} logoHeight={logoHeight} onRatio={onRatio} spread={stacked} slots={slots} variant={variant} slotStyle={slotStyle} />
       </div>
     </div>
   )
