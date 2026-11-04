@@ -205,6 +205,7 @@ function parseForm(raw: unknown): SnapshotForm {
     showPkLogo: flagOr(source.showPkLogo, EMPTY_FORM.showPkLogo),
     qrUrl: textOr(source.qrUrl, EMPTY_FORM.qrUrl),
     qrSide: source.qrSide === 'right' ? 'right' : 'left',
+    qrPlacement: source.qrPlacement === 'inline' ? 'inline' : 'above',
     photos: parseRecordOfLists(source.photos, parsePhoto),
     lists: parseRecordOfLists(source.lists, parseListItem),
     titleScale: numberOr(source.titleScale, EMPTY_FORM.titleScale, MIN_SCALE, MAX_SCALE),

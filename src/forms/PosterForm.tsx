@@ -13,6 +13,9 @@ interface PosterFormProps extends FormProps {
   photoLabel?: string
   // Przełącznik „opis na całą szerokość” (layouty z wąską kolumną opisu).
   wideSubtitle?: boolean
+  // Layout za ciasny na osobny wiersz z kodem QR nad stopką (Konferencja,
+  // Rekrutacja) - zostaje tylko wybór strony, kod zawsze w rzędzie stopki.
+  qrInlineOnly?: boolean
   // Grupy własne layoutu (np. „Program" konferencji) - między tekstami a zdjęciami.
   children?: ReactNode
 }
@@ -21,7 +24,7 @@ interface PosterFormProps extends FormProps {
 // „Zdjęcia" (gdy layout je ma) i „Kod QR". Rozmiar tekstu i logotypy są
 // w zakładce „Wygląd" (`LookFields`). Formularz layoutu (FormWyklad, FormGosc,
 // ...) podaje tylko swoją listę pól.
-export function PosterForm({ value, onChange, fields, photoLabel, wideSubtitle, children }: PosterFormProps) {
+export function PosterForm({ value, onChange, fields, photoLabel, wideSubtitle, qrInlineOnly = false, children }: PosterFormProps) {
   return (
     <div className={PANEL_STACK}>
       <FormGroup title="Teksty">
@@ -47,7 +50,7 @@ export function PosterForm({ value, onChange, fields, photoLabel, wideSubtitle, 
         </FormGroup>
       )}
       <FormGroup title="Kod QR">
-        <QrField value={value} onChange={onChange} withSide />
+        <QrField value={value} onChange={onChange} withPlacement={!qrInlineOnly} />
       </FormGroup>
     </div>
   )

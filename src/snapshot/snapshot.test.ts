@@ -48,6 +48,7 @@ const FULL_FORM: FormValues = {
   showPkLogo: false,
   qrUrl: 'https://example.org/zapisy',
   qrSide: 'right',
+  qrPlacement: 'inline',
   photos: {
     photo: [
       { src: FOTO1, x: 12, y: 88 },

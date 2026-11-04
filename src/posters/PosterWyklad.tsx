@@ -1,4 +1,5 @@
 import type { PosterProps } from '../types'
+import { PosterFooter } from './blocks/PosterFooter'
 import { BRANDING_SHORT, DEFAULT_BADGE } from './copy'
 import { PLACEHOLDERS, withPlaceholders } from './fallback'
 import { resolveScheme } from './schemes'
@@ -6,8 +7,6 @@ import { leading, TITLE_TRACKING, typography } from './theme'
 import { Badge } from './blocks/Badge'
 import { BigDateNumber } from './blocks/BigDateNumber'
 import { BrandingText } from './blocks/BrandingText'
-import { FooterLogos } from './blocks/FooterLogos'
-import { FooterWithQr } from './blocks/FooterWithQr'
 import { InfoLine } from './blocks/InfoLine'
 import { PosterFrame } from './blocks/PosterFrame'
 import { PosterText } from './blocks/PosterText'
@@ -17,7 +16,7 @@ import { Wedges } from './blocks/Wedges'
 
 // WYKŁAD — typografia
 export function PosterWyklad({ data, scheme, accent, lang = 'pl' }: PosterProps) {
-  const { raw, event_date, event_time, logoSlots, qrUrl, qrSide, hidden, fx, titleScale, textScale } = withPlaceholders(data)
+  const { raw, event_date, event_time, logoSlots, qrUrl, qrSide, qrPlacement, hidden, fx, titleScale, textScale } = withPlaceholders(data)
   const { cssVars, sygnet, logoVariant } = resolveScheme('wyklad', scheme, accent)
 
   return (
@@ -46,8 +45,10 @@ export function PosterWyklad({ data, scheme, accent, lang = 'pl' }: PosterProps)
         />
       </div>
 
-      <FooterWithQr qrUrl={qrUrl} qrSide={qrSide} style={{ position: 'relative', zIndex: 1 }}>
-        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24 }}>
+      <PosterFooter
+        qrUrl={qrUrl} qrSide={qrSide} qrPlacement={qrPlacement} slots={logoSlots} variant={logoVariant}
+        style={{ position: 'relative', zIndex: 1 }}
+        lead={
           <div style={{ display: 'flex', gap: 24, alignItems: 'last baseline' }}>
             <BigDateNumber event_date={event_date} style={fx('event_date')} lang={lang} />
             <InfoLine
@@ -61,9 +62,8 @@ export function PosterWyklad({ data, scheme, accent, lang = 'pl' }: PosterProps)
               style={{ whiteSpace: 'nowrap' }}
             />
           </div>
-          <FooterLogos qrUrl="" slots={logoSlots} variant={logoVariant} />
-        </div>
-      </FooterWithQr>
+        }
+      />
 
       <Wedges />
       <FadingTriangles width={38} height={32} color="var(--chips)" gap={12} left={18} bottom={72} />

@@ -1,11 +1,11 @@
 import { toPlain } from '../richText'
+import { PosterFooter } from './blocks/PosterFooter'
 import type { PosterProps } from '../types'
 import { BRANDING_SHORT, SITE_URL } from './copy'
 import { PLACEHOLDERS, withPlaceholders } from './fallback'
 import { resolveScheme } from './schemes'
 import { fontMono, leading, TITLE_TRACKING } from './theme'
 import { BrandingText } from './blocks/BrandingText'
-import { FooterLogos } from './blocks/FooterLogos'
 import { PosterFrame } from './blocks/PosterFrame'
 import { PosterText } from './blocks/PosterText'
 import { Sygnet } from './blocks/Sygnet'
@@ -15,7 +15,7 @@ import { Triangle } from './blocks/Triangle'
 // Jedyny szablon bez narożnikowego stosu informacji — do krótkich ogłoszeń,
 // cytatów i podziękowań.
 export function PosterOgloszenie({ data, scheme, accent, lang = 'pl' }: PosterProps) {
-  const { raw, logoSlots, qrUrl, qrSide, fx, titleScale, textScale } = withPlaceholders(data)
+  const { raw, logoSlots, qrUrl, qrSide, qrPlacement, fx, titleScale, textScale } = withPlaceholders(data)
   const { cssVars, sygnet, logoVariant } = resolveScheme('ogloszenie', scheme, accent)
 
   return (
@@ -45,10 +45,10 @@ export function PosterOgloszenie({ data, scheme, accent, lang = 'pl' }: PosterPr
         )}
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24 }}>
-        <div style={{ font: `700 20px ${fontMono}`, letterSpacing: '.12em', opacity: 0.85 }}>{SITE_URL}</div>
-        <FooterLogos qrUrl={qrUrl} qrSide={qrSide} slots={logoSlots} variant={logoVariant} />
-      </div>
+      <PosterFooter
+        qrUrl={qrUrl} qrSide={qrSide} qrPlacement={qrPlacement} slots={logoSlots} variant={logoVariant}
+        lead={<div style={{ font: `700 20px ${fontMono}`, letterSpacing: '.12em', opacity: 0.85 }}>{SITE_URL}</div>}
+      />
     </PosterFrame>
   )
 }

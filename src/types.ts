@@ -21,6 +21,8 @@ export type FormTextField = (typeof FORM_TEXT_FIELDS)[number]
 export type FieldVisibility = Partial<Record<FormTextField, boolean>>
 
 export type QrSide = 'left' | 'right'
+// Kod QR w rzędzie stopki albo we własnym wierszu nad nią (tylko plakaty).
+export type QrPlacement = 'inline' | 'above'
 
 export interface FormValues extends Record<FormTextField, string> {
   // `body` to dłuższy akapit treści (np. szablon „Komunikat rozszerzony").
@@ -31,8 +33,9 @@ export interface FormValues extends Record<FormTextField, string> {
   showPkLogo: boolean
   // Link/tekst do zakodowania w kodzie QR w stopce. Pusty = brak QR.
   qrUrl: string
-  // Strona kodu QR w stopce: przy lewej krawędzi (nad datą) albo przy logotypach.
+  // Strona kodu QR w stopce: przy lewej krawędzi albo przy logotypach.
   qrSide: QrSide
+  qrPlacement: QrPlacement
   photos: Record<string, PhotoValue[]>
   lists: Record<string, ListItem[]>
   // Mnożnik rozmiaru tytułu/pozostałego tekstu (suwaki w zakładce „Wygląd") - 1 =

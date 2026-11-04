@@ -11,5 +11,5 @@ const REKRUTACJA_FIELDS = [badgeField(DEFAULT_BADGE.rekrutacja.pl), FIELDS.title
 
 // Formularz Rekrutacji - pełny zestaw pól wydarzenia, bez zdjęć.
 export function FormRekrutacja(props: FormProps) {
-  return <PosterForm {...props} fields={REKRUTACJA_FIELDS} />
+  return <PosterForm {...props} fields={REKRUTACJA_FIELDS} qrInlineOnly />
 }

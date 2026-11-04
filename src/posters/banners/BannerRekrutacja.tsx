@@ -7,7 +7,7 @@ import { useBannerLayout } from '../shape'
 import { fontMono, leading } from '../theme'
 import { PosterFrame } from '../blocks/PosterFrame'
 import { Sygnet } from '../blocks/Sygnet'
-import { BANNER_SYGNET_W, BannerLogos, NAME_TRACKING, BannerEventLine } from './common'
+import { BANNER_SYGNET_W, BannerFooter, NAME_TRACKING, BannerEventLine } from './common'
 
 // Zygzak pasa: głębokość zęba i jego przybliżona szerokość - liczba zębów
 // wynika z szerokości ramki, żeby wzór był równie gęsty w obu banerach.
@@ -25,7 +25,7 @@ function zigzag(width: number): string {
 
 // REKRUTACJA (baner) — duża nazwa koła, pas z zygzakiem wzdłuż dołu.
 export function BannerRekrutacja({ data, scheme, accent, lang = 'pl' }: PosterProps) {
-  const { raw, logoSlots, qrUrl, titleScale } = withPlaceholders(data)
+  const { raw, logoSlots, qrUrl, qrSide, titleScale } = withPlaceholders(data)
   const { cssVars, sygnet, logoVariant } = resolveScheme('rekrutacja', scheme, accent)
   const { padX, padY, width } = useBannerLayout()
 
@@ -43,14 +43,16 @@ export function BannerRekrutacja({ data, scheme, accent, lang = 'pl' }: PosterPr
       {/* Pas + stopka jako jedna bryła, jak w wersji kwadratowej - tylko niższa. */}
       <div
         style={{
-          display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 32,
           position: 'relative', color: 'var(--footer-text)', background: 'var(--band)',
           margin: `0 -${padX}px -${padY}px`, padding: `${TOOTH_H + 10}px ${padX}px ${padY - 12}px`,
           clipPath: zigzag(width),
         }}
       >
-        <div style={{ font: `700 19px ${fontMono}`, letterSpacing: '.1em', color: 'var(--badge-color)', paddingBottom: 8 }}>{`${SITE_URL} · ${SOCIAL_HANDLE}`}</div>
-        <BannerLogos qrUrl={qrUrl} slots={logoSlots} variant={logoVariant} />
+        <BannerFooter
+          qrUrl={qrUrl} qrSide={qrSide} slots={logoSlots} variant={logoVariant}
+          gap={32}
+          lead={<div style={{ font: `700 19px ${fontMono}`, letterSpacing: '.1em', color: 'var(--badge-color)', paddingBottom: 8 }}>{`${SITE_URL} · ${SOCIAL_HANDLE}`}</div>}
+        />
       </div>
     </PosterFrame>
   )

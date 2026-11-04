@@ -1,4 +1,5 @@
 import { toPlain } from '../richText'
+import { PosterFooter } from './blocks/PosterFooter'
 import type { PosterProps } from '../types'
 import { BRANDING_SHORT, DEFAULT_BADGE, SITE_URL } from './copy'
 import { PLACEHOLDERS, withPlaceholders } from './fallback'
@@ -8,7 +9,6 @@ import { fontMono, leading, TITLE_TRACKING } from './theme'
 import { Badge } from './blocks/Badge'
 import { BigDateNumber } from './blocks/BigDateNumber'
 import { BrandingText } from './blocks/BrandingText'
-import { FooterLogos } from './blocks/FooterLogos'
 import { PosterFrame } from './blocks/PosterFrame'
 import { PosterText } from './blocks/PosterText'
 import { Sygnet } from './blocks/Sygnet'
@@ -20,7 +20,7 @@ import { Wedges } from './blocks/Wedges'
 // i podpis niosą kolor akcentu; data w stopce jest opcjonalna (checkbox
 // widoczności) — do dłuższych komunikatów, regulaminów, relacji.
 export function PosterKomunikat({ data, scheme, accent, lang = 'pl' }: PosterProps) {
-  const { raw, event_date, logoSlots, qrUrl, qrSide, fx, titleScale, textScale } = withPlaceholders(data)
+  const { raw, event_date, logoSlots, qrUrl, qrSide, qrPlacement, fx, titleScale, textScale } = withPlaceholders(data)
   const { cssVars, sygnet, logoVariant } = resolveScheme('komunikat', scheme, accent)
   const { kx } = usePosterShape()
 
@@ -58,13 +58,16 @@ export function PosterKomunikat({ data, scheme, accent, lang = 'pl' }: PosterPro
         )}
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24, position: 'relative', zIndex: 1 }}>
-        <div style={{ display: 'flex', gap: 24, alignItems: 'flex-end' }}>
-          <BigDateNumber event_date={event_date} style={fx('event_date')} lang={lang} />
-          <div style={{ font: `700 20px ${fontMono}`, letterSpacing: '.12em', opacity: 0.85, paddingBottom: 10 }}>{SITE_URL}</div>
-        </div>
-        <FooterLogos qrUrl={qrUrl} qrSide={qrSide} slots={logoSlots} variant={logoVariant} />
-      </div>
+      <PosterFooter
+        qrUrl={qrUrl} qrSide={qrSide} qrPlacement={qrPlacement} slots={logoSlots} variant={logoVariant}
+        style={{ position: 'relative', zIndex: 1 }}
+        lead={
+          <div style={{ display: 'flex', gap: 24, alignItems: 'flex-end' }}>
+            <BigDateNumber event_date={event_date} style={fx('event_date')} lang={lang} />
+            <div style={{ font: `700 20px ${fontMono}`, letterSpacing: '.12em', opacity: 0.85, paddingBottom: 10 }}>{SITE_URL}</div>
+          </div>
+        }
+      />
 
       <Wedges />
       <FadingTriangles width={38} height={32} color="var(--accent)" gap={12} left={18} bottom={72} />

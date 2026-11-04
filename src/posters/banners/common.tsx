@@ -2,14 +2,14 @@ import { Fragment } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
 import { toPlain } from '../../richText'
 import { getDay, getMonthShort } from '../../utils/formatDate'
-import { FooterLogos } from '../blocks/FooterLogos'
+import { PosterFooter } from '../blocks/PosterFooter'
 import type { LogoSlotSource } from '../blocks/LogoSlots'
 import { PosterText } from '../blocks/PosterText'
 import { usePosterEdit } from '../edit'
 import { Triangle } from '../blocks/Triangle'
 import { TITLE_TRACKING, leading, typography } from '../theme'
 import { hasBannerEvent } from './eventLine'
-import type { LogoVariant, PosterLang, RawPosterData } from '../../types'
+import type { LogoVariant, PosterLang, QrSide, RawPosterData } from '../../types'
 
 // Skala banera (wysokość układu 624 px): sygnet i kod QR są mniejsze niż na
 // plakacie 1080 px, logotypy zostają na LOGO_HEIGHT (to ich minimum).
@@ -47,23 +47,24 @@ export function MarginChips({ margin, colors }: MarginChipsProps) {
   )
 }
 
-interface BannerLogosProps {
+interface BannerFooterProps {
   qrUrl: string
+  qrSide: QrSide
+  lead?: ReactNode
   slots: LogoSlotSource[]
   variant?: LogoVariant
   slotStyle?: CSSProperties
+  gap?: number
+  rowStyle?: CSSProperties
+  logosStyle?: CSSProperties
   style?: CSSProperties
 }
 
-// Stopka banera: ten sam komplet co w plakatach (FooterLogos), z mniejszym
-// kodem QR. Wrapper jest flexem, bo FooterLogos ma `flex: 1` i w kolumnie
-// rozciągałby się w pionie.
-export function BannerLogos({ qrUrl, slots, variant, slotStyle, style }: BannerLogosProps) {
-  return (
-    <div style={{ display: 'flex', flex: 1, minWidth: 0, ...style }}>
-      <FooterLogos qrUrl={qrUrl} slots={slots} variant={variant} qrSize={BANNER_QR} slotStyle={slotStyle} />
-    </div>
-  )
+// Stopka banera: ta sama PosterFooter co w plakatach, z mniejszym kodem QR.
+// Baner jest za niski na osobny wiersz nad stopką, więc kod zawsze stoi w
+// rzędzie: na lewym marginesie (przed treścią `lead`) albo przy logotypach.
+export function BannerFooter({ qrSize = BANNER_QR, ...props }: BannerFooterProps & { qrSize?: number }) {
+  return <PosterFooter {...props} qrPlacement="inline" qrSize={qrSize} />
 }
 
 interface BannerEventLineProps {

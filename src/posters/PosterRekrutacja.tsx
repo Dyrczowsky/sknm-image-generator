@@ -1,4 +1,5 @@
 import type { PosterProps } from '../types'
+import { PosterFooter } from './blocks/PosterFooter'
 import { getDay, getMonthShort } from '../utils/formatDate'
 import { BRANDING_FULL, DEFAULT_BADGE, RECRUITMENT_PITCH, SITE_URL, SOCIAL_HANDLE } from './copy'
 import { PLACEHOLDERS, withPlaceholders } from './fallback'
@@ -7,7 +8,6 @@ import { usePosterShape } from './shape'
 import { fontMono, leading, TITLE_TRACKING } from './theme'
 import { Badge } from './blocks/Badge'
 import { BrandingText } from './blocks/BrandingText'
-import { FooterLogos } from './blocks/FooterLogos'
 import { InfoLine } from './blocks/InfoLine'
 import { PosterFrame } from './blocks/PosterFrame'
 import { PosterText } from './blocks/PosterText'
@@ -53,35 +53,41 @@ export function PosterRekrutacja({ data, scheme, accent, lang = 'pl' }: PosterPr
           poniżej dolin lity granat, na którym siedzi tekst stopki. */}
       <div
         style={{
-          display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 32,
           position: 'relative', color: 'var(--footer-text)', background: 'var(--band)',
           margin: '0 -72px -72px', padding: '150px 72px 72px',
           clipPath: BAND_ZIGZAG,
         }}
       >
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <Badge color="var(--badge-color)" style={{ font: `700 26px ${fontMono}`, letterSpacing: '.1em', ...fx('badge') }}
-            field={{ path: 'badge', value: raw.badge, fallback: DEFAULT_BADGE.rekrutacja[lang], label: 'Etykieta' }}
-          />
-          <InfoLine
-            parts={[
-              { text: `${getDay(event_date)} ${getMonthShort(event_date, { lang })}`, hidden: hidden('event_date') },
-              { text: event_time, hidden: hidden('event_time') },
-              { field: { path: 'location', value: raw.location, fallback: PLACEHOLDERS.location, label: 'Lokalizacja' }, hidden: hidden('location') },
-            ]}
-            style={{ fontSize: 36, fontWeight: 800, lineHeight: 1.05, fontKerning: 'none', whiteSpace: 'nowrap' }}
-          />
-          <div style={{ fontSize: 26, fontWeight: 500, opacity: 0.85 }}>
-            {SITE_URL}
-            {!hidden('speaker') && (
-              <>
-                {' · '}
-                <PosterText as="span" path="speaker" value={raw.speaker} fallback={SOCIAL_HANDLE} inline label="Profil w stopce (obok adresu strony)" />
-              </>
-            )}
-          </div>
-        </div>
-        <FooterLogos qrUrl={qrUrl} qrSide={qrSide} slots={logoSlots} variant={logoVariant} />
+        {/* Layout wypełniony po brzegi - wiersz z kodem nad stopką wypchnąłby
+            ją poza kadr, więc kod zawsze stoi w rzędzie stopki. */}
+        <PosterFooter
+          qrUrl={qrUrl} qrSide={qrSide} qrPlacement="inline" slots={logoSlots} variant={logoVariant}
+          gap={32}
+          lead={
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <Badge color="var(--badge-color)" style={{ font: `700 26px ${fontMono}`, letterSpacing: '.1em', ...fx('badge') }}
+                field={{ path: 'badge', value: raw.badge, fallback: DEFAULT_BADGE.rekrutacja[lang], label: 'Etykieta' }}
+              />
+              <InfoLine
+                parts={[
+                  { text: `${getDay(event_date)} ${getMonthShort(event_date, { lang })}`, hidden: hidden('event_date') },
+                  { text: event_time, hidden: hidden('event_time') },
+                  { field: { path: 'location', value: raw.location, fallback: PLACEHOLDERS.location, label: 'Lokalizacja' }, hidden: hidden('location') },
+                ]}
+                style={{ fontSize: 36, fontWeight: 800, lineHeight: 1.05, fontKerning: 'none', whiteSpace: 'nowrap' }}
+              />
+              <div style={{ fontSize: 26, fontWeight: 500, opacity: 0.85 }}>
+                {SITE_URL}
+                {!hidden('speaker') && (
+                  <>
+                    {' · '}
+                    <PosterText as="span" path="speaker" value={raw.speaker} fallback={SOCIAL_HANDLE} inline label="Profil w stopce (obok adresu strony)" />
+                  </>
+                )}
+              </div>
+            </div>
+          }
+        />
       </div>
     </PosterFrame>
   )
