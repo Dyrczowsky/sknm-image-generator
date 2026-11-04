@@ -1,4 +1,3 @@
-import { toPlain } from '../richText'
 import { PosterFooter } from './blocks/PosterFooter'
 import type { ListItem, PosterProps } from '../types'
 import { formatFullDate } from '../utils/formatDate'
@@ -6,10 +5,11 @@ import { DEFAULT_BADGE, SITE_URL } from './copy'
 import { PLACEHOLDERS, withPlaceholders } from './fallback'
 import { resolveScheme } from './schemes'
 import { usePosterShape } from './shape'
-import { colors, fontMono, leading, TITLE_TRACKING } from './theme'
+import { fontMono, leading, TITLE_TRACKING } from './theme'
 import { Badge } from './blocks/Badge'
 import { PosterFrame } from './blocks/PosterFrame'
 import { PosterText } from './blocks/PosterText'
+import { KonferencjaAgenda } from './KonferencjaAgenda'
 import { Sygnet } from './blocks/Sygnet'
 
 const DEFAULT_AGENDA: ListItem[] = [
@@ -25,7 +25,7 @@ export function PosterKonferencja({ data, scheme, accent, lang = 'pl' }: PosterP
   const { cssVars, sygnet, logoVariant } = resolveScheme('konferencja', scheme, accent)
   // W pionie wiersze programu dostają więcej oddechu, żeby krótka lista nie
   // zostawiała pustej połowy strony (kwadrat/poziom: ky = 1 → 22px jak dotąd).
-  const { ky } = usePosterShape()
+  const { ky, shape } = usePosterShape()
   const rowPad = Math.round(22 * ky ** 3)
 
   return (
@@ -51,46 +51,11 @@ export function PosterKonferencja({ data, scheme, accent, lang = 'pl' }: PosterP
         <Sygnet name={sygnet} style={{ flex: '0 0 auto', alignSelf: 'flex-start', marginTop: 16 }} />
       </div>
 
-      <div style={{ flex: 1, padding: '48px 72px 72px', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', ...(fillAgenda && { flex: 1 }) }}>
-          {agenda.map((item, i) => (
-            <div
-              key={i}
-              style={{
-                display: 'grid',
-                gridTemplateColumns: '140px 1fr',
-                gap: 24,
-                padding: `${rowPad}px 0`,
-                borderTop: `2px solid ${i === 0 ? 'var(--line-first)' : 'var(--line-rest)'}`,
-                alignItems: 'baseline',
-                ...(fillAgenda && { flex: 1, alignContent: 'center' }),
-              }}
-            >
-              {/* Etykiety godzin są koralowe we wszystkich schematach - literał, nie rola. */}
-              <div style={{ font: `700 26px ${fontMono}`, color: colors.coral }}>{item.time}</div>
-              <div>
-                {/* Pusta lista w formularzu: edycja punktu domyślnego zapisuje cały program domyślny. */}
-                <PosterText
-                  path={`lists.agenda.${i}.title`}
-                  value={item.title}
-                  listSeed={DEFAULT_AGENDA}
-                  label={`Nazwa punktu, punkt ${i + 1}`}
-                  style={{ fontSize: 36, fontWeight: 700, lineHeight: 1.15, fontKerning: 'none' }}
-                />
-                {toPlain(item.subtitle ?? '') !== '' && (
-                  <PosterText
-                    path={`lists.agenda.${i}.subtitle`}
-                    value={item.subtitle}
-                    listSeed={DEFAULT_AGENDA}
-                    label={`Prelegent / opis, punkt ${i + 1}`}
-                    style={{ fontSize: 26, fontWeight: 500, color: 'var(--muted-text)' }}
-                  />
-                )}
-              </div>
-            </div>
-          ))}
-          <div style={{ borderTop: '2px solid var(--line-rest)' }} />
-        </div>
+      {/* Program zawsze mieści się między nagłówkiem a stopką (druk ma stały
+          format): oddech, rozmiar tekstu i kolumny dobiera KonferencjaAgenda.
+          Wyjątek: kwadrat z „Dopasuj program" rośnie w dół. */}
+      <div style={{ flex: 1, minHeight: 0, padding: '48px 72px 72px', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', gap: 32 }}>
+        <KonferencjaAgenda agenda={agenda} seed={DEFAULT_AGENDA} startPad={rowPad} spread={fillAgenda} grow={fillAgenda && shape === 'square'} canGrow={shape === 'square'} />
 
         {/* Layout wypełniony po brzegi - wiersz z kodem nad stopką wypchnąłby
             ją poza kadr, więc kod zawsze stoi w rzędzie stopki. */}

@@ -22,7 +22,7 @@ rejestr, baza): [docs/dodawanie-szablonu.md](../../../docs/dodawanie-szablonu.md
 | `PosterFooter` | Stopka szablonu: treść lewego rogu (`lead`) + logotypy w prawym dolnym rogu + kod QR w jednym z 4 miejsc (`qrSide` lewo/przy logo × `qrPlacement` w stopce/nad stopką), zawsze przy krawędzi kadru albo przy logo | `<PosterFooter qrUrl={qrUrl} qrSide={qrSide} qrPlacement={qrPlacement} slots={logoSlots} variant={logoVariant} lead={...} />` |
 | `FooterLogos` | Logotypy w prawym dolnym rogu (ta sama pozycja we wszystkich szablonach), z kodem QR tuż przed nimi. Rezerwuje wysokość na QR, zawija nadmiar grafik. Zwykle przez `PosterFooter` | `<FooterLogos qrUrl={qrUrl} slots={logoSlots} variant={logoVariant} />` |
 | `LogoSlots` | Rząd grafik stopki z tablicy `slots` (`null` = logo PK, string = wgrana grafika). Zwykle przez `FooterLogos` | `<LogoSlots slots={logoSlots} variant={logoVariant} />` |
-| `QrSlot` | Kod QR z linku. Tło przezroczyste, kolor modułów = rola `qr` ze schematu (`var(--qr, var(--page-text))`). Pusty link = `null`. Zwykle przez `PosterFooter` | `<QrSlot value={qrUrl} size={QR_SIZE} />` |
+| `QrSlot` | Kod QR z linku. Tło przezroczyste, kolor modułów = rola `qr` ze schematu (`var(--qr, var(--page-text))`). Pusty link = `null`. Zwykle przez `PosterFooter` | `<QrSlot value={qrUrl} size={POSTER_QR.min} />` |
 | `Triangle` / `FadingTriangles` | Trójkąt wierzchołkiem w dół (motyw sygnetu) i pionowy stos trzech gasnących | `<Triangle width={46} height={40} color="var(--accent)" />` |
 | `Wedges` | Tło z trzech klinów (role `washTop` / `wedgeBr` / `wedgeBl`), skalowane z ramką | `<Wedges />` |
 

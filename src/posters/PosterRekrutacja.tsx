@@ -21,7 +21,7 @@ const BAND_ZIGZAG =
 export function PosterRekrutacja({ data, scheme, accent, lang = 'pl' }: PosterProps) {
   const { raw, event_date, event_time, logoSlots, qrUrl, qrSide, hidden, fx, titleScale, textScale } = withPlaceholders(data)
   const { cssVars, sygnet, logoVariant } = resolveScheme('rekrutacja', scheme, accent)
-  const { kx } = usePosterShape()
+  const { kx, shape } = usePosterShape()
 
   return (
     <PosterFrame vars={cssVars} padding={72}>
@@ -63,6 +63,9 @@ export function PosterRekrutacja({ data, scheme, accent, lang = 'pl' }: PosterPr
         <PosterFooter
           qrUrl={qrUrl} qrSide={qrSide} qrPlacement="inline" slots={logoSlots} variant={logoVariant}
           gap={32}
+          // Pod wielkim tytułem jest zapas tylko w pionie (A2-A4); w kwadracie
+          // i poziomie spiętrzona stopka wypchnęłaby logotypy poza kadr.
+          stack={shape === 'portrait'}
           lead={
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               <Badge color="var(--badge-color)" style={{ font: `700 26px ${fontMono}`, letterSpacing: '.1em', ...fx('badge') }}

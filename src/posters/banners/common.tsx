@@ -7,14 +7,13 @@ import type { LogoSlotSource } from '../blocks/LogoSlots'
 import { PosterText } from '../blocks/PosterText'
 import { usePosterEdit } from '../edit'
 import { Triangle } from '../blocks/Triangle'
-import { TITLE_TRACKING, leading, typography } from '../theme'
+import { BANNER_QR, TITLE_TRACKING, leading, typography } from '../theme'
 import { hasBannerEvent } from './eventLine'
 import type { LogoVariant, PosterLang, QrSide, RawPosterData } from '../../types'
 
 // Skala banera (wysokość układu 624 px): sygnet i kod QR są mniejsze niż na
 // plakacie 1080 px, logotypy zostają na LOGO_HEIGHT (to ich minimum).
 export const BANNER_SYGNET_W = 88
-export const BANNER_QR = 72
 // Światło między literami nazwy koła - to samo co w tytułach plakatów.
 export const NAME_TRACKING = TITLE_TRACKING
 
@@ -63,8 +62,8 @@ interface BannerFooterProps {
 // Stopka banera: ta sama PosterFooter co w plakatach, z mniejszym kodem QR.
 // Baner jest za niski na osobny wiersz nad stopką, więc kod zawsze stoi w
 // rzędzie: na lewym marginesie (przed treścią `lead`) albo przy logotypach.
-export function BannerFooter({ qrSize = BANNER_QR, ...props }: BannerFooterProps & { qrSize?: number }) {
-  return <PosterFooter {...props} qrPlacement="inline" qrSize={qrSize} />
+export function BannerFooter(props: BannerFooterProps) {
+  return <PosterFooter {...props} qrPlacement="inline" qrSizing={BANNER_QR} />
 }
 
 interface BannerEventLineProps {

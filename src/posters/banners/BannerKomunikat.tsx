@@ -4,14 +4,14 @@ import { withPlaceholders } from '../fallback'
 import { PosterText } from '../blocks/PosterText'
 import { resolveScheme } from '../schemes'
 import { useBannerLayout } from '../shape'
-import { LOGO_CLEAR, fontMono, leading } from '../theme'
+import { BANNER_QR, LOGO_CLEAR, fontMono, leading } from '../theme'
 import { QrSlot } from '../blocks/QrSlot'
 import { Badge } from '../blocks/Badge'
 import { PosterFrame } from '../blocks/PosterFrame'
 import { Sygnet } from '../blocks/Sygnet'
 import { FadingTriangles } from '../blocks/Triangle'
 import { Wedges } from '../blocks/Wedges'
-import { BANNER_QR, BANNER_SYGNET_W, BannerFooter, NAME_TRACKING, BannerEventLine } from './common'
+import { BANNER_SYGNET_W, BannerFooter, NAME_TRACKING, BannerEventLine } from './common'
 
 // KOMUNIKAT ROZSZERZONY (baner) — nazwa koła na tle klinów w kolorze akcentu.
 export function BannerKomunikat({ data, scheme, accent, lang = 'pl' }: PosterProps) {
@@ -29,11 +29,12 @@ export function BannerKomunikat({ data, scheme, accent, lang = 'pl' }: PosterPro
           <BannerEventLine data={data} lang={lang} />
         </div>
         {/* Układ dwukolumnowy: kod „po lewej" stoi na lewym marginesie przed
-            adresem strony, „przy logotypach" - w prawej kolumnie. */}
-        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 24 }}>
+            adresem strony (jedna linijka - kod w rozmiarze minimalnym),
+            „przy logotypach" - w prawej kolumnie. */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
           {qrSide === 'left' && qrUrl.trim() !== '' && (
-            <div data-qr-inline="left" style={{ display: 'flex', margin: `0 ${-LOGO_CLEAR}px ${-LOGO_CLEAR}px ${-LOGO_CLEAR}px` }}>
-              <QrSlot value={qrUrl} size={BANNER_QR} />
+            <div data-qr-inline="left" style={{ display: 'flex', margin: -LOGO_CLEAR }}>
+              <QrSlot value={qrUrl} size={BANNER_QR.min} />
             </div>
           )}
           <div style={{ font: `700 16px ${fontMono}`, letterSpacing: '.12em', opacity: 0.85, paddingBottom: 6 }}>{SITE_URL}</div>
