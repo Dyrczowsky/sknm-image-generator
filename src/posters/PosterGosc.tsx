@@ -28,11 +28,13 @@ export function PosterGosc({ data, scheme, accent, lang = 'pl' }: PosterProps) {
     <div
       style={{
         background: 'var(--date-bg)', color: 'var(--date-text)', padding: '18px 26px', display: 'flex', flexDirection: 'column', alignItems: 'center',
+        // Ramka tylko przy metalu (ciemne pudełko na ciemnym tle); 2px jak linie Konferencji.
+        ...(cssVars['--date-border'] && { boxShadow: 'inset 0 0 0 2px var(--date-border)' }),
         ...(side ? { alignSelf: 'flex-end' } : { position: 'absolute', top: -56, right: 72 }),
       }}
     >
       <div style={{ fontSize: 64, fontWeight: 800, lineHeight: 0.9, ...fx('event_date') }}>{getDay(event_date)}</div>
-      <div style={{ font: `700 22px ${fontMono}`, letterSpacing: '.12em' }}>
+      <div style={{ font: `700 22px ${fontMono}`, letterSpacing: '.12em', ...(cssVars['--date-sub-text'] && { color: 'var(--date-sub-text)' }) }}>
         <span style={fx('event_date')}>{getMonthShort(event_date, { upperCase: true, lang })}</span>
         {event_time && !hidden('event_time') && <> <span>{event_time}</span></>}
       </div>

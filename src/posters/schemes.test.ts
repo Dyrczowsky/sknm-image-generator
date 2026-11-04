@@ -161,10 +161,20 @@ describe('resolveScheme — z akcentem', () => {
     expect(sr.sygnet).toBe('srebrny')
   })
 
-  it('Gość: metaliczny akcent dokłada sygnetBg (granat)', () => {
-    expect(resolveScheme('gosc', 'czern', 'zloty').cssVars['--sygnet-bg']).toBe(colors.navy)
-    expect(resolveScheme('gosc', 'czern', 'srebrny').cssVars['--sygnet-bg']).toBe(colors.navy)
+  it('Gość: metaliczny akcent dokłada sygnetBg w kolorze ciemnego tła strony', () => {
+    expect(resolveScheme('gosc', 'czern', 'zloty').cssVars['--sygnet-bg']).toBe(colors.black)
+    expect(resolveScheme('gosc', 'czern', 'srebrny').cssVars['--sygnet-bg']).toBe(colors.black)
     expect(resolveScheme('gosc', 'czern', 'pomaranczowy').cssVars['--sygnet-bg']).toBeUndefined()
+  })
+
+  it('Gość: metal = ciemne pudełko daty z metaliczną ramką i cyframi', () => {
+    const zl = resolveScheme('gosc', 'czern', 'zloty').cssVars
+    expect(zl['--date-bg']).toBe(colors.black)
+    expect(zl['--date-text']).toBe(colors.gold)
+    expect(zl['--date-border']).toBe(colors.gold)
+    expect(zl['--date-sub-text']).toBe(colors.goldPanelText)
+    expect(resolveScheme('gosc', 'default', 'pomaranczowy').cssVars['--date-border']).toBeUndefined()
+    expect(resolveScheme('gosc', 'default', 'pomaranczowy').cssVars['--date-sub-text']).toBeUndefined()
   })
 
   it('Gość: pudełko z datą (dateBg/dateText) idzie za akcentem', () => {
@@ -181,11 +191,13 @@ describe('resolveScheme — z akcentem', () => {
 
   it('Okazjonalny: wartości złota/srebra na wybranych layoutach', () => {
     const goscZl = resolveScheme('gosc', 'okazjonalny', 'zloty')
-    expect(goscZl.cssVars['--date-bg']).toBe(colors.gold)
-    expect(goscZl.cssVars['--date-text']).toBe(colors.ink)
-    expect(goscZl.cssVars['--sygnet-bg']).toBe(colors.navy)
+    expect(goscZl.cssVars['--date-bg']).toBe(colors.ink)
+    expect(goscZl.cssVars['--date-text']).toBe(colors.gold)
+    expect(goscZl.cssVars['--date-border']).toBe(colors.gold)
+    expect(goscZl.cssVars['--sygnet-bg']).toBe(colors.ink)
     const goscSr = resolveScheme('gosc', 'okazjonalny', 'srebrny')
-    expect(goscSr.cssVars['--date-bg']).toBe(colors.silver)
+    expect(goscSr.cssVars['--date-text']).toBe(colors.silver)
+    expect(goscSr.cssVars['--date-border']).toBe(colors.silver)
 
     const wykladZl = resolveScheme('wyklad', 'okazjonalny', 'zloty')
     expect(wykladZl.cssVars['--badge-fill']).toBe(colors.gold)
