@@ -75,9 +75,10 @@ export const LEADING_GROWTH = 0.2
 
 // Najmniejsza interlinia tekstu z suwakiem rozmiaru. W Fieldwork 800 „k”/„ł”
 // sięgają 0,697 em nad linię bazową, a „y”/„j”/„g” 0,235 em pod nią - razem
-// 0,932 em, więc przy 0,94 ogonek „y” dotykał „k” w wierszu niżej. 1,0
-// zostawia ok. 0,07 em odstępu (8 px przy tytule 120 px).
-export const MIN_LEADING = 1
+// 0,932 em, więc przy 0,94 ogonek „y” dotykał „k” w wierszu niżej. Przy 1,0
+// i 1,12 wiersze tytułu wciąż wyglądały na sklejone (zgłoszenie #43); 1,2
+// zostawia ok. 0,27 em odstępu (32 px przy tytule 120 px).
+export const MIN_LEADING = 1.2
 
 // Interlinia tekstu powiększonego suwakiem rozmiaru: co najmniej MIN_LEADING,
 // a powyżej 100% rośnie szybciej niż sam tekst (130% → +0,06), żeby duże

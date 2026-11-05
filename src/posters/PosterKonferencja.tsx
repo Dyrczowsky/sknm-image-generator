@@ -40,7 +40,7 @@ export function PosterKonferencja({ data, scheme, accent, lang = 'pl' }: PosterP
             fallback={PLACEHOLDERS.title}
             multiline
             label="Tytuł"
-            style={{ fontSize: 76 * titleScale, fontWeight: 800, lineHeight: leading(1.12, titleScale), letterSpacing: TITLE_TRACKING, fontKerning: 'none', whiteSpace: 'pre-line', ...fx('title') }}
+            style={{ fontSize: 76 * titleScale, fontWeight: 800, lineHeight: leading(1, titleScale), letterSpacing: TITLE_TRACKING, fontKerning: 'none', whiteSpace: 'pre-line', ...fx('title') }}
           />
           <div style={{ fontSize: 28, fontWeight: 600 }}>
             <span style={fx('event_date')}>{formatFullDate(event_date, lang)}</span>
