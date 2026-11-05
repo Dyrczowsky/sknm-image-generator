@@ -156,7 +156,7 @@ jobs:
       - name: Collect updated snapshots
         run: |
           git add -A
-          changed=$(git diff --cached --name-only)
+          changed=$(git diff --cached --name-only --no-renames)
           other=$(printf '%s\n' "$changed" | grep -vE '(^|/)__snapshots__/[^/]+\.snap$' | grep . || true)
           if [ -n "$other" ]; then
             printf 'The test run changed files other than snapshots:\n%s\n' "$other"
@@ -209,12 +209,16 @@ jobs:
         if: steps.patch.outputs.found == 'true'
         run: |
           patch="$RUNNER_TEMP/snapshots/snapshots.patch"
-          files=$(git apply --numstat "$patch" | cut -f3)
-          if printf '%s\n' "$files" | grep -vqE '(^|/)__snapshots__/[^/]+\.snap$'; then
-            printf 'Refusing a snapshot patch that touches other files:\n%s\n' "$files"
+          git apply --index "$patch"
+          # Check what the patch actually did to the index, not its own metadata: only
+          # added or modified regular files under __snapshots__/*.snap; no deletions,
+          # renames, symlinks or mode changes.
+          changes=$(git diff --cached --raw --no-renames)
+          bad=$(printf '%s\n' "$changes" | grep . | grep -vE '^:(000000|100644) 100644 [0-9a-f]+ [0-9a-f]+ [AM]	([^	]*/)?__snapshots__/[^/	]+\.snap$' || true)
+          if [ -n "$bad" ]; then
+            printf 'Refusing a snapshot patch with other changes:\n%s\n' "$bad"
             exit 1
           fi
-          git apply --index "$patch"
           git -c user.name="github-actions[bot]" \
               -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
               commit -q -m "test: snapshoty po zmianie z #$ISSUE"
