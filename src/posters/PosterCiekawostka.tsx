@@ -13,6 +13,8 @@ import { PosterFrame } from './blocks/PosterFrame'
 import { PosterText } from './blocks/PosterText'
 import { Sygnet } from './blocks/Sygnet'
 import { PhotoGallery } from './PhotoGallery'
+import { usePosterEdit } from './edit'
+import { toPlain } from '../richText'
 
 // Ostrzeżenie w edytorze, gdy opis nie mieści się nawet po zmniejszeniu.
 const BODY_NOTICE = 'Opis nie mieści się — skróć tekst albo zmniejsz rozmiar tekstu.'
@@ -38,6 +40,11 @@ interface CiekawostkaParts {
   footer: ReactNode
   // Zdjęcie (galeria) w podanym kadrze; `children` nakładają się na zdjęcie.
   photo: (style: CSSProperties, label: ReactNode, children?: ReactNode) => ReactNode
+  // Duży rok w tle (tylko układ C): `null`, gdy pole jest puste - w edycji
+  // zawsze jest, z podpowiedzią „Rok”. `style` to rozmiar i położenie.
+  year: (style: CSSProperties) => ReactNode
+  // Nagłówek układów B i C: etykieta po lewej, sygnet po prawej.
+  header: ReactNode
 }
 
 // CIEKAWOSTKA — „Czy wiesz, że…?”: zdjęcie, pytanie i akapit historii.
@@ -45,16 +52,28 @@ export function PosterCiekawostka({ data, scheme, accent, lang = 'pl' }: PosterP
   const { raw, logoSlots, qrUrl, qrSide, qrPlacement, photos, fx, titleScale, textScale } = withPlaceholders(data)
   const { cssVars, sygnet, logoVariant } = resolveScheme('ciekawostka', scheme, accent)
   const { shape, width, height } = usePosterShape()
+  const { editable } = usePosterEdit()
+  const story = shape === 'story'
+  const showYear = editable || toPlain(raw.year ?? '') !== ''
+
+  const kicker = (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 16, ...fx('badge') }}>
+      <div style={{ width: 22, height: 19, flex: '0 0 auto', background: 'var(--accent)', clipPath: 'polygon(0 0,100% 0,50% 100%)' }} />
+      <Badge color="var(--accent)" field={{ path: 'badge', value: raw.badge, fallback: DEFAULT_BADGE.ciekawostka[lang], label: 'Etykieta' }} />
+    </div>
+  )
 
   const parts: CiekawostkaParts = {
-    story: shape === 'story',
+    story,
     width,
     height,
     sygnet,
-    kicker: (
-      <div style={{ display: 'flex', alignItems: 'center', gap: 16, ...fx('badge') }}>
-        <div style={{ width: 22, height: 19, flex: '0 0 auto', background: 'var(--accent)', clipPath: 'polygon(0 0,100% 0,50% 100%)' }} />
-        <Badge color="var(--accent)" field={{ path: 'badge', value: raw.badge, fallback: DEFAULT_BADGE.ciekawostka[lang], label: 'Etykieta' }} />
+    kicker,
+    // Sygnet leży na tle strony - schemat dobiera go właśnie do tego tła.
+    header: (
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 24, flex: '0 0 auto' }}>
+        {kicker}
+        <Sygnet name={sygnet} width={story ? 132 : 104} />
       </div>
     ),
     title: (size) => (
@@ -98,6 +117,20 @@ export function PosterCiekawostka({ data, scheme, accent, lang = 'pl' }: PosterP
         {children}
       </PhotoGallery>
     ),
+    // Dekoracja pod treścią (`zIndex: 0`); klikalna tylko w edytorze.
+    year: (style) => showYear ? (
+      <PosterText
+        path="year"
+        value={raw.year}
+        fallback="Rok"
+        label="Rok"
+        style={{
+          position: 'absolute', zIndex: 0, fontWeight: 800, lineHeight: 1, letterSpacing: '-.05em',
+          color: 'var(--accent)', opacity: 0.14, whiteSpace: 'nowrap',
+          pointerEvents: editable ? 'auto' : 'none', ...style, ...fx('year'),
+        }}
+      />
+    ) : null,
   }
 
   const Layout = LAYOUTS[data.ciekawostkaLayout ?? 'zdjecie'] ?? LayoutZdjecie
@@ -147,9 +180,74 @@ function LayoutZdjecie({ story, width, height, sygnet, kicker, title, body, foot
   )
 }
 
-// Układy B i C - na razie rysują układ A (osobne ciała dochodzą później).
-const LayoutPanorama = LayoutZdjecie
-const LayoutArchiwum = LayoutZdjecie
+// Margines treści układów B i C; w Story treść omija strefy Instagrama.
+function contentPadding(story: boolean): string {
+  return story ? `${STORY_SAFE_TOP}px 72px ${STORY_SAFE_BOTTOM}px` : '72px'
+}
+
+// B — „Panorama”: tekst prowadzi; zdjęcie to cienki pas od krawędzi do
+// krawędzi między tytułem a opisem, więc na opis zostaje najwięcej miejsca.
+function LayoutPanorama({ story, width, height, header, title, body, footer, photo }: CiekawostkaParts) {
+  const photoH = story ? 380 : Math.round((height * 210) / 1080)
+  return (
+    <div
+      style={{
+        flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column',
+        padding: contentPadding(story), gap: story ? 32 : 24, boxSizing: 'border-box',
+      }}
+    >
+      {header}
+      {title(story ? 88 : 76)}
+      {/* Pas wychodzi na boczne marginesy aż do krawędzi kadru. */}
+      {photo({ height: photoH, margin: '0 -72px' }, `panorama · ${width} × ${photoH}`)}
+      {body(story ? 36 : 30, 0.75)}
+      {footer}
+    </div>
+  )
+}
+
+// C — „Archiwum”: zdjęcie jako „odbitka” w ramce, lekko obrócona, obok tytułu
+// (w Story nad nim), pod spodem opis; opcjonalny duży rok w tle. Ramka ma kolor
+// tekstu strony, więc jest jasna na ciemnym i ciemna na jasnym tle (`--panel`
+// w schemacie szarym zlewa się z tłem).
+function LayoutArchiwum({ story, width, height, header, title, body, footer, photo, year }: CiekawostkaParts) {
+  const [printW, printH] = story ? [760, 570] : [440, 330]
+  const frame = 14
+  const print = photo(
+    { width: printW, height: printH, outline: `${frame}px solid var(--page-text)`, transform: 'rotate(-2deg)', margin: frame + 6 },
+    <>zdjęcie<br />{`${printW} × ${printH}`}</>,
+  )
+  // Kwadrat i Story: rok lekko wychodzi za prawą krawędź (jak w makiecie);
+  // w druku zostaje w kadrze.
+  const right = story || width === height ? -24 : 40
+  return (
+    <>
+      {/* W Story rok stoi za tytułem - wyżej zasłoniłaby go duża odbitka. */}
+      {year(story ? { fontSize: 520, top: 880, right } : { fontSize: 380, top: 120, right })}
+      <div
+        style={{
+          flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', position: 'relative', zIndex: 1,
+          padding: contentPadding(story), gap: story ? 28 : 20, boxSizing: 'border-box',
+        }}
+      >
+        {header}
+        {story ? (
+          <>
+            <div style={{ display: 'flex', justifyContent: 'center', flex: '0 0 auto' }}>{print}</div>
+            {title(80)}
+          </>
+        ) : (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 28, flex: '0 0 auto' }}>
+            {print}
+            <div style={{ flex: 1, minWidth: 0 }}>{title(60)}</div>
+          </div>
+        )}
+        {body(story ? 34 : 30, 0.75)}
+        {footer}
+      </div>
+    </>
+  )
+}
 
 const LAYOUTS: Record<CiekawostkaLayout, (parts: CiekawostkaParts) => ReactElement> = {
   zdjecie: LayoutZdjecie,

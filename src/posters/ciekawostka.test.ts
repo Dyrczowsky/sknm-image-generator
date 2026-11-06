@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest'
 import { posterRegistry } from './registry'
 import { PosterScaled } from '../components/PosterScaled'
 import { DEFAULT_TEMPLATES } from '../db/schema'
+import { PosterEditContext } from './edit'
 import type { PosterLang, PosterShape, RawPosterData } from '../types'
 
 const h = createElement as unknown as (type: unknown, props: object | null, ...children: unknown[]) => ReactElement
@@ -44,10 +45,41 @@ describe('Ciekawostka', () => {
     expect(html).toMatch(/display:none[^>]*>OPIS_X/)
   })
 
-  it('układy B i C na razie rysują się bez błędu', () => {
-    for (const ciekawostkaLayout of ['panorama', 'archiwum'] as const) {
-      expect(render({ ciekawostkaLayout }, 'square')).toContain('SKNM powstało z inicjatywy studentów?')
+  it.each(['zdjecie', 'panorama', 'archiwum'] as const)('%s: kwadrat i Story renderują się na pustych danych z placeholderem zdjęcia', (layout) => {
+    for (const shape of ['square', 'story'] as const) {
+      const html = render({ ciekawostkaLayout: layout }, shape)
+      expect(html).toContain('CZY WIESZ, ŻE…')
+      expect(html.toLowerCase()).toContain(layout === 'panorama' ? 'panorama' : 'zdjęcie')
     }
+  })
+
+  // Przykładowy opis sam zawiera „2001”, więc tu opis jest podany wprost.
+  it('archiwum: rok widoczny tylko, gdy wpisany (poza edycją)', () => {
+    const body = 'Opis.'
+    expect(render({ ciekawostkaLayout: 'archiwum', year: '2001', body }, 'square')).toContain('2001')
+    expect(render({ ciekawostkaLayout: 'archiwum', body }, 'square')).not.toContain('2001')
+    expect(render({ ciekawostkaLayout: 'zdjecie', year: '2001', body }, 'square')).not.toContain('2001')
+    expect(render({ ciekawostkaLayout: 'panorama', year: '2001', body }, 'square')).not.toContain('2001')
+  })
+
+  it('archiwum: w edycji pusty rok jest polem z podpowiedzią „Rok”', () => {
+    const editing = (data: RawPosterData) =>
+      renderToStaticMarkup(h(PosterEditContext.Provider, { value: { editable: true, onText: () => {} } },
+        h(PosterScaled, { size: 540, shape: 'square' }, h(posterRegistry.ciekawostka.Component, { data }))))
+    const html = editing({ ciekawostkaLayout: 'archiwum' })
+    expect(html).toContain('aria-label="Rok"')
+    expect(editing({ ciekawostkaLayout: 'zdjecie' })).not.toContain('aria-label="Rok"')
+  })
+
+  it('układy różnią się markupem', () => {
+    const a = render({ ciekawostkaLayout: 'zdjecie' }, 'square')
+    expect(render({ ciekawostkaLayout: 'panorama' }, 'square')).not.toBe(a)
+    expect(render({ ciekawostkaLayout: 'archiwum' }, 'square')).not.toBe(a)
+  })
+
+  // Story: górne 250 px zasłania Instagram - treść i sygnet zaczynają się niżej.
+  it.each(['panorama', 'archiwum'] as const)('%s: w Story treść zaczyna się pod strefą 250 px', (layout) => {
+    expect(render({ ciekawostkaLayout: layout }, 'story')).toContain('padding:250px 72px 340px')
   })
 
   it('rejestr: storyShape i szablon domyślny', () => {
