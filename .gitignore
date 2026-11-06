@@ -33,3 +33,5 @@ dist-ssr
 # Supabase CLI (stan lokalny po `supabase link`)
 supabase/.temp/
 supabase/.env
+
+.superpowers/
