@@ -2,6 +2,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
 import { contentOverflows, findFitFactor } from '../../utils/fitFactor'
 import { usePosterEdit } from '../edit'
+import { wholeLinesHeight } from './posterFit'
 
 export interface PosterAutoFitProps {
   children: ReactNode
@@ -11,6 +12,23 @@ export interface PosterAutoFitProps {
   min?: number
   // Ostrzeżenie w edytorze, gdy treść nie mieści się nawet przy `min`.
   notice: string
+}
+
+// Gdy treść nie mieści się nawet przy minimum, ucinamy ją na granicy wiersza
+// (`clip-path` nie zmienia układu), żeby nad stopką nie wisiał pół-wiersz.
+// Wysokość wiersza bierzemy z pierwszego dziecka (np. akapitu opisu).
+function clipToWholeLines(el: HTMLElement, overflowing: boolean) {
+  const child = el.firstElementChild
+  if (!overflowing || !(child instanceof HTMLElement)) {
+    el.style.removeProperty('clip-path')
+    return
+  }
+  const cs = getComputedStyle(child)
+  const top = child.offsetTop + (parseFloat(cs.borderTopWidth) || 0) + (parseFloat(cs.paddingTop) || 0)
+  const box = el.clientHeight
+  const visible = wholeLinesHeight(box, top, parseFloat(cs.lineHeight))
+  if (visible < box) el.style.setProperty('clip-path', `inset(0 0 ${box - visible}px 0)`)
+  else el.style.removeProperty('clip-path')
 }
 
 // Zmniejsza fonty potomków (podane przez `posterFit(px)`), aż treść zmieści
@@ -32,6 +50,7 @@ export function PosterAutoFit({ children, style, min = 0.7, notice }: PosterAuto
       return contentOverflows(el)
     }, min)
     el.style.setProperty('--fit', String(result.factor))
+    clipToWholeLines(el, result.overflowing)
     state.current.size = `${el.clientWidth}x${el.clientHeight}`
     // Ostrzeżenie zgłaszamy tylko przy zmianie stanu (jak AutoFit w slajdach).
     if (result.overflowing !== state.current.overflowing) {
