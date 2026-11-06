@@ -7,6 +7,7 @@ import { PosterOgloszenie } from './PosterOgloszenie'
 import { PosterWyklad } from './PosterWyklad'
 import { PosterKonferencja } from './PosterKonferencja'
 import { PosterKomunikat } from './PosterKomunikat'
+import { PosterCiekawostka } from './PosterCiekawostka'
 import { BannerWyklad } from './banners/BannerWyklad'
 import { BannerWarsztat } from './banners/BannerWarsztat'
 import { BannerWarsztatBezZdjecia } from './banners/BannerWarsztatBezZdjecia'
@@ -17,6 +18,7 @@ import { BannerGosc } from './banners/BannerGosc'
 import { BannerGala } from './banners/BannerGala'
 import { BannerOgloszenie } from './banners/BannerOgloszenie'
 import { BannerKomunikat } from './banners/BannerKomunikat'
+import { BannerCiekawostka } from './banners/BannerCiekawostka'
 import { FormWarsztat } from '../forms/FormWarsztat'
 import { FormRekrutacja } from '../forms/FormRekrutacja'
 import { FormData } from '../forms/FormData'
@@ -26,6 +28,7 @@ import { FormOgloszenie } from '../forms/FormOgloszenie'
 import { FormWyklad } from '../forms/FormWyklad'
 import { FormKonferencja } from '../forms/FormKonferencja'
 import { FormKomunikat } from '../forms/FormKomunikat'
+import { FormCiekawostka } from '../forms/FormCiekawostka'
 import type { RegistryEntry } from '../types'
 
 // Każdy wpis to `{ name, Component, Banner, Form }`:
@@ -40,6 +43,8 @@ import type { RegistryEntry } from '../types'
 //   `bannerOnly` - layout istnieje tylko jako baner: zakładka „Social media
 //   i druk" go nie pokazuje, a przełączenie na nią wraca do `fallbackKey`
 //   (`Component` zostaje dla miniatur kolorystyki i historii).
+//   `storyShape` - layout ma własny wysoki układ Story 1080×1920 (kształt
+//   `story`), zamiast kwadratu z dostawką tła.
 // - `Form` - treść layoutu (zakładka „Treść"): lista pól na wspólnym `PosterForm`
 //   (patrz src/forms/), renderowana przez `ContentPanel` po wybraniu danego layoutu.
 //   To NIE cały formularz: rozmiar tekstu i logotypy są wspólne dla wszystkich
@@ -63,4 +68,5 @@ export const posterRegistry: Record<string, RegistryEntry> = {
   gala: { name: 'Gala', Component: PosterGala, Banner: BannerGala, Form: FormGala },
   ogloszenie: { name: 'Ogłoszenie', Component: PosterOgloszenie, Banner: BannerOgloszenie, Form: FormOgloszenie },
   komunikat: { name: 'Komunikat rozszerzony', Component: PosterKomunikat, Banner: BannerKomunikat, Form: FormKomunikat },
+  ciekawostka: { name: 'Ciekawostka', Component: PosterCiekawostka, Banner: BannerCiekawostka, bannerPhoto: true, storyShape: true, Form: FormCiekawostka },
 }
