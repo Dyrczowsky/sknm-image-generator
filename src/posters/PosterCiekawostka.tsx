@@ -217,13 +217,13 @@ function LayoutArchiwum({ story, width, height, header, title, body, footer, pho
     { width: printW, height: printH, outline: `${frame}px solid var(--page-text)`, transform: 'rotate(-2deg)', margin: frame + 6 },
     <>zdjęcie<br />{`${printW} × ${printH}`}</>,
   )
-  // Kwadrat i Story: rok lekko wychodzi za prawą krawędź (jak w makiecie);
-  // w druku zostaje w kadrze.
-  const right = story || width === height ? -24 : 40
+  // Kwadrat: rok lekko wychodzi za prawą krawędź (jak w makiecie); w Story
+  // i w druku zostaje w kadrze (4 cyfry muszą się zmieścić w 1080 px).
+  const right = !story && width === height ? -24 : 40
   return (
     <>
       {/* W Story rok stoi za tytułem - wyżej zasłoniłaby go duża odbitka. */}
-      {year(story ? { fontSize: 520, top: 880, right } : { fontSize: 380, top: 120, right })}
+      {year(story ? { fontSize: 480, top: 900, right: 24 } : { fontSize: 380, top: 120, right })}
       <div
         style={{
           flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', position: 'relative', zIndex: 1,
