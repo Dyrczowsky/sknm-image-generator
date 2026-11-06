@@ -199,6 +199,7 @@ function parseForm(raw: unknown): SnapshotForm {
     badge: text('badge'),
     badge2: text('badge2'),
     body: text('body'),
+    year: text('year'),
     bannerTitle: text('bannerTitle'),
     visibility: parseVisibility(source.visibility),
     graphics: parseGraphics(source.graphics),
@@ -213,6 +214,7 @@ function parseForm(raw: unknown): SnapshotForm {
     scaleLinked: flagOr(source.scaleLinked, EMPTY_FORM.scaleLinked),
     fillAgenda: flagOr(source.fillAgenda, EMPTY_FORM.fillAgenda),
     wideSubtitle: flagOr(source.wideSubtitle, EMPTY_FORM.wideSubtitle),
+    ciekawostkaLayout: source.ciekawostkaLayout === 'panorama' || source.ciekawostkaLayout === 'archiwum' ? source.ciekawostkaLayout : 'zdjecie',
     bannerShowEvent: flagOr(source.bannerShowEvent, EMPTY_FORM.bannerShowEvent),
   }
 }

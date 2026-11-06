@@ -43,6 +43,7 @@ const FULL_FORM: FormValues = {
   badge: 'Wstęp wolny',
   badge2: 'Zapisy',
   body: 'Dłuższy akapit\nw dwóch liniach.',
+  year: '2001',
   visibility: { subtitle: false, badge2: false },
   graphics: [LOGO2, LOGO1],
   showPkLogo: false,
@@ -65,6 +66,7 @@ const FULL_FORM: FormValues = {
   scaleLinked: false,
   fillAgenda: true,
   wideSubtitle: true,
+  ciekawostkaLayout: 'archiwum',
   bannerTitle: 'Gala 25-lecia',
   bannerShowEvent: true,
 }
@@ -313,6 +315,21 @@ describe('parseSnapshot: wartości domyślne', () => {
     for (const junk of [undefined, null, 'de', 'EN', 1, {}]) {
       expect(parsed({ ...DEFAULT_SNAPSHOT, lang: junk }).lang).toBe('pl')
     }
+  })
+})
+
+describe('ciekawostka: układ i rok', () => {
+  it('układ i rok przechodzą przez snapshot', () => {
+    const form = roundTrip(FULL_STATE).form
+    expect(form.year).toBe('2001')
+    expect(form.ciekawostkaLayout).toBe('archiwum')
+  })
+
+  it('nieznany układ → zdjecie; brak pól → zdjecie i pusty rok', () => {
+    expect(parsed(rawWithForm({ ciekawostkaLayout: 'foo' })).form.ciekawostkaLayout).toBe('zdjecie')
+    const form = parsed(rawWithForm({})).form
+    expect(form.ciekawostkaLayout).toBe('zdjecie')
+    expect(form.year).toBe('')
   })
 })
 

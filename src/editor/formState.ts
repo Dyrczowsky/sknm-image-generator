@@ -1,5 +1,5 @@
 import { FORM_TEXT_FIELDS } from '../types'
-import type { FormTextField, FormUpdate, FormValues, Medium, QrPlacement, QrSide } from '../types'
+import type { FormTextField, FormUpdate, FormValues, CiekawostkaLayout, Medium, QrPlacement, QrSide } from '../types'
 import { toPlain } from '../richText'
 import { MAX_GRAPHICS } from '../posters/theme'
 
@@ -18,6 +18,7 @@ export const EMPTY_FORM: FormValues = {
   badge: '',
   badge2: '',
   body: '',
+  year: '',
   bannerTitle: '',
   visibility: {},
   graphics: [],
@@ -25,6 +26,7 @@ export const EMPTY_FORM: FormValues = {
   qrUrl: '',
   qrSide: 'left',
   qrPlacement: 'above',
+  ciekawostkaLayout: 'zdjecie',
   photos: {},
   lists: {},
   titleScale: 1,
@@ -102,6 +104,8 @@ export const setQrUrl = (qrUrl: string): FormUpdate => (form) => ({ ...form, qrU
 export const setQrSide = (qrSide: QrSide): FormUpdate => (form) => ({ ...form, qrSide })
 
 export const setQrPlacement = (qrPlacement: QrPlacement): FormUpdate => (form) => ({ ...form, qrPlacement })
+
+export const setCiekawostkaLayout = (ciekawostkaLayout: CiekawostkaLayout): FormUpdate => (form) => ({ ...form, ciekawostkaLayout })
 
 // Galeria zdjęć pod kluczem `fieldKey`. Nowe zdjęcie zaczyna z kadrem na środku.
 const updatePhotos = (fieldKey: string, change: (photos: FormValues['photos'][string]) => FormValues['photos'][string]): FormUpdate => (form) => ({
