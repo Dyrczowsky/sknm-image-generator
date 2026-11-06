@@ -1,5 +1,5 @@
 import type { FormProps } from '../types'
-import { Button, ConfirmButton, Input } from '../components/ui'
+import { Button, ConfirmButton, Input, Textarea } from '../components/ui'
 import { UI_LABEL } from '../components/styles'
 import { addListItem, removeListItem, setFillAgenda, setListItemField } from '../editor/formState'
 import { applyPlainEdit, toPlain } from '../richText'
@@ -21,11 +21,12 @@ const KONFERENCJA_FIELDS: FieldSpec[] = [
 
 // Pola jednego punktu programu: klucz w `ListItem`, typ pola i jego podpis.
 // Godzina i nazwa stoją w jednym rzędzie, opis zajmuje cały następny - tak
-// wiersz mieści się też w panelu 340 px i na telefonie.
+// wiersz mieści się też w panelu 340 px i na telefonie. Nazwa i opis są
+// wieloliniowe: Enter łamie wiersz na plakacie.
 const AGENDA_COLUMNS = [
-  { name: 'time', type: 'time', label: 'Godzina', placeholder: 'Godzina', className: undefined },
-  { name: 'title', type: 'text', label: 'Nazwa punktu', placeholder: 'Nazwa punktu programu', className: undefined },
-  { name: 'subtitle', type: 'text', label: 'Prelegent / opis', placeholder: 'Prelegent / opis (opcjonalnie)', className: 'col-span-2' },
+  { name: 'time', type: 'time', label: 'Godzina', placeholder: 'Godzina', className: 'self-start' },
+  { name: 'title', type: 'textarea', label: 'Nazwa punktu', placeholder: 'Nazwa punktu programu', className: undefined },
+  { name: 'subtitle', type: 'textarea', label: 'Prelegent / opis', placeholder: 'Prelegent / opis (opcjonalnie)', className: 'col-span-2' },
 ]
 
 // Powtarzalna lista punktów programu (`value.lists.agenda`).
@@ -51,18 +52,18 @@ function AgendaField({ value, onChange }: FormProps) {
               )}
             </div>
             <div className="grid grid-cols-[6.75rem_minmax(0,1fr)] gap-2">
-              {AGENDA_COLUMNS.map((column) => (
-                <Input
-                  key={column.name}
-                  type={column.type}
-                  size="sm"
-                  aria-label={`${column.label}, punkt ${index + 1}`}
-                  placeholder={column.placeholder}
-                  value={toPlain(item[column.name] ?? '')}
-                  onChange={(e) => onChange(setListItemField('agenda', index, column.name, applyPlainEdit(item[column.name] ?? '', e.target.value)))}
-                  className={column.className}
-                />
-              ))}
+              {AGENDA_COLUMNS.map((column) => {
+                const control = {
+                  size: 'sm' as const,
+                  'aria-label': `${column.label}, punkt ${index + 1}`,
+                  placeholder: column.placeholder,
+                  value: toPlain(item[column.name] ?? ''),
+                  onChange: (e: { target: { value: string } }) =>
+                    onChange(setListItemField('agenda', index, column.name, applyPlainEdit(item[column.name] ?? '', e.target.value))),
+                  className: column.className,
+                }
+                return column.type === 'textarea' ? <Textarea key={column.name} rows={2} {...control} className={`${column.className ?? ''} min-h-0! field-sizing-content`} /> : <Input key={column.name} type={column.type} {...control} />
+              })}
             </div>
           </div>
         )

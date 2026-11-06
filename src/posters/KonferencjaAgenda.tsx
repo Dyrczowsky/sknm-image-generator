@@ -142,7 +142,8 @@ export function KonferencjaAgenda({ agenda, seed, startPad, spread, grow, canGro
                   value={item.title}
                   listSeed={seed}
                   label={`Nazwa punktu, punkt ${i + 1}`}
-                  style={{ fontSize: 36 * s, fontWeight: 700, lineHeight: 1.15, fontKerning: 'none' }}
+                  multiline
+                  style={{ fontSize: 36 * s, fontWeight: 700, lineHeight: 1.15, fontKerning: 'none', whiteSpace: 'pre-line' }}
                 />
                 {toPlain(item.subtitle ?? '') !== '' && (
                   <PosterText
@@ -150,7 +151,8 @@ export function KonferencjaAgenda({ agenda, seed, startPad, spread, grow, canGro
                     value={item.subtitle}
                     listSeed={seed}
                     label={`Prelegent / opis, punkt ${i + 1}`}
-                    style={{ fontSize: 26 * s, fontWeight: 500, color: 'var(--muted-text)' }}
+                    multiline
+                    style={{ fontSize: 26 * s, fontWeight: 500, color: 'var(--muted-text)', whiteSpace: 'pre-line' }}
                   />
                 )}
               </div>
