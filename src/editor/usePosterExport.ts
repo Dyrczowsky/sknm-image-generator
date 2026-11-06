@@ -15,7 +15,7 @@ function fileBasename(title: string): string {
 // Ustawienia eksportu i sam eksport. Ustawienia (`settings`) są częścią
 // snapshotu: kopia robocza zapisuje je razem z resztą stanu i przywraca przez
 // `applySettings`. Sesyjne są tylko `exporting` i `note`.
-export function usePosterExport() {
+export function usePosterExport(tallStory = false) {
   // Zakładka wyboru szablonu: grafika social/druk albo baner.
   const [medium, setMedium] = useState<Medium>(DEFAULT_EXPORT_SETTINGS.medium)
   const [format, setFormat] = useState(DEFAULT_EXPORT_SETTINGS.format)
@@ -26,6 +26,7 @@ export function usePosterExport() {
   const [note, setNote] = useState<string | null>(null)
 
   const isPrint = isPrintFormat(format)
+  const shape = shapeFor(format, orientation, tallStory)
   const fileType: FileType = isPrint ? printFileType : 'png'
   // Do snapshotu idzie typ pliku wybrany dla druku, także gdy bieżący format
   // nie jest papierowy - po powrocie do A4/A3/A2 wybór ma wrócić.
@@ -66,7 +67,7 @@ export function usePosterExport() {
       setNote(null)
     })
     try {
-      const { dpi } = await downloadPoster(node, fileBasename(title), { formatKey: format, orientation, fileType })
+      const { dpi } = await downloadPoster(node, fileBasename(title), { formatKey: format, orientation, fileType, shape })
       const notes = [dpi !== undefined && dpi < FULL_PRINT_DPI && `Zapisano w ${dpi} dpi — przeglądarka nie obsłużyła ${FULL_PRINT_DPI} dpi.`]
       try {
         await onSaved?.()
@@ -94,7 +95,7 @@ export function usePosterExport() {
     setOrientation,
     fileType,
     setFileType: setPrintFileType,
-    shape: shapeFor(format, orientation),
+    shape,
     exporting,
     note,
     dismissNote: () => setNote(null),

@@ -21,7 +21,7 @@ export function SnapshotThumb({ snapshot, box }: SnapshotThumbProps) {
 
   const { form, colorScheme, lang } = fromSnapshot(snapshot, () => undefined)
   const { medium, format, orientation } = snapshot.export
-  const shape = shapeFor(format, orientation)
+  const shape = shapeFor(format, orientation, Boolean(poster.storyShape))
   const { width, height } = SHAPE_SIZE[shape]
   const Poster = medium === 'banner' ? poster.Banner : poster.Component
   const { scheme, accent } = decodeScheme(colorScheme)

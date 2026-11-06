@@ -58,7 +58,7 @@ const APP_TITLE = 'Generator obrazów SKNM'
 // którego powstaje plik.
 function App() {
   const editor = useEditor()
-  const exporter = usePosterExport()
+  const exporter = usePosterExport(Boolean(editor.template && posterRegistry[editor.template.poster_key]?.storyShape))
   const session = useSession()
   // Dane wspólne są dostępne dla każdego z sesją, także w trakcie ustawiania hasła.
   const signedIn = session.status === 'signedIn' || session.status === 'settingPassword'

@@ -53,7 +53,10 @@ export function isPrintFormat(formatKey: string): boolean {
   return Boolean(EXPORT_FORMATS[formatKey]?.paper)
 }
 
-export function shapeFor(formatKey: string, orientation: Orientation): PosterShape {
+// `tallStory`: layout ma własny wysoki układ Story (`storyShape`) - wtedy format
+// Story dostaje kształt `story`, a nie kwadrat z dostawką tła.
+export function shapeFor(formatKey: string, orientation: Orientation, tallStory = false): PosterShape {
+  if (formatKey === 'story' && tallStory) return 'story'
   return EXPORT_FORMATS[formatKey]?.shape ?? (isPrintFormat(formatKey) ? orientation : 'square')
 }
 

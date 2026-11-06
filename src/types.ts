@@ -120,7 +120,7 @@ export type RawPosterData = { [K in keyof FormValues]?: FormValues[K] | null }
 // Kształt renderowanego plakatu. `square` to format social i wszystkie
 // miniatury; `portrait`/`landscape` to proporcja papieru A (1:√2);
 // `cover`/`event` to banery Facebooka (okładka strony / wydarzenia).
-export type PosterShape = 'square' | 'portrait' | 'landscape' | 'cover' | 'event'
+export type PosterShape = 'square' | 'portrait' | 'landscape' | 'cover' | 'event' | 'story'
 // Zakładka wyboru szablonu: grafika social (i druk) albo szeroki baner.
 export type Medium = 'social' | 'banner'
 export type Orientation = 'portrait' | 'landscape'
@@ -140,6 +140,8 @@ export interface RegistryEntry {
   Banner: ComponentType<PosterProps>
   // Baner tego layoutu ma miejsce na zdjęcie - zakładka „Treść" banera (`FormBanner`) pokaże galerię.
   bannerPhoto?: boolean
+  // Layout ma własny wysoki układ Story (1080×1920) zamiast kwadratu na wysokim płótnie.
+  storyShape?: boolean
   // Layout tylko dla banerów (np. „Warsztat – bez zdjęcia"): ukryty w trybie
   // „Social media i druk"; przełączenie na ten tryb wybiera `fallbackKey`.
   bannerOnly?: { fallbackKey: string }

@@ -16,6 +16,8 @@ export interface DownloadOptions {
   formatKey: string
   orientation: Orientation
   fileType: FileType
+  // Kształt układu plakatu; `story` = wysoki układ rasteryzowany wprost do rozmiaru formatu.
+  shape?: PosterShape
 }
 
 // Piksel tuż przy rogu plakatu: jego kolor to tło plakatu, a jego alfa mówi,
@@ -146,8 +148,9 @@ async function canvasToPdfBlob(canvas: HTMLCanvasElement, paper: PaperSize, orie
   return new Blob([pdf], { type: 'application/pdf' })
 }
 
-// Baner: PNG z układu banera, rasteryzowany wprost do rozmiaru formatu.
-async function downloadBanner(node: HTMLElement, basename: string, shape: PosterShape, size: Size) {
+// Stały rozmiar (baner, wysokie Story): PNG z układu danego kształtu,
+// rasteryzowany wprost do rozmiaru formatu.
+async function downloadFixed(node: HTMLElement, basename: string, shape: PosterShape, size: Size) {
   const canvas = await rasterise(node, shape, size)
   saveBlob(await canvasToPngBlob(canvas), `${basename}.png`)
 }
@@ -178,7 +181,8 @@ export async function downloadPoster(node: HTMLElement, basename: string, opts: 
   const format = EXPORT_FORMATS[opts.formatKey] ?? EXPORT_FORMATS.square
   if (format.paper) return { dpi: await downloadPrint(node, basename, format.paper, opts) }
 
-  if (format.shape) await downloadBanner(node, basename, format.shape, format)
+  if (opts.shape === 'story') await downloadFixed(node, basename, 'story', format)
+  else if (format.shape) await downloadFixed(node, basename, format.shape, format)
   else await downloadSocial(node, basename, format)
   return {}
 }
