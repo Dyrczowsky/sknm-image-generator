@@ -18,6 +18,8 @@ export const colors = {
   limeText: '#232A66',
   coral: 'oklch(0.68 0.17 30)',
   gold: '#84754E',
+  // Jaśniejsze złoto na ciemnym tle (Ciekawostka); globalne `gold` zostaje bez zmian.
+  goldBright: '#C9A961',
   silver: '#C6C7CB',
   goldPanelText: '#F0EDE4',
   black: '#121212',

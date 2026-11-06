@@ -415,3 +415,38 @@ it('SCHEME_LABELS', () => {
   expect(SCHEME_LABELS.czernZolta).toBeUndefined()
   expect(SCHEME_LABELS.okazjonalnyZloty).toBe('Okazjonalny złoty')   // nadal dla Daty
 })
+
+describe('Ciekawostka', () => {
+  it('schematy i domyślny pierwszy', () => {
+    expect(schemesFor('ciekawostka')).toEqual(['okazjonalny', 'default', 'czern', 'szary'])
+  })
+  it('złoto na ciemnym tle jest jaśniejsze niż globalne', () => {
+    expect(resolveScheme('ciekawostka', 'okazjonalny').cssVars['--accent']).toBe(colors.goldBright)
+    expect(resolveScheme('ciekawostka', 'czern').cssVars['--accent']).toBe(colors.goldBright)
+    expect(resolveScheme('ciekawostka', 'okazjonalny').sygnet).toBe('zloty')
+    expect(resolveScheme('ciekawostka', 'okazjonalny', 'srebrny').cssVars['--accent']).toBe(colors.silver)
+    expect(colors.gold).toBe('#84754E')
+  })
+  it('osie akcentu', () => {
+    expect(accentsFor('ciekawostka', 'okazjonalny')).toEqual(['zloty', 'srebrny'])
+    expect(accentsFor('ciekawostka', 'default')).toEqual(['granatowy', 'pomaranczowy'])
+    expect(accentsFor('ciekawostka', 'szary')).toEqual([])
+    expect(defaultAccentFor('ciekawostka', 'czern')).toBe('zloty')
+  })
+  it('każda rola użyta w plakacie jest w bloku default', () => {
+    const vars = resolveScheme('ciekawostka', 'default').cssVars
+    for (const v of ['--page-bg', '--page-text', '--muted-text', '--accent', '--panel']) expect(vars[v as `--${string}`], v).toBeDefined()
+  })
+  it('„Domyślny” akcent nie zmienia wyglądu schematu', () => {
+    for (const name of schemesFor('ciekawostka')) {
+      const def = defaultAccentFor('ciekawostka', name)
+      if (!def) continue
+      expect(resolveScheme('ciekawostka', name), name).toEqual(resolveScheme('ciekawostka', name, def))
+    }
+  })
+  it('sygnet i tło sygnetu pasują do ciemnego tła', () => {
+    expect(resolveScheme('ciekawostka', 'czern').cssVars['--sygnet-bg']).toBe(colors.black)
+    expect(resolveScheme('ciekawostka', 'czern', 'pomaranczowy').sygnet).toBe('negatywny')
+    expect(resolveScheme('ciekawostka', 'default').sygnet).toBe('granat')
+  })
+})
