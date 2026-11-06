@@ -62,13 +62,24 @@ describe('Ciekawostka', () => {
     expect(render({ ciekawostkaLayout: 'panorama', year: '2001', body }, 'square')).not.toContain('2001')
   })
 
-  it('archiwum: w edycji pusty rok jest polem z podpowiedzią „Rok”', () => {
+  // Rok wpisuje się w formularzu - w edytorze pusty rok też nie ma podpowiedzi,
+  // więc podgląd wygląda jak eksport.
+  it('archiwum: w edycji rok tylko, gdy wpisany (bez podpowiedzi „Rok”)', () => {
     const editing = (data: RawPosterData) =>
       renderToStaticMarkup(h(PosterEditContext.Provider, { value: { editable: true, onText: () => {} } },
         h(PosterScaled, { size: 540, shape: 'square' }, h(posterRegistry.ciekawostka.Component, { data }))))
-    const html = editing({ ciekawostkaLayout: 'archiwum' })
-    expect(html).toContain('aria-label="Rok"')
-    expect(editing({ ciekawostkaLayout: 'zdjecie' })).not.toContain('aria-label="Rok"')
+    expect(editing({ ciekawostkaLayout: 'archiwum' })).not.toContain('aria-label="Rok"')
+    expect(editing({ ciekawostkaLayout: 'archiwum', year: '  ' })).not.toContain('aria-label="Rok"')
+    // Pole edycji wypełnia się po zamontowaniu - w markupie widać samo pole.
+    expect(editing({ ciekawostkaLayout: 'archiwum', year: '1999' })).toContain('aria-label="Rok"')
+    expect(editing({ ciekawostkaLayout: 'zdjecie', year: '1999' })).not.toContain('aria-label="Rok"')
+  })
+
+  // Zdjęcie w układzie A ustępuje miejsca tekstowi (do minimum), zanim opis
+  // zacznie się zmniejszać.
+  it('zdjecie: zdjęcie elastyczne z minimum (kwadrat 380, Story 700)', () => {
+    expect(render({}, 'square')).toMatch(/flex:1 1000 540px;min-height:380px/)
+    expect(render({}, 'story')).toMatch(/flex:1 1000 900px;min-height:700px/)
   })
 
   it('układy różnią się markupem', () => {

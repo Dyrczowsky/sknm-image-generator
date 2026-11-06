@@ -435,7 +435,10 @@ describe('Ciekawostka', () => {
   })
   it('każda rola użyta w plakacie jest w bloku default', () => {
     const vars = resolveScheme('ciekawostka', 'default').cssVars
-    for (const v of ['--page-bg', '--page-text', '--muted-text', '--accent', '--panel']) expect(vars[v as `--${string}`], v).toBeDefined()
+    for (const v of ['--page-bg', '--page-text', '--muted-text', '--accent']) expect(vars[v as `--${string}`], v).toBeDefined()
+  })
+  it('bez nieużywanej roli panel', () => {
+    for (const name of schemesFor('ciekawostka')) expect(resolveScheme('ciekawostka', name).cssVars['--panel'], name).toBeUndefined()
   })
   it('„Domyślny” akcent nie zmienia wyglądu schematu', () => {
     for (const name of schemesFor('ciekawostka')) {

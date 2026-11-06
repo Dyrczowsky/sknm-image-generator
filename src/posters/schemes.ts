@@ -116,21 +116,18 @@ const gosc: LayoutSchemes = {
                  logoVariant: 'dark', accents: ['zloty', 'srebrny'], defaultAccent: 'zloty' },
 }
 
-// Ciekawostka — „Czy wiesz, że…?”. `panel` to tło „odbitki”/pasów. Złoto na
-// ciemnym tle to `goldBright` (globalne `gold` jest za ciemne), liczy je
-// recepta razem z `accent` i sygnetem; bloki z osią nie wpisują tych ról, żeby
-// nie przeczyć recepcie. Pierwszy wpis (`okazjonalny`) = schemat domyślny w
+// Ciekawostka — „Czy wiesz, że…?”. Złoto na ciemnym tle to `goldBright`
+// (globalne `gold` jest za ciemne), liczy je recepta razem z `accent`
+// i sygnetem; bloki z osią nie wpisują tych ról, żeby nie przeczyć recepcie. Pierwszy wpis (`okazjonalny`) = schemat domyślny w
 // edytorze, ale blok bazowy to `default` (krem).
 const ciekawostka: LayoutSchemes = {
   okazjonalny: { pageBg: colors.ink, pageText: colors.goldPanelText, mutedText: colors.creamMuted,
-                 panel: colors.inkPanel, logoVariant: 'dark',
-                 accents: ['zloty', 'srebrny'], defaultAccent: 'zloty' },
+                 logoVariant: 'dark', accents: ['zloty', 'srebrny'], defaultAccent: 'zloty' },
   default: { pageBg: colors.cream, pageText: colors.ink, mutedText: colors.textMuted,
-             accent: colors.navy, panel: colors.paper, sygnet: 'granat', logoVariant: 'light',
+             accent: colors.navy, sygnet: 'granat', logoVariant: 'light',
              accents: ['granatowy', 'pomaranczowy'], defaultAccent: 'granatowy' },
   czern: { pageBg: colors.black, pageText: colors.cream, mutedText: colors.creamMuted,
-           panel: '#1E1E1E', logoVariant: 'dark',
-           accents: 'all', defaultAccent: 'zloty' },
+           logoVariant: 'dark', accents: 'all', defaultAccent: 'zloty' },
   szary: { pageBg: colors.paper, pageText: colors.slate, accent: colors.grayDark,
            sygnet: 'szary', logoVariant: 'light' },
 }
