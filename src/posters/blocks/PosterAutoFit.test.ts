@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { h, render } from '../../components/ui/testUtils'
-import { PosterAutoFit, posterFit } from './PosterAutoFit'
+import { PosterAutoFit } from './PosterAutoFit'
+import { posterFit } from './posterFit'
 
 describe('PosterAutoFit', () => {
   it('posterFit mnoży rozmiar przez --fit', () => {

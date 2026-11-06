@@ -3,11 +3,6 @@ import type { CSSProperties, ReactNode } from 'react'
 import { contentOverflows, findFitFactor } from '../../utils/fitFactor'
 import { usePosterEdit } from '../edit'
 
-// Rozmiar fontu, który zmniejsza PosterAutoFit: `fontSize: posterFit(30)`.
-export function posterFit(px: number): string {
-  return `calc(${px}px * var(--fit, 1))`
-}
-
 export interface PosterAutoFitProps {
   children: ReactNode
   // Pudełko o ograniczonej wysokości, np. `flex: 1, minHeight: 0`.
@@ -38,8 +33,11 @@ export function PosterAutoFit({ children, style, min = 0.7, notice }: PosterAuto
     }, min)
     el.style.setProperty('--fit', String(result.factor))
     state.current.size = `${el.clientWidth}x${el.clientHeight}`
-    state.current.overflowing = result.overflowing
-    onNotice?.(result.overflowing ? notice : null)
+    // Ostrzeżenie zgłaszamy tylko przy zmianie stanu (jak AutoFit w slajdach).
+    if (result.overflowing !== state.current.overflowing) {
+      state.current.overflowing = result.overflowing
+      onNotice?.(result.overflowing ? notice : null)
+    }
   }, [])
 
   // Po każdym renderze, przed malowaniem - bez mignięcia pełnego rozmiaru.
@@ -51,6 +49,7 @@ export function PosterAutoFit({ children, style, min = 0.7, notice }: PosterAuto
   useEffect(() => {
     const el = ref.current
     if (!el) return
+    measure()
     // Pisanie w polu tekstowym zmienia DOM bez renderu Reacta.
     const mutations = new MutationObserver(() => measure())
     mutations.observe(el, { characterData: true, childList: true, subtree: true })
@@ -63,14 +62,16 @@ export function PosterAutoFit({ children, style, min = 0.7, notice }: PosterAuto
     document.fonts?.ready.then(() => {
       if (alive) measure()
     })
+    const current = state.current
     return () => {
       alive = false
       mutations.disconnect()
       resize.disconnect()
+      // Przy odmontowaniu (i ponownym montowaniu) zdejmujemy ostrzeżenie.
+      current.overflowing = false
+      latest.current.onNotice?.(null)
     }
   }, [measure])
-
-  useEffect(() => () => onNotice?.(null), [onNotice])
 
   return (
     <div ref={ref} style={{ position: 'relative', minHeight: 0, overflow: 'hidden', ...style, ['--fit' as string]: 1 }}>
