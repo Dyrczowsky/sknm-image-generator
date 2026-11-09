@@ -80,7 +80,7 @@ function attachmentsSummary(form: FormValues): string {
     .filter(([, arr]) => arr.length > 0)
     .map(([name, arr]) => `${name} ×${arr.length}`)
   if (lists.length) parts.push(`listy: ${lists.join(', ')}`)
-  if (form.showPkLogo) parts.push('logo PK')
+  if (form.showPkLogo) parts.push({ pk: 'logo PK', wiim: 'logo PK + WIiM', kms: 'logo PK + KMS' }[form.pkLogo] ?? 'logo PK')
   return listOrDash(parts)
 }
 

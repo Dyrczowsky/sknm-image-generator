@@ -47,6 +47,7 @@ const FULL_FORM: FormValues = {
   visibility: { subtitle: false, badge2: false },
   graphics: [LOGO2, LOGO1],
   showPkLogo: false,
+  pkLogo: 'wiim',
   qrUrl: 'https://example.org/zapisy',
   qrSide: 'right',
   qrPlacement: 'inline',

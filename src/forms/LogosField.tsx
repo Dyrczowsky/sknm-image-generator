@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { ChangeEvent } from 'react'
-import type { FormProps } from '../types'
+import type { FormProps, PkLogoKind } from '../types'
 import { useAssetLibraryContext } from '../assets/AssetLibraryContext'
 import { importImage } from '../assets/assets'
 import { importErrorMessage } from '../assets/prepare'
@@ -9,16 +9,23 @@ import { FilePickerButton } from '../components/ImageUpload'
 import { LogoPicker } from '../components/LogoPicker'
 import { IMAGE_THUMB, IMAGE_THUMB_IMG, UI_ERROR, UI_HINT, UI_LABEL } from '../components/styles'
 import { Button, Icon, IconButton } from '../components/ui'
-import { addGraphics, moveGraphic, removeGraphic, setShowPkLogo } from '../editor/formState'
+import { addGraphics, moveGraphic, removeGraphic, setPkLogo, setShowPkLogo } from '../editor/formState'
 import { MAX_GRAPHICS } from '../posters/theme'
 import { IMAGE_ACCEPT } from '../utils/readAsDataUrl'
+import { Choice } from './Choice'
+
+const PK_LOGOS: { key: PkLogoKind; label: string }[] = [
+  { key: 'pk', label: 'Samo PK' },
+  { key: 'wiim', label: 'PK + Wydział (WIiM)' },
+  { key: 'kms', label: 'PK + Katedra Matematyki Stosowanej' },
+]
 
 // Logotypy w stopce plakatu: przełącznik logo PK + wgrywane grafiki (patroni,
 // wydziału itd.) z biblioteki lub z pliku. Na plakacie stoją w jednym rzędzie
 // od lewej: najpierw logo PK (jeśli włączone), potem grafiki w kolejności
 // z listy - strzałki przesuwają grafikę o jedno miejsce w lewo / w prawo.
 export function LogosField({ value, onChange }: FormProps) {
-  const { graphics, showPkLogo } = value
+  const { graphics, showPkLogo, pkLogo } = value
   const full = graphics.length >= MAX_GRAPHICS
   const library = useAssetLibraryContext()
   const [pickerOpen, setPickerOpen] = useState(false)
@@ -73,6 +80,7 @@ export function LogosField({ value, onChange }: FormProps) {
           onClick={() => onChange(setShowPkLogo(!showPkLogo))}
         />
       </div>
+      {showPkLogo && <Choice label="Wersja logo" options={PK_LOGOS} current={pkLogo} onPick={(kind) => onChange(setPkLogo(kind))} />}
 
       {graphics.length > 0 && (
         <>
