@@ -18,6 +18,8 @@ interface FooterLogosProps {
   // Rząd na całą szerokość stopki (spiętrzona stopka): grafiki od lewego do
   // prawego marginesu kadru, wolne miejsce równo między nimi.
   spread?: boolean
+  // Pole ochronne (domyślnie LOGO_CLEAR; w druku większe, patrz logoSizing).
+  clear?: number
 }
 
 // Logotypy w prawym dolnym rogu stopki, z kodem QR tuż przed nimi (gdy
@@ -33,7 +35,7 @@ interface FooterLogosProps {
 // rozpychało układu - QR pojawia się w miejscu, które i tak jest już puste.
 // `flexWrap: wrap` - nadmiar grafik (np. hurtowo wgrane logotypy patronów)
 // schodzi do kolejnego wiersza zamiast wychodzić poza kadr.
-export function FooterLogos({ qrUrl, slots, variant, logoHeight = LOGO_HEIGHT, qrSize = logoHeight, slotStyle, onRatio, spread = false }: FooterLogosProps) {
+export function FooterLogos({ qrUrl, slots, variant, logoHeight = LOGO_HEIGHT, qrSize = logoHeight, slotStyle, onRatio, spread = false, clear = LOGO_CLEAR }: FooterLogosProps) {
   return (
     <div
       style={{
@@ -42,21 +44,21 @@ export function FooterLogos({ qrUrl, slots, variant, logoHeight = LOGO_HEIGHT, q
         display: 'flex',
         flexWrap: 'wrap',
         justifyContent: spread ? 'space-between' : 'flex-end',
-        gap: LOGO_CLEAR,
+        gap: clear,
         // Logo i kod QR o różnej wysokości - wspólny środek (patrz PosterFooter).
         alignItems: 'center',
-        minHeight: Math.max(qrSize, logoHeight) + LOGO_CLEAR * 2,
-        marginRight: -LOGO_CLEAR,
+        minHeight: Math.max(qrSize, logoHeight) + clear * 2,
+        marginRight: -clear,
         // Jak z prawej: pole ochronne pierwszej grafiki wychodzi na margines kadru.
-        ...(spread && { marginLeft: -LOGO_CLEAR }),
+        ...(spread && { marginLeft: -clear }),
         // Pole ochronne wysunięte w pionie po równo: środek rzędu to środek
         // grafik, a najwyższa siada dokładnie na dolnym marginesie kadru.
-        marginTop: -LOGO_CLEAR,
-        marginBottom: -LOGO_CLEAR,
+        marginTop: -clear,
+        marginBottom: -clear,
       }}
     >
-      <QrSlot value={qrUrl} size={qrSize} />
-      <LogoSlots slots={slots} variant={variant} slotStyle={slotStyle} height={logoHeight} onRatio={onRatio} />
+      <QrSlot value={qrUrl} size={qrSize} clear={clear} />
+      <LogoSlots slots={slots} variant={variant} slotStyle={slotStyle} height={logoHeight} onRatio={onRatio} clear={clear} />
     </div>
   )
 }
