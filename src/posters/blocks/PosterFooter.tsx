@@ -1,8 +1,9 @@
 import { useCallback, useLayoutEffect, useRef, useState } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
 import { textInkHeight } from '../../utils/textInk'
+import { isPrintShape, usePosterShape } from '../shape'
 import { useElementSize } from '../../utils/useElementSize'
-import { LOGO_CLEAR, LOGO_HEIGHT, LOGO_MAX_HEIGHT, LOGO_SQUEEZE_HEIGHT, POSTER_QR } from '../theme'
+import { POSTER_QR, logoSizing } from '../theme'
 import type { QrSizing } from '../theme'
 import { FooterLogos } from './FooterLogos'
 import type { LogoSlotSource } from './LogoSlots'
@@ -49,7 +50,8 @@ interface PosterFooterProps {
 //
 // Rozmiar: treść lewego rogu jest mierzona na żywo i wyznacza wysokość
 // stopki. Logotypy mają tę wysokość w granicach LOGO_HEIGHT-LOGO_MAX_HEIGHT
-// (bez `matchLogo` - LOGO_HEIGHT), kod po lewej - w granicach `min`-`max`
+// (bez `matchLogo` - LOGO_HEIGHT; w druku obie ×PRINT_LOGO_SCALE, patrz
+// logoSizing - ale gdy brak miejsca, maleją najwyżej do LOGO_HEIGHT), kod po lewej - w granicach `min`-`max`
 // z `qrSizing`, kod przy logotypach - wysokość logo. Tekst, kod i logo
 // tworzą jeden równy pas. Bez pomiaru (render statyczny, brak treści) -
 // wartości minimalne. Logotypy rosną tylko tak, żeby wszystkie zmieściły się
@@ -68,6 +70,9 @@ interface PosterFooterProps {
 export function PosterFooter({
   qrUrl, qrSide, qrPlacement, qrSizing = POSTER_QR, matchLogo = true, stack = true, lead, slots, variant, slotStyle, gap = 24, rowStyle, logosStyle, style,
 }: PosterFooterProps) {
+  // W druku logotypy i ich pole ochronne są większe (patrz logoSizing).
+  const { shape } = usePosterShape()
+  const L = logoSizing(isPrintShape(shape))
   const hasQr = qrUrl.trim() !== ''
   const above = hasQr && qrPlacement === 'above'
   const qrInline = hasQr && !above
@@ -109,24 +114,24 @@ export function PosterFooter({
   const known = slots.map((_, i) => (ratios[i]?.src === srcKey(i) ? ratios[i].ratio : undefined))
   const leftQrSize = clamp(qrSizing.min, qrSizing.max)
 
-  // Czy logotypy w LOGO_HEIGHT mieszczą się obok treści (w układzie z wyboru użytkownika)?
+  // Czy logotypy w LOGO_HEIGHT mieszczą się obok treści (w układzie z wyboru
+  // użytkownika)? Także w druku liczone od rozmiaru ekranowego (`fitMin`):
+  // większe logo rośnie w wolne miejsce, ale nie piętrzy stopki częściej.
   const sideLeftQr = qrInline && qrSide === 'left'
   const leadWidth = (lead ? leadSize.width : 0) + (sideLeftQr ? leftQrSize + (lead ? gap : 0) : 0)
-  const sideNeed = logoRowWidth(LOGO_HEIGHT, known, qrInline && qrSide === 'right', LOGO_CLEAR)
+  const sideNeed = logoRowWidth(L.fitMin, known, qrInline && qrSide === 'right', L.clear)
   const stacked = stack && (lead !== undefined || sideLeftQr) && rowBox.width > 0 && sideNeed !== null && sideNeed > rowBox.width - leadWidth - gap
 
   const inlineLeft = qrInline && (qrSide === 'left' || stacked)
   const inlineRight = qrInline && !inlineLeft
-  const logoHeight = !matchLogo && stack
-    ? LOGO_HEIGHT
-    : fitLogoHeight({
-        wanted: matchLogo ? clamp(LOGO_HEIGHT, LOGO_MAX_HEIGHT) : LOGO_HEIGHT,
-        min: stack ? LOGO_HEIGHT : LOGO_SQUEEZE_HEIGHT,
-        avail: logosBox.width + (stacked ? LOGO_CLEAR : 0),
-        ratios: known,
-        qrInRow: inlineRight,
-        clear: LOGO_CLEAR,
-      })
+  const logoHeight = fitLogoHeight({
+    wanted: matchLogo ? clamp(L.height, L.max) : L.height,
+    min: stack ? L.fitMin : L.squeeze,
+    avail: logosBox.width + (stacked ? L.clear : 0),
+    ratios: known,
+    qrInRow: inlineRight,
+    clear: L.clear,
+  })
   const qrSize = inlineLeft || (above && qrSide === 'left') ? leftQrSize : logoHeight
 
   const row = (
@@ -152,8 +157,8 @@ export function PosterFooter({
             // Ujemne marginesy zjadają padding slotu: z lewej moduły na
             // krawędzi kadru, z góry i z dołu po równo (środek kodu = środek
             // rzędu), z prawej - odstęp do tekstu równy `gap`.
-            <div data-qr-inline="left" style={{ display: 'flex', margin: -LOGO_CLEAR }}>
-              <QrSlot value={qrUrl} size={qrSize} />
+            <div data-qr-inline="left" style={{ display: 'flex', margin: -L.clear }}>
+              <QrSlot value={qrUrl} size={qrSize} clear={L.clear} />
             </div>
           )}
           {lead && (
@@ -164,7 +169,7 @@ export function PosterFooter({
         </div>
       )}
       <div ref={logosRef} style={{ display: 'flex', flex: stacked ? '0 0 auto' : 1, minWidth: 0, ...logosStyle }}>
-        <FooterLogos qrUrl={inlineRight ? qrUrl : ''} logoHeight={logoHeight} onRatio={onRatio} spread={stacked} slots={slots} variant={variant} slotStyle={slotStyle} />
+        <FooterLogos qrUrl={inlineRight ? qrUrl : ''} logoHeight={logoHeight} onRatio={onRatio} spread={stacked} slots={slots} variant={variant} slotStyle={slotStyle} clear={L.clear} />
       </div>
     </div>
   )
@@ -177,10 +182,10 @@ export function PosterFooter({
         style={{
           display: 'flex',
           justifyContent: qrSide === 'left' ? 'flex-start' : 'flex-end',
-          margin: qrSide === 'left' ? `0 0 0 ${-LOGO_CLEAR}px` : `0 ${-LOGO_CLEAR}px 0 0`,
+          margin: qrSide === 'left' ? `0 0 0 ${-L.clear}px` : `0 ${-L.clear}px 0 0`,
         }}
       >
-        <QrSlot value={qrUrl} size={qrSize} />
+        <QrSlot value={qrUrl} size={qrSize} clear={L.clear} />
       </div>
       {row}
     </div>

@@ -34,6 +34,9 @@ export const PosterShapeContext = createContext<PosterShape>('square')
 
 // `kx`/`ky` = ile razy ramka jest szersza/wyższa od kwadratu — do skalowania
 // elementów o stałych wymiarach (kliny, zdjęcia).
+// Kształty druku (A4/A3/A2): żaden format social ich nie używa.
+export const isPrintShape = (shape: PosterShape): boolean => shape === 'portrait' || shape === 'landscape'
+
 export function usePosterShape() {
   const shape = useContext(PosterShapeContext)
   const { width, height } = SHAPE_SIZE[shape]

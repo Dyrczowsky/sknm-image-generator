@@ -18,16 +18,18 @@ interface LogoSlotsProps {
   // Proporcja szerokość/wysokość grafiki `i` po wczytaniu (PosterFooter
   // dobiera z nich wysokość, przy której rząd się nie zawija).
   onRatio?: (i: number, ratio: number) => void
+  // Pole ochronne wokół grafiki (domyślnie LOGO_CLEAR; w druku większe).
+  clear?: number
 }
 
 // Rząd grafik stopki. Każda renderuje się NA WYSOKOŚĆ (`height`), a jej
 // wrapper dokłada wokół pole ochronne (`LOGO_CLEAR`) - wgrywane pliki nie mają
 // własnego. Pusta tablica => brak dzieci.
-export function LogoSlots({ slots, variant = 'light', slotStyle, height = LOGO_HEIGHT, onRatio }: LogoSlotsProps) {
+export function LogoSlots({ slots, variant = 'light', slotStyle, height = LOGO_HEIGHT, onRatio, clear = LOGO_CLEAR }: LogoSlotsProps) {
   return (
     <>
       {slots.map((src, i) => (
-        <div key={i} style={{ padding: LOGO_CLEAR, display: 'flex', alignItems: 'center', flex: '0 0 auto', ...slotStyle }}>
+        <div key={i} style={{ padding: clear, display: 'flex', alignItems: 'center', flex: '0 0 auto', ...slotStyle }}>
           <img
             src={typeof src === 'string' ? src : 'pk' in src ? pkLogos[src.pk][variant] : sknmLogos[variant]}
             alt="Logo"

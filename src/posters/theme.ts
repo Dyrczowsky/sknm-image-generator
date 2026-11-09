@@ -105,11 +105,32 @@ export const LOGO_HEIGHT = 48
 export const LOGO_CLEAR = Math.round(LOGO_HEIGHT / 4)
 
 // Logo rośnie do wysokości treści stopki obok, najwyżej do tej wartości
-// (patrz PosterFooter); LOGO_HEIGHT to jego minimum.
+// (patrz PosterFooter); LOGO_HEIGHT to jego minimum. W druku ×PRINT_LOGO_SCALE.
 export const LOGO_MAX_HEIGHT = 72
 // Najmniejsza wysokość logo w stopce, która nie może się spiętrzyć (brak
 // miejsca w pionie) - zamiast spychać logotypy poza kadr, ściska je do tej wartości.
 export const LOGO_SQUEEZE_HEIGHT = 32
+
+// Druk (A4/A3/A2 - kształty `portrait`/`landscape`, których nie używa żaden
+// format social): logotypy ×1,5. Ten sam układ 1080 px daje na A3 logo
+// 48 px ≈ 13 mm - z napisem ok. 3 mm, nieczytelnym z kilku kroków; 72 px ≈ 20 mm.
+export const PRINT_LOGO_SCALE = 1.5
+
+// Rozmiary logotypów stopki w danym kształcie (wszystko w px układu).
+export interface LogoSizing {
+  height: number
+  // Najmniej, do ilu logo może zmaleć, żeby zmieścić rząd (w druku: rozmiar
+  // ekranowy - lepiej mniejsze logo w rogu niż rząd zawinięty w dwa).
+  fitMin: number
+  max: number
+  squeeze: number
+  clear: number
+}
+
+export function logoSizing(print: boolean): LogoSizing {
+  const k = print ? PRINT_LOGO_SCALE : 1
+  return { height: LOGO_HEIGHT * k, fitMin: LOGO_HEIGHT, max: LOGO_MAX_HEIGHT * k, squeeze: LOGO_SQUEEZE_HEIGHT * k, clear: Math.round(LOGO_CLEAR * k) }
+}
 
 // Ile grafik/logotypów mieści się w rzędzie stopki przy LOGO_HEIGHT.
 export const MAX_GRAPHICS = 4
