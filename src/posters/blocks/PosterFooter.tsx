@@ -18,7 +18,7 @@ interface PosterFooterProps {
   // Rozmiary kodu (plakat/baner), patrz `QrSizing`.
   qrSizing?: QrSizing
   // Logo na wysokość treści stopki (domyślnie). `false` przy wielkiej dacie
-  // w stopce (Gala, Wykład, Komunikat) - logo zostaje na LOGO_HEIGHT.
+  // w stopce (Wykład, Komunikat) - logo zostaje na LOGO_HEIGHT.
   matchLogo?: boolean
   // Czy stopka może się spiętrzyć (treść nad logotypami), gdy sponsorów jest
   // dużo. `false` w układach bez zapasu w pionie - logotypy maleją wtedy
