@@ -17,6 +17,7 @@ import { Choice } from './Choice'
 const PK_LOGOS: { key: PkLogoKind; label: string }[] = [
   { key: 'pk', label: 'Samo PK' },
   { key: 'wiim', label: 'PK + Wydział (WIiM)' },
+  { key: 'kms', label: 'PK + Katedra Matematyki Stosowanej' },
 ]
 
 // Logotypy w stopce plakatu: przełącznik logo PK + wgrywane grafiki (patroni,

@@ -22,14 +22,15 @@ describe('sygnetByName', () => {
 })
 
 describe('logo PK: samo / z wydziałem', () => {
-  it('cztery różne pliki (PK, PK + WIiM) × (jasne, ciemne tło)', () => {
-    const files = [pkLogos.pk.light, pkLogos.pk.dark, pkLogos.wiim.light, pkLogos.wiim.dark]
-    expect(new Set(files).size).toBe(4)
+  it('sześć różnych plików (PK, + WIiM, + KMS) × (jasne, ciemne tło)', () => {
+    const files = Object.values(pkLogos).flatMap((v) => [v.light, v.dark])
+    expect(new Set(files).size).toBe(6)
   })
 
   it('stopka dostaje wybrane logo PK przed grafikami; nieznana wartość = samo PK', () => {
     expect(withPlaceholders({ graphics: ['g1'] }).logoSlots).toEqual([{ pk: 'pk' }, 'g1'])
     expect(withPlaceholders({ pkLogo: 'wiim', graphics: ['g1'] }).logoSlots).toEqual([{ pk: 'wiim' }, 'g1'])
+    expect(withPlaceholders({ pkLogo: 'kms' }).logoSlots).toEqual([{ pk: 'kms' }])
     expect(withPlaceholders({ pkLogo: 'x' as never }).logoSlots).toEqual([{ pk: 'pk' }])
     expect(withPlaceholders({ pkLogo: 'wiim', showPkLogo: false, graphics: ['g1'] }).logoSlots).toEqual(['g1'])
   })

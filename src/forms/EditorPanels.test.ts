@@ -161,6 +161,7 @@ describe('LookPanel (Wygląd)', () => {
     expect(on).toContain('aria-label="Wersja logo"')
     expect(on).toMatch(/<button[^>]*aria-pressed="true"[^>]*>PK \+ Wydział \(WIiM\)/)
     expect(on).toMatch(/<button[^>]*aria-pressed="false"[^>]*>Samo PK/)
+    expect(on).toMatch(/<button[^>]*aria-pressed="false"[^>]*>PK \+ Katedra Matematyki Stosowanej/)
     expect(look('wyklad', form({ showPkLogo: false }))).not.toContain('Wersja logo')
   })
 

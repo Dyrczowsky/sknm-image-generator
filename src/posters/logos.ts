@@ -17,14 +17,18 @@ export const sygnetByName: Record<SygnetName, string> = {
   srebrny: sygnetSrebrny,
 }
 
-// Logo Politechniki Krakowskiej w stopce - samo PK albo PK z Wydziałem
-// Informatyki i Matematyki (wybór w „Wyglądzie"), w wariancie pod tło plakatu.
+// Logo Politechniki Krakowskiej w stopce - samo PK, PK z Wydziałem Informatyki
+// i Matematyki albo dodatkowo z Katedrą Matematyki Stosowanej (wybór
+// w „Wyglądzie"), w wariancie pod tło plakatu.
 import pkLight from '../assets/brand/pk/PK_POZIOM.svg'
 import pkDark from '../assets/brand/pk/PK_POZIOM_inwersyjne.svg'
-import wiimLight from '../assets/brand/pk/PK_WIiM_F-1_RGB.svg'
-import wiimDark from '../assets/brand/pk/PK_WIiM_F-1_biale.svg'
+import wiimLight from '../assets/brand/pk/PK_WIiM_RGB.svg'
+import wiimDark from '../assets/brand/pk/PK_WIiM_inwersyjne.svg'
+import kmsLight from '../assets/brand/pk/PK_WIiM_KMS_RGB.svg'
+import kmsDark from '../assets/brand/pk/PK_WIiM_KMS_biale.svg'
 
 export const pkLogos: Record<PkLogoKind, Record<LogoVariant, string>> = {
   pk: { light: pkLight, dark: pkDark },
   wiim: { light: wiimLight, dark: wiimDark },
+  kms: { light: kmsLight, dark: kmsDark },
 }
