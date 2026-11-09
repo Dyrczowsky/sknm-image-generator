@@ -309,3 +309,27 @@ sprawdź też eksport A4 w pionie i poziomie (PNG i PDF).
 
 Baner obejrzyj pod `/poster/<klucz>?shape=cover` i `?shape=event`, a w
 kreatorze po wybraniu rodzaju grafiki „Baner" (oba formaty Facebooka, długi tytuł, kod QR).
+
+## 8. Opcjonalnie: wysoki Story i długi opis
+
+**Własny układ Story (`storyShape`).** Domyślnie format Story (1080×1920)
+rysuje kwadrat z dostawką tła. Jeśli szablon ma mieć prawdziwie wysoki
+układ, ustaw w rejestrze flagę `storyShape: true` (patrz `ciekawostka`).
+Wtedy `shapeFor` zwraca dla Story kształt `'story'` (`SHAPE_SIZE.story` =
+1080×1920), a eksport rasteryzuje węzeł wprost 1080×1920 (`downloadFixed`
+w `src/posters/export.ts`). Komponent wykrywa to przez
+`usePosterShape().shape === 'story'`. Podgląd: `/poster/<klucz>?shape=story`.
+
+Strefy bezpieczne Story (interfejs Instagrama/Facebooka zasłania krawędzie):
+nic ważnego w górnych **250 px** i dolnych **340 px** — zostaw tam tylko tło
+i dekorację (w `ciekawostka`: `padding: 250px 72px 340px`).
+
+**Długi tekst (`PosterAutoFit` + `posterFit`).** Gdy pole tekstowe ma się
+zmieścić w pudełku o ograniczonej wysokości, owiń je w `PosterAutoFit`
+(`src/posters/blocks/PosterAutoFit.tsx`) i podaj rozmiar fontu przez
+`posterFit(px)` (`src/posters/blocks/posterFit.ts`), np.
+`fontSize: posterFit(30 * textScale)`. Pudełko zmniejsza font (zmienna
+`--fit`), aż tekst się zmieści, nie niżej niż `min` (np. `0.75`); gdy nadal
+się nie mieści, zgłasza `notice` przez `PosterEdit.onNotice` (ostrzeżenie pod
+podglądem, poza plikiem PNG), a nadmiar jest ucinany, żeby nie wchodził na
+stopkę. Pudełko ustaw np. `style={{ flex: 1, minHeight: 0 }}`.

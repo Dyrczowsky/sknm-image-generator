@@ -116,6 +116,22 @@ const gosc: LayoutSchemes = {
                  logoVariant: 'dark', accents: ['zloty', 'srebrny'], defaultAccent: 'zloty' },
 }
 
+// Ciekawostka — „Czy wiesz, że…?”. Złoto na ciemnym tle to `goldBright`
+// (globalne `gold` jest za ciemne), liczy je recepta razem z `accent`
+// i sygnetem; bloki z osią nie wpisują tych ról, żeby nie przeczyć recepcie. Pierwszy wpis (`okazjonalny`) = schemat domyślny w
+// edytorze, ale blok bazowy to `default` (krem).
+const ciekawostka: LayoutSchemes = {
+  okazjonalny: { pageBg: colors.ink, pageText: colors.goldPanelText, mutedText: colors.creamMuted,
+                 logoVariant: 'dark', accents: ['zloty', 'srebrny'], defaultAccent: 'zloty' },
+  default: { pageBg: colors.cream, pageText: colors.ink, mutedText: colors.textMuted,
+             accent: colors.navy, sygnet: 'granat', logoVariant: 'light',
+             accents: ['granatowy', 'pomaranczowy'], defaultAccent: 'granatowy' },
+  czern: { pageBg: colors.black, pageText: colors.cream, mutedText: colors.creamMuted,
+           logoVariant: 'dark', accents: 'all', defaultAccent: 'zloty' },
+  szary: { pageBg: colors.paper, pageText: colors.slate, accent: colors.grayDark,
+           sygnet: 'szary', logoVariant: 'light' },
+}
+
 // Data — liczba jako grafika. Etykieta miesiąca to rola `monthColor` (koral
 // domyślnie; złoto/srebro w wariantach okazjonalnych). Trzy dekoracyjne
 // trójkąty na dole to role `tri1`/`tri2`/`tri3` — w wariantach okazjonalnych
@@ -422,6 +438,18 @@ const accentRecipes: Record<string, AccentRecipe | undefined> = {
     sygnet: isMetal(accent) ? accent : 'negatywny',
   }),
 
+  // Złoto na ciemnym tle to `goldBright`. Metal: sygnet w wariancie metalu na
+  // ciemnym tle strony (`sygnetBg`), żeby nie leżał na złotym trójkącie.
+  // Nie-metal na ciemnym tle: sygnet negatywny; na jasnym zostaje z bloku.
+  ciekawostka: (accent, ctx) => {
+    const dark = isDarkBg(ctx.pageBg)
+    if (isMetal(accent)) {
+      const fill = accent === 'zloty' && dark ? colors.goldBright : accentColor(accent, ctx)
+      return { accent: fill, sygnetBg: dark ? ctx.pageBg : colors.ink, ...accentSygnet(accent) }
+    }
+    return { accent: accentColor(accent, ctx), ...(dark ? { sygnet: 'negatywny' as const } : {}) }
+  },
+
   // „Data" nie ma osi akcentu - złoto/srebro to u niej osobne schematy.
   data: undefined,
 }
@@ -486,7 +514,7 @@ export const ACCENT_DOT: Record<AccentName, string> = {
 }
 
 // `warsztatBezZdjecia` to wariant banera Warsztatu - dzieli z nim schematy.
-export const schemes: Record<string, LayoutSchemes> = { ogloszenie, gala, gosc, data, wyklad, konferencja, rekrutacja, warsztat, warsztatBezZdjecia: warsztat, komunikat }
+export const schemes: Record<string, LayoutSchemes> = { ogloszenie, gala, gosc, data, wyklad, konferencja, rekrutacja, warsztat, warsztatBezZdjecia: warsztat, komunikat, ciekawostka }
 
 // camelCase → --kebab; layout może dodać dowolną rolę bez zmiany resolvera.
 const roleToVar = (role: string): `--${string}` => `--${role.replace(/[A-Z]/g, (upper) => `-${upper.toLowerCase()}`)}`

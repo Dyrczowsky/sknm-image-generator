@@ -33,7 +33,7 @@ describe('formFromRow', () => {
 
   it('textFieldsOf pomija kolumny spoza pól tekstowych', () => {
     const row = { title: 'T', id: 7, color_scheme: 'czern' } as Parameters<typeof textFieldsOf>[0]
-    expect(textFieldsOf(row)).toEqual({ title: 'T', subtitle: '', speaker: '', event_date: '', event_time: '', location: '', badge: '', badge2: '', body: '', bannerTitle: '' })
+    expect(textFieldsOf(row)).toEqual({ title: 'T', subtitle: '', speaker: '', event_date: '', event_time: '', location: '', badge: '', badge2: '', body: '', year: '', bannerTitle: '' })
   })
 })
 

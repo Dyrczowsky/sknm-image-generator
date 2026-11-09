@@ -42,6 +42,7 @@ export const DEFAULT_BADGE = {
   rekrutacja: { pl: 'SPOTKANIE ORGANIZACYJNE', en: 'KICK-OFF MEETING' },
   gala: { pl: 'GALA SKNM', en: 'SKNM GALA' },
   komunikat: { pl: 'KOMUNIKAT', en: 'ANNOUNCEMENT' },
+  ciekawostka: { pl: 'CZY WIESZ, ŻE…', en: 'DID YOU KNOW…' },
 } satisfies Record<string, Localized<string>>
 
 export const FREE_ENTRY: Localized<string> = {

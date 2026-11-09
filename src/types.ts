@@ -10,6 +10,8 @@ export type ListItem = Record<string, string>
 // nowe pole formularza musi tam zostać obsłużone.
 export const FORM_TEXT_FIELDS = [
   'title', 'subtitle', 'speaker', 'event_date', 'event_time', 'location', 'badge', 'badge2', 'body',
+  // Ciekawostka: rok wydarzenia (np. "2001"), duży akcent na plakacie.
+  'year',
   // Duży tekst banera (pusty = nazwa koła); osobny od tytułu plakatu.
   'bannerTitle',
 ] as const
@@ -23,6 +25,9 @@ export type FieldVisibility = Partial<Record<FormTextField, boolean>>
 export type QrSide = 'left' | 'right'
 // Kod QR w rzędzie stopki albo we własnym wierszu nad nią (tylko plakaty).
 export type QrPlacement = 'inline' | 'above'
+
+// Ciekawostka: układ plakatu - ze zdjęciem, panorama albo archiwum.
+export type CiekawostkaLayout = 'zdjecie' | 'panorama' | 'archiwum'
 
 export interface FormValues extends Record<FormTextField, string> {
   // `body` to dłuższy akapit treści (np. szablon „Komunikat rozszerzony").
@@ -51,6 +56,8 @@ export interface FormValues extends Record<FormTextField, string> {
   fillAgenda: boolean
   // Gala, Data: opis na całą szerokość plakatu zamiast wąskiej kolumny.
   wideSubtitle: boolean
+  // Ciekawostka: wybrany układ plakatu.
+  ciekawostkaLayout: CiekawostkaLayout
   // Baner: linia z datą, godziną i miejscem (wartości wspólne z plakatem).
   bannerShowEvent: boolean
 }
@@ -125,7 +132,7 @@ export type RawPosterData = { [K in keyof FormValues]?: FormValues[K] | null }
 // Kształt renderowanego plakatu. `square` to format social i wszystkie
 // miniatury; `portrait`/`landscape` to proporcja papieru A (1:√2);
 // `cover`/`event` to banery Facebooka (okładka strony / wydarzenia).
-export type PosterShape = 'square' | 'portrait' | 'landscape' | 'cover' | 'event'
+export type PosterShape = 'square' | 'portrait' | 'landscape' | 'cover' | 'event' | 'story'
 // Zakładka wyboru szablonu: grafika social (i druk) albo szeroki baner.
 export type Medium = 'social' | 'banner'
 export type Orientation = 'portrait' | 'landscape'
@@ -145,6 +152,8 @@ export interface RegistryEntry {
   Banner: ComponentType<PosterProps>
   // Baner tego layoutu ma miejsce na zdjęcie - zakładka „Treść" banera (`FormBanner`) pokaże galerię.
   bannerPhoto?: boolean
+  // Layout ma własny wysoki układ Story (1080×1920) zamiast kwadratu na wysokim płótnie.
+  storyShape?: boolean
   // Layout tylko dla banerów (np. „Warsztat – bez zdjęcia"): ukryty w trybie
   // „Social media i druk"; przełączenie na ten tryb wybiera `fallbackKey`.
   bannerOnly?: { fallbackKey: string }

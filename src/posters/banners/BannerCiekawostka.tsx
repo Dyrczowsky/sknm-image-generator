@@ -1,0 +1,65 @@
+import type { PosterProps } from '../../types'
+import { CLUB_NAME, DEFAULT_BADGE, SITE_URL } from '../copy'
+import { withPlaceholders } from '../fallback'
+import { PosterText } from '../blocks/PosterText'
+import { resolveScheme } from '../schemes'
+import { BANNER_PAD, useBannerLayout } from '../shape'
+import { Badge } from '../blocks/Badge'
+import { PosterFrame } from '../blocks/PosterFrame'
+import { Sygnet } from '../blocks/Sygnet'
+import { PhotoGallery } from '../PhotoGallery'
+import { BANNER_SYGNET_W, BannerFooter, NAME_TRACKING, BannerEventLine } from './common'
+import { fontMono, leading } from '../theme'
+
+// Szerokość zdjęcia wewnątrz bezpiecznej kolumny; na okładce strony zdjęcie
+// dodatkowo wychodzi na lewy margines aż do krawędzi (razem ok. 40% banera).
+const PHOTO_W = 420
+
+// CIEKAWOSTKA (baner) — zdjęcie na całą wysokość po lewej, po prawej etykieta
+// „Czy wiesz, że…” z trójkątem, tekst banera (domyślnie nazwa koła) i stopka.
+// Bez opisu. Baner nie niesie pól plakatu, więc etykieta to stały tekst.
+export function BannerCiekawostka({ data, scheme, accent, lang = 'pl' }: PosterProps) {
+  const { raw, logoSlots, qrUrl, qrSide, photos, titleScale } = withPlaceholders(data)
+  const { cssVars, sygnet, logoVariant } = resolveScheme('ciekawostka', scheme, accent)
+  const { padX, padY, height } = useBannerLayout()
+
+  // Trójkąt z sygnetem rośnie razem z marginesem, żeby sygnet został
+  // w bezpiecznej kolumnie, a nie w przycinanym rogu. Tło trójkąta jak na
+  // plakacie: kolor strony, do którego schemat dobiera sygnet.
+  const bleed = padX - BANNER_PAD
+  const triW = 300 + bleed
+  const triH = Math.min(height, Math.round(300 + bleed * 1.45))
+
+  return (
+    <PosterFrame vars={cssVars} style={{ flexDirection: 'row' }}>
+      <PhotoGallery
+        photos={photos.photo}
+        label={<>zdjęcie</>}
+        style={{ width: bleed + PHOTO_W + BANNER_PAD, height: '100%', flex: '0 0 auto' }}
+        placeholderStyle={{ paddingLeft: bleed }}
+        labelStyle={{ fontSize: 18 }}
+      >
+        <div style={{ position: 'absolute', top: 0, left: 0, width: triW, height: triH, background: 'var(--sygnet-bg, var(--page-bg))', clipPath: 'polygon(0 0,100% 0,0 100%)', display: 'flex', alignItems: 'flex-start', padding: `${padY}px 0 0 ${padX}px`, boxSizing: 'border-box' }}>
+          <Sygnet name={sygnet} width={BANNER_SYGNET_W} />
+        </div>
+      </PhotoGallery>
+
+      <div style={{ flex: 1, minWidth: 0, padding: `${padY}px ${padX}px ${padY}px ${BANNER_PAD}px`, boxSizing: 'border-box', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, paddingTop: 6 }}>
+          <div style={{ width: 18, height: 15, flex: '0 0 auto', background: 'var(--accent)', clipPath: 'polygon(0 0,100% 0,50% 100%)' }} />
+          <Badge color="var(--accent)" style={{ fontSize: 18 }}>{DEFAULT_BADGE.ciekawostka[lang]}</Badge>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <PosterText path="bannerTitle" value={raw.bannerTitle} fallback={CLUB_NAME[lang]} multiline label="Tekst banera" style={{ fontSize: 54 * titleScale, lineHeight: leading(1, titleScale), fontWeight: 800, letterSpacing: NAME_TRACKING, fontKerning: 'none', textWrap: 'balance' }} />
+          <BannerEventLine data={data} lang={lang} />
+        </div>
+
+        <BannerFooter
+          qrUrl={qrUrl} qrSide={qrSide} slots={logoSlots} variant={logoVariant}
+          lead={<div style={{ font: `700 18px ${fontMono}`, letterSpacing: '.12em', color: 'var(--accent)', paddingBottom: 6 }}>{SITE_URL}</div>}
+        />
+      </div>
+    </PosterFrame>
+  )
+}

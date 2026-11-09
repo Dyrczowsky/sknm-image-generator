@@ -20,6 +20,14 @@ const paper = (key: string) => {
 }
 
 describe('formaty eksportu', () => {
+  it('story: wysoki kształt tylko dla layoutów z własnym układem Story', () => {
+    expect(shapeFor('story', 'portrait')).toBe('square')
+    expect(shapeFor('story', 'portrait', true)).toBe('story')
+    expect(shapeFor('square', 'portrait', true)).toBe('square')
+    expect(shapeFor('a4', 'landscape', true)).toBe('landscape')
+    expect(SHAPE_SIZE.story).toEqual({ width: EXPORT_FORMATS.story.width, height: EXPORT_FORMATS.story.height })
+  })
+
   it('klucze i kolejność: social, papier, potem banery', () => {
     expect(Object.keys(EXPORT_FORMATS)).toEqual(['square', 'story', 'a4', 'a3', 'a2', 'fbCover', 'fbEvent'])
   })

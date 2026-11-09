@@ -21,6 +21,9 @@ export const PLACEHOLDERS = {
   speaker: 'dr Marcin Skrzyński',
   location: 'sala 304/12',
   body: 'Tu wpisujesz pełną treść komunikatu — szczegóły wydarzenia, zasady, podziękowania albo informację, której nie da się zmieścić w jednej linijce tytułu. Akapit sam przełamuje się do kolejnych wierszy.',
+  // Ciekawostka („Czy wiesz, że…?”): przykładowe pytanie i akapit historii.
+  ciekawostkaTitle: 'SKNM powstało z inicjatywy studentów?',
+  ciekawostkaBody: 'W związku z nieustannie rosnącym zapotrzebowaniem, w grudniu 2001 roku pojawiła się studencka inicjatywa utworzenia koła naukowego matematyków. Inicjatorami koła byli X, Y, Z przy pomocy prof. XXXX, który został także jej pierwszym opiekunem.',
   get event_date() {
     return todayIso()
   },
