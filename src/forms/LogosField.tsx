@@ -9,7 +9,7 @@ import { FilePickerButton } from '../components/ImageUpload'
 import { LogoPicker } from '../components/LogoPicker'
 import { IMAGE_THUMB, IMAGE_THUMB_IMG, UI_ERROR, UI_HINT, UI_LABEL } from '../components/styles'
 import { Button, Icon, IconButton } from '../components/ui'
-import { addGraphics, moveGraphic, removeGraphic, setPkLogo, setShowPkLogo } from '../editor/formState'
+import { addGraphics, moveGraphic, removeGraphic, setPkLogo, setShowPkLogo, setShowSknmLogo } from '../editor/formState'
 import { MAX_GRAPHICS } from '../posters/theme'
 import { IMAGE_ACCEPT } from '../utils/readAsDataUrl'
 import { Choice } from './Choice'
@@ -22,10 +22,10 @@ const PK_LOGOS: { key: PkLogoKind; label: string }[] = [
 
 // Logotypy w stopce plakatu: przełącznik logo PK + wgrywane grafiki (patroni,
 // wydziału itd.) z biblioteki lub z pliku. Na plakacie stoją w jednym rzędzie
-// od lewej: najpierw logo PK (jeśli włączone), potem grafiki w kolejności
+// od lewej: najpierw logo PK i logo SKNM (jeśli włączone), potem grafiki w kolejności
 // z listy - strzałki przesuwają grafikę o jedno miejsce w lewo / w prawo.
 export function LogosField({ value, onChange }: FormProps) {
-  const { graphics, showPkLogo, pkLogo } = value
+  const { graphics, showPkLogo, pkLogo, showSknmLogo } = value
   const full = graphics.length >= MAX_GRAPHICS
   const library = useAssetLibraryContext()
   const [pickerOpen, setPickerOpen] = useState(false)
@@ -82,9 +82,20 @@ export function LogosField({ value, onChange }: FormProps) {
       </div>
       {showPkLogo && <Choice label="Wersja logo" options={PK_LOGOS} current={pkLogo} onPick={(kind) => onChange(setPkLogo(kind))} />}
 
+      <div className="flex items-center justify-between gap-2">
+        <span className={UI_LABEL}>Logo SKNM</span>
+        <IconButton
+          icon={showSknmLogo ? 'eye' : 'eyeOff'}
+          label="Pokaż na plakacie: logo SKNM"
+          aria-pressed={showSknmLogo}
+          className="-my-2"
+          onClick={() => onChange(setShowSknmLogo(!showSknmLogo))}
+        />
+      </div>
+
       {graphics.length > 0 && (
         <>
-          <p className={UI_HINT}>Kolejność w stopce plakatu, od lewej{showPkLogo ? ' (po logo PK)' : ''}.</p>
+          <p className={UI_HINT}>Kolejność w stopce plakatu, od lewej{showPkLogo || showSknmLogo ? ` (po logo ${[showPkLogo && 'PK', showSknmLogo && 'SKNM'].filter(Boolean).join(' i ')})` : ''}.</p>
           <ul className="m-0 flex list-none flex-col gap-2 p-0">
             {graphics.map((src, i) => (
               <li key={i} className="flex items-center gap-1.5">

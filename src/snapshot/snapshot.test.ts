@@ -48,6 +48,7 @@ const FULL_FORM: FormValues = {
   graphics: [LOGO2, LOGO1],
   showPkLogo: false,
   pkLogo: 'wiim',
+  showSknmLogo: true,
   qrUrl: 'https://example.org/zapisy',
   qrSide: 'right',
   qrPlacement: 'inline',

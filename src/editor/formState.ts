@@ -24,6 +24,7 @@ export const EMPTY_FORM: FormValues = {
   graphics: [],
   showPkLogo: true,
   pkLogo: 'pk',
+  showSknmLogo: false,
   qrUrl: '',
   qrSide: 'left',
   qrPlacement: 'above',
@@ -94,6 +95,7 @@ export const moveGraphic = (index: number, direction: -1 | 1): FormUpdate => (fo
 }
 
 export const setShowPkLogo = (showPkLogo: boolean): FormUpdate => (form) => ({ ...form, showPkLogo })
+export const setShowSknmLogo = (showSknmLogo: boolean): FormUpdate => (form) => ({ ...form, showSknmLogo })
 export const setPkLogo = (pkLogo: PkLogoKind): FormUpdate => (form) => ({ ...form, pkLogo })
 export const setFillAgenda = (fillAgenda: boolean): FormUpdate => (form) => ({ ...form, fillAgenda })
 

@@ -204,6 +204,7 @@ function parseForm(raw: unknown): SnapshotForm {
     visibility: parseVisibility(source.visibility),
     graphics: parseGraphics(source.graphics),
     showPkLogo: flagOr(source.showPkLogo, EMPTY_FORM.showPkLogo),
+    showSknmLogo: flagOr(source.showSknmLogo, EMPTY_FORM.showSknmLogo),
     pkLogo: source.pkLogo === 'wiim' || source.pkLogo === 'kms' ? source.pkLogo : EMPTY_FORM.pkLogo,
     qrUrl: textOr(source.qrUrl, EMPTY_FORM.qrUrl),
     qrSide: source.qrSide === 'right' ? 'right' : 'left',
