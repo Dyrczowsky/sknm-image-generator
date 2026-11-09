@@ -41,7 +41,7 @@ function normalize(part: RawPart): InfoLinePart {
 const hasText = (field: InfoLineField) => toPlain(field.value ?? '') !== '' || Boolean(field.fallback)
 
 const Text = ({ field, style }: { field: InfoLineField; style?: CSSProperties }) => (
-  <PosterText as="span" style={field.multiline ? { whiteSpace: 'pre-line', ...style } : style} inline {...field} />
+  <PosterText as="span" style={style} inline {...field} />
 )
 
 // Łączy część danych (np. godzinę i lokalizację) wspólnym separatorem,

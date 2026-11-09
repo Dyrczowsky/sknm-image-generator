@@ -66,7 +66,8 @@ export function PosterGala({ data, scheme, accent, lang = 'pl' }: PosterProps) {
                 { text: event_time, hidden: hidden('event_time') },
                 { field: { path: 'location', value: raw.location, multiline: true, fallback: PLACEHOLDERS.location, label: 'Lokalizacja' }, hidden: hidden('location') },
               ]}
-              style={{ whiteSpace: 'nowrap' }}
+              // `pre`: Enter w lokalizacji łamie wiersz, ale nic się nie zawija samo.
+              style={{ whiteSpace: 'pre' }}
             />
           </div>
         }

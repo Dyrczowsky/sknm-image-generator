@@ -18,4 +18,9 @@ describe('ręczne łamanie wierszy', () => {
     const html = renderToStaticMarkup(createElement(posterRegistry.wyklad.Component, { data: { subtitle: 'Linia 1\nLinia 2' } }))
     expect(html).toMatch(/white-space:pre"[^>]*>Linia 1\nLinia 2/)
   })
+
+  it('Gala: lokalizacja z Enterem łamie się, ale bez zawijania (#51)', () => {
+    const html = renderToStaticMarkup(createElement(posterRegistry.gala.Component, { data: { location: 'Działownia,\nsala 1/15' } }))
+    expect(html).toMatch(/white-space:pre"[^>]*>.*Działownia,\nsala 1\/15/s)
+  })
 })
