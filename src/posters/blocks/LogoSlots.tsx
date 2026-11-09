@@ -1,10 +1,11 @@
 import type { CSSProperties } from 'react'
-import { pkLogoDark, pkLogoLight } from '../logos'
+import { pkLogos } from '../logos'
 import { LOGO_CLEAR, LOGO_HEIGHT } from '../theme'
-import type { LogoVariant } from '../../types'
+import type { LogoVariant, PkLogoKind } from '../../types'
 
-// Pozycja w stopce: `null` = domyślne logo PK, string = data URL wgranej grafiki.
-export type LogoSlotSource = string | null
+// Pozycja w stopce: `{ pk }` = logo PK (samo / z wydziałem), string = data URL
+// wgranej grafiki.
+export type LogoSlotSource = string | { pk: PkLogoKind }
 
 interface LogoSlotsProps {
   // Kolejność = kolejność wyświetlania.
@@ -23,13 +24,12 @@ interface LogoSlotsProps {
 // wrapper dokłada wokół pole ochronne (`LOGO_CLEAR`) - wgrywane pliki nie mają
 // własnego. Pusta tablica => brak dzieci.
 export function LogoSlots({ slots, variant = 'light', slotStyle, height = LOGO_HEIGHT, onRatio }: LogoSlotsProps) {
-  const pkLogo = variant === 'dark' ? pkLogoDark : pkLogoLight
   return (
     <>
       {slots.map((src, i) => (
         <div key={i} style={{ padding: LOGO_CLEAR, display: 'flex', alignItems: 'center', flex: '0 0 auto', ...slotStyle }}>
           <img
-            src={src ?? pkLogo}
+            src={typeof src === 'string' ? src : pkLogos[src.pk][variant]}
             alt="Logo"
             style={{ height, width: 'auto', display: 'block' }}
             // Proporcja z wymiarów na stronie, nie `naturalWidth` - SVG bez

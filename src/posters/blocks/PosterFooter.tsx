@@ -95,7 +95,10 @@ export function PosterFooter({
   // Proporcje grafik po wczytaniu, z adresem - zmiana grafiki na tej pozycji
   // unieważnia starą proporcję.
   const [ratios, setRatios] = useState<{ src: string; ratio: number }[]>([])
-  const srcKey = (i: number) => slots[i] ?? 'pk'
+  const srcKey = (i: number) => {
+    const slot = slots[i]
+    return typeof slot === 'string' ? slot : `pk:${slot.pk}`
+  }
   const onRatio = (i: number, ratio: number) =>
     setRatios((prev) => {
       if (prev[i]?.src === srcKey(i) && Math.abs(prev[i].ratio - ratio) < 0.01) return prev
