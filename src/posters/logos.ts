@@ -26,9 +26,15 @@ import wiimLight from '../assets/brand/pk/PK_WIiM_RGB.svg'
 import wiimDark from '../assets/brand/pk/PK_WIiM_inwersyjne.svg'
 import kmsLight from '../assets/brand/pk/PK_WIiM_KMS_RGB.svg'
 import kmsDark from '../assets/brand/pk/PK_WIiM_KMS_biale.svg'
+import sknmLight from '../assets/brand/sknm/logo_granat.svg'
+import sknmDark from '../assets/brand/sknm/logo_negatywny.svg'
 
 export const pkLogos: Record<PkLogoKind, Record<LogoVariant, string>> = {
   pk: { light: pkLight, dark: pkDark },
   wiim: { light: wiimLight, dark: wiimDark },
   kms: { light: kmsLight, dark: kmsDark },
 }
+
+// Logo SKNM (sygnet + nazwa koła) w stopce, po logo PK - granatowe na jasnym
+// tle, białe na ciemnym.
+export const sknmLogos: Record<LogoVariant, string> = { light: sknmLight, dark: sknmDark }

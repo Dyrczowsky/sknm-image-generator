@@ -1,11 +1,11 @@
 import type { CSSProperties } from 'react'
-import { pkLogos } from '../logos'
+import { pkLogos, sknmLogos } from '../logos'
 import { LOGO_CLEAR, LOGO_HEIGHT } from '../theme'
 import type { LogoVariant, PkLogoKind } from '../../types'
 
-// Pozycja w stopce: `{ pk }` = logo PK (samo / z wydziałem), string = data URL
-// wgranej grafiki.
-export type LogoSlotSource = string | { pk: PkLogoKind }
+// Pozycja w stopce: `{ pk }` = logo PK (samo / z wydziałem / z katedrą),
+// `{ sknm: true }` = logo SKNM, string = data URL wgranej grafiki.
+export type LogoSlotSource = string | { pk: PkLogoKind } | { sknm: true }
 
 interface LogoSlotsProps {
   // Kolejność = kolejność wyświetlania.
@@ -29,7 +29,7 @@ export function LogoSlots({ slots, variant = 'light', slotStyle, height = LOGO_H
       {slots.map((src, i) => (
         <div key={i} style={{ padding: LOGO_CLEAR, display: 'flex', alignItems: 'center', flex: '0 0 auto', ...slotStyle }}>
           <img
-            src={typeof src === 'string' ? src : pkLogos[src.pk][variant]}
+            src={typeof src === 'string' ? src : 'pk' in src ? pkLogos[src.pk][variant] : sknmLogos[variant]}
             alt="Logo"
             style={{ height, width: 'auto', display: 'block' }}
             // Proporcja z wymiarów na stronie, nie `naturalWidth` - SVG bez

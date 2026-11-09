@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
-import { pkLogos, sygnetByName } from './logos'
+import { pkLogos, sknmLogos, sygnetByName } from './logos'
 import { withPlaceholders } from './fallback'
 import { LogoSlots } from './blocks/LogoSlots'
 import type { SygnetName } from '../types'
@@ -38,5 +38,21 @@ describe('logo PK: samo / z wydziałem', () => {
   it('LogoSlots rysuje wariant pod tło', () => {
     const html = renderToStaticMarkup(createElement(LogoSlots, { slots: [{ pk: 'wiim' }], variant: 'dark' }))
     expect(html).toContain(`src="${pkLogos.wiim.dark}"`)
+  })
+})
+
+describe('logo SKNM', () => {
+  it('włączone: po logo PK, przed grafikami; domyślnie wyłączone', () => {
+    expect(withPlaceholders({ graphics: ['g1'] }).logoSlots).toEqual([{ pk: 'pk' }, 'g1'])
+    expect(withPlaceholders({ showSknmLogo: true, graphics: ['g1'] }).logoSlots).toEqual([{ pk: 'pk' }, { sknm: true }, 'g1'])
+    expect(withPlaceholders({ showSknmLogo: true, showPkLogo: false }).logoSlots).toEqual([{ sknm: true }])
+  })
+
+  it('granatowe na jasnym tle, białe na ciemnym', () => {
+    expect(sknmLogos.light).not.toBe(sknmLogos.dark)
+    for (const variant of ['light', 'dark'] as const) {
+      const html = renderToStaticMarkup(createElement(LogoSlots, { slots: [{ sknm: true }], variant }))
+      expect(html).toContain(`src="${sknmLogos[variant]}"`)
+    }
   })
 })

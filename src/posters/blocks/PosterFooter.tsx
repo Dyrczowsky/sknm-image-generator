@@ -97,7 +97,7 @@ export function PosterFooter({
   const [ratios, setRatios] = useState<{ src: string; ratio: number }[]>([])
   const srcKey = (i: number) => {
     const slot = slots[i]
-    return typeof slot === 'string' ? slot : `pk:${slot.pk}`
+    return typeof slot === 'string' ? slot : 'pk' in slot ? `pk:${slot.pk}` : 'sknm'
   }
   const onRatio = (i: number, ratio: number) =>
     setRatios((prev) => {

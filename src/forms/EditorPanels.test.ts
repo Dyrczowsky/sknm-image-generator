@@ -165,6 +165,11 @@ describe('LookPanel (Wygląd)', () => {
     expect(look('wyklad', form({ showPkLogo: false }))).not.toContain('Wersja logo')
   })
 
+  it('logo SKNM: przełącznik ze stanem w aria-pressed', () => {
+    expect(button(look('wyklad', form({ showSknmLogo: true })), 'Pokaż na plakacie: logo SKNM')).toContain('aria-pressed="true"')
+    expect(button(look('wyklad', form()), 'Pokaż na plakacie: logo SKNM')).toContain('aria-pressed="false"')
+  })
+
   it('logotypy: wgrywanie w wyglądzie, bez kodu QR i bez „Z biblioteki" bez kontekstu', () => {
     const html = look('wyklad')
     expect(html).toContain('Wgraj grafiki')

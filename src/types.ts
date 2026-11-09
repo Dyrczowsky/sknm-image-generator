@@ -38,6 +38,8 @@ export interface FormValues extends Record<FormTextField, string> {
   showPkLogo: boolean
   // Które logo PK: samo „PK", „PK + WIiM" (wydział) czy „+ KMS" (katedra).
   pkLogo: PkLogoKind
+  // Czy po logo PK renderować logo SKNM (sygnet + nazwa koła).
+  showSknmLogo: boolean
   // Link/tekst do zakodowania w kodzie QR w stopce. Pusty = brak QR.
   qrUrl: string
   // Strona kodu QR w stopce: przy lewej krawędzi albo przy logotypach.
