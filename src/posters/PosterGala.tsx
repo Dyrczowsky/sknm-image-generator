@@ -64,7 +64,7 @@ export function PosterGala({ data, scheme, accent, lang = 'pl' }: PosterProps) {
             <InfoLine
               parts={[
                 { text: event_time, hidden: hidden('event_time') },
-                { field: { path: 'location', value: raw.location, fallback: PLACEHOLDERS.location, label: 'Lokalizacja' }, hidden: hidden('location') },
+                { field: { path: 'location', value: raw.location, multiline: true, fallback: PLACEHOLDERS.location, label: 'Lokalizacja' }, hidden: hidden('location') },
               ]}
               style={{ whiteSpace: 'nowrap' }}
             />
