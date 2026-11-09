@@ -79,6 +79,14 @@ describe('plakaty: formatowanie pól tekstowych', () => {
     lists: { agenda: [{ time: '09:00', title: bold('Punkt'), subtitle: bold('Opis') }] },
   }
 
+  it('konferencja: Enter w nazwie i opisie punktu programu łamie wiersz', () => {
+    const out = html(posterRegistry.konferencja.Component, {
+      lists: { agenda: [{ time: '17:30', title: 'Panel dyskusyjny\no matematyce', subtitle: 'dr A,\ndr B' }] },
+    })
+    expect(out).toMatch(/white-space:pre-line">Panel dyskusyjny\no matematyce</)
+    expect(out).toMatch(/white-space:pre-line">dr A,\ndr B</)
+  })
+
   for (const [key, entry] of Object.entries(posterRegistry)) {
     it(`${key}: pogrubione słowo w tytule rysuje się bez znaczników`, () => {
       const out = html(entry.Component, { title: bold('Gruby') })
