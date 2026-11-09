@@ -1,5 +1,5 @@
 import { FORM_TEXT_FIELDS } from '../types'
-import type { FormTextField, FormUpdate, FormValues, Medium, QrPlacement, QrSide } from '../types'
+import type { FormTextField, FormUpdate, FormValues, Medium, PkLogoKind, QrPlacement, QrSide } from '../types'
 import { toPlain } from '../richText'
 import { MAX_GRAPHICS } from '../posters/theme'
 
@@ -22,6 +22,7 @@ export const EMPTY_FORM: FormValues = {
   visibility: {},
   graphics: [],
   showPkLogo: true,
+  pkLogo: 'pk',
   qrUrl: '',
   qrSide: 'left',
   qrPlacement: 'above',
@@ -91,6 +92,7 @@ export const moveGraphic = (index: number, direction: -1 | 1): FormUpdate => (fo
 }
 
 export const setShowPkLogo = (showPkLogo: boolean): FormUpdate => (form) => ({ ...form, showPkLogo })
+export const setPkLogo = (pkLogo: PkLogoKind): FormUpdate => (form) => ({ ...form, pkLogo })
 export const setFillAgenda = (fillAgenda: boolean): FormUpdate => (form) => ({ ...form, fillAgenda })
 
 export const setBannerShowEvent = (bannerShowEvent: boolean): FormUpdate => (form) => ({ ...form, bannerShowEvent })

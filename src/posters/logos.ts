@@ -5,7 +5,7 @@ import sygnetZloty from '../assets/brand/sknm/sygnet_zloty.svg'
 import sygnetSzary from '../assets/brand/sknm/sygnet_szary.svg'
 import sygnetCzarny from '../assets/brand/sknm/sygnet_czarny.svg'
 import sygnetSrebrny from '../assets/brand/sknm/sygnet_srebrny.svg'
-import type { SygnetName } from '../types'
+import type { LogoVariant, PkLogoKind, SygnetName } from '../types'
 
 // Wybór sygnetu po nazwie roli ze schematu (patrz schemes.ts).
 export const sygnetByName: Record<SygnetName, string> = {
@@ -17,7 +17,14 @@ export const sygnetByName: Record<SygnetName, string> = {
   srebrny: sygnetSrebrny,
 }
 
-// Logo Politechniki Krakowskiej - domyślne logo w miejscach na logo PK/wydziału,
-// dopóki użytkownik nie wgra własnego pliku w formularzu.
-export { default as pkLogoLight } from '../assets/brand/pk/PK_POZIOM.svg'
-export { default as pkLogoDark } from '../assets/brand/pk/PK_POZIOM_inwersyjne.svg'
+// Logo Politechniki Krakowskiej w stopce - samo PK albo PK z Wydziałem
+// Informatyki i Matematyki (wybór w „Wyglądzie"), w wariancie pod tło plakatu.
+import pkLight from '../assets/brand/pk/PK_POZIOM.svg'
+import pkDark from '../assets/brand/pk/PK_POZIOM_inwersyjne.svg'
+import wiimLight from '../assets/brand/pk/PK_WIiM_F-1_RGB.svg'
+import wiimDark from '../assets/brand/pk/PK_WIiM_F-1_biale.svg'
+
+export const pkLogos: Record<PkLogoKind, Record<LogoVariant, string>> = {
+  pk: { light: pkLight, dark: pkDark },
+  wiim: { light: wiimLight, dark: wiimDark },
+}

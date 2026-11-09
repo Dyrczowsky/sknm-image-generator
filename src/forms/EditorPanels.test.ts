@@ -156,6 +156,14 @@ describe('LookPanel (Wygląd)', () => {
     expect(off).not.toContain('Ukryj na plakacie')
   })
 
+  it('logo PK: wybór „Samo PK" / „PK + Wydział" tylko przy włączonym logo', () => {
+    const on = look('wyklad', form({ showPkLogo: true, pkLogo: 'wiim' }))
+    expect(on).toContain('aria-label="Wersja logo"')
+    expect(on).toMatch(/<button[^>]*aria-pressed="true"[^>]*>PK \+ Wydział \(WIiM\)/)
+    expect(on).toMatch(/<button[^>]*aria-pressed="false"[^>]*>Samo PK/)
+    expect(look('wyklad', form({ showPkLogo: false }))).not.toContain('Wersja logo')
+  })
+
   it('logotypy: wgrywanie w wyglądzie, bez kodu QR i bez „Z biblioteki" bez kontekstu', () => {
     const html = look('wyklad')
     expect(html).toContain('Wgraj grafiki')

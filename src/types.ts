@@ -31,6 +31,8 @@ export interface FormValues extends Record<FormTextField, string> {
   graphics: string[]
   // Czy przed listą grafik renderować domyślne logo Politechniki Krakowskiej.
   showPkLogo: boolean
+  // Które logo PK: samo „PK" czy „PK + WIiM" (wydział).
+  pkLogo: PkLogoKind
   // Link/tekst do zakodowania w kodzie QR w stopce. Pusty = brak QR.
   qrUrl: string
   // Strona kodu QR w stopce: przy lewej krawędzi albo przy logotypach.
@@ -103,6 +105,8 @@ export type NewHistoryEntry = Omit<HistoryEntry, 'id' | 'created_at'>
 // --- Schematy kolorów ---
 export type SygnetName = 'negatywny' | 'granat' | 'zloty' | 'szary' | 'czarny' | 'srebrny'
 export type LogoVariant = 'light' | 'dark'
+// Logo PK w stopce: samo logo uczelni albo logo z Wydziałem Informatyki i Matematyki.
+export type PkLogoKind = 'pk' | 'wiim'
 export type AccentName = 'zolty' | 'pomaranczowy' | 'granatowy' | 'zloty' | 'srebrny'
 export type PosterLang = 'pl' | 'en'
 

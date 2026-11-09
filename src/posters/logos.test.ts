@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { sygnetByName } from './logos'
+import { createElement } from 'react'
+import { renderToStaticMarkup } from 'react-dom/server'
+import { pkLogos, sygnetByName } from './logos'
+import { withPlaceholders } from './fallback'
+import { LogoSlots } from './blocks/LogoSlots'
 import type { SygnetName } from '../types'
 
 describe('sygnetByName', () => {
@@ -14,5 +18,24 @@ describe('sygnetByName', () => {
   it('srebrny to inny plik niż szary i zloty', () => {
     expect(sygnetByName.srebrny).not.toBe(sygnetByName.szary)
     expect(sygnetByName.srebrny).not.toBe(sygnetByName.zloty)
+  })
+})
+
+describe('logo PK: samo / z wydziałem', () => {
+  it('cztery różne pliki (PK, PK + WIiM) × (jasne, ciemne tło)', () => {
+    const files = [pkLogos.pk.light, pkLogos.pk.dark, pkLogos.wiim.light, pkLogos.wiim.dark]
+    expect(new Set(files).size).toBe(4)
+  })
+
+  it('stopka dostaje wybrane logo PK przed grafikami; nieznana wartość = samo PK', () => {
+    expect(withPlaceholders({ graphics: ['g1'] }).logoSlots).toEqual([{ pk: 'pk' }, 'g1'])
+    expect(withPlaceholders({ pkLogo: 'wiim', graphics: ['g1'] }).logoSlots).toEqual([{ pk: 'wiim' }, 'g1'])
+    expect(withPlaceholders({ pkLogo: 'x' as never }).logoSlots).toEqual([{ pk: 'pk' }])
+    expect(withPlaceholders({ pkLogo: 'wiim', showPkLogo: false, graphics: ['g1'] }).logoSlots).toEqual(['g1'])
+  })
+
+  it('LogoSlots rysuje wariant pod tło', () => {
+    const html = renderToStaticMarkup(createElement(LogoSlots, { slots: [{ pk: 'wiim' }], variant: 'dark' }))
+    expect(html).toContain(`src="${pkLogos.wiim.dark}"`)
   })
 })
