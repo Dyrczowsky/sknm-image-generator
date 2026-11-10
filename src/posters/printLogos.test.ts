@@ -4,7 +4,7 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import { posterRegistry } from './registry'
 import { PosterShapeContext } from './shape'
 import type { PosterShape } from '../types'
-import { LOGO_CLEAR, LOGO_HEIGHT, PRINT_LOGO_SCALE, logoSizing } from './theme'
+import { LOGO_CLEAR, LOGO_HEIGHT, LOGO_MAX_HEIGHT, PRINT_LOGO_SCALE, logoSizing } from './theme'
 
 // Wysokości grafik logo (img alt="Logo") w statycznym renderze plakatu.
 function logoHeights(key: string, shape: PosterShape): number[] {
@@ -20,17 +20,16 @@ describe('logotypy w druku', () => {
     expect(logoSizing(true)).toMatchObject({ height: LOGO_HEIGHT * PRINT_LOGO_SCALE, clear: Math.round(LOGO_CLEAR * PRINT_LOGO_SCALE) })
   })
 
+  // Jednolita stopka: logo ma wysokość pasa stopki w każdym szablonie,
+  // niezależnie od treści lewego rogu (wielka data, etykieta, sam adres...).
   for (const key of Object.keys(posterRegistry)) {
-    it(`${key}: logo PK większe w pionie i poziomie (druk), bez zmian w kwadracie i Story`, () => {
+    it(`${key}: logo PK na wysokość pasa stopki - jak w każdym innym szablonie`, () => {
       for (const shape of ['square', 'story'] as const) {
         if (shape === 'story' && !posterRegistry[key].storyShape) continue
-        for (const h of logoHeights(key, shape)) expect(h).toBeGreaterThanOrEqual(LOGO_HEIGHT)
-        for (const h of logoHeights(key, shape)) expect(h).toBeLessThan(LOGO_HEIGHT * PRINT_LOGO_SCALE)
+        expect(logoHeights(key, shape)).toEqual([LOGO_MAX_HEIGHT])
       }
       for (const shape of ['portrait', 'landscape'] as const) {
-        const heights = logoHeights(key, shape)
-        expect(heights.length).toBeGreaterThan(0)
-        for (const h of heights) expect(h).toBeGreaterThanOrEqual(LOGO_HEIGHT * PRINT_LOGO_SCALE)
+        expect(logoHeights(key, shape)).toEqual([LOGO_MAX_HEIGHT * PRINT_LOGO_SCALE])
       }
     })
   }

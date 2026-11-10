@@ -63,7 +63,7 @@ interface BannerFooterProps {
 // Baner jest za niski na osobny wiersz nad stopką, więc kod zawsze stoi w
 // rzędzie: na lewym marginesie (przed treścią `lead`) albo przy logotypach.
 export function BannerFooter(props: BannerFooterProps) {
-  return <PosterFooter {...props} qrPlacement="inline" qrSizing={BANNER_QR} />
+  return <PosterFooter {...props} band={false} qrPlacement="inline" qrSizing={BANNER_QR} />
 }
 
 interface BannerEventLineProps {

@@ -6,8 +6,10 @@
 // Linijki to prostokąty `Range.getClientRects()` (obszar treści fontu: od
 // górnej do dolnej krawędzi fontu), a odległości krawędź→wierzchołek liter
 // i krawędź→linia bazowa dają metryki fontu z `canvas.measureText`. Wynik
-// w px układu (bez skali podglądu). `null`, gdy w elemencie nie ma tekstu
-// albo przeglądarka nie daje metryk (testy, render statyczny).
+// w px układu (bez skali podglądu i bez transformacji samego elementu):
+// `top` - odległość wierzchołka liter od górnej krawędzi pudełka. `null`, gdy
+// w elemencie nie ma tekstu albo przeglądarka nie daje metryk (testy, render
+// statyczny).
 
 let context: CanvasRenderingContext2D | null | undefined
 
@@ -22,11 +24,14 @@ function canvasContext(): CanvasRenderingContext2D | null {
   return context
 }
 
-export function textInkHeight(element: HTMLElement): number | null {
+export interface TextInk { top: number; height: number }
+
+export function textInk(element: HTMLElement): TextInk | null {
   const ctx = canvasContext()
   if (!ctx || typeof document.createRange !== 'function') return null
   const box = element.getBoundingClientRect()
-  // Podgląd jest skalowany transformacją - prostokąty są w px ekranu.
+  // Podgląd (i sam element) bywa skalowany transformacją - prostokąty są
+  // w px ekranu.
   const scale = element.offsetHeight > 0 ? box.height / element.offsetHeight : 1
   if (!(scale > 0)) return null
 
@@ -51,5 +56,5 @@ export function textInkHeight(element: HTMLElement): number | null {
       bottom = Math.max(bottom, lineTop + ascent)
     }
   }
-  return bottom > top ? bottom - top : null
+  return bottom > top ? { top, height: bottom - top } : null
 }

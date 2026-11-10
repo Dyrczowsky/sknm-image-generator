@@ -55,11 +55,6 @@ export function PosterGala({ data, scheme, accent, lang = 'pl' }: PosterProps) {
 
       <PosterFooter
         qrUrl={qrUrl} qrSide={qrSide} qrPlacement={qrPlacement} slots={logoSlots} variant={logoVariant}
-        // Logo rośnie do wysokości bloku daty (do LOGO_MAX_HEIGHT, tyle ile
-        // zmieści się w rzędzie), a jego dół stoi na linii dołu tekstu - jak
-        // dół wielkiej cyfry. Inne szablony z wielką datą zostają przy LOGO_HEIGHT
-        // i środku.
-        rowStyle={{ alignItems: 'flex-end' }}
         gap={32}
         style={{ position: 'relative', zIndex: 1 }}
         lead={

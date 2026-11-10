@@ -60,7 +60,6 @@ export function PosterKomunikat({ data, scheme, accent, lang = 'pl' }: PosterPro
 
       <PosterFooter
         qrUrl={qrUrl} qrSide={qrSide} qrPlacement={qrPlacement} slots={logoSlots} variant={logoVariant}
-        matchLogo={false}
         style={{ position: 'relative', zIndex: 1 }}
         lead={
           <div style={{ display: 'flex', gap: 24, alignItems: 'flex-end' }}>

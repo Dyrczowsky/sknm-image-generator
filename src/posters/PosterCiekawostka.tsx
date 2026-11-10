@@ -180,7 +180,7 @@ function LayoutZdjecie({ story, width, height, sygnet, kicker, title, body, foot
       <div
         style={{
           flex: '0 1 auto', minHeight: 0, display: 'flex', flexDirection: 'column',
-          padding: story ? `56px 72px ${STORY_SAFE_BOTTOM}px` : '32px 72px 56px',
+          padding: story ? `56px 72px ${STORY_SAFE_BOTTOM}px` : '32px 72px 72px',
           gap: story ? 24 : 16, boxSizing: 'border-box',
         }}
       >
