@@ -37,3 +37,6 @@ supabase/.env
 .superpowers/
 
 .wrangler
+
+# Sekrety Workera API (lokalny wrangler dev)
+api/.dev.vars
