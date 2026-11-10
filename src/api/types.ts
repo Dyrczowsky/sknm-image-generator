@@ -1,4 +1,4 @@
-import type { AccentName, CiekawostkaLayout, FormTextField, PkLogoKind, PosterLang } from '../types'
+import type { AccentName, CiekawostkaLayout, FormTextField, NewHistoryEntry, PkLogoKind, PosterLang } from '../types'
 
 // Maszynowo czytelny opis szablonów dla zewnętrznej AI (API / MCP).
 // Tylko `import type` - ten plik trafia też do Cloudflare Workera.
@@ -63,3 +63,16 @@ export type ApiErrorCode =
   | 'too_large' | 'render_unavailable' | 'render_failed' | 'storage_failed'
 
 export interface ApiError { code: ApiErrorCode; message: string }
+
+// --- Wynik renderu ---
+
+export interface RenderOk {
+  ok: true
+  png: string // base64, bez prefiksu data:
+  width: number
+  height: number
+  photoRefs: string[]
+  historyRow: NewHistoryEntry
+}
+
+export type RenderResult = RenderOk | { ok: false; error: ApiError }
