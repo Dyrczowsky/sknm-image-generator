@@ -37,7 +37,7 @@ const tools = [
           type: 'object',
           description: 'Pola tekstowe szablonu (nazwy z list_templates), każde do 2000 znaków.',
           properties: Object.fromEntries(
-            ['title', 'subtitle', 'speaker', 'event_date', 'event_time', 'location', 'badge', 'badge2', 'body', 'year', 'bannerTitle']
+            ['title', 'subtitle', 'speaker', 'event_date', 'event_time', 'location', 'badge', 'badge2', 'body', 'year']
               .map((k) => [k, { type: 'string' }]),
           ),
           additionalProperties: false,
@@ -54,9 +54,9 @@ const tools = [
                 properties: {
                   url: { type: 'string', description: 'Adres https zdjęcia (preferowany).' },
                   data: { type: 'string', description: 'Zdjęcie w base64 (tylko bez URL).' },
-                  x: { type: 'number', description: 'Przesunięcie poziome kadru.' },
-                  y: { type: 'number', description: 'Przesunięcie pionowe kadru.' },
-                  zoom: { type: 'number', description: 'Powiększenie kadru.' },
+                  x: { type: 'number', minimum: 0, maximum: 100, description: 'Przesunięcie poziome kadru, 0-100 (domyślnie 50).' },
+                  y: { type: 'number', minimum: 0, maximum: 100, description: 'Przesunięcie pionowe kadru, 0-100 (domyślnie 50).' },
+                  zoom: { type: 'number', minimum: 1, description: 'Powiększenie kadru, minimum 1 (domyślnie 1).' },
                 },
               },
             },
@@ -154,11 +154,15 @@ export async function handleMcp(request: Request, env: Env, deps: Deps = { gener
   } catch {
     return jsonResponse(err(null, -32700, 'Treść żądania nie jest poprawnym JSON.'))
   }
-  if (Array.isArray(body)) {
-    if (body.length === 0) return jsonResponse(err(null, -32600, 'Pusta paczka żądań.'))
-    const out = (await Promise.all(body.map((m) => handleOne(env, m, deps)))).filter((r) => r !== null)
-    return out.length ? jsonResponse(out) : new Response(null, { status: 202 })
+  // MCP 2025-06-18 nie przewiduje paczek; jedna paczka mogłaby ominąć limit wywołań.
+  if (Array.isArray(body)) return jsonResponse(err(null, -32600, 'Paczki żądań nie są obsługiwane.'))
+  let out: unknown
+  try {
+    out = await handleOne(env, body, deps)
+  } catch (e) {
+    console.error('MCP: nieoczekiwany błąd', e)
+    const id = isObject(body) && (typeof body.id === 'string' || typeof body.id === 'number') ? body.id : null
+    return jsonResponse(err(id, -32603, 'Wewnętrzny błąd serwera.'))
   }
-  const out = await handleOne(env, body, deps)
   return out === null ? new Response(null, { status: 202 }) : jsonResponse(out)
 }
