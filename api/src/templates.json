@@ -1,0 +1,833 @@
+{
+  "version": 1,
+  "templates": [
+    {
+      "key": "wyklad",
+      "name": "Wykład",
+      "useFor": "Zapowiedź wykładu lub prelekcji: tytuł, prelegent, data, godzina i miejsce, bez zdjęć.",
+      "fields": [
+        {
+          "name": "badge",
+          "label": "Etykieta",
+          "type": "text",
+          "placeholder": "WYKŁAD OTWARTY"
+        },
+        {
+          "name": "title",
+          "label": "Tytuł",
+          "type": "textarea"
+        },
+        {
+          "name": "subtitle",
+          "label": "Opis / podtytuł",
+          "type": "textarea"
+        },
+        {
+          "name": "speaker",
+          "label": "Prelegent / organizator",
+          "type": "text"
+        },
+        {
+          "name": "event_date",
+          "label": "Data",
+          "type": "date"
+        },
+        {
+          "name": "event_time",
+          "label": "Godzina",
+          "type": "time"
+        },
+        {
+          "name": "location",
+          "label": "Lokalizacja",
+          "type": "text"
+        }
+      ],
+      "photo": null,
+      "lists": null,
+      "schemes": [
+        {
+          "name": "default",
+          "label": "Granat",
+          "accents": [
+            "zolty",
+            "pomaranczowy"
+          ]
+        },
+        {
+          "name": "kremowy",
+          "label": "Kremowy",
+          "accents": [
+            "zolty",
+            "pomaranczowy",
+            "granatowy"
+          ]
+        },
+        {
+          "name": "czern",
+          "label": "Czerń",
+          "accents": [
+            "zolty",
+            "pomaranczowy",
+            "granatowy",
+            "zloty",
+            "srebrny"
+          ]
+        },
+        {
+          "name": "okazjonalny",
+          "label": "Okazjonalny",
+          "accents": [
+            "zloty",
+            "srebrny"
+          ]
+        }
+      ],
+      "storyShape": false,
+      "options": [
+        "qrUrl",
+        "showPkLogo",
+        "pkLogo",
+        "showSknmLogo",
+        "titleScale",
+        "textScale"
+      ]
+    },
+    {
+      "key": "warsztat",
+      "name": "Warsztat",
+      "useFor": "Zapowiedź warsztatów lub zajęć praktycznych, ze zdjęciem z warsztatów.",
+      "fields": [
+        {
+          "name": "badge",
+          "label": "Etykieta",
+          "type": "text",
+          "placeholder": "WARSZTATY"
+        },
+        {
+          "name": "title",
+          "label": "Tytuł",
+          "type": "textarea"
+        },
+        {
+          "name": "subtitle",
+          "label": "Opis / podtytuł",
+          "type": "textarea"
+        },
+        {
+          "name": "speaker",
+          "label": "Prelegent / organizator",
+          "type": "text"
+        },
+        {
+          "name": "event_date",
+          "label": "Data",
+          "type": "date"
+        },
+        {
+          "name": "event_time",
+          "label": "Godzina",
+          "type": "time"
+        },
+        {
+          "name": "location",
+          "label": "Lokalizacja",
+          "type": "text"
+        }
+      ],
+      "photo": {
+        "label": "Zdjęcie z warsztatów"
+      },
+      "lists": null,
+      "schemes": [
+        {
+          "name": "default",
+          "label": "Granat",
+          "accents": [
+            "zolty",
+            "pomaranczowy",
+            "granatowy"
+          ]
+        },
+        {
+          "name": "czern",
+          "label": "Czerń",
+          "accents": [
+            "zolty",
+            "pomaranczowy",
+            "granatowy",
+            "zloty",
+            "srebrny"
+          ]
+        },
+        {
+          "name": "szary",
+          "label": "Szary",
+          "accents": []
+        },
+        {
+          "name": "okazjonalny",
+          "label": "Okazjonalny",
+          "accents": [
+            "zloty",
+            "srebrny"
+          ]
+        }
+      ],
+      "storyShape": false,
+      "options": [
+        "qrUrl",
+        "showPkLogo",
+        "pkLogo",
+        "showSknmLogo",
+        "titleScale",
+        "textScale"
+      ]
+    },
+    {
+      "key": "konferencja",
+      "name": "Konferencja",
+      "useFor": "Konferencja, seminarium lub wydarzenie wielopunktowe z programem (lista godzin i punktów).",
+      "fields": [
+        {
+          "name": "badge",
+          "label": "Etykieta nagłówka",
+          "type": "text",
+          "placeholder": "SEMINARIUM SKNM"
+        },
+        {
+          "name": "title",
+          "label": "Tytuł",
+          "type": "textarea"
+        },
+        {
+          "name": "event_date",
+          "label": "Data",
+          "type": "date"
+        },
+        {
+          "name": "location",
+          "label": "Lokalizacja",
+          "type": "text"
+        },
+        {
+          "name": "badge2",
+          "label": "Etykieta stopki",
+          "type": "text",
+          "placeholder": "WIĘCEJ INFORMACJI"
+        }
+      ],
+      "photo": null,
+      "lists": {
+        "agenda": {
+          "itemFields": [
+            "time",
+            "title",
+            "subtitle"
+          ]
+        }
+      },
+      "schemes": [
+        {
+          "name": "default",
+          "label": "Granat",
+          "accents": [
+            "zolty",
+            "pomaranczowy",
+            "granatowy"
+          ]
+        },
+        {
+          "name": "czern",
+          "label": "Czerń",
+          "accents": [
+            "zolty",
+            "pomaranczowy",
+            "granatowy",
+            "zloty",
+            "srebrny"
+          ]
+        },
+        {
+          "name": "szary",
+          "label": "Szary",
+          "accents": []
+        },
+        {
+          "name": "okazjonalny",
+          "label": "Okazjonalny",
+          "accents": [
+            "zloty",
+            "srebrny"
+          ]
+        }
+      ],
+      "storyShape": false,
+      "options": [
+        "qrUrl",
+        "showPkLogo",
+        "pkLogo",
+        "showSknmLogo",
+        "titleScale",
+        "textScale",
+        "fillAgenda"
+      ]
+    },
+    {
+      "key": "rekrutacja",
+      "name": "Rekrutacja",
+      "useFor": "Nabór nowych członków lub wolontariuszy, z hasłem, terminem i profilem w stopce.",
+      "fields": [
+        {
+          "name": "badge",
+          "label": "Etykieta",
+          "type": "text",
+          "placeholder": "SPOTKANIE ORGANIZACYJNE"
+        },
+        {
+          "name": "title",
+          "label": "Tytuł",
+          "type": "textarea"
+        },
+        {
+          "name": "subtitle",
+          "label": "Opis / podtytuł",
+          "type": "textarea"
+        },
+        {
+          "name": "speaker",
+          "label": "Profil w stopce (obok adresu strony)",
+          "type": "text",
+          "placeholder": "@sknm.pk"
+        },
+        {
+          "name": "event_date",
+          "label": "Data",
+          "type": "date"
+        },
+        {
+          "name": "event_time",
+          "label": "Godzina",
+          "type": "time"
+        },
+        {
+          "name": "location",
+          "label": "Lokalizacja",
+          "type": "text"
+        }
+      ],
+      "photo": null,
+      "lists": null,
+      "schemes": [
+        {
+          "name": "limonka",
+          "label": "Limonka",
+          "accents": [
+            "zolty",
+            "pomaranczowy",
+            "granatowy"
+          ]
+        },
+        {
+          "name": "czern",
+          "label": "Czerń",
+          "accents": [
+            "zolty",
+            "pomaranczowy",
+            "granatowy",
+            "zloty",
+            "srebrny"
+          ]
+        },
+        {
+          "name": "szary",
+          "label": "Szary",
+          "accents": []
+        }
+      ],
+      "storyShape": false,
+      "options": [
+        "qrUrl",
+        "showPkLogo",
+        "pkLogo",
+        "showSknmLogo",
+        "titleScale",
+        "textScale"
+      ]
+    },
+    {
+      "key": "data",
+      "name": "Data",
+      "useFor": "Plakat z wyeksponowaną datą wydarzenia i zdjęciem; do wydarzeń, w których liczy się termin.",
+      "fields": [
+        {
+          "name": "title",
+          "label": "Tytuł",
+          "type": "textarea"
+        },
+        {
+          "name": "subtitle",
+          "label": "Opis / podtytuł",
+          "type": "textarea"
+        },
+        {
+          "name": "speaker",
+          "label": "Prelegent / organizator",
+          "type": "text"
+        },
+        {
+          "name": "event_date",
+          "label": "Data",
+          "type": "date"
+        },
+        {
+          "name": "event_time",
+          "label": "Godzina",
+          "type": "time"
+        },
+        {
+          "name": "location",
+          "label": "Lokalizacja",
+          "type": "text"
+        }
+      ],
+      "photo": {
+        "label": "Zdjęcie z wydarzenia"
+      },
+      "lists": null,
+      "schemes": [
+        {
+          "name": "default",
+          "label": "Granat",
+          "accents": []
+        },
+        {
+          "name": "czern",
+          "label": "Czerń",
+          "accents": []
+        },
+        {
+          "name": "okazjonalnyZloty",
+          "label": "Okazjonalny złoty",
+          "accents": []
+        },
+        {
+          "name": "okazjonalnySrebrny",
+          "label": "Okazjonalny srebrny",
+          "accents": []
+        },
+        {
+          "name": "szary",
+          "label": "Szary",
+          "accents": []
+        }
+      ],
+      "storyShape": false,
+      "options": [
+        "qrUrl",
+        "showPkLogo",
+        "pkLogo",
+        "showSknmLogo",
+        "titleScale",
+        "textScale",
+        "wideSubtitle"
+      ]
+    },
+    {
+      "key": "gosc",
+      "name": "Gość",
+      "useFor": "Zapowiedź gościa lub prelegenta ze zdjęciem osoby (spotkanie, wywiad, wykład gościnny).",
+      "fields": [
+        {
+          "name": "badge",
+          "label": "Etykieta",
+          "type": "text",
+          "placeholder": "SEMINARIUM SKNM"
+        },
+        {
+          "name": "title",
+          "label": "Tytuł",
+          "type": "textarea"
+        },
+        {
+          "name": "subtitle",
+          "label": "Opis / podtytuł",
+          "type": "textarea"
+        },
+        {
+          "name": "speaker",
+          "label": "Prelegent / organizator",
+          "type": "text"
+        },
+        {
+          "name": "event_date",
+          "label": "Data",
+          "type": "date"
+        },
+        {
+          "name": "event_time",
+          "label": "Godzina",
+          "type": "time"
+        },
+        {
+          "name": "location",
+          "label": "Lokalizacja",
+          "type": "text"
+        },
+        {
+          "name": "badge2",
+          "label": "Linia na dole",
+          "type": "text",
+          "placeholder": "Wstęp wolny · sknm.pk.edu.pl"
+        }
+      ],
+      "photo": {
+        "label": "Zdjęcie prelegenta"
+      },
+      "lists": null,
+      "schemes": [
+        {
+          "name": "default",
+          "label": "Granat",
+          "accents": [
+            "zolty",
+            "pomaranczowy",
+            "granatowy"
+          ]
+        },
+        {
+          "name": "czern",
+          "label": "Czerń",
+          "accents": [
+            "zolty",
+            "pomaranczowy",
+            "granatowy",
+            "zloty",
+            "srebrny"
+          ]
+        },
+        {
+          "name": "szary",
+          "label": "Szary",
+          "accents": []
+        },
+        {
+          "name": "okazjonalny",
+          "label": "Okazjonalny",
+          "accents": [
+            "zloty",
+            "srebrny"
+          ]
+        }
+      ],
+      "storyShape": false,
+      "options": [
+        "qrUrl",
+        "showPkLogo",
+        "pkLogo",
+        "showSknmLogo",
+        "titleScale",
+        "textScale"
+      ]
+    },
+    {
+      "key": "gala",
+      "name": "Gala",
+      "useFor": "Uroczysta gala lub wydarzenie okazjonalne w eleganckiej oprawie, bez zdjęć.",
+      "fields": [
+        {
+          "name": "badge",
+          "label": "Etykieta",
+          "type": "text",
+          "placeholder": "GALA SKNM"
+        },
+        {
+          "name": "title",
+          "label": "Tytuł",
+          "type": "textarea"
+        },
+        {
+          "name": "subtitle",
+          "label": "Opis / podtytuł",
+          "type": "textarea"
+        },
+        {
+          "name": "speaker",
+          "label": "Prelegent / organizator",
+          "type": "text"
+        },
+        {
+          "name": "event_date",
+          "label": "Data",
+          "type": "date"
+        },
+        {
+          "name": "event_time",
+          "label": "Godzina",
+          "type": "time"
+        },
+        {
+          "name": "location",
+          "label": "Lokalizacja",
+          "type": "textarea"
+        }
+      ],
+      "photo": null,
+      "lists": null,
+      "schemes": [
+        {
+          "name": "default",
+          "label": "Granat",
+          "accents": [
+            "zolty",
+            "pomaranczowy",
+            "granatowy",
+            "zloty",
+            "srebrny"
+          ]
+        }
+      ],
+      "storyShape": false,
+      "options": [
+        "qrUrl",
+        "showPkLogo",
+        "pkLogo",
+        "showSknmLogo",
+        "titleScale",
+        "textScale",
+        "wideSubtitle"
+      ]
+    },
+    {
+      "key": "ogloszenie",
+      "name": "Ogłoszenie",
+      "useFor": "Krótkie ogłoszenie, cytat lub podziękowanie: sam tekst i opcjonalny podpis, bez daty i miejsca.",
+      "fields": [
+        {
+          "name": "title",
+          "label": "Treść ogłoszenia / cytatu",
+          "type": "textarea"
+        },
+        {
+          "name": "subtitle",
+          "label": "Autor / podpis (opcjonalnie)",
+          "type": "text"
+        }
+      ],
+      "photo": null,
+      "lists": null,
+      "schemes": [
+        {
+          "name": "default",
+          "label": "Granat",
+          "accents": [
+            "zolty",
+            "pomaranczowy",
+            "granatowy"
+          ]
+        },
+        {
+          "name": "czern",
+          "label": "Czerń",
+          "accents": [
+            "zolty",
+            "pomaranczowy",
+            "granatowy",
+            "zloty",
+            "srebrny"
+          ]
+        },
+        {
+          "name": "jasny",
+          "label": "Jasny",
+          "accents": []
+        },
+        {
+          "name": "szary",
+          "label": "Szary",
+          "accents": []
+        },
+        {
+          "name": "okazjonalny",
+          "label": "Okazjonalny",
+          "accents": [
+            "zloty",
+            "srebrny"
+          ]
+        }
+      ],
+      "storyShape": false,
+      "options": [
+        "qrUrl",
+        "showPkLogo",
+        "pkLogo",
+        "showSknmLogo",
+        "titleScale",
+        "textScale"
+      ]
+    },
+    {
+      "key": "komunikat",
+      "name": "Komunikat rozszerzony",
+      "useFor": "Komunikat z nagłówkiem i akapitem treści (informacja dla członków, zmiana terminu, ważna wiadomość).",
+      "fields": [
+        {
+          "name": "badge",
+          "label": "Etykieta",
+          "type": "text",
+          "placeholder": "KOMUNIKAT"
+        },
+        {
+          "name": "title",
+          "label": "Nagłówek",
+          "type": "textarea"
+        },
+        {
+          "name": "body",
+          "label": "Treść komunikatu",
+          "type": "textarea"
+        },
+        {
+          "name": "subtitle",
+          "label": "Podpis / źródło (opcjonalnie)",
+          "type": "text"
+        },
+        {
+          "name": "event_date",
+          "label": "Data",
+          "type": "date"
+        }
+      ],
+      "photo": null,
+      "lists": null,
+      "schemes": [
+        {
+          "name": "default",
+          "label": "Granat",
+          "accents": [
+            "zolty",
+            "pomaranczowy"
+          ]
+        },
+        {
+          "name": "czern",
+          "label": "Czerń",
+          "accents": [
+            "zolty",
+            "pomaranczowy",
+            "granatowy",
+            "zloty",
+            "srebrny"
+          ]
+        },
+        {
+          "name": "szary",
+          "label": "Szary",
+          "accents": []
+        },
+        {
+          "name": "okazjonalny",
+          "label": "Okazjonalny",
+          "accents": [
+            "zloty",
+            "srebrny"
+          ]
+        }
+      ],
+      "storyShape": false,
+      "options": [
+        "qrUrl",
+        "showPkLogo",
+        "pkLogo",
+        "showSknmLogo",
+        "titleScale",
+        "textScale"
+      ]
+    },
+    {
+      "key": "ciekawostka",
+      "name": "Ciekawostka",
+      "useFor": "Ciekawostka lub pytanie z historią w wysokim układzie Story, ze zdjęciem.",
+      "fields": [
+        {
+          "name": "badge",
+          "label": "Etykieta",
+          "type": "text",
+          "placeholder": "CZY WIESZ, ŻE…"
+        },
+        {
+          "name": "title",
+          "label": "Tytuł",
+          "type": "textarea",
+          "placeholder": "SKNM powstało z inicjatywy studentów?"
+        },
+        {
+          "name": "body",
+          "label": "Opis",
+          "type": "textarea",
+          "placeholder": "W związku z nieustannie rosnącym zapotrzebowaniem, w grudniu 2001 roku pojawiła się studencka inicjatywa utworzenia koła naukowego matematyków. Inicjatorami koła byli X, Y, Z przy pomocy prof. XXXX, który został także jej pierwszym opiekunem."
+        },
+        {
+          "name": "year",
+          "label": "Rok (układ „Archiwum\")",
+          "type": "text",
+          "placeholder": "2001"
+        },
+        {
+          "name": "badge2",
+          "label": "Linia na dole",
+          "type": "text",
+          "placeholder": "sknm.pk.edu.pl"
+        }
+      ],
+      "photo": {
+        "label": "Zdjęcie"
+      },
+      "lists": null,
+      "schemes": [
+        {
+          "name": "okazjonalny",
+          "label": "Okazjonalny",
+          "accents": [
+            "zloty",
+            "srebrny"
+          ]
+        },
+        {
+          "name": "default",
+          "label": "Granat",
+          "accents": [
+            "granatowy",
+            "pomaranczowy"
+          ]
+        },
+        {
+          "name": "czern",
+          "label": "Czerń",
+          "accents": [
+            "zolty",
+            "pomaranczowy",
+            "granatowy",
+            "zloty",
+            "srebrny"
+          ]
+        },
+        {
+          "name": "szary",
+          "label": "Szary",
+          "accents": []
+        }
+      ],
+      "storyShape": true,
+      "options": [
+        "qrUrl",
+        "showPkLogo",
+        "pkLogo",
+        "showSknmLogo",
+        "titleScale",
+        "textScale",
+        "ciekawostkaLayout"
+      ]
+    }
+  ]
+}

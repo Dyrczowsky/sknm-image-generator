@@ -148,8 +148,8 @@ async function canvasToPdfBlob(canvas: HTMLCanvasElement, paper: PaperSize, orie
   return new Blob([pdf], { type: 'application/pdf' })
 }
 
-// Stały rozmiar (baner, wysokie Story): PNG z układu danego kształtu,
-// rasteryzowany wprost do rozmiaru formatu.
+// Stały rozmiar (baner): PNG z układu danego kształtu, rasteryzowany wprost
+// do rozmiaru formatu.
 async function downloadFixed(node: HTMLElement, basename: string, shape: PosterShape, size: Size) {
   const canvas = await rasterise(node, shape, size)
   saveBlob(await canvasToPngBlob(canvas), `${basename}.png`)
@@ -157,11 +157,21 @@ async function downloadFixed(node: HTMLElement, basename: string, shape: PosterS
 
 // Social (kwadrat/story): PNG z układu kwadratowego; format wyższy niż kwadrat
 // dostaje dostawkę w kolorze tła plakatu. Wysokość bierzemy z węzła, bo
-// kwadrat może urosnąć w dół (PosterFrame `grow`).
-async function downloadSocial(node: HTMLElement, basename: string, size: Size) {
+// kwadrat może urosnąć w dół (PosterFrame `grow`). Stałe wysokie `story`
+// rasteryzujemy wprost do rozmiaru formatu.
+async function renderSocial(node: HTMLElement, shape: PosterShape, size: Size): Promise<Blob> {
+  if (shape === 'story') return canvasToPngBlob(await rasterise(node, 'story', size))
   const layout = { width: SHAPE_SIZE.square.width, height: Math.max(SHAPE_SIZE.square.height, node.offsetHeight) }
   const posterDataUrl = await rendered(() => toPng(node, { ...layout, pixelRatio: 1 }))
-  saveAs(await compositeOnCanvas(posterDataUrl, size), `${basename}.png`)
+  return (await fetch(await compositeOnCanvas(posterDataUrl, size))).blob()
+}
+
+// Ten sam kod co przycisk "Pobierz", ale zwraca PNG zamiast zapisywać plik
+// (używa go strona /render dla API).
+export function renderSocialPng(node: HTMLElement, formatKey: 'square' | 'story', shape: PosterShape): Promise<Blob> {
+  const { width, height } = EXPORT_FORMATS[formatKey]
+  if (width === undefined || height === undefined) throw new Error(`format ${formatKey} nie ma rozmiaru w px`)
+  return renderSocial(node, shape, { width, height })
 }
 
 // Papier: PNG albo PDF w rozmiarze strony, przez drabinkę dpi. Zwraca
@@ -181,8 +191,7 @@ export async function downloadPoster(node: HTMLElement, basename: string, opts: 
   const format = EXPORT_FORMATS[opts.formatKey] ?? EXPORT_FORMATS.square
   if (format.paper) return { dpi: await downloadPrint(node, basename, format.paper, opts) }
 
-  if (opts.shape === 'story') await downloadFixed(node, basename, 'story', format)
-  else if (format.shape) await downloadFixed(node, basename, format.shape, format)
-  else await downloadSocial(node, basename, format)
+  if (opts.shape !== 'story' && format.shape) await downloadFixed(node, basename, format.shape, format)
+  else saveBlob(await renderSocial(node, opts.shape === 'story' ? 'story' : 'square', format), `${basename}.png`)
   return {}
 }

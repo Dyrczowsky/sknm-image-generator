@@ -10,6 +10,7 @@ renderująca plakaty 1080×1080 i eksportująca je do PNG przez `html-to-image`.
 - [dodawanie-szablonu.md](./dodawanie-szablonu.md) - krok po kroku: nowy layout plakatu
 - [dodawanie-slajdu.md](./dodawanie-slajdu.md) - krok po kroku: nowy układ slajdu w prezentacjach
 - [supabase.md](./supabase.md) - logowanie, wspólna historia i notatki: konfiguracja projektu i zmiennych
+- [api.md](./api.md) - Worker API i MCP: generowanie grafik przez AI, konfiguracja, klucz, podłączenie klientów
 - [dodawanie-schematu-kolorow.md](./dodawanie-schematu-kolorow.md) - krok po kroku: nowy schemat kolorów ("motyw") dla istniejącego layoutu
 
 ## Szybki start

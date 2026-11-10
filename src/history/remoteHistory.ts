@@ -4,8 +4,21 @@ import type { EditorSnapshot } from '../snapshot/snapshot'
 import type { HistoryEntry, NewHistoryEntry } from '../types'
 
 const TABLE = 'sknm_poster_history'
-const COLUMNS = 'id, created_at, poster_key, title, subtitle, speaker, event_date, event_time, location, color_scheme, snapshot'
+const COLUMNS = 'id, created_at, poster_key, title, subtitle, speaker, event_date, event_time, location, color_scheme, snapshot, source, image_url'
+// Kolumny sprzed migracji `source`/`image_url`: gdy aplikacja wdroży się przed
+// migracją, zapytanie z nowymi kolumnami kończy się błędem, a historia przestaje działać.
+const LEGACY_COLUMNS = 'id, created_at, poster_key, title, subtitle, speaker, event_date, event_time, location, color_scheme, snapshot'
 export const HISTORY_LIMIT = 50
+
+interface DbError { message: string; code?: string }
+
+// Brak kolumny: Postgres 42703, PostgREST PGRST204 albo komunikat o `source`/`image_url`.
+function isMissingColumn(error: DbError): boolean {
+  if (error.code === '42703' || error.code === 'PGRST204') return true
+  return /\b(source|image_url)\b/.test(error.message) && /(does not exist|could not find)/i.test(error.message)
+}
+
+const withDefaults = (row: unknown): HistoryEntry => ({ source: 'app', image_url: null, ...(row as object) }) as HistoryEntry
 
 // Limity długości wąskich kolumn w bazie (`char_length` w migracji
 // 20261007000000_history_and_notes.sql). Formularz ich nie pilnuje, więc
@@ -41,15 +54,26 @@ export async function listHistory(client: SupabaseClient): Promise<HistoryEntry[
     .order('created_at', { ascending: false })
     .order('id', { ascending: false })
     .limit(HISTORY_LIMIT)
-  if (error) throw new Error(error.message)
-  return data as HistoryEntry[]
+  if (!error) return data as HistoryEntry[]
+  if (!isMissingColumn(error)) throw new Error(error.message)
+  const legacy = await client
+    .from(TABLE)
+    .select(LEGACY_COLUMNS)
+    .order('created_at', { ascending: false })
+    .order('id', { ascending: false })
+    .limit(HISTORY_LIMIT)
+  if (legacy.error) throw new Error(legacy.error.message)
+  return (legacy.data as unknown[]).map(withDefaults)
 }
 
 // Dopisuje wpis i zwraca go w postaci zapisanej w bazie (z `id` i datą).
 export async function addHistoryEntry(client: SupabaseClient, entry: NewHistoryEntry): Promise<HistoryEntry> {
   const { data, error } = await client.from(TABLE).insert(entry).select(COLUMNS).single()
-  if (error) throw new Error(error.message)
-  return data as HistoryEntry
+  if (!error) return data as HistoryEntry
+  if (!isMissingColumn(error)) throw new Error(error.message)
+  const legacy = await client.from(TABLE).insert(entry).select(LEGACY_COLUMNS).single()
+  if (legacy.error) throw new Error(legacy.error.message)
+  return withDefaults(legacy.data)
 }
 
 export async function deleteHistoryEntry(client: SupabaseClient, id: number): Promise<void> {

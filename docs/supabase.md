@@ -23,10 +23,12 @@ zapisuje się lokalnie w przeglądarce; jego eksporty nie trafiają do historii.
    `20261007000000_history_and_notes.sql`,
    `20261007010000_members_allowlist.sql`, potem
    `20261008000000_projects_snapshots_assets.sql` (projekty, kolumna
-   `snapshot` w historii, kubełek i biblioteka grafik).
+   `snapshot` w historii, kubełek i biblioteka grafik) i na końcu
+   `20261110000000_ai_history.sql` (wpisy AI w historii, publiczny kubełek
+   `sknm-ai-images`).
 
    **Najnowszą migrację trzeba wykonać przed wdrożeniem tej wersji kodu.**
-   Aplikacja czyta kolumnę `snapshot` w historii i tabele `sknm_projects` /
+   Aplikacja czyta kolumny `snapshot`, `source` i `image_url` w historii oraz tabele `sknm_projects` /
    `sknm_assets`; bez migracji lista historii i projektów kończy się błędem.
 3. **Authentication → Sign In / Providers** → wyłącz „Allow new users to sign
    up". Konta powstają wyłącznie z zaproszeń.
@@ -75,12 +77,20 @@ Build bez tych zmiennych nie pokazuje przycisku „Zaloguj" ani paneli
 | `sknm_notes` | czyta, dodaje, zmienia treść i stan, usuwa | nic | nic |
 | `sknm_projects` | czyta własne i udostępnione; dodaje, zmienia i usuwa tylko własne | nic | nic |
 | `sknm_assets` | czyta wszystkie, dodaje; zmienia nazwę i usuwa tylko własne wpisy | nic | nic |
+| Storage `sknm-ai-images` (publiczny) | każdy z linkiem czyta pliki; zapisuje tylko Worker kluczem `service_role` | tylko z linkiem | tylko z linkiem |
 | Storage `sknm-poster-assets` | czyta wszystkie pliki, dodaje nowe (nie nadpisuje, nie usuwa) | nic | nic |
 
 „Członek" to osoba wpisana do tabeli `sknm_members`. Projekt Supabase jest
 współdzielony z inną aplikacją, więc samo zalogowanie nie wystarcza - polityki
 RLS sprawdzają listę funkcją `sknm_is_member()`. Samej listy nie da się
 odczytać ani zmienić z aplikacji, tylko z SQL Editora.
+
+Wpisy historii z `source = 'ai'` dodaje wyłącznie Worker API (klucz
+`service_role`); nie mają autora (`created_by` jest NULL), a `image_url`
+wskazuje PNG w publicznym kubełku `sknm-ai-images`. Polityka dodawania dla
+członków wymaga `source = 'app'` i `image_url is null`, więc z aplikacji nie
+da się podrobić wpisu AI. Wpis AI otwiera się w edytorze jak każdy inny
+(snapshot), a w historii ma plakietkę „AI" i link „Otwórz obraz".
 
 Autora (`created_by`, a w notatkach też `author_email`) uzupełnia baza z sesji.
 Historia i notatki: każdy członek może wszystko z tabeli. **Projekty tego nie

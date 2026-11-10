@@ -1,0 +1,14 @@
+{
+  "name": "sknm-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-11-10",
+  "compatibility_flags": ["nodejs_compat"],
+  "browser": { "binding": "BROWSER" },
+  "vars": { "RENDER_URL": "https://sknm.dyrczowsky.win/render" },
+  // Limit wywołań (cały klucz): 10 na 60 s.
+  "ratelimits": [
+    { "name": "RATE_LIMITER", "namespace_id": "1001", "simple": { "limit": 10, "period": 60 } }
+  ]
+  // Sekrety (wrangler secret put): SKNM_API_KEY, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY.
+  // Trasa (route) zostaje do ustawienia przez właściciela - patrz dokumentacja.
+}

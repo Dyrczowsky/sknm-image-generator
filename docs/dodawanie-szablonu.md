@@ -286,6 +286,11 @@ także do baz zapisanych wcześniej w IndexedDB — **nie trzeba** podbijać
 
 ## 7. Sprawdzenie
 
+Katalog szablonów dla AI (`api/src/templates.json`): po dodaniu layoutu dopisz
+jego wpis w `USE_FOR` (`src/api/catalog.ts`), wyeksportuj listę pól formularza
+(`PIKNIK_FIELDS`, ewentualnie `PIKNIK_PHOTO_LABEL`), dopisz ją w `FIELDS_BY_KEY`
+i uruchom `npx vitest run src/api -u`. CI wywali się, gdy plik JSON jest nieaktualny.
+
 ```bash
 npm run build      # typecheck + build
 npm test

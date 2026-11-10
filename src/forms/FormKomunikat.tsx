@@ -6,7 +6,7 @@ import { PosterForm } from './PosterForm'
 
 // Etykieta, nagłówek, akapit treści (`body`), podpis i opcjonalna data
 // (bez godziny i lokalizacji).
-const KOMUNIKAT_FIELDS: FieldSpec[] = [
+export const KOMUNIKAT_FIELDS: FieldSpec[] = [
   badgeField(DEFAULT_BADGE.komunikat.pl),
   { name: 'title', label: 'Nagłówek', type: 'textarea', rows: 2 },
   { name: 'body', label: 'Treść komunikatu', type: 'textarea' },

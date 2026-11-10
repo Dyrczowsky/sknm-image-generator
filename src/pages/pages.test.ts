@@ -22,7 +22,7 @@ const PROJECT: ProjectRow = {
 } as ProjectRow
 const ENTRY: HistoryEntry = {
   id: 1, created_at: '2031-03-04T10:00:00Z', poster_key: 'wyklad', title: 'Mój wykład', subtitle: '', speaker: '',
-  event_date: '2031-03-10', event_time: '17:30', location: 'sala 1', color_scheme: null, snapshot: null,
+  event_date: '2031-03-10', event_time: '17:30', location: 'sala 1', color_scheme: null, snapshot: null, source: 'app', image_url: null,
 } as HistoryEntry
 
 const projects = (sessionStatus: string, items: ProjectRow[] = [PROJECT]) =>

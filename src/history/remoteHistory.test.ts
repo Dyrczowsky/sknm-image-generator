@@ -7,11 +7,11 @@ import { fakeSupabase } from '../supabase/fakeClient'
 import type { NewHistoryEntry } from '../types'
 import { HISTORY_LIMIT, addHistoryEntry, deleteHistoryEntry, listHistory, newHistoryEntry } from './remoteHistory'
 
-const COLUMNS = 'id, created_at, poster_key, title, subtitle, speaker, event_date, event_time, location, color_scheme, snapshot'
+const COLUMNS = 'id, created_at, poster_key, title, subtitle, speaker, event_date, event_time, location, color_scheme, snapshot, source, image_url'
 const ENTRY: NewHistoryEntry = {
   poster_key: 'wyklad', title: 'Tytuł', subtitle: '', speaker: 'dr X', event_date: '2031-03-04', event_time: '17:30', location: 'sala 1', color_scheme: 'czern~zloty', snapshot: null,
 }
-const STORED = { id: 7, created_at: '2031-03-01T10:00:00+00:00', ...ENTRY }
+const STORED = { id: 7, created_at: '2031-03-01T10:00:00+00:00', ...ENTRY, source: 'app' as const, image_url: null }
 
 const snap = (over: Partial<EditorSnapshot> = {}): EditorSnapshot => ({
   v: 2, poster_key: 'gosc', color_scheme: 'czern~zloty', lang: 'pl', export: { ...DEFAULT_EXPORT_SETTINGS },
@@ -56,6 +56,14 @@ describe('newHistoryEntry', () => {
 })
 
 describe('listHistory', () => {
+  it('zwraca źródło wpisu i link do obrazu (wpisy AI)', async () => {
+    const ai = { ...STORED, id: 8, source: 'ai' as const, image_url: 'https://x.supabase.co/storage/v1/object/public/sknm-ai-images/2031-03-01/a.png' }
+    const { client } = fakeSupabase({ data: [ai, STORED] })
+    const list = await listHistory(client)
+    expect(list.map((e) => e.source)).toEqual(['ai', 'app'])
+    expect(list[0].image_url).toBe(ai.image_url)
+  })
+
   it('czyta najnowsze wpisy z tabeli sknm_poster_history', async () => {
     const { client, queries } = fakeSupabase({ data: [STORED] })
     expect(await listHistory(client)).toEqual([STORED])
@@ -71,6 +79,41 @@ describe('listHistory', () => {
   it('błąd Supabase → wyjątek z jego komunikatem', async () => {
     const { client } = fakeSupabase({ error: { message: 'permission denied' } })
     await expect(listHistory(client)).rejects.toThrow('permission denied')
+  })
+})
+
+const LEGACY = 'id, created_at, poster_key, title, subtitle, speaker, event_date, event_time, location, color_scheme, snapshot'
+const { source: _s, image_url: _i, ...LEGACY_ROW } = STORED
+const missing = [
+  { code: '42703', message: 'column sknm_poster_history.source does not exist' },
+  { code: 'PGRST204', message: "Could not find the 'image_url' column of 'sknm_poster_history' in the schema cache" },
+  { message: 'column "source" does not exist' },
+]
+
+describe('brak kolumn source/image_url (aplikacja przed migracją)', () => {
+  it.each(missing)('listHistory ponawia ze starą listą kolumn i uzupełnia domyślne', async (error) => {
+    const { client, queries } = fakeSupabase([{ error }, { data: [LEGACY_ROW] }])
+    expect(await listHistory(client)).toEqual([STORED])
+    expect(queries).toHaveLength(2)
+    expect(queries[1]).toContainEqual(['select', LEGACY])
+  })
+
+  it.each(missing)('addHistoryEntry ponawia ze starą listą kolumn', async (error) => {
+    const { client, queries } = fakeSupabase([{ error }, { data: LEGACY_ROW }])
+    expect(await addHistoryEntry(client, ENTRY)).toEqual(STORED)
+    expect(queries[1]).toContainEqual(['select', LEGACY])
+  })
+
+  it('ponawia tylko raz: błąd ponowienia jest zgłaszany', async () => {
+    const { client, queries } = fakeSupabase([{ error: missing[0] }, { error: { message: 'boom' } }])
+    await expect(listHistory(client)).rejects.toThrow('boom')
+    expect(queries).toHaveLength(2)
+  })
+
+  it('inny błąd nie wywołuje ponowienia', async () => {
+    const { client, queries } = fakeSupabase({ error: { message: 'permission denied', code: '42501' } })
+    await expect(listHistory(client)).rejects.toThrow('permission denied')
+    expect(queries).toHaveLength(1)
   })
 })
 

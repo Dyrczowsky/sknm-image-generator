@@ -122,6 +122,7 @@ describe('HistoryList', () => {
   const entry = (overrides: Partial<HistoryEntry>): HistoryEntry => ({
     id: 1, created_at: new Date(2031, 2, 4, 9, 5).toISOString(), poster_key: 'wyklad',
     title: 'Mój wykład', subtitle: '', speaker: '', event_date: '2031-03-10', event_time: '17:30', location: 'sala 1', color_scheme: 'czern~zloty', snapshot: null,
+    source: 'app', image_url: null,
     ...overrides,
   })
   const render = (entries: HistoryEntry[]) => renderToStaticMarkup(h(HistoryList, { entries, onRestore: noop, onDelete: noop, lang: 'pl' }))
@@ -137,6 +138,21 @@ describe('HistoryList', () => {
     expect(html).toContain('2031-03-04 09:05')
     expect(html).toContain('Przywróć')
     expect(html).toContain('Usuń')
+  })
+
+  it('wpis AI: plakietka „AI” i link do obrazu w nowej karcie', () => {
+    const html = render([entry({ source: 'ai', image_url: 'https://x.test/a.png' })])
+    expect(html).toMatch(/<span[^>]*>AI<\/span>/)
+    expect(html).toMatch(/<a [^>]*href="https:\/\/x\.test\/a\.png"[^>]*>/)
+    expect(html).toContain('target="_blank"')
+    expect(html).toContain('rel="noopener"')
+    expect(html).toContain('Otwórz obraz')
+  })
+
+  it('wpis z aplikacji: bez plakietki i linku', () => {
+    const html = render([entry({})])
+    expect(html).not.toMatch(/>AI</)
+    expect(html).not.toContain('Otwórz obraz')
   })
 
   it('nieznany layout: surowy klucz i szara miniatura zamiast plakatu', () => {

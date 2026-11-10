@@ -5,7 +5,7 @@ export type Call = [method: string, ...args: unknown[]]
 
 interface FakeResult {
   data?: unknown
-  error?: { message: string } | null
+  error?: { message: string; code?: string } | null
 }
 
 // Błąd Storage niesie dodatkowo kod HTTP i kod z treści odpowiedzi.
@@ -29,13 +29,15 @@ interface FakeStorage {
 // Storage działa tak samo: każda operacja trafia do `storageCalls` jako
 // `[['from', kubełek], ['upload', nazwa, plik, opcje]]` albo
 // `[['from', kubełek], ['download', nazwa]]`, a kończy się wynikiem ze `storage`.
-export function fakeSupabase(result: FakeResult = {}, storage: FakeStorage = {}) {
+// `result` może być listą: n-te zapytanie dostaje n-ty wynik (ostatni powtarza się).
+export function fakeSupabase(answers: FakeResult | FakeResult[] = {}, storage: FakeStorage = {}) {
   const queries: Call[][] = []
   const storageCalls: Call[][] = []
 
   const from = (table: string) => {
     const calls: Call[] = [['from', table]]
     queries.push(calls)
+    const result = Array.isArray(answers) ? (answers[Math.min(queries.length - 1, answers.length - 1)] ?? {}) : answers
     const builder: Record<string, unknown> = new Proxy(
       {},
       {
