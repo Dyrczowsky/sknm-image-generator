@@ -1,4 +1,4 @@
-import type { ApiError, RenderInput, RenderPhoto } from '../../src/api/types'
+import type { ApiError, RenderInput, RenderOk, RenderPhoto } from '../../src/api/types'
 import type { Env } from './env'
 import { loadPhotos, toDataUrl, type PhotoIn } from './photos'
 import { renderInBrowser } from './render'
@@ -46,10 +46,22 @@ export async function generate(env: Env, args: unknown, deps: GenerateDeps = def
 
   const rendered = await deps.renderInBrowser(env, renderInput)
   if (!rendered.ok) return { ok: false, error: rendered.error }
+  // Strona renderu to osobny kod - sprawdzamy kształt wyniku, zamiast ufać typom.
+  const r = rendered as Partial<RenderOk>
+  if (
+    r.ok !== true || typeof r.png !== 'string' || !Array.isArray(r.photoRefs) || !r.photoRefs.every((x) => typeof x === 'string') ||
+    typeof r.historyRow !== 'object' || r.historyRow === null
+  ) return fail('render_failed', 'Renderowanie zwróciło nieprawidłowy wynik.')
   if (rendered.photoRefs.length !== loaded.length) return fail('render_failed', 'Renderowanie zwróciło niezgodną liczbę zdjęć.')
 
+  let png: Uint8Array
   try {
-    const png = fromBase64(rendered.png)
+    png = fromBase64(rendered.png)
+  } catch {
+    return fail('render_failed', 'Renderowanie zwróciło nieprawidłowy obraz.')
+  }
+
+  try {
     const sb = deps.supabase(env)
     for (const [i, ref] of rendered.photoRefs.entries()) await sb.uploadAsset(ref, loaded[i].bytes, loaded[i].mime)
     const path = `${new Date().toISOString().slice(0, 10)}/${crypto.randomUUID()}.png`

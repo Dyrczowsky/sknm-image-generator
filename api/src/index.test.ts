@@ -19,8 +19,10 @@ const authed = { Authorization: `Bearer ${KEY}` }
 
 describe('index', () => {
   it('brak klucza: 401 bez klucza w treści', async () => {
-    const res = await call(new Request('https://w.test/api/templates'))
+    const env = mkEnv()
+    const res = await call(new Request('https://w.test/api/templates'), env)
     expect(res.status).toBe(401)
+    expect(env.RATE_LIMITER.limit).not.toHaveBeenCalled()
     const text = await res.text()
     expect(JSON.parse(text).code).toBe('unauthorized')
     expect(text).not.toContain(KEY)
