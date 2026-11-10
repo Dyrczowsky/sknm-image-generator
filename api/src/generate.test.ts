@@ -41,7 +41,7 @@ describe('generate', () => {
     const png = s.sb.uploadImage.mock.calls[0][1] as Uint8Array
     expect(new TextDecoder().decode(png)).toBe('PNGDATA')
     const row = (s.sb.insertHistory.mock.calls[0] as unknown[])[0] as Record<string, unknown>
-    expect(row).toMatchObject({ template: 'gosc', source: 'ai', image_url: r.ok ? r.value.url : '' })
+    expect(row).toMatchObject({ template: 'wyklad', source: 'ai', image_url: r.ok ? r.value.url : '' })
     // do strony renderu idą data URL-e
     const sent = (s.renderInBrowser.mock.calls[0] as unknown[])[1] as { photos: { photo: { src: string; x: number }[] } }
     expect(sent.photos.photo[0].src).toMatch(/^data:image\/jpeg;base64,/)
