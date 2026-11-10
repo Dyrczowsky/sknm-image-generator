@@ -53,9 +53,11 @@ zapisuje się lokalnie w przeglądarce; jego eksporty nie trafiają do historii.
 | `VITE_SUPABASE_ANON_KEY` | Project Settings → API → klucz `anon` / publishable |
 
 - **Lokalnie:** skopiuj `.env.example` do `.env.local` i uzupełnij.
-- **Cloudflare:** projekt → Settings → **Build** → Variables and secrets →
-  dodaj obie (jako zmienne builda, nie tylko runtime). Po zmianie wartości
-  trzeba uruchomić build ponownie - są wkompilowane w build.
+- **Produkcja (Cloudflare):** build robi GitHub Actions (`deploy.yml`), więc
+  wartości są w repozytorium → Settings → Environments → `github-pages` →
+  **Environment secrets** (obok `CLOUDFLARE_API_TOKEN`). Po zmianie wartości
+  trzeba uruchomić deploy ponownie (Actions → Deploy to Cloudflare → Run
+  workflow) - są wkompilowane w build.
 
 Klucz anon jest publiczny z założenia (trafia do zbudowanego JS). Dostępu
 pilnuje RLS: rola `anon` nie ma żadnej polityki, a zalogowani muszą być na

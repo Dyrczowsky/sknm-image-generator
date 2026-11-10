@@ -1,0 +1,87 @@
+name: Deploy to Cloudflare
+
+# Wdrożenie na https://sknm.dyrczowsky.win/ dopiero po przejściu wszystkich
+# sprawdzeń. Uruchamiane po pushu na main (merge PR) oraz ręcznie /
+# z claude-issue.yml (merge zrobiony GITHUB_TOKEN nie odpala workflowów push).
+#
+# Dwa joby: `build` uruchamia kod z repo i zależności z npm, ale nie dostaje
+# tokenu Cloudflare. `deploy` ma token, ale nie uruchamia żadnego kodu z repo:
+# pobiera gotowy dist/ i przypiętą wersję wranglera.
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  build:
+    # Środowisko tylko dla VITE_SUPABASE_* (wkompilowane w build, publiczne
+    # z założenia). Ten job nie odwołuje się do CLOUDFLARE_API_TOKEN.
+    environment: github-pages
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Lint
+        run: npm run lint
+      - name: Test
+        run: npm test
+      - name: Build
+        # npm run build zawiera typecheck.
+        run: npm run build
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+      - name: Upload dist
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist
+          include-hidden-files: true
+          retention-days: 1
+
+  deploy:
+    needs: build
+    environment:
+      name: github-pages
+      url: https://sknm.dyrczowsky.win/
+    runs-on: ubuntu-latest
+    steps:
+      # Tylko konfiguracja Workera, bez kodu aplikacji.
+      - name: Checkout wrangler.jsonc
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          sparse-checkout: wrangler.jsonc
+          sparse-checkout-cone-mode: false
+      - name: Download dist
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install wrangler
+        run: npm install --global wrangler@4.160.0
+      - name: Deploy
+        run: wrangler deploy --message "${GITHUB_SHA::7}"
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
