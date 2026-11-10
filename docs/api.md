@@ -36,9 +36,12 @@ Narzędzia MCP: `list_templates` i `generate_image`.
 
 ## Konfiguracja jednorazowa
 
-1. **Migracja bazy.** Zanim cokolwiek wdrożysz, uruchom
-   `supabase/migrations/20261110000000_ai_history.sql` (kolumna `source`,
-   bucket `sknm-ai-images`). Szczegóły: [supabase.md](./supabase.md).
+1. **Migracja bazy.** Uruchom ją PRZED zmergowaniem i wdrożeniem tej wersji:
+   `supabase/migrations/20261110000000_ai_history.sql` (kolumny `source`
+   i `image_url`, bucket `sknm-ai-images`). Aplikacja ma zabezpieczenie na
+   wypadek wdrożenia przed migracją (historia wraca do starych kolumn), ale
+   wpisy AI i ich obrazy pojawią się dopiero po migracji. Szczegóły:
+   [supabase.md](./supabase.md).
 2. **Klucz API.** Wygeneruj długi losowy klucz:
 
    ```bash
@@ -63,8 +66,9 @@ Narzędzia MCP: `list_templates` i `generate_image`.
 5. **Plan.** Browser Rendering może wymagać planu Workers Paid.
 6. **Wdrożenie.** Robi je CI (`deploy-api` w
    `.github/workflows/deploy.yml`) po wdrożeniu aplikacji; Worker jest
-   pakowany w jobie `build`, a job z tokenem wysyła gotowy plik
-   (`--no-bundle`) i nie uruchamia kodu z repo.
+   pakowany w osobnym jobie `build-api` (Node 22, bez sekretów), a job
+   z tokenem wysyła gotowy plik (`--no-bundle`) i nie uruchamia kodu z repo.
+   Aplikacja nie zależy od Workera.
 
 Lokalnie (`wrangler dev`) sekrety trzymaj w `api/.dev.vars` (w `.gitignore`).
 
@@ -108,8 +112,9 @@ Zamiast `<api>` wstaw adres Workera, a `<klucz>` swój klucz.
 - **claude.ai** (Ustawienia, Konektory, Dodaj konektor niestandardowy): URL
   `https://<api>/mcp/<klucz>`. claude.ai nie pozwala ustawić nagłówka, dlatego
   klucz jest w ścieżce.
-- **Claude Desktop:** ten sam konektor dodany w claude.ai pojawia się
-  w aplikacji; można też użyć adresu z kluczem w ścieżce.
+- **Claude Desktop:** konektor niestandardowy można dodać tym samym adresem
+  z kluczem w ścieżce (niesprawdzone; to, czy konektor z claude.ai jest
+  widoczny w aplikacji, zależy od wersji i planu).
 - **Claude Code:**
 
   ```bash
@@ -132,7 +137,12 @@ zrób rotację klucza.
   jsonb, który jest dłuższy od JSON-a, stąd zapas; zbyt duży zwraca błąd
   `too_large`, nic nie jest obcinane).
 - Render: 30 s. Pobranie zdjęcia z URL: 10 s.
-- Limit wywołań: 10 na 60 s, wspólny dla całego klucza.
+- Limit wywołań: 10 na 60 s, wspólny dla całego klucza. Liczy tylko generowanie
+  obrazów (`POST /api/render` i narzędzie MCP `generate_image`); katalog
+  szablonów i inne wywołania MCP go nie zużywają. Licznik działa osobno
+  w każdej lokalizacji Cloudflare, więc limit jest przybliżony.
+- Usunięcie wpisu AI z historii w aplikacji nie usuwa jego PNG z bucketu
+  `sknm-ai-images` (plik zostaje, trzeba go skasować ręcznie w Supabase).
 
 ## Kody błędów
 
@@ -141,7 +151,7 @@ Błąd ma postać `{ "code", "message" }` (`message` po polsku).
 | Kod | HTTP | Znaczenie |
 | --- | --- | --- |
 | `unauthorized` | 401 | brak lub zły klucz |
-| `rate_limited` | 429 | przekroczony limit 10 wywołań / 60 s |
+| `rate_limited` | 429 | przekroczony limit 10 generowań / 60 s (w MCP jako wynik narzędzia z `isError`, nie HTTP 429) |
 | `bad_request` | 400/404/405/413 | zły JSON, brak wymaganych danych, nieznana ścieżka lub metoda, za duże żądanie |
 | `unknown_template` | 400 | nie ma takiego szablonu |
 | `invalid_scheme` | 400 | schemat kolorów nie pasuje do szablonu |
