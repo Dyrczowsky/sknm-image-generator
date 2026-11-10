@@ -1,5 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import { registerSW } from 'virtual:pwa-register'
 import './index.css'
 import './assets/fonts/fonts.css'
 import App from './App'
@@ -20,6 +21,10 @@ const isRender = /^\/render\/?$/.test(path)
 // `?shape=cover|event` - banerowa wersja szablonu.
 const shapeParam = new URLSearchParams(window.location.search).get('shape')
 const previewShape: PosterShape = shapeParam !== null && shapeParam in SHAPE_SIZE ? (shapeParam as PosterShape) : 'square'
+
+// Service worker (autoUpdate) wszędzie poza /render: headless Chrome z API
+// nie potrzebuje cache'u, a SW mógłby podać przestarzałą stronę renderu.
+if (!isRender) registerSW({ immediate: true })
 
 const rootEl = document.getElementById('root')
 if (!rootEl) throw new Error('brak #root')

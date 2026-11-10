@@ -22,6 +22,8 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
+      // Rejestracja ręczna w src/main.tsx (pomijana na stronie /render dla API).
+      injectRegister: false,
       includeAssets: ['favicon.svg', 'icons.svg'],
       manifest: {
         name: 'Generator obrazów SKNM',
