@@ -82,6 +82,41 @@ describe('listHistory', () => {
   })
 })
 
+const LEGACY = 'id, created_at, poster_key, title, subtitle, speaker, event_date, event_time, location, color_scheme, snapshot'
+const { source: _s, image_url: _i, ...LEGACY_ROW } = STORED
+const missing = [
+  { code: '42703', message: 'column sknm_poster_history.source does not exist' },
+  { code: 'PGRST204', message: "Could not find the 'image_url' column of 'sknm_poster_history' in the schema cache" },
+  { message: 'column "source" does not exist' },
+]
+
+describe('brak kolumn source/image_url (aplikacja przed migracją)', () => {
+  it.each(missing)('listHistory ponawia ze starą listą kolumn i uzupełnia domyślne', async (error) => {
+    const { client, queries } = fakeSupabase([{ error }, { data: [LEGACY_ROW] }])
+    expect(await listHistory(client)).toEqual([STORED])
+    expect(queries).toHaveLength(2)
+    expect(queries[1]).toContainEqual(['select', LEGACY])
+  })
+
+  it.each(missing)('addHistoryEntry ponawia ze starą listą kolumn', async (error) => {
+    const { client, queries } = fakeSupabase([{ error }, { data: LEGACY_ROW }])
+    expect(await addHistoryEntry(client, ENTRY)).toEqual(STORED)
+    expect(queries[1]).toContainEqual(['select', LEGACY])
+  })
+
+  it('ponawia tylko raz: błąd ponowienia jest zgłaszany', async () => {
+    const { client, queries } = fakeSupabase([{ error: missing[0] }, { error: { message: 'boom' } }])
+    await expect(listHistory(client)).rejects.toThrow('boom')
+    expect(queries).toHaveLength(2)
+  })
+
+  it('inny błąd nie wywołuje ponowienia', async () => {
+    const { client, queries } = fakeSupabase({ error: { message: 'permission denied', code: '42501' } })
+    await expect(listHistory(client)).rejects.toThrow('permission denied')
+    expect(queries).toHaveLength(1)
+  })
+})
+
 describe('addHistoryEntry', () => {
   it('wstawia sam wpis (autora i datę uzupełnia baza) i zwraca zapisany wiersz', async () => {
     const { client, queries } = fakeSupabase({ data: STORED })
