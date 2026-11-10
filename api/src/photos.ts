@@ -121,12 +121,28 @@ function isApiError(v: Uint8Array | ApiError): v is ApiError {
   return !(v instanceof Uint8Array)
 }
 
+// Element tablicy z zewnątrz: zwykły obiekt, url/data tylko jako tekst, nie oba naraz.
+function checkItem(p: unknown, n: number): ApiError | null {
+  if (typeof p !== 'object' || p === null || Array.isArray(p)) return { code: 'bad_request', message: `Zdjęcie ${n}: oczekiwano obiektu.` }
+  const { url, data } = p as { url?: unknown; data?: unknown }
+  if (url !== undefined && typeof url !== 'string') return { code: 'bad_request', message: `Zdjęcie ${n}: pole "url" musi być tekstem.` }
+  if (data !== undefined && typeof data !== 'string') return { code: 'bad_request', message: `Zdjęcie ${n}: pole "data" musi być tekstem.` }
+  if (url !== undefined && data !== undefined) return { code: 'bad_request', message: `Zdjęcie ${n}: podaj tylko url albo tylko data.` }
+  return null
+}
+
 export async function loadPhotos(photos: PhotoIn[], fetchImpl: typeof fetch = fetch): Promise<LoadResult> {
   if (photos.length > MAX_PHOTOS) return fail('too_many_photos', `Maksymalnie ${MAX_PHOTOS} zdjęć na wywołanie.`)
+  // Cały kształt sprawdzamy przed pobieraniem czegokolwiek.
+  for (const [i, raw] of (photos as unknown[]).entries()) {
+    const bad = checkItem(raw, i + 1)
+    if (bad) return { ok: false, error: bad }
+  }
   const loaded: LoadedPhoto[] = []
   let total = 0
-  for (const [i, p] of photos.entries()) {
+  for (const [i, raw] of (photos as unknown[]).entries()) {
     const n = i + 1
+    const p = raw as PhotoIn
     let bytes: Uint8Array | ApiError
     if (p.url !== undefined) bytes = await fetchBytes(p.url, n, fetchImpl)
     else if (p.data !== undefined) {

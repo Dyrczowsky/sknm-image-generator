@@ -28,7 +28,7 @@ function setup(over: { render?: RenderResult; uploadImage?: () => Promise<string
   const loadPhotos = vi.fn(async () => ({ ok: true as const, photos: [{ bytes: JPEG, mime: 'image/jpeg' as const, x: 1, y: 2, zoom: 3 }] }))
   return { calls, sb, renderInBrowser, loadPhotos, deps: { renderInBrowser, loadPhotos, supabase: () => sb } }
 }
-const args = { template: 'wyklad', photos: { photo: [{ url: 'https://x/a.jpg', x: 1, y: 2, zoom: 3 }] } }
+const args = { template: 'gosc', photos: { photo: [{ url: 'https://x/a.jpg', x: 1, y: 2, zoom: 3 }] } }
 
 describe('generate', () => {
   it('szczęśliwa ścieżka: zdjęcia, PNG, historia na końcu', async () => {
@@ -41,11 +41,35 @@ describe('generate', () => {
     const png = s.sb.uploadImage.mock.calls[0][1] as Uint8Array
     expect(new TextDecoder().decode(png)).toBe('PNGDATA')
     const row = (s.sb.insertHistory.mock.calls[0] as unknown[])[0] as Record<string, unknown>
-    expect(row).toMatchObject({ template: 'wyklad', source: 'ai', image_url: r.ok ? r.value.url : '' })
+    expect(row).toMatchObject({ template: 'gosc', source: 'ai', image_url: r.ok ? r.value.url : '' })
     // do strony renderu idą data URL-e
     const sent = (s.renderInBrowser.mock.calls[0] as unknown[])[1] as { photos: { photo: { src: string; x: number }[] } }
     expect(sent.photos.photo[0].src).toMatch(/^data:image\/jpeg;base64,/)
     expect(sent.photos.photo[0].x).toBe(1)
+  })
+
+  it('photos: nie-obiekt lub dodatkowy klucz to invalid_field bez pobierania zdjęć', async () => {
+    for (const photos of ['x', null, [], { photo: [], foo: 1 }]) {
+      const s = setup()
+      expect(await generate(env, { template: 'gosc', photos }, s.deps)).toMatchObject({ ok: false, error: { code: 'invalid_field' } })
+      expect(s.loadPhotos).not.toHaveBeenCalled()
+      expect(s.renderInBrowser).not.toHaveBeenCalled()
+    }
+  })
+
+  it('zdjęcia dla szablonu bez zdjęć to invalid_field, puste photo przechodzi', async () => {
+    const s = setup()
+    expect(await generate(env, { template: 'wyklad', photos: { photo: [{ url: 'https://x/a.jpg' }] } }, s.deps))
+      .toMatchObject({ ok: false, error: { code: 'invalid_field' } })
+    expect(s.loadPhotos).not.toHaveBeenCalled()
+    await generate(env, { template: 'wyklad', photos: { photo: [] } }, s.deps)
+    expect(s.loadPhotos).toHaveBeenCalled()
+  })
+
+  it('nieznany szablon ze zdjęciami trafia do strony renderu', async () => {
+    const s = setup()
+    await generate(env, { template: 'nie-ma', photos: { photo: [{ url: 'https://x/a.jpg' }] } }, s.deps)
+    expect(s.loadPhotos).toHaveBeenCalled()
   })
 
   it('brak szablonu daje bad_request bez renderu', async () => {

@@ -50,6 +50,23 @@ describe('loadPhotos', () => {
   })
 })
 
+describe('walidacja elementów', () => {
+  it.each([[null], ['x'], [5], [[]]])('element %j to bad_request z numerem zdjęcia', async (item) => {
+    const r = await loadPhotos([item] as never)
+    expect(r).toMatchObject({ ok: false, error: { code: 'bad_request' } })
+    if (!r.ok) expect(r.error.message).toContain('Zdjęcie 1')
+  })
+  it('url i data nietekstowe to bad_request', async () => {
+    expect(await loadPhotos([{ url: 5 }] as never)).toMatchObject({ ok: false, error: { code: 'bad_request' } })
+    const r = await loadPhotos([{ data: 'QQ==' }, { data: {} }] as never)
+    expect(r).toMatchObject({ ok: false, error: { code: 'bad_request' } })
+    if (!r.ok) expect(r.error.message).toContain('Zdjęcie 2')
+  })
+  it('url razem z data to bad_request', async () => {
+    expect(await loadPhotos([{ url: 'https://a.test/1', data: b64(jpeg) }], respond(jpeg))).toMatchObject({ ok: false, error: { code: 'bad_request' } })
+  })
+})
+
 describe('base64 i przekierowania', () => {
   it('zbyt długi, nieprawidłowy base64 to photo_too_large (sprawdzane przed dekodowaniem)', async () => {
     const r = await loadPhotos([{ data: '*'.repeat(8 * 1024 * 1024) }])

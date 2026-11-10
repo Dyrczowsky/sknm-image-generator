@@ -3,6 +3,7 @@ import type { Env } from './env'
 import { loadPhotos, toDataUrl, type PhotoIn } from './photos'
 import { renderInBrowser } from './render'
 import { supabase } from './supabase'
+import catalog from './templates.json'
 
 export interface GenerateArgs extends Omit<RenderInput, 'photos'> {
   photos?: { photo?: PhotoIn[] }
@@ -34,8 +35,19 @@ export async function generate(env: Env, args: unknown, deps: GenerateDeps = def
     return fail('bad_request', 'Pole "template" jest wymagane (tekst).')
   }
   const input = args as GenerateArgs
+  const photos: unknown = input.photos
+  if (photos !== undefined && (typeof photos !== 'object' || photos === null || Array.isArray(photos))) {
+    return fail('invalid_field', 'Pole "photos" musi być obiektem z kluczem "photo".')
+  }
+  const extra = photos === undefined ? [] : Object.keys(photos as object).filter((k) => k !== 'photo')
+  if (extra.length > 0) return fail('invalid_field', `Pole "photos" ma niedozwolone klucze: ${extra.join(', ')}. Dozwolone jest tylko "photo".`)
   const photoList = input.photos?.photo
   if (photoList !== undefined && !Array.isArray(photoList)) return fail('bad_request', 'Pole "photos.photo" musi być tablicą.')
+  // Nieznany szablon zostawiamy stronie renderu (zwróci unknown_template).
+  const template = catalog.templates.find((t) => t.key === input.template)
+  if (template && template.photo === null && photoList !== undefined && photoList.length > 0) {
+    return fail('invalid_field', `Szablon "${template.key}" nie obsługuje zdjęć.`)
+  }
 
   const loadedResult = await deps.loadPhotos(photoList ?? [])
   if (!loadedResult.ok) return { ok: false, error: loadedResult.error }
