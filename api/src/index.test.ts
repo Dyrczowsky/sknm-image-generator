@@ -46,9 +46,18 @@ describe('index', () => {
     expect((await call(new Request('https://w.test/api/templates', { method: 'POST', headers: authed }))).status).toBe(405)
     expect((await call(new Request('https://w.test/nic', { headers: authed }))).status).toBe(404)
   })
-  it('/mcp po uwierzytelnieniu daje 404 (do zadania 9)', async () => {
-    expect((await call(new Request(`https://w.test/mcp/${KEY}`))).status).toBe(404)
-    expect((await call(new Request('https://w.test/mcp', { headers: authed }))).status).toBe(404)
+  it('/mcp: klucz w ścieżce i w nagłówku trafiają do MCP', async () => {
+    expect((await call(new Request(`https://w.test/mcp/${KEY}`))).status).toBe(405)
+    const res = await call(new Request('https://w.test/mcp', { method: 'POST', headers: authed, body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'ping' }) }))
+    expect(res.status).toBe(200)
+    expect((await call(new Request('https://w.test/mcp'))).status).toBe(401)
+  })
+  it('/.well-known/oauth-*: 404 przed uwierzytelnieniem', async () => {
+    for (const p of ['oauth-protected-resource', 'oauth-authorization-server']) {
+      const env = mkEnv()
+      expect((await call(new Request(`https://w.test/.well-known/${p}`), env)).status).toBe(404)
+      expect(env.RATE_LIMITER.limit).not.toHaveBeenCalled()
+    }
   })
   it('POST /api/render: zły JSON i brak szablonu to 400', async () => {
     const bad = await call(new Request('https://w.test/api/render', { method: 'POST', headers: authed, body: '{nie json' }))

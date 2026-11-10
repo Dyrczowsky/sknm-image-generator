@@ -1,10 +1,10 @@
 import type { ApiError } from '../../src/api/types'
+import { readBody } from './body'
 import { keyFrom, keyMatches } from './auth'
 import type { Env } from './env'
 import { generate } from './generate'
+import { handleMcp } from './mcp'
 import templates from './templates.json'
-
-const MAX_BODY_BYTES = 25 * 1024 * 1024
 
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json; charset=utf-8' } })
@@ -17,42 +17,19 @@ function statusFor(code: ApiError['code']): number {
   return 400
 }
 
-// Treść do 25 MB; sprawdza nagłówek i faktycznie odczytane bajty.
-async function readBody(request: Request): Promise<string | null> {
-  const declared = Number(request.headers.get('content-length'))
-  if (declared > MAX_BODY_BYTES) return null
-  const reader = request.body?.getReader()
-  if (!reader) return ''
-  const chunks: Uint8Array[] = []
-  let size = 0
-  for (;;) {
-    const { done, value } = await reader.read()
-    if (done) break
-    size += value.length
-    if (size > MAX_BODY_BYTES) {
-      await reader.cancel()
-      return null
-    }
-    chunks.push(value)
-  }
-  const all = new Uint8Array(size)
-  let offset = 0
-  for (const c of chunks) {
-    all.set(c, offset)
-    offset += c.length
-  }
-  return new TextDecoder().decode(all)
-}
-
 export default {
   async fetch(request: Request, env: Env, _ctx: ExecutionContext): Promise<Response> {
+    const { pathname } = new URL(request.url)
+    // claude.ai sprawdza te adresy; 404 znaczy "bez OAuth" (klucz idzie w ścieżce lub nagłówku).
+    if (pathname.startsWith('/.well-known/oauth-')) {
+      return errorResponse({ code: 'bad_request', message: 'Nie znaleziono.' }, 404)
+    }
     if (!keyMatches(keyFrom(request), env.SKNM_API_KEY)) {
       return errorResponse({ code: 'unauthorized', message: 'Brak lub nieprawidłowy klucz API.' }, 401)
     }
     const { success } = await env.RATE_LIMITER.limit({ key: 'global' })
     if (!success) return errorResponse({ code: 'rate_limited', message: 'Za dużo wywołań. Spróbuj ponownie za chwilę.' }, 429)
 
-    const { pathname } = new URL(request.url)
     const notFound = () => errorResponse({ code: 'bad_request', message: 'Nie znaleziono.' }, 404)
     const wrongMethod = () => errorResponse({ code: 'bad_request', message: 'Niedozwolona metoda.' }, 405)
 
@@ -74,7 +51,8 @@ export default {
       return json({ url, width, height, historyId })
     }
 
-    // `/mcp` i `/mcp/<klucz>` - obsługa w zadaniu 9.
+    if (pathname === '/mcp' || /^\/mcp\/[^/]+\/?$/.test(pathname)) return handleMcp(request, env)
+
     return notFound()
   },
 }
