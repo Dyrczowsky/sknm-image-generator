@@ -56,8 +56,15 @@ describe('buildRenderState', () => {
   })
 
   it('usuwa znaki sterujące U+E000-U+F8FF, zostawia \\n', () => {
-    const r = ok({ template: 'wyklad', fields: { title: 'AB\nC' } })
-    expect(r.state.form.title).toBe('AB\nC')
+    const r = ok({
+      template: 'wyklad',
+      fields: { title: 'A\uE001B\nC\uF8FF\uE000D' },
+      options: { qrUrl: 'http://x\uE002.pl' },
+    })
+    expect(r.state.form.title).toBe('AB\nCD')
+    expect(r.state.form.qrUrl).toBe('http://x.pl')
+    const k = ok({ template: 'konferencja', lists: { agenda: [{ title: 'T\uE003\nU', time: '\uF8FF10:00' }] } })
+    expect(k.state.form.lists.agenda).toEqual([{ title: 'T\nU', time: '10:00' }])
   })
 
   it('pominięte pola są ukryte', () => {

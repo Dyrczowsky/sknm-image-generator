@@ -1,7 +1,6 @@
 import { EMPTY_FORM } from '../editor/formState'
 import { DEFAULT_EXPORT_SETTINGS, shapeFor } from '../posters/formats'
 import { ACCENT_NAMES, accentAllowed, schemesFor } from '../posters/schemes'
-import { FORM_TEXT_FIELDS } from '../types'
 import type { AccentName, FormTextField, FormValues, ListItem, PhotoValue, PosterShape } from '../types'
 import type { EditorState } from '../snapshot/snapshot'
 import { encodeScheme } from '../utils/colorScheme'
@@ -26,7 +25,7 @@ const BOOLEAN_OPTIONS = ['showPkLogo', 'showSknmLogo', 'wideSubtitle', 'fillAgen
 const ALWAYS_VISIBLE: FormTextField[] = ['badge', 'badge2']
 
 // Znaki z prywatnego zakresu Unicode to znaczniki sterujące tekstu sformatowanego.
-const CONTROL_MARKS = /[-]/g
+const CONTROL_MARKS = /[\uE000-\uF8FF]/g
 
 let catalog: Catalog | undefined
 const getCatalog = (): Catalog => (catalog ??= buildCatalog())
@@ -189,8 +188,6 @@ export function buildRenderState(input: unknown): RenderStateResult {
 
   const formatKey: ApiShape = shapeInput
   const form: FormValues = { ...EMPTY_FORM, ...text, ...options, visibility, photos, lists }
-  // Pola tekstowe spoza `text` zostają puste z EMPTY_FORM.
-  for (const name of FORM_TEXT_FIELDS) form[name] = text[name] ?? ''
 
   return {
     ok: true,
