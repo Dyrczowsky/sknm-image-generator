@@ -5,8 +5,9 @@ import type { EditorSnapshot, EditorState } from '../snapshot/snapshot'
 import type { NewHistoryEntry } from '../types'
 import type { ApiError } from './types'
 
-// Limit `octet_length(snapshot::text)` w bazie.
-const MAX_SNAPSHOT_BYTES = 65536
+// Baza ogranicza `octet_length(snapshot::text)` do 65536, ale tekst jsonb ma
+// spacje po `:` i `,`, więc jest dłuższy niż JSON.stringify. Stąd zapas.
+const MAX_SNAPSHOT_BYTES = 60_000
 
 export type SnapshotResult =
   | { ok: true; snapshot: EditorSnapshot; photoRefs: string[]; historyRow: NewHistoryEntry }
@@ -39,7 +40,7 @@ export async function snapshotFor(state: EditorState): Promise<SnapshotResult> {
   }
   const snapshot = toSnapshot(state, (src) => refByDataUrl.get(src))
   if (new TextEncoder().encode(JSON.stringify(snapshot)).length > MAX_SNAPSHOT_BYTES) {
-    return { ok: false, error: { code: 'too_large', message: `Zapis projektu przekracza ${MAX_SNAPSHOT_BYTES} bajtów. Skróć teksty lub zmniejsz liczbę elementów.` } }
+    return { ok: false, error: { code: 'too_large', message: `Zapis projektu jest za duży (limit ${MAX_SNAPSHOT_BYTES} bajtów). Skróć teksty lub zmniejsz liczbę elementów.` } }
   }
   return { ok: true, snapshot, photoRefs, historyRow: newHistoryEntry(snapshot) }
 }

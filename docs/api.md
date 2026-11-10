@@ -128,8 +128,9 @@ zrób rotację klucza.
   do 5 MB każde, do 6 na wywołanie, do 15 MB łącznie.
 - Treść żądania do 25 MB. Pole tekstowe do 2000 znaków, agenda do 20 pozycji.
 - `titleScale` i `textScale`: 0,7 do 1,3.
-- Snapshot w historii do 65536 bajtów (zbyt duży zwraca błąd, nic nie jest
-  obcinane).
+- Snapshot w historii do 60000 bajtów (baza dopuszcza 65536 bajtów tekstu
+  jsonb, który jest dłuższy od JSON-a, stąd zapas; zbyt duży zwraca błąd
+  `too_large`, nic nie jest obcinane).
 - Render: 30 s. Pobranie zdjęcia z URL: 10 s.
 - Limit wywołań: 10 na 60 s, wspólny dla całego klucza.
 

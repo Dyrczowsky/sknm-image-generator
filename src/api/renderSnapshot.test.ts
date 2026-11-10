@@ -39,4 +39,12 @@ describe('snapshotFor', () => {
     expect(r.ok).toBe(false)
     if (!r.ok) expect(r.error.code).toBe('too_large')
   })
+
+  it('snapshot między 60000 a 65536 bajtów też jest odrzucany (zapas na spacje jsonb)', async () => {
+    const state = stateOf({ template: 'gosc' })
+    state.form.title = 'a'.repeat(62000)
+    const r = await snapshotFor(state)
+    expect(r.ok).toBe(false)
+    if (!r.ok) expect(r.error.message).toContain('60000')
+  })
 })
