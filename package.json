@@ -3,7 +3,6 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://dyrczowsky.github.io/sknm-image-generator",
   "scripts": {
     "dev": "vite",
     "build": "npm run typecheck && vite build",
@@ -34,6 +33,7 @@
     "tailwindcss": "^4.3.3",
     "typescript": "~5.9",
     "vite": "^8.2.0",
-    "vitest": "^4.1.11"
+    "vitest": "^4.1.11",
+    "wrangler": "^4.160.0"
   }
 }

@@ -90,7 +90,7 @@ Przykład: dodajemy wariant `morski` do Wykładu.
    ```
 
 3. Sprawdź: `npm run build && npm test`, potem podgląd
-   `http://localhost:5173/sknm-image-generator/poster/wyklad/morski`
+   `http://localhost:5173/poster/wyklad/morski`
    i pasek kolorystyki w generatorze.
 
 ## B. Nowa rola koloru (gdy layout potrzebuje kolejnego sterowanego elementu)
