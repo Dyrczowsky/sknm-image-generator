@@ -1,9 +1,10 @@
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Env } from './env'
 import type { GenerateResult } from './generate'
 import { handleMcp } from './mcp'
 
-const env = {} as Env
+const limiter = { limit: vi.fn(async () => ({ success: true })) }
+const env = { RATE_LIMITER: limiter } as unknown as Env
 const okResult: GenerateResult = { ok: true, value: { url: 'https://x.test/a.png', width: 1080, height: 1080, historyId: 7, png: 'QUJD' } }
 const post = (body: unknown) =>
   new Request('https://w.test/mcp', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: typeof body === 'string' ? body : JSON.stringify(body) })
@@ -15,6 +16,25 @@ const run = async (body: unknown, generate = vi.fn(async (): Promise<GenerateRes
 }
 
 describe('mcp', () => {
+  beforeEach(() => limiter.limit.mockClear())
+  it('limit: initialize, tools/list i list_templates go nie zużywają', async () => {
+    await run(rpc('initialize', {}))
+    await run(rpc('tools/list'))
+    await run(rpc('tools/call', { name: 'list_templates' }))
+    expect(limiter.limit).not.toHaveBeenCalled()
+  })
+  it('limit: generate_image zużywa limit', async () => {
+    await run(rpc('tools/call', { name: 'generate_image', arguments: { template: 'wyklad' } }))
+    expect(limiter.limit).toHaveBeenCalledWith({ key: 'global' })
+  })
+  it('limit przekroczony: wynik narzędzia z isError, bez wywołania generate', async () => {
+    limiter.limit.mockResolvedValueOnce({ success: false })
+    const { res, json, generate } = await run(rpc('tools/call', { name: 'generate_image', arguments: { template: 'wyklad' } }))
+    expect(res.status).toBe(200)
+    expect(json.result.isError).toBe(true)
+    expect(json.result.content[0].text).toMatch(/^rate_limited: /)
+    expect(generate).not.toHaveBeenCalled()
+  })
   it('GET daje 405', async () => {
     expect((await handleMcp(new Request('https://w.test/mcp'), env)).status).toBe(405)
   })

@@ -103,12 +103,17 @@ const isObject = (v: unknown): v is Record<string, unknown> => typeof v === 'obj
 const jsonResponse = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } })
 
+export const RATE_LIMITED_MESSAGE = 'Za dużo wywołań. Spróbuj ponownie za chwilę.'
+
 interface Deps { generate: typeof generate }
 
 async function callTool(env: Env, id: Id, params: unknown, deps: Deps) {
   if (!isObject(params) || typeof params.name !== 'string') return err(id, -32602, 'Brak nazwy narzędzia.')
   if (params.name === 'list_templates') return ok(id, text(JSON.stringify(templates)))
   if (params.name !== 'generate_image') return err(id, -32602, `Nieznane narzędzie: ${params.name}`)
+  // Limit tylko dla generowania; błąd jako zwykły wynik narzędzia, nie HTTP 429.
+  const { success } = await env.RATE_LIMITER.limit({ key: 'global' })
+  if (!success) return ok(id, text(`rate_limited: ${RATE_LIMITED_MESSAGE}`, true))
   const result = await deps.generate(env, params.arguments ?? {})
   if (!result.ok) return ok(id, text(`${result.error.code}: ${result.error.message}`, true))
   const { url, historyId, png } = result.value

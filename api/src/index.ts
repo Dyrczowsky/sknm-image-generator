@@ -3,7 +3,7 @@ import { readBody } from './body'
 import { keyFrom, keyMatches } from './auth'
 import type { Env } from './env'
 import { generate } from './generate'
-import { handleMcp } from './mcp'
+import { handleMcp, RATE_LIMITED_MESSAGE } from './mcp'
 import templates from './templates.json'
 
 const json = (body: unknown, status = 200) =>
@@ -27,9 +27,6 @@ export default {
     if (!keyMatches(keyFrom(request), env.SKNM_API_KEY)) {
       return errorResponse({ code: 'unauthorized', message: 'Brak lub nieprawidłowy klucz API.' }, 401)
     }
-    const { success } = await env.RATE_LIMITER.limit({ key: 'global' })
-    if (!success) return errorResponse({ code: 'rate_limited', message: 'Za dużo wywołań. Spróbuj ponownie za chwilę.' }, 429)
-
     const notFound = () => errorResponse({ code: 'bad_request', message: 'Nie znaleziono.' }, 404)
     const wrongMethod = () => errorResponse({ code: 'bad_request', message: 'Niedozwolona metoda.' }, 405)
 
@@ -37,6 +34,9 @@ export default {
 
     if (pathname === '/api/render') {
       if (request.method !== 'POST') return wrongMethod()
+      // Limit dotyczy tylko generowania obrazów (nie katalogu ani MCP initialize/tools/list).
+      const { success } = await env.RATE_LIMITER.limit({ key: 'global' })
+      if (!success) return errorResponse({ code: 'rate_limited', message: RATE_LIMITED_MESSAGE }, 429)
       const text = await readBody(request)
       if (text === null) return errorResponse({ code: 'bad_request', message: 'Treść żądania jest większa niż 25 MB.' }, 413)
       let args: unknown

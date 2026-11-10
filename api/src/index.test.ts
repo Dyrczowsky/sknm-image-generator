@@ -31,10 +31,26 @@ describe('index', () => {
     const res = await call(new Request('https://w.test/api/templates', { headers: { Authorization: 'Bearer zly' } }))
     expect(res.status).toBe(401)
   })
-  it('limit: 429 rate_limited', async () => {
-    const res = await call(new Request('https://w.test/api/templates', { headers: authed }), mkEnv(false))
+  it('limit: POST /api/render przy przekroczeniu to 429 rate_limited', async () => {
+    const res = await call(new Request('https://w.test/api/render', { method: 'POST', headers: authed, body: '{}' }), mkEnv(false))
     expect(res.status).toBe(429)
     expect((await res.json() as { code: string }).code).toBe('rate_limited')
+  })
+  it('limit: POST /api/render zużywa limit, zanim przeczyta treść', async () => {
+    const env = mkEnv()
+    await call(new Request('https://w.test/api/render', { method: 'POST', headers: authed, body: '{nie json' }), env)
+    expect(env.RATE_LIMITER.limit).toHaveBeenCalledTimes(1)
+    expect(env.RATE_LIMITER.limit).toHaveBeenCalledWith({ key: 'global' })
+  })
+  it('limit: GET /api/templates i MCP initialize/tools/list nie zużywają limitu', async () => {
+    const env = mkEnv(false)
+    const res = await call(new Request('https://w.test/api/templates', { headers: authed }), env)
+    expect(res.status).toBe(200)
+    for (const method of ['initialize', 'tools/list', 'ping']) {
+      const r = await call(new Request('https://w.test/mcp', { method: 'POST', headers: authed, body: JSON.stringify({ jsonrpc: '2.0', id: 1, method }) }), env)
+      expect(r.status).toBe(200)
+    }
+    expect(env.RATE_LIMITER.limit).not.toHaveBeenCalled()
   })
   it('GET /api/templates zwraca katalog', async () => {
     const res = await call(new Request('https://w.test/api/templates', { headers: authed }))
