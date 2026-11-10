@@ -1,4 +1,4 @@
-import type { AccentName, FormTextField } from '../types'
+import type { AccentName, CiekawostkaLayout, FormTextField, PkLogoKind, PosterLang } from '../types'
 
 // Maszynowo czytelny opis szablonów dla zewnętrznej AI (API / MCP).
 // Tylko `import type` - ten plik trafia też do Cloudflare Workera.
@@ -28,3 +28,38 @@ export interface Catalog {
   version: 1
   templates: CatalogTemplate[]
 }
+
+// --- Wejście i błędy API renderu ---
+
+export type ApiShape = 'square' | 'story'
+
+// `src` to data URL (Worker już pobrał i zdekodował obraz).
+export interface RenderPhoto { src: string; x?: number; y?: number; zoom?: number }
+
+export interface RenderInput {
+  template: string
+  shape?: ApiShape
+  scheme?: string
+  lang?: PosterLang
+  fields?: Partial<Record<FormTextField, string>>
+  photos?: { photo?: RenderPhoto[] }
+  lists?: { agenda?: { time?: string; title?: string; subtitle?: string }[] }
+  options?: {
+    qrUrl?: string
+    showPkLogo?: boolean
+    pkLogo?: PkLogoKind
+    showSknmLogo?: boolean
+    wideSubtitle?: boolean
+    ciekawostkaLayout?: CiekawostkaLayout
+    fillAgenda?: boolean
+    titleScale?: number
+    textScale?: number
+  }
+}
+
+export type ApiErrorCode =
+  | 'unauthorized' | 'rate_limited' | 'bad_request' | 'unknown_template' | 'invalid_scheme'
+  | 'invalid_field' | 'photo_not_image' | 'photo_too_large' | 'photo_fetch_failed' | 'too_many_photos'
+  | 'too_large' | 'render_unavailable' | 'render_failed' | 'storage_failed'
+
+export interface ApiError { code: ApiErrorCode; message: string }
