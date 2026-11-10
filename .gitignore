@@ -40,3 +40,6 @@ supabase/.env
 
 # Sekrety Workera API (lokalny wrangler dev)
 api/.dev.vars
+
+# Wynik pakowania Workera API (wrangler --dry-run)
+api-dist/

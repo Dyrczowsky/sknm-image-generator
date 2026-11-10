@@ -38,3 +38,6 @@ jobs:
         run: npm test
       - name: Build
         run: npm run build
+      - name: Bundle Worker API
+        # Wykrywa zepsuty bundle Workera już w PR (bez poświadczeń).
+        run: npx wrangler deploy --dry-run --outdir api-dist -c api/wrangler.jsonc
