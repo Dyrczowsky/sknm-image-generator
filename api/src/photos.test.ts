@@ -11,7 +11,7 @@ describe('loadPhotos', () => {
     const r = await loadPhotos([{ url: 'https://a.test/1' }, { url: 'https://a.test/2' }], (async (u: string) =>
       new Response(String(u).endsWith('/1') ? jpeg : '<!doctype html><html></html>')) as unknown as typeof fetch)
     expect(r).toMatchObject({ ok: false, error: { code: 'photo_not_image' } })
-    if (!r.ok) expect(r.error.message).toContain('2')
+    if (!r.ok) expect(r.error.message).toContain('Zdjęcie 2')
   })
   it('6 MB to photo_too_large', async () => {
     const big = new Uint8Array(6 * 1024 * 1024)
@@ -47,6 +47,33 @@ describe('loadPhotos', () => {
   })
   it('nieprawidłowy base64 to bad_request', async () => {
     expect(await loadPhotos([{ data: '***' }])).toMatchObject({ ok: false, error: { code: 'bad_request' } })
+  })
+})
+
+describe('base64 i przekierowania', () => {
+  it('zbyt długi, nieprawidłowy base64 to photo_too_large (sprawdzane przed dekodowaniem)', async () => {
+    const r = await loadPhotos([{ data: '*'.repeat(8 * 1024 * 1024) }])
+    expect(r).toMatchObject({ ok: false, error: { code: 'photo_too_large' } })
+  })
+  const redirect = (loc: string) => new Response(null, { status: 302, headers: { location: loc } })
+  it('przekierowanie na http: to bad_request', async () => {
+    expect(await loadPhotos([{ url: 'https://a.test/1' }], (async () => redirect('http://b.test/x')) as unknown as typeof fetch)).toMatchObject({ ok: false, error: { code: 'bad_request' } })
+  })
+  it('przekierowanie na adres IP to bad_request', async () => {
+    for (const loc of ['https://127.0.0.1/x', 'https://[::1]/x', 'https://localhost/x']) {
+      expect(await loadPhotos([{ url: 'https://a.test/1' }], (async () => redirect(loc)) as unknown as typeof fetch)).toMatchObject({ ok: false, error: { code: 'bad_request' } })
+    }
+  })
+  it('adres IP w pierwotnym URL to bad_request', async () => {
+    expect(await loadPhotos([{ url: 'https://10.0.0.1/x' }], respond(jpeg))).toMatchObject({ ok: false, error: { code: 'bad_request' } })
+  })
+  it('więcej niż 3 przekierowania to photo_fetch_failed', async () => {
+    expect(await loadPhotos([{ url: 'https://a.test/1' }], (async () => redirect('/loop')) as unknown as typeof fetch)).toMatchObject({ ok: false, error: { code: 'photo_fetch_failed' } })
+  })
+  it('jedno przekierowanie https działa (także względne)', async () => {
+    let calls = 0
+    const f = (async () => (calls++ === 0 ? redirect('/real.jpg') : new Response(jpeg))) as unknown as typeof fetch
+    expect(await loadPhotos([{ url: 'https://a.test/1' }], f)).toMatchObject({ ok: true, photos: [{ mime: 'image/jpeg' }] })
   })
 })
 

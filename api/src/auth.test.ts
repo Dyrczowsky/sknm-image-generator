@@ -16,6 +16,7 @@ describe('keyFrom', () => {
   it('brak klucza daje null', () => {
     expect(keyFrom(new Request('https://x.test/render'))).toBeNull()
     expect(keyFrom(new Request('https://x.test/mcp'))).toBeNull()
+    expect(keyFrom(new Request('https://x.test/mcp/a/b'))).toBeNull()
     expect(keyFrom(new Request('https://x.test/render', { headers: { Authorization: 'Bearer ' } }))).toBeNull()
   })
 })

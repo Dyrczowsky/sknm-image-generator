@@ -21,8 +21,10 @@ function sniffMime(b: Uint8Array): Mime | null {
   return null
 }
 
-function decodeBase64(data: string): Uint8Array | null {
+// Wynik `null` = nieprawidłowy base64, `'too_large'` = za długi ciąg (sprawdzane przed dekodowaniem).
+function decodeBase64(data: string): Uint8Array | null | 'too_large' {
   const raw = data.startsWith('data:') ? data.slice(data.indexOf(',') + 1) : data
+  if (raw.length > Math.ceil(MAX_PHOTO_BYTES / 3) * 4 + 1024) return 'too_large'
   try {
     const bin = atob(raw.replace(/\s+/g, ''))
     const bytes = new Uint8Array(bin.length)
@@ -69,21 +71,50 @@ async function readBounded(res: Response, n: number): Promise<Uint8Array | ApiEr
   return out
 }
 
+const MAX_REDIRECTS = 3
+
+// Tylko https i tylko nazwy hostów (bez adresów IP i localhost) - dotyczy też każdego przekierowania.
+function checkUrl(url: URL, n: number): ApiError | null {
+  if (url.protocol !== 'https:') return { code: 'bad_request', message: `Zdjęcie ${n}: dozwolone są tylko adresy https.` }
+  const host = url.hostname.toLowerCase()
+  if (host === 'localhost' || host.endsWith('.localhost') || host.startsWith('[') || /^[\d.]+$/.test(host)) {
+    return { code: 'bad_request', message: `Zdjęcie ${n}: adres IP i localhost są niedozwolone.` }
+  }
+  return null
+}
+
 async function fetchBytes(url: string, n: number, fetchImpl: typeof fetch): Promise<Uint8Array | ApiError> {
-  let parsed: URL
+  let current: URL
   try {
-    parsed = new URL(url)
+    current = new URL(url)
   } catch {
     return { code: 'bad_request', message: `Zdjęcie ${n}: nieprawidłowy adres URL.` }
   }
-  if (parsed.protocol !== 'https:') return { code: 'bad_request', message: `Zdjęcie ${n}: dozwolone są tylko adresy https.` }
-  try {
-    const res = await fetchImpl(parsed.href, { redirect: 'follow', signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) })
-    if (!res.ok) return { code: 'photo_fetch_failed', message: `Zdjęcie ${n}: nie udało się pobrać (HTTP ${res.status}).` }
-    return await readBounded(res, n)
-  } catch {
-    return { code: 'photo_fetch_failed', message: `Zdjęcie ${n}: nie udało się pobrać (błąd sieci lub przekroczono 10 s).` }
+  const failed: ApiError = { code: 'photo_fetch_failed', message: `Zdjęcie ${n}: nie udało się pobrać (błąd sieci lub przekroczono 10 s).` }
+  const deadline = AbortSignal.timeout(FETCH_TIMEOUT_MS)
+  for (let hop = 0; hop <= MAX_REDIRECTS; hop++) {
+    const bad = checkUrl(current, n)
+    if (bad) return bad
+    try {
+      const res = await fetchImpl(current.href, { redirect: 'manual', signal: deadline })
+      if (res.status >= 300 && res.status < 400) {
+        const location = res.headers.get('location')
+        await res.body?.cancel().catch(() => undefined)
+        if (!location) return failed
+        try {
+          current = new URL(location, current)
+        } catch {
+          return { code: 'bad_request', message: `Zdjęcie ${n}: nieprawidłowe przekierowanie.` }
+        }
+        continue
+      }
+      if (!res.ok) return { code: 'photo_fetch_failed', message: `Zdjęcie ${n}: nie udało się pobrać (HTTP ${res.status}).` }
+      return await readBounded(res, n)
+    } catch {
+      return failed
+    }
   }
+  return { code: 'photo_fetch_failed', message: `Zdjęcie ${n}: za dużo przekierowań.` }
 }
 
 function isApiError(v: Uint8Array | ApiError): v is ApiError {
@@ -99,7 +130,10 @@ export async function loadPhotos(photos: PhotoIn[], fetchImpl: typeof fetch = fe
     let bytes: Uint8Array | ApiError
     if (p.url !== undefined) bytes = await fetchBytes(p.url, n, fetchImpl)
     else if (p.data !== undefined) {
-      bytes = decodeBase64(p.data) ?? { code: 'bad_request', message: `Zdjęcie ${n}: nieprawidłowy base64.` }
+      const decoded = decodeBase64(p.data)
+      bytes = decoded === 'too_large'
+        ? { code: 'photo_too_large', message: `Zdjęcie ${n} jest większe niż 5 MB.` }
+        : decoded ?? { code: 'bad_request', message: `Zdjęcie ${n}: nieprawidłowy base64.` }
       if (!isApiError(bytes) && bytes.length > MAX_PHOTO_BYTES) bytes = { code: 'photo_too_large', message: `Zdjęcie ${n} jest większe niż 5 MB.` }
     } else bytes = { code: 'bad_request', message: `Zdjęcie ${n}: podaj url albo data.` }
     if (isApiError(bytes)) return { ok: false, error: bytes }
