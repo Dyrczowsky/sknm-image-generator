@@ -11,6 +11,7 @@ import { SHAPE_SIZE } from '../posters/shape'
 import type { EditorState } from '../snapshot/snapshot'
 import type { PosterShape } from '../types'
 import { decodeScheme } from '../utils/colorScheme'
+import { loadAllFonts } from '../utils/loadFonts'
 
 declare global {
   interface Window {
@@ -81,16 +82,25 @@ export function RenderPage({ initialJob }: { initialJob?: RenderJob }) {
     let queue: Promise<unknown> = Promise.resolve()
 
     const run = async (input: unknown): Promise<RenderResult> => {
-      const built = buildRenderState(input)
-      if (!built.ok) return built
-      const { state, formatKey, shape } = built
       try {
-        flushSync(() => setJob({ state, shape, id: ++jobId }))
+        const built = buildRenderState(input)
+        if (!built.ok) return built
+        const { state, formatKey, shape } = built
+        flushSync(() => {
+          setLayoutHeight(0)
+          setJob({ state, shape, id: ++jobId })
+        })
         const node = posterRef.current
         if (!node) throw new Error('Brak węzła plakatu.')
         await document.fonts.ready
         await Promise.all(Array.from(node.querySelectorAll('img'), (img) => img.decode()))
         await settled(node)
+        // Tekst plakatu mógł dopiero teraz poprosić o krój - wtedy dopasowanie
+        // policzono na foncie zastępczym; czekamy na krój i dopasowujemy znowu.
+        if (document.fonts.status !== 'loaded') {
+          await document.fonts.ready
+          await settled(node)
+        }
         const blob = await renderSocialPng(node, formatKey, shape)
         const [png, size] = await Promise.all([toBase64(blob), pngSize(blob)])
         const snap = await snapshotFor(state)
@@ -107,7 +117,7 @@ export function RenderPage({ initialJob }: { initialJob?: RenderJob }) {
       return result
     }
     let active = true
-    void document.fonts.ready.then(() => {
+    void loadAllFonts(document.fonts).then(() => {
       if (active) window.sknmReady = true
     })
     return () => {
