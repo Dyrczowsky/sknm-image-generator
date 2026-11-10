@@ -1,0 +1,155 @@
+# API i MCP (Worker `sknm-api`)
+
+Osobny Cloudflare Worker w `api/` pozwala zewnętrznej AI (Claude, skrypty)
+generować grafiki dokładnie tak, jak robi to aplikacja: z tych samych
+szablonów, tym samym kodem renderu i eksportu. Wynik to PNG zapisany
+w Supabase Storage plus wpis we wspólnej historii (`source = 'ai'`).
+
+## Jak to działa
+
+```
+klient (curl / Claude)
+   │  POST /api/render  albo  MCP /mcp
+   ▼
+Worker sknm-api ──► pobiera/dekoduje zdjęcia, sprawdza limity
+   │
+   ├─► Browser Rendering otwiera <RENDER_URL> (strona /render aplikacji),
+   │   przekazuje dane, strona rysuje plakat tymi samymi komponentami
+   │   i zwraca PNG (html-to-image, jak przycisk "Pobierz")
+   │
+   └─► Supabase (service_role): zdjęcia -> bucket sknm-poster-assets,
+       PNG -> bucket sknm-ai-images, wiersz w tabeli historii
+   ▼
+odpowiedź: publiczny URL obrazu + id wpisu w historii
+```
+
+Endpointy:
+
+| Ścieżka | Metoda | Opis |
+| --- | --- | --- |
+| `/api/templates` | GET | katalog szablonów (pola, schematy kolorów, opcje) |
+| `/api/render` | POST | wygenerowanie grafiki |
+| `/mcp` | POST | serwer MCP (klucz w nagłówku `Authorization`) |
+| `/mcp/<klucz>` | POST | serwer MCP (klucz w ścieżce, dla claude.ai) |
+
+Narzędzia MCP: `list_templates` i `generate_image`.
+
+## Konfiguracja jednorazowa
+
+1. **Migracja bazy.** Zanim cokolwiek wdrożysz, uruchom
+   `supabase/migrations/20261110000000_ai_history.sql` (kolumna `source`,
+   bucket `sknm-ai-images`). Szczegóły: [supabase.md](./supabase.md).
+2. **Klucz API.** Wygeneruj długi losowy klucz:
+
+   ```bash
+   openssl rand -hex 32
+   ```
+
+3. **Sekrety Workera** (wartości wpisujesz po pytaniu, nie w poleceniu):
+
+   ```bash
+   npx wrangler secret put SKNM_API_KEY -c api/wrangler.jsonc
+   npx wrangler secret put SUPABASE_URL -c api/wrangler.jsonc
+   npx wrangler secret put SUPABASE_SERVICE_ROLE_KEY -c api/wrangler.jsonc
+   ```
+
+   Klucz `service_role` ma pełny dostęp do bazy. Trzymaj go tylko jako sekret
+   Workera: nigdy w `VITE_*`, w repozytorium ani w przeglądarce.
+4. **Adres.** W `api/wrangler.jsonc` dodaj trasę albo domenę własną, np.
+   `"routes": [{ "pattern": "api.sknm.example/*", "custom_domain": true }]`
+   (domena musi być w tej samej strefie Cloudflare). Bez tego Worker jest
+   dostępny pod `sknm-api.<konto>.workers.dev`. Zmienna `RENDER_URL` wskazuje
+   stronę `/render` wdrożonej aplikacji.
+5. **Plan.** Browser Rendering może wymagać planu Workers Paid.
+6. **Wdrożenie.** Robi je CI (`deploy-api` w
+   `.github/workflows/deploy.yml`) po wdrożeniu aplikacji; Worker jest
+   pakowany w jobie `build`, a job z tokenem wysyła gotowy plik
+   (`--no-bundle`) i nie uruchamia kodu z repo.
+
+Lokalnie (`wrangler dev`) sekrety trzymaj w `api/.dev.vars` (w `.gitignore`).
+
+## Rotacja klucza
+
+1. `openssl rand -hex 32` i `npx wrangler secret put SKNM_API_KEY -c api/wrangler.jsonc`.
+2. Stary klucz przestaje działać od razu. Zaktualizuj go w claude.ai
+   (adres konektora), Claude Desktop i Claude Code.
+
+Gdy klucz wyciekł (np. w historii czatu lub logach), rotuj go od razu.
+
+## REST
+
+Klucz w nagłówku `Authorization: Bearer <klucz>`.
+
+```bash
+# katalog szablonów
+curl -H "Authorization: Bearer $SKNM_API_KEY" https://<api>/api/templates
+
+# grafika z polami tekstowymi
+curl -X POST https://<api>/api/render \
+  -H "Authorization: Bearer $SKNM_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"template":"wyklad","shape":"square","fields":{"title":"Wykład o AI"}}'
+
+# ze zdjęciem z adresu https
+curl -X POST https://<api>/api/render \
+  -H "Authorization: Bearer $SKNM_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"template":"wyklad","photos":{"photo":[{"url":"https://example.com/foto.jpg"}]}}'
+```
+
+Odpowiedź: `{ "url", "width", "height", "historyId" }`. Nazwy szablonów, pól
+i schematów kolorów zwraca `/api/templates`. Zdjęcia: `{"url": ...}` (preferowane)
+albo `{"data": "<base64>"}`, opcjonalnie `x`, `y`, `zoom`.
+
+## Podłączenie AI (MCP)
+
+Zamiast `<api>` wstaw adres Workera, a `<klucz>` swój klucz.
+
+- **claude.ai** (Ustawienia, Konektory, Dodaj konektor niestandardowy): URL
+  `https://<api>/mcp/<klucz>`. claude.ai nie pozwala ustawić nagłówka, dlatego
+  klucz jest w ścieżce.
+- **Claude Desktop:** ten sam konektor dodany w claude.ai pojawia się
+  w aplikacji; można też użyć adresu z kluczem w ścieżce.
+- **Claude Code:**
+
+  ```bash
+  claude mcp add --transport http sknm https://<api>/mcp \
+    --header "Authorization: Bearer <klucz>"
+  ```
+
+**Uwaga:** adres `https://<api>/mcp/<klucz>` jest sekretem, równoważnym
+hasłu. Nie wklejaj go do czatów, zgłoszeń ani repozytorium. Jeśli się ujawni,
+zrób rotację klucza.
+
+## Limity
+
+- Kształty: tylko `square` (1080x1080) i `story` (1080x1920).
+- Zdjęcia: JPEG/PNG (rozpoznawane po bajtach, nie po deklarowanym typie),
+  do 5 MB każde, do 6 na wywołanie, do 15 MB łącznie.
+- Treść żądania do 25 MB. Pole tekstowe do 2000 znaków, agenda do 20 pozycji.
+- `titleScale` i `textScale`: 0,7 do 1,3.
+- Snapshot w historii do 65536 bajtów (zbyt duży zwraca błąd, nic nie jest
+  obcinane).
+- Render: 30 s. Pobranie zdjęcia z URL: 10 s.
+- Limit wywołań: 10 na 60 s, wspólny dla całego klucza.
+
+## Kody błędów
+
+Błąd ma postać `{ "code", "message" }` (`message` po polsku).
+
+| Kod | HTTP | Znaczenie |
+| --- | --- | --- |
+| `unauthorized` | 401 | brak lub zły klucz |
+| `rate_limited` | 429 | przekroczony limit 10 wywołań / 60 s |
+| `bad_request` | 400/404/405/413 | zły JSON, brak wymaganych danych, nieznana ścieżka lub metoda, za duże żądanie |
+| `unknown_template` | 400 | nie ma takiego szablonu |
+| `invalid_scheme` | 400 | schemat kolorów nie pasuje do szablonu |
+| `invalid_field` | 400 | niedozwolone pole lub wartość (np. za długi tekst, skala poza zakresem) |
+| `photo_not_image` | 400 | zdjęcie nie jest JPEG ani PNG |
+| `photo_too_large` | 400 | zdjęcie ponad 5 MB lub zdjęcia razem ponad 15 MB |
+| `photo_fetch_failed` | 400 | nie udało się pobrać zdjęcia z URL |
+| `too_many_photos` | 400 | więcej niż 6 zdjęć |
+| `too_large` | 400 | dane (np. snapshot) przekraczają limit rozmiaru |
+| `render_unavailable` | 503 | Browser Rendering chwilowo niedostępny, można ponowić |
+| `render_failed` | 500 | render się nie powiódł |
+| `storage_failed` | 500 | zapis w Supabase się nie powiódł, można ponowić |
