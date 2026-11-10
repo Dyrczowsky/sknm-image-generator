@@ -3,12 +3,16 @@ name: CI
 on:
   pull_request:
     branches: ["main"]
+  # claude-issue.yml odpala CI ręcznie na swojej gałęzi: PR otwarty przez
+  # GITHUB_TOKEN nie uruchamia zdarzenia pull_request, a check "check" jest
+  # wymagany do merge na main.
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: ci-${{ github.event.pull_request.number }}
+  group: ci-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
