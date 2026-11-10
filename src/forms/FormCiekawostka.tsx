@@ -8,7 +8,9 @@ import type { FieldSpec } from './fields'
 import { FormGroup } from './FormGroup'
 import { PosterForm } from './PosterForm'
 
-const CIEKAWOSTKA_FIELDS: FieldSpec[] = [
+export const CIEKAWOSTKA_PHOTO_LABEL = 'Zdjęcie'
+
+export const CIEKAWOSTKA_FIELDS: FieldSpec[] = [
   badgeField(DEFAULT_BADGE.ciekawostka.pl),
   { ...FIELDS.title, placeholder: PLACEHOLDERS.ciekawostkaTitle },
   { name: 'body', label: 'Opis', type: 'textarea', rows: 6, placeholder: PLACEHOLDERS.ciekawostkaBody },
@@ -27,7 +29,7 @@ const LAYOUTS: { key: CiekawostkaLayout; label: string }[] = [
 export function FormCiekawostka(props: FormProps) {
   const { value, onChange } = props
   return (
-    <PosterForm {...props} fields={CIEKAWOSTKA_FIELDS} photoLabel="Zdjęcie">
+    <PosterForm {...props} fields={CIEKAWOSTKA_FIELDS} photoLabel={CIEKAWOSTKA_PHOTO_LABEL}>
       <FormGroup title="Układ">
         <div role="group" aria-label="Układ plakatu" className="flex flex-wrap gap-2">
           {LAYOUTS.map(({ key, label }) => (

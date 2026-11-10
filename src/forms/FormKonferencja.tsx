@@ -11,7 +11,7 @@ import { PosterForm } from './PosterForm'
 
 // Krótszy zestaw pól (bez podtytułu, prelegenta i godziny) + druga plakietka
 // w stopce plakatu.
-const KONFERENCJA_FIELDS: FieldSpec[] = [
+export const KONFERENCJA_FIELDS: FieldSpec[] = [
   badgeField(DEFAULT_BADGE.seminarium.pl, 'Etykieta nagłówka'),
   FIELDS.title,
   FIELDS.date,

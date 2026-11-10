@@ -5,7 +5,9 @@ import type { FieldSpec } from './fields'
 import { PosterForm } from './PosterForm'
 
 // Dolna linia plakatu („Wstęp wolny · adres strony") - własny tekst albo ukrycie.
-const GOSC_FIELDS: FieldSpec[] = [
+export const GOSC_PHOTO_LABEL = 'Zdjęcie prelegenta'
+
+export const GOSC_FIELDS: FieldSpec[] = [
   badgeField(DEFAULT_BADGE.seminarium.pl),
   FIELDS.title,
   FIELDS.subtitle,
@@ -18,5 +20,5 @@ const GOSC_FIELDS: FieldSpec[] = [
 
 // Formularz Gościa - pełny zestaw pól wydarzenia + zdjęcie prelegenta.
 export function FormGosc(props: FormProps) {
-  return <PosterForm {...props} fields={GOSC_FIELDS} photoLabel="Zdjęcie prelegenta" />
+  return <PosterForm {...props} fields={GOSC_FIELDS} photoLabel={GOSC_PHOTO_LABEL} />
 }
