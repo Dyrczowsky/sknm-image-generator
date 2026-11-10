@@ -169,7 +169,9 @@ async function renderSocial(node: HTMLElement, shape: PosterShape, size: Size): 
 // Ten sam kod co przycisk "Pobierz", ale zwraca PNG zamiast zapisywać plik
 // (używa go strona /render dla API).
 export function renderSocialPng(node: HTMLElement, formatKey: 'square' | 'story', shape: PosterShape): Promise<Blob> {
-  return renderSocial(node, shape, EXPORT_FORMATS[formatKey])
+  const { width, height } = EXPORT_FORMATS[formatKey]
+  if (width === undefined || height === undefined) throw new Error(`format ${formatKey} nie ma rozmiaru w px`)
+  return renderSocial(node, shape, { width, height })
 }
 
 // Papier: PNG albo PDF w rozmiarze strony, przez drabinkę dpi. Zwraca
