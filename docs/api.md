@@ -122,9 +122,19 @@ Zamiast `<api>` wstaw adres Workera, a `<klucz>` swój klucz.
     --header "Authorization: Bearer <klucz>"
   ```
 
-**Uwaga:** adres `https://<api>/mcp/<klucz>` jest sekretem, równoważnym
-hasłu. Nie wklejaj go do czatów, zgłoszeń ani repozytorium. Jeśli się ujawni,
-zrób rotację klucza.
+**Bezpieczeństwo klucza:**
+
+- Gdzie się da, używaj nagłówka `Authorization: Bearer <klucz>` (Claude Code,
+  skrypty, `curl`). Klucz w ścieżce `/mcp/<klucz>` zostaw tylko dla claude.ai.
+- Adres `https://<api>/mcp/<klucz>` jest sekretem, równoważnym hasłu. Nie
+  wklejaj go do czatów, zgłoszeń ani repozytorium. Jeśli się ujawni, zrób
+  rotację klucza.
+- Worker nie loguje adresów żądań ani kluczy: w `api/wrangler.jsonc` logi
+  wywołań (`invocation_logs`) są wyłączone, zostają tylko komunikaty błędów
+  z kodu. Nie włączaj `invocation_logs`, póki używasz klucza w ścieżce.
+- Klucz z `openssl rand -hex 32` (64 znaki) jest nie do zgadnięcia; klucz
+  porównywany jest w stałym czasie, a bez ustawionego sekretu Worker odrzuca
+  każde wywołanie (401).
 
 ## Limity
 
