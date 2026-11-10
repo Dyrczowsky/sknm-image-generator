@@ -542,6 +542,8 @@ describe('snapshotFromLegacyHistory', () => {
     event_time: '17:00',
     location: 'Aula',
     color_scheme: 'granat~zolty',
+    source: 'app',
+    image_url: null,
   }
 
   it('sześć pól tekstowych, szablon i kolory z wpisu, reszta domyślna', () => {

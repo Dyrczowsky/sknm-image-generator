@@ -107,9 +107,15 @@ export interface HistoryEntry {
   color_scheme: string | null
   // Pełny snapshot edytora (surowy jsonb); null w starych wpisach sprzed snapshotów.
   snapshot: unknown
+  // Skąd wpis: z aplikacji albo wygenerowany przez API (Worker, wpisy bez autora).
+  source: 'app' | 'ai'
+  // Publiczny link do PNG w kubełku `sknm-ai-images`; tylko dla wpisów AI.
+  image_url: string | null
 }
 
-export type NewHistoryEntry = Omit<HistoryEntry, 'id' | 'created_at'>
+// Aplikacja nie ustawia `source` ani `image_url` - polityka RLS pozwala jej
+// wstawić wyłącznie wpis `app` bez obrazu.
+export type NewHistoryEntry = Omit<HistoryEntry, 'id' | 'created_at' | 'source' | 'image_url'>
 
 // --- Schematy kolorów ---
 export type SygnetName = 'negatywny' | 'granat' | 'zloty' | 'szary' | 'czarny' | 'srebrny'

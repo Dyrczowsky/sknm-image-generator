@@ -7,11 +7,11 @@ import { fakeSupabase } from '../supabase/fakeClient'
 import type { NewHistoryEntry } from '../types'
 import { HISTORY_LIMIT, addHistoryEntry, deleteHistoryEntry, listHistory, newHistoryEntry } from './remoteHistory'
 
-const COLUMNS = 'id, created_at, poster_key, title, subtitle, speaker, event_date, event_time, location, color_scheme, snapshot'
+const COLUMNS = 'id, created_at, poster_key, title, subtitle, speaker, event_date, event_time, location, color_scheme, snapshot, source, image_url'
 const ENTRY: NewHistoryEntry = {
   poster_key: 'wyklad', title: 'Tytuł', subtitle: '', speaker: 'dr X', event_date: '2031-03-04', event_time: '17:30', location: 'sala 1', color_scheme: 'czern~zloty', snapshot: null,
 }
-const STORED = { id: 7, created_at: '2031-03-01T10:00:00+00:00', ...ENTRY }
+const STORED = { id: 7, created_at: '2031-03-01T10:00:00+00:00', ...ENTRY, source: 'app' as const, image_url: null }
 
 const snap = (over: Partial<EditorSnapshot> = {}): EditorSnapshot => ({
   v: 2, poster_key: 'gosc', color_scheme: 'czern~zloty', lang: 'pl', export: { ...DEFAULT_EXPORT_SETTINGS },
@@ -56,6 +56,14 @@ describe('newHistoryEntry', () => {
 })
 
 describe('listHistory', () => {
+  it('zwraca źródło wpisu i link do obrazu (wpisy AI)', async () => {
+    const ai = { ...STORED, id: 8, source: 'ai' as const, image_url: 'https://x.supabase.co/storage/v1/object/public/sknm-ai-images/2031-03-01/a.png' }
+    const { client } = fakeSupabase({ data: [ai, STORED] })
+    const list = await listHistory(client)
+    expect(list.map((e) => e.source)).toEqual(['ai', 'app'])
+    expect(list[0].image_url).toBe(ai.image_url)
+  })
+
   it('czyta najnowsze wpisy z tabeli sknm_poster_history', async () => {
     const { client, queries } = fakeSupabase({ data: [STORED] })
     expect(await listHistory(client)).toEqual([STORED])

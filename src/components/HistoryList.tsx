@@ -7,7 +7,7 @@ import { parseSnapshot, snapshotFromLegacyHistory } from '../snapshot/snapshot'
 import { CARD_GRID, THUMB_BOX, THUMB_FIELD, cardClass } from './cardStyles'
 import { EmptyNote } from './cards'
 import { SnapshotThumb } from './SnapshotThumb'
-import { Button, ConfirmButton } from './ui'
+import { Badge, Button, ConfirmButton } from './ui'
 import type { HistoryEntry, PosterLang } from '../types'
 
 const KNOWN_LAYOUTS = Object.keys(posterRegistry)
@@ -49,11 +49,20 @@ function HistoryCard({ entry, onRestore, onDelete, lang = 'pl' }: HistoryCardPro
 
       <div className="flex flex-1 flex-col gap-3 p-3.5">
         <div className="flex min-w-0 flex-col gap-1">
-          <strong className="truncate text-[0.9375rem]" title={toPlain(entry.title)}>{toPlain(entry.title) || '(bez tytułu)'}</strong>
+          <div className="flex min-w-0 items-center gap-1.5">
+            <strong className="truncate text-[0.9375rem]" title={toPlain(entry.title)}>{toPlain(entry.title) || '(bez tytułu)'}</strong>
+            {entry.source === 'ai' && <Badge tone="accent">AI</Badge>}
+          </div>
           {when && <span className="truncate">{when}</span>}
           <span className="truncate text-[0.8125rem] text-muted">{look}</span>
           <span className="truncate text-[0.8125rem] text-muted">{formatTimestamp(entry.created_at)}</span>
         </div>
+
+        {entry.source === 'ai' && entry.image_url && (
+          <a href={entry.image_url} target="_blank" rel="noopener" className="text-[0.8125rem] text-accent-text underline underline-offset-2">
+            Otwórz obraz
+          </a>
+        )}
 
         <div className="mt-auto flex flex-wrap items-center gap-1.5">
           <Button variant="outline" icon="restore" className="flex-1" onClick={() => onRestore(entry)}>Przywróć</Button>

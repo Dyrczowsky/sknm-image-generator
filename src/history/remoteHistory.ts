@@ -4,7 +4,7 @@ import type { EditorSnapshot } from '../snapshot/snapshot'
 import type { HistoryEntry, NewHistoryEntry } from '../types'
 
 const TABLE = 'sknm_poster_history'
-const COLUMNS = 'id, created_at, poster_key, title, subtitle, speaker, event_date, event_time, location, color_scheme, snapshot'
+const COLUMNS = 'id, created_at, poster_key, title, subtitle, speaker, event_date, event_time, location, color_scheme, snapshot, source, image_url'
 export const HISTORY_LIMIT = 50
 
 // Limity długości wąskich kolumn w bazie (`char_length` w migracji
