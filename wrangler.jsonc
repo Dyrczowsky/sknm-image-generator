@@ -1,0 +1,14 @@
+// Cloudflare Worker serwujący statyczny build (dist) pod https://sknm.dyrczowsky.win/
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "sknm-image-generator",
+  "compatibility_date": "2026-11-10",
+  // Wrangler sam buduje przed deployem/uploadem - z plikiem konfiguracyjnym
+  // Workers Builds nie wykrywa już Vite automatycznie i nie tworzy dist.
+  "build": { "command": "npm run build" },
+  "assets": {
+    "directory": "./dist",
+    // Nieznane ścieżki (np. /poster/wyklad) dostają index.html.
+    "not_found_handling": "single-page-application"
+  }
+}

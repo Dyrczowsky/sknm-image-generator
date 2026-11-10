@@ -16,7 +16,7 @@ renderująca plakaty 1080×1080 i eksportująca je do PNG przez `html-to-image`.
 
 ```bash
 npm install
-npm run dev        # http://localhost:5173/sknm-image-generator/
+npm run dev        # http://localhost:5173/
 npm run build      # typecheck (tsc) + build produkcyjny
 npm test           # vitest
 npm run lint       # oxlint
@@ -25,4 +25,4 @@ npm run lint       # oxlint
 Podgląd pojedynczego szablonu z danymi przykładowymi (routing po ścieżce
 w `src/main.tsx`): `<BASE_URL>poster/<poster_key>` lub
 `<BASE_URL>poster/<poster_key>/<scheme>`, np. w dev:
-`http://localhost:5173/sknm-image-generator/poster/wyklad/czern`.
+`http://localhost:5173/poster/wyklad/czern`.

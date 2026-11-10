@@ -31,8 +31,8 @@ zapisuje się lokalnie w przeglądarce; jego eksporty nie trafiają do historii.
 3. **Authentication → Sign In / Providers** → wyłącz „Allow new users to sign
    up". Konta powstają wyłącznie z zaproszeń.
 4. **Authentication → URL Configuration**:
-   - Site URL: `https://dyrczowsky.github.io/sknm-image-generator/`
-   - Redirect URLs: dodaj `http://localhost:5173/sknm-image-generator/`
+   - Site URL: `https://sknm.dyrczowsky.win/`
+   - Redirect URLs: dodaj `http://localhost:5173/`
 5. **Authentication → Users → Invite user** dla każdej osoby z zarządu. Link
    z maila otwiera generator z formularzem „Ustaw hasło".
 6. Dopisz zaproszoną osobę do listy członków (**SQL Editor**):
@@ -53,10 +53,9 @@ zapisuje się lokalnie w przeglądarce; jego eksporty nie trafiają do historii.
 | `VITE_SUPABASE_ANON_KEY` | Project Settings → API → klucz `anon` / publishable |
 
 - **Lokalnie:** skopiuj `.env.example` do `.env.local` i uzupełnij.
-- **GitHub Pages:** repozytorium → Settings → Environments → `github-pages` →
-  **Environment secrets** → dodaj obie. `deploy.yml` przekazuje je do builda
-  (zadanie `build` działa w tym środowisku). Po zmianie wartości trzeba
-  uruchomić deploy ponownie - są wkompilowane w build.
+- **Cloudflare:** projekt → Settings → **Build** → Variables and secrets →
+  dodaj obie (jako zmienne builda, nie tylko runtime). Po zmianie wartości
+  trzeba uruchomić build ponownie - są wkompilowane w build.
 
 Klucz anon jest publiczny z założenia (trafia do zbudowanego JS). Dostępu
 pilnuje RLS: rola `anon` nie ma żadnej polityki, a zalogowani muszą być na

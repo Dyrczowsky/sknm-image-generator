@@ -161,10 +161,10 @@ Tablica `PAGES` jest jedynym źródłem nazw, hashy i kolejności w nawigacji
 wstecz / dalej i odświeżenie). `parseRoute` nigdy nie rzuca i ignoruje wielkość
 liter, końcowy `/` i sufiks `?...`.
 
-**Dlaczego hash, a nie ścieżki.** Aplikacja stoi na GitHub Pages pod
-`/sknm-image-generator/` (`base` w `vite.config.ts`). To statyczny hosting bez
-przepisywania adresów: głęboki link typu `/projekty` kończyłby się 404 po
-odświeżeniu, a hash nigdy nie trafia na serwer. Drugi powód: linki z Supabase
+**Dlaczego hash, a nie ścieżki.** Aplikacja stoi na Cloudflare pod korzeniem
+własnej domeny (`base: '/'` w `vite.config.ts`). Hash nie zależy od tego, czy
+hosting przepisuje nieznane ścieżki na `index.html`, i nigdy nie trafia na
+serwer. Drugi powód: linki z Supabase
 (zaproszenie, reset hasła) wracają na adres aplikacji z tokenami w hashu
 (`#access_token=...&type=recovery`, patrz `arrivedToSetPassword` w
 `supabase/client.ts`). Nie są one ścieżkami, więc `parseRoute` zwraca dla nich

@@ -292,7 +292,7 @@ npm test
 ```
 
 Podgląd z danymi przykładowymi (dev):
-`http://localhost:5173/sknm-image-generator/poster/piknik`
+`http://localhost:5173/poster/piknik`
 oraz `.../poster/piknik/czern`.
 
 Potem uruchom `npm run dev`, wybierz „Piknik" w zakładce „Szablon", wypełnij
