@@ -1,5 +1,105 @@
-import { describe, expect, it } from 'vitest'
-import { canvasSizeFor, isWebKit } from './export'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { toCanvas, toPng } from 'html-to-image'
+import { canvasSizeFor, downloadPoster, isWebKit, renderSocialPng } from './export'
+
+vi.mock('html-to-image', () => ({ toCanvas: vi.fn(), toPng: vi.fn() }))
+
+interface FakeCanvas {
+  width: number
+  height: number
+  getContext: () => unknown
+  toBlob: (cb: (b: Blob | null) => void) => void
+  toDataURL: () => string
+}
+
+const fakeCanvases: FakeCanvas[] = []
+const pngBlob = new Blob(['png'], { type: 'image/png' })
+
+function fakeCanvas(): FakeCanvas {
+  const canvas: FakeCanvas = {
+    width: 0,
+    height: 0,
+    getContext: () => ({
+      drawImage: vi.fn(),
+      fillRect: vi.fn(),
+      getImageData: () => ({ data: [10, 20, 30, 255] }),
+    }),
+    toBlob: (cb) => cb(pngBlob),
+    toDataURL: () => 'data:image/png;base64,composited',
+  }
+  fakeCanvases.push(canvas)
+  return canvas
+}
+
+class FakeImage {
+  width = 1080
+  height = 1080
+  onload: (() => void) | null = null
+  set src(_: string) {
+    queueMicrotask(() => this.onload?.())
+  }
+}
+
+const node = { offsetHeight: 1080 } as HTMLElement
+const saved: string[] = []
+
+beforeEach(() => {
+  fakeCanvases.length = 0
+  saved.length = 0
+  vi.mocked(toCanvas).mockReset()
+  vi.mocked(toPng).mockReset().mockResolvedValue('data:image/png;base64,poster')
+  vi.mocked(toCanvas).mockImplementation(async (_n, o) => {
+    const c = fakeCanvas()
+    c.width = o?.canvasWidth ?? 0
+    c.height = o?.canvasHeight ?? 0
+    return c as unknown as HTMLCanvasElement
+  })
+  vi.stubGlobal('document', {
+    createElement: (tag: string) => {
+      if (tag === 'canvas') return fakeCanvas()
+      return { click: function (this: { download: string }) { saved.push(this.download) } }
+    },
+  })
+  vi.stubGlobal('Image', FakeImage)
+  vi.stubGlobal('fetch', vi.fn(async () => ({ blob: async () => pngBlob })))
+  vi.stubGlobal('URL', { createObjectURL: () => 'blob:x', revokeObjectURL: () => {} })
+})
+
+afterEach(() => {
+  vi.unstubAllGlobals()
+})
+
+describe('renderSocialPng', () => {
+  it('story w układzie story: rasteryzuje wprost do 1080×1920', async () => {
+    const blob = await renderSocialPng(node, 'story', 'story')
+    expect(blob).toBe(pngBlob)
+    expect(toCanvas).toHaveBeenCalledWith(node, expect.objectContaining({ canvasWidth: 1080, canvasHeight: 1920 }))
+    expect(toPng).not.toHaveBeenCalled()
+  })
+
+  it('story z układu square: plakat trafia na płótno 1080×1920', async () => {
+    const blob = await renderSocialPng(node, 'story', 'square')
+    expect(blob).toBe(pngBlob)
+    expect(toPng).toHaveBeenCalledOnce()
+    expect(toCanvas).not.toHaveBeenCalled()
+    expect(fakeCanvases.some((c) => c.width === 1080 && c.height === 1920)).toBe(true)
+  })
+
+  it('square z układu square: plakat bez dostawki (1080×1080)', async () => {
+    expect(await renderSocialPng(node, 'square', 'square')).toBe(pngBlob)
+    expect(toPng).toHaveBeenCalledOnce()
+  })
+})
+
+describe('downloadPoster (social)', () => {
+  it('square i story dalej idą tą samą ścieżką rastra i zapisują plik', async () => {
+    await downloadPoster(node, 'plakat', { formatKey: 'square', orientation: 'portrait', fileType: 'png', shape: 'square' })
+    expect(toPng).toHaveBeenCalledOnce()
+    await downloadPoster(node, 'plakat', { formatKey: 'story', orientation: 'portrait', fileType: 'png', shape: 'story' })
+    expect(toCanvas).toHaveBeenCalledWith(node, expect.objectContaining({ canvasWidth: 1080, canvasHeight: 1920 }))
+    expect(saved).toEqual(['plakat.png', 'plakat.png'])
+  })
+})
 
 describe('canvasSizeFor', () => {
   it('plakat mniejszy niż format: rozmiar formatu (story dostaje dostawkę)', () => {
