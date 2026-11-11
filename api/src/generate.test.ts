@@ -66,10 +66,14 @@ describe('generate', () => {
     expect(s.loadPhotos).toHaveBeenCalled()
   })
 
-  it('nieznany szablon ze zdjęciami trafia do strony renderu', async () => {
+  it('nieznany szablon i obce pole odrzucone przed pobraniem zdjęć i renderem', async () => {
     const s = setup()
-    await generate(env, { template: 'nie-ma', photos: { photo: [{ url: 'https://x/a.jpg' }] } }, s.deps)
-    expect(s.loadPhotos).toHaveBeenCalled()
+    expect(await generate(env, { template: 'nie-ma', photos: { photo: [{ url: 'https://x/a.jpg' }] } }, s.deps))
+      .toMatchObject({ ok: false, error: { code: 'unknown_template' } })
+    expect(await generate(env, { template: 'wyklad', fields: { nie_ma: 'x' } }, s.deps))
+      .toMatchObject({ ok: false, error: { code: 'invalid_field' } })
+    expect(s.loadPhotos).not.toHaveBeenCalled()
+    expect(s.renderInBrowser).not.toHaveBeenCalled()
   })
 
   it('brak szablonu daje bad_request bez renderu', async () => {
