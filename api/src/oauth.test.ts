@@ -33,7 +33,8 @@ function mkEnv(): Env {
     SUPABASE_URL: 'https://s.test',
     SUPABASE_SERVICE_ROLE_KEY: 'srv',
     RENDER_URL: 'https://r.test/render',
-    RATE_LIMITER: { limit: vi.fn(async () => ({ success: limitOk })) },
+    RATE_LIMITER: { limit: vi.fn(async () => ({ success: true })) },
+    LOGIN_LIMITER: { limit: vi.fn(async () => ({ success: limitOk })) },
     BROWSER: {} as Fetcher,
     OAUTH_KV: memoryKv(),
   } as unknown as Env

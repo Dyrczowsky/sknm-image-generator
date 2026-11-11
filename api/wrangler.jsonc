@@ -20,7 +20,9 @@
   },
   // Limit wywołań: 10 na 60 s dla każdego klucza osobno.
   "ratelimits": [
-    { "name": "RATE_LIMITER", "namespace_id": "1001", "simple": { "limit": 10, "period": 60 } }
+    { "name": "RATE_LIMITER", "namespace_id": "1001", "simple": { "limit": 10, "period": 60 } },
+    // Logowanie na stronie OAuth: 5 prób na 60 s osobno dla e-maila i dla adresu IP.
+    { "name": "LOGIN_LIMITER", "namespace_id": "1002", "simple": { "limit": 5, "period": 60 } }
   ]
   // Sekrety (wrangler secret put): SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY.
   // Klucze API są osobiste, w Supabase (tabela sknm_api_keys).

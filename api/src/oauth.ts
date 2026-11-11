@@ -64,8 +64,10 @@ export async function authorize(request: Request, env: Env, sb: typeof supabase 
     // Formularz zostaje ważny (handle zużywa dopiero approveConsent), więc po błędzie wystarczy wrócić.
     const email = String(form.get('email') ?? '').trim().toLowerCase()
     const password = String(form.get('password') ?? '')
-    const { success } = await env.RATE_LIMITER.limit({ key: `login:${email}` })
-    if (!success) return message(429, 'Za dużo prób logowania. Spróbuj ponownie za minutę.')
+    // Osobno na e-mail (zgadywanie hasła jednej osoby) i na IP (próby na wielu kontach).
+    const ip = request.headers.get('CF-Connecting-IP') ?? 'brak-ip'
+    const limits = await Promise.all([env.LOGIN_LIMITER.limit({ key: `email:${email}` }), env.LOGIN_LIMITER.limit({ key: `ip:${ip}` })])
+    if (!limits.every((l) => l.success)) return message(429, 'Za dużo prób logowania. Spróbuj ponownie za minutę.')
     const user = await sb(env).signIn(email, password)
     if (!user) return message(401, 'Nieprawidłowy e-mail lub hasło. Wróć do poprzedniej strony i spróbuj ponownie.')
     if (!(await sb(env).isMember(user.id))) return message(403, 'To konto nie należy do zespołu SKNM, więc nie może korzystać z generatora przez AI.')

@@ -4,6 +4,7 @@ import type { OAuthHelpers } from '@cloudflare/workers-oauth-provider'
 export interface Env {
   BROWSER: Fetcher
   RATE_LIMITER: RateLimit
+  LOGIN_LIMITER: RateLimit
   RENDER_URL: string
   SUPABASE_URL: string
   SUPABASE_SERVICE_ROLE_KEY: string
