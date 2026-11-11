@@ -40,7 +40,11 @@ function StaticText(props: PosterTextProps): ReactElement {
   // Pusty jak w edycji: bez widocznego tekstu (same znaczniki formatu też).
   const shown = toPlain(value ?? '') === '' ? fallback ?? '' : value ?? ''
   // Wyrównania tylko tam, gdzie pole w edycji je obsługuje (`alignable`).
-  return createElement(as, { style: textStyle(props) }, <RichText value={shown} inline={inline || !multiline} />)
+  // Wiersze widoczne jak w edycji - bez tego eksport i miniatury sklejają wiersze w jeden (#67).
+  // Pola w linii (`inline`) dziedziczą white-space z rodzica (np. `pre` w InfoLine).
+  const base = textStyle(props)
+  const style = multiline && !inline && !base?.whiteSpace ? { ...base, whiteSpace: 'pre-line' as const } : base
+  return createElement(as, { style }, <RichText value={shown} inline={inline || !multiline} />)
 }
 
 // Cofanie na plakacie nie działa w polu tekstowym (historia formularza jest
