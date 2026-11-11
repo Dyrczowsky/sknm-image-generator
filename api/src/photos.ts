@@ -1,6 +1,8 @@
 import type { ApiError } from '../../src/api/types'
 
-export interface PhotoIn { url?: string; data?: string; x?: number; y?: number; zoom?: number }
+// `ref` = zdjęcie z biblioteki grafik (nazwa z list_photos).
+export interface PhotoIn { url?: string; data?: string; ref?: string; x?: number; y?: number; zoom?: number }
+export type LoadRef = (ref: string) => Promise<Uint8Array | null>
 export type Mime = 'image/jpeg' | 'image/png'
 export interface LoadedPhoto { bytes: Uint8Array; mime: Mime; x?: number; y?: number; zoom?: number }
 export type LoadResult = { ok: true; photos: LoadedPhoto[] } | { ok: false; error: ApiError }
@@ -121,17 +123,17 @@ function isApiError(v: Uint8Array | ApiError): v is ApiError {
   return !(v instanceof Uint8Array)
 }
 
-// Element tablicy z zewnątrz: zwykły obiekt, url/data tylko jako tekst, nie oba naraz.
+// Element tablicy z zewnątrz: zwykły obiekt, url/data/ref tylko jako tekst, najwyżej jedno z nich.
 function checkItem(p: unknown, n: number): ApiError | null {
   if (typeof p !== 'object' || p === null || Array.isArray(p)) return { code: 'bad_request', message: `Zdjęcie ${n}: oczekiwano obiektu.` }
-  const { url, data } = p as { url?: unknown; data?: unknown }
-  if (url !== undefined && typeof url !== 'string') return { code: 'bad_request', message: `Zdjęcie ${n}: pole "url" musi być tekstem.` }
-  if (data !== undefined && typeof data !== 'string') return { code: 'bad_request', message: `Zdjęcie ${n}: pole "data" musi być tekstem.` }
-  if (url !== undefined && data !== undefined) return { code: 'bad_request', message: `Zdjęcie ${n}: podaj tylko url albo tylko data.` }
+  const given = (['url', 'data', 'ref'] as const).filter((k) => (p as Record<string, unknown>)[k] !== undefined)
+  const wrong = given.find((k) => typeof (p as Record<string, unknown>)[k] !== 'string')
+  if (wrong) return { code: 'bad_request', message: `Zdjęcie ${n}: pole "${wrong}" musi być tekstem.` }
+  if (given.length > 1) return { code: 'bad_request', message: `Zdjęcie ${n}: podaj tylko jedno z pól url, data, ref.` }
   return null
 }
 
-export async function loadPhotos(photos: PhotoIn[], fetchImpl: typeof fetch = fetch): Promise<LoadResult> {
+export async function loadPhotos(photos: PhotoIn[], fetchImpl: typeof fetch = fetch, loadRef?: LoadRef): Promise<LoadResult> {
   if (photos.length > MAX_PHOTOS) return fail('too_many_photos', `Maksymalnie ${MAX_PHOTOS} zdjęć na wywołanie.`)
   // Cały kształt sprawdzamy przed pobieraniem czegokolwiek.
   for (const [i, raw] of (photos as unknown[]).entries()) {
@@ -142,7 +144,12 @@ export async function loadPhotos(photos: PhotoIn[], fetchImpl: typeof fetch = fe
   const all = await Promise.all((photos as PhotoIn[]).map(async (p, i): Promise<Uint8Array | ApiError> => {
     const n = i + 1
     if (p.url !== undefined) return fetchBytes(p.url, n, fetchImpl)
-    if (p.data === undefined) return { code: 'bad_request', message: `Zdjęcie ${n}: podaj url albo data.` }
+    if (p.ref !== undefined) {
+      const notFound: ApiError = { code: 'photo_fetch_failed', message: `Zdjęcie ${n}: nie ma go w bibliotece (sprawdź list_photos).` }
+      const bytes = loadRef ? await loadRef(p.ref).catch(() => null) : null
+      return bytes ?? notFound
+    }
+    if (p.data === undefined) return { code: 'bad_request', message: `Zdjęcie ${n}: podaj url, data albo ref.` }
     const decoded = decodeBase64(p.data)
     if (decoded === 'too_large' || (decoded && decoded.length > MAX_PHOTO_BYTES)) return { code: 'photo_too_large', message: `Zdjęcie ${n} jest większe niż 5 MB.` }
     return decoded ?? { code: 'bad_request', message: `Zdjęcie ${n}: nieprawidłowy base64.` }

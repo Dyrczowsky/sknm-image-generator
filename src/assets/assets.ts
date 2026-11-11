@@ -24,7 +24,7 @@ export interface UploadedAsset {
 // Zależności podmieniane w testach (bez IndexedDB i canvasa).
 export interface AssetDeps {
   local: LocalStore
-  prepare: (file: File) => Promise<Blob>
+  prepare: (file: File, keepSize?: boolean) => Promise<Blob>
   toDataUrl: (blob: Blob, mime: string) => Promise<string>
 }
 
@@ -94,9 +94,10 @@ const defaultDeps: AssetDeps = { local: localStore, prepare: prepareImage, toDat
 
 // Przyjmuje plik wybrany przez użytkownika: zmniejsza, nadaje nazwę, zapisuje
 // lokalnie i rejestruje. Zwraca data URL - to, co pola formularza dostawały
-// dotąd z `readAsDataUrl`.
-export async function importImage(file: File, kind: AssetKind, deps: AssetDeps = defaultDeps): Promise<string> {
-  const blob = await deps.prepare(file)
+// dotąd z `readAsDataUrl`. `keepSize` - bez limitu wymiarów (oryginał, jeśli
+// mieści się w limicie kubełka), dla zdjęć dodawanych wprost do biblioteki.
+export async function importImage(file: File, kind: AssetKind, deps: AssetDeps = defaultDeps, keepSize = false): Promise<string> {
+  const blob = await deps.prepare(file, keepSize)
   // `prepare` pilnuje tego samo; tu jest granica magazynu, więc sprawdzamy
   // jeszcze raz, niezależnie od tego, kto przygotował plik.
   if (blob.size > MAX_ASSET_BYTES) throw tooLargeError(file.name)

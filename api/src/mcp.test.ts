@@ -9,8 +9,10 @@ const okResult: GenerateResult = { ok: true, value: { url: 'https://x.test/a.png
 const post = (body: unknown) =>
   new Request('https://w.test/mcp', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: typeof body === 'string' ? body : JSON.stringify(body) })
 const rpc = (method: string, params?: unknown, id: number | null = 1) => ({ jsonrpc: '2.0', id, method, params })
+const savePhoto = vi.fn(async () => ({ ok: true as const, value: { ref: 'a'.repeat(64) + '.jpg', name: 'Panorama PK' } }))
+const listPhotos = vi.fn(async () => ({ ok: true as const, value: [{ ref: 'b'.repeat(64) + '.jpg', name: 'Kampus', created_at: '2026-11-11' }] }))
 const run = async (body: unknown, generate = vi.fn(async (): Promise<GenerateResult> => okResult)) => {
-  const res = await handleMcp(post(body), env, { generate })
+  const res = await handleMcp(post(body), env, { generate, savePhoto, listPhotos })
   const text = await res.text()
   return { res, json: text ? JSON.parse(text) : null, generate }
 }
@@ -57,7 +59,7 @@ describe('mcp', () => {
   it('tools/list zwraca oba narzędzia', async () => {
     const { json } = await run(rpc('tools/list'))
     const tools = json.result.tools as { name: string; inputSchema: { required?: string[]; properties: { fields?: { properties: object } } } }[]
-    expect(tools.map((t) => t.name)).toEqual(['list_templates', 'generate_image'])
+    expect(tools.map((t) => t.name)).toEqual(['list_templates', 'generate_image', 'list_photos', 'save_photo'])
     expect(tools[1].inputSchema.required).toContain('template')
     expect(Object.keys(tools[1].inputSchema.properties.fields!.properties).sort())
       .toEqual(['badge', 'badge2', 'body', 'event_date', 'event_time', 'location', 'speaker', 'subtitle', 'title', 'year'])
@@ -78,6 +80,15 @@ describe('mcp', () => {
     const { json } = await run(rpc('tools/call', { name: 'generate_image', arguments: { template: 'wyklad', save: false } }), preview)
     expect(json.result.content[0].text).toContain('nic nie zapisano')
     expect(json.result.content[1]).toEqual({ type: 'image', data: 'SlBH', mimeType: 'image/jpeg' })
+  })
+  it('list_photos bez limitu, save_photo zużywa limit i zwraca ref', async () => {
+    const listed = await run(rpc('tools/call', { name: 'list_photos' }))
+    expect(JSON.parse(listed.json.result.content[0].text)[0].name).toBe('Kampus')
+    expect(limiter.limit).not.toHaveBeenCalled()
+    const saved = await run(rpc('tools/call', { name: 'save_photo', arguments: { name: 'Panorama PK', url: 'https://x/p.jpg' } }))
+    expect(savePhoto).toHaveBeenCalledWith(env, { name: 'Panorama PK', url: 'https://x/p.jpg' })
+    expect(saved.json.result.content[0].text).toContain(`ref: ${'a'.repeat(64)}.jpg`)
+    expect(limiter.limit).toHaveBeenCalledTimes(1)
   })
   it('generate_image: błąd', async () => {
     const generate = vi.fn(async (): Promise<GenerateResult> => ({ ok: false, error: { code: 'unknown_template', message: 'Brak.' } }))

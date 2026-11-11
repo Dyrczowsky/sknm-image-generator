@@ -62,7 +62,7 @@ export async function generate(env: Env, args: unknown, deps: GenerateDeps = def
     return fail('invalid_field', `Szablon "${template.key}" nie obsługuje zdjęć.`)
   }
 
-  const loadedResult = await deps.loadPhotos(photoList ?? [])
+  const loadedResult = await deps.loadPhotos(photoList ?? [], undefined, (ref) => deps.supabase(env).downloadAsset(ref))
   if (!loadedResult.ok) return { ok: false, error: loadedResult.error }
   const loaded = loadedResult.photos
 

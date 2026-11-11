@@ -50,6 +50,47 @@ export function supabase(env: Env, fetchImpl: typeof fetch = fetch) {
       return `${base}/storage/v1/object/public/${IMAGES_BUCKET}/${path}`
     },
 
+    // Wpis w bibliotece grafik (`sknm_assets`); ten sam plik już wpisany = sukces.
+    async registerAsset(ref: string, name: string): Promise<void> {
+      if (!REF_RE.test(ref)) throw new Error('Supabase: nieprawidłowa nazwa zdjęcia')
+      let res: Response
+      try {
+        res = await fetchImpl(`${base}/rest/v1/sknm_assets?on_conflict=ref`, {
+          method: 'POST',
+          headers: { ...auth, 'Content-Type': 'application/json', Prefer: 'resolution=ignore-duplicates' },
+          body: JSON.stringify({ ref, kind: 'photo', name: name.slice(0, 120), source: 'ai', author_email: 'AI' }),
+        })
+      } catch {
+        throw new Error('Supabase: błąd sieci przy zapisie do biblioteki')
+      }
+      if (!res.ok) throw await failure('zapis do biblioteki', res, env.SUPABASE_SERVICE_ROLE_KEY)
+    },
+
+    async listAssets(): Promise<{ ref: string; kind: string; name: string; created_at: string }[]> {
+      let res: Response
+      try {
+        res = await fetchImpl(`${base}/rest/v1/sknm_assets?select=ref,kind,name,created_at&kind=eq.photo&order=created_at.desc&limit=200`, { headers: auth })
+      } catch {
+        throw new Error('Supabase: błąd sieci przy odczycie biblioteki')
+      }
+      if (!res.ok) throw await failure('odczyt biblioteki', res, env.SUPABASE_SERVICE_ROLE_KEY)
+      return (await res.json()) as { ref: string; kind: string; name: string; created_at: string }[]
+    },
+
+    // Bajty grafiki z biblioteki; `null` = nie ma takiego pliku.
+    async downloadAsset(ref: string): Promise<Uint8Array | null> {
+      if (!REF_RE.test(ref)) return null
+      let res: Response
+      try {
+        res = await fetchImpl(`${base}/storage/v1/object/${ASSETS_BUCKET}/${ref}`, { headers: auth })
+      } catch {
+        throw new Error('Supabase: błąd sieci przy pobieraniu zdjęcia z biblioteki')
+      }
+      if (res.status === 400 || res.status === 404) return null
+      if (!res.ok) throw await failure('pobranie zdjęcia z biblioteki', res, env.SUPABASE_SERVICE_ROLE_KEY)
+      return new Uint8Array(await res.arrayBuffer())
+    },
+
     async insertHistory(row: NewHistoryEntry & { source: 'ai'; image_url: string }): Promise<number> {
       let res: Response
       try {

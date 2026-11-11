@@ -23,6 +23,9 @@ function setup(over: { render?: RenderResult; uploadImage?: () => Promise<string
     uploadAsset: vi.fn(async () => { calls.push('asset'); await over.uploadAsset?.() }),
     uploadImage: vi.fn(async (path: string, _png?: Uint8Array) => { calls.push('image'); return over.uploadImage ? over.uploadImage() : `https://pub/${path}` }),
     insertHistory: vi.fn(async () => { calls.push('history'); return 42 }),
+    registerAsset: vi.fn(async () => undefined),
+    listAssets: vi.fn(async () => []),
+    downloadAsset: vi.fn(async () => null),
   }
   const renderInBrowser = vi.fn(async () => over.render ?? okRender())
   const loadPhotos = vi.fn(async () => ({ ok: true as const, photos: [{ bytes: JPEG, mime: 'image/jpeg' as const, x: 1, y: 2, zoom: 3 }] }))

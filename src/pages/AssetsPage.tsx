@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
 import type { ChangeEvent } from 'react'
 import { alreadyInLibraryMessage, importImage, libraryErrorMessage } from '../assets/assets'
+import type { AssetKind } from '../assets/assets'
 import { importErrorMessage } from '../assets/prepare'
 import { refOf, srcOf } from '../assets/registry'
+import { AI_AUTHOR } from '../assets/remoteLibrary'
 import type { AssetLibrary } from '../assets/useAssetLibrary'
 import type { SessionStatus } from '../supabase/useSession'
 import { IMAGE_ACCEPT } from '../utils/readAsDataUrl'
@@ -67,9 +69,9 @@ export function AssetsPage({ sessionStatus, library, onSignInClick, memberEmail 
     // eslint-disable-next-line react-hooks/exhaustive-deps -- `loadThumbs` zmienia się co render
   }, [refs])
 
-  // Logotypy trafiają do biblioteki bez plakatu: import jak w polu logotypów,
-  // wgranie do Storage i wpis do katalogu.
-  const upload = async (e: ChangeEvent<HTMLInputElement>) => {
+  // Grafiki trafiają do biblioteki bez plakatu: import jak w polu logotypów,
+  // wgranie do Storage i wpis do katalogu. Zdjęcia w oryginalnym rozmiarze.
+  const upload = async (e: ChangeEvent<HTMLInputElement>, kind: AssetKind) => {
     const files = [...(e.target.files ?? [])]
     e.target.value = ''
     if (files.length === 0) return
@@ -83,7 +85,7 @@ export function AssetsPage({ sessionStatus, library, onSignInClick, memberEmail 
     for (const file of files) {
       let ref: string | undefined
       try {
-        ref = refOf(await importImage(file, 'logo'))
+        ref = refOf(await importImage(file, kind, undefined, kind === 'photo'))
       } catch (error) {
         problems.push(importErrorMessage(error, file.name))
         continue
@@ -95,8 +97,8 @@ export function AssetsPage({ sessionStatus, library, onSignInClick, memberEmail 
       }
       try {
         if (!ref) throw new Error('brak nazwy grafiki')
-        await library.upload(ref, 'logo', file.name)
-        known.set(ref, 'logo')
+        await library.upload(ref, kind, file.name)
+        known.set(ref, kind)
       } catch (error) {
         problems.push(libraryErrorMessage(error, file.name))
       }
@@ -106,28 +108,35 @@ export function AssetsPage({ sessionStatus, library, onSignInClick, memberEmail 
     setUploading(false)
   }
 
-  const actions = signedIn && (
+  const uploadButton = (kind: AssetKind, label: string) => (
     <label
-      className={`${buttonClass({ variant: 'primary', size: 'md' })} relative has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-focus ${uploading ? 'pointer-events-none opacity-60' : ''}`}
+      key={kind}
+      className={`${buttonClass({ variant: kind === 'photo' ? 'primary' : 'outline', size: 'md' })} relative has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-focus ${uploading ? 'pointer-events-none opacity-60' : ''}`}
     >
       <Icon name={uploading ? 'spinner' : 'upload'} className={uploading ? 'animate-spin' : undefined} />
-      {uploading ? 'Dodawanie…' : 'Dodaj logotyp'}
+      {uploading ? 'Dodawanie…' : label}
       <input
         className="absolute inset-0 size-full cursor-pointer opacity-0"
         type="file"
         accept={IMAGE_ACCEPT}
         multiple
         disabled={uploading}
-        aria-label="Dodaj logotyp do biblioteki"
-        onChange={(e) => void upload(e)}
+        aria-label={`${label} do biblioteki`}
+        onChange={(e) => void upload(e, kind)}
       />
     </label>
+  )
+  const actions = signedIn && (
+    <div className="flex flex-wrap gap-2">
+      {uploadButton('photo', 'Dodaj zdjęcie')}
+      {uploadButton('logo', 'Dodaj logotyp')}
+    </div>
   )
 
   return (
     <PageFrame
       title="Grafiki"
-      description="Logotypy i zdjęcia użyte w plakatach zespołu. Logotyp z tej biblioteki wstawisz na plakat przyciskiem „Z biblioteki” w edytorze."
+      description="Logotypy i zdjęcia zespołu: użyte w plakatach albo dodane tutaj (zdjęcia w oryginalnym rozmiarze). Logotyp z tej biblioteki wstawisz na plakat przyciskiem „Z biblioteki” w edytorze."
       actions={actions}
     >
       <RemotePanel
@@ -183,7 +192,7 @@ export function AssetsPage({ sessionStatus, library, onSignInClick, memberEmail 
                       key={asset.ref}
                       asset={asset}
                       thumb={srcOf(asset.ref)}
-                      own={me !== '' && same(asset.author_email, me)}
+                      own={(me !== '' && same(asset.author_email, me)) || asset.author_email === AI_AUTHOR}
                       onRename={(ref, name) => void library.rename(ref, name)}
                       onRemove={(ref) => void library.remove(ref)}
                     />
