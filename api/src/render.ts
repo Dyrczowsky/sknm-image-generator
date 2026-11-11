@@ -44,10 +44,24 @@ export async function renderInBrowser(env: Env, input: RenderInput): Promise<Ren
       return unavailable
     }
     try {
-      return await page.evaluate(
-        (i) => (globalThis as unknown as { sknmRender: (input: RenderInput) => Promise<RenderResult> }).sknmRender(i),
-        input,
-      )
+      // Funkcja wykonuje się w przeglądarce (bez typów DOM w Workerze, stąd `any`).
+      return await page.evaluate(async (i) => {
+        const w = globalThis as unknown as { sknmRender: (input: RenderInput) => Promise<RenderResult>; document: any; Image: any }
+        const r = await w.sknmRender(i)
+        if (!r.ok) return r
+        try {
+          const img = new w.Image()
+          img.src = `data:image/png;base64,${r.png}`
+          await img.decode()
+          const c = w.document.createElement('canvas')
+          c.width = Math.round(img.width / 2)
+          c.height = Math.round(img.height / 2)
+          c.getContext('2d').drawImage(img, 0, 0, c.width, c.height)
+          return { ...r, preview: (c.toDataURL('image/jpeg', 0.8) as string).split(',')[1] }
+        } catch {
+          return r // bez podglądu; MCP wyśle wtedy pełny PNG
+        }
+      }, input)
     } catch (e) {
       console.error('render: sknmRender odrzucone:', e instanceof Error ? e.message : 'nieznany błąd')
       return { ok: false, error: { code: 'render_failed', message: 'Renderowanie obrazu nie powiodło się.' } }

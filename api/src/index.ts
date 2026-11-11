@@ -47,8 +47,9 @@ export default {
       }
       const result = await generate(env, args)
       if (!result.ok) return errorResponse(result.error, statusFor(result.error.code))
-      const { url, width, height, historyId } = result.value
-      return json({ url, width, height, historyId })
+      const { url, width, height, historyId, png } = result.value
+      // Bez zapisu nie ma adresu, więc obraz idzie w odpowiedzi.
+      return json(url === null ? { width, height, png } : { url, width, height, historyId })
     }
 
     if (pathname === '/mcp' || /^\/mcp\/[^/]+\/?$/.test(pathname)) return handleMcp(request, env)

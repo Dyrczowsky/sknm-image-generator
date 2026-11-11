@@ -73,6 +73,12 @@ describe('mcp', () => {
     expect(json.result.content[1]).toEqual({ type: 'image', data: 'QUJD', mimeType: 'image/png' })
     expect(json.result.isError).toBeUndefined()
   })
+  it('generate_image: podgląd JPEG zamiast pełnego PNG; save: false bez adresu', async () => {
+    const preview = vi.fn(async (): Promise<GenerateResult> => ({ ok: true, value: { ...okResult.value, url: null, historyId: null, preview: 'SlBH' } }))
+    const { json } = await run(rpc('tools/call', { name: 'generate_image', arguments: { template: 'wyklad', save: false } }), preview)
+    expect(json.result.content[0].text).toContain('nic nie zapisano')
+    expect(json.result.content[1]).toEqual({ type: 'image', data: 'SlBH', mimeType: 'image/jpeg' })
+  })
   it('generate_image: błąd', async () => {
     const generate = vi.fn(async (): Promise<GenerateResult> => ({ ok: false, error: { code: 'unknown_template', message: 'Brak.' } }))
     const { json } = await run(rpc('tools/call', { name: 'generate_image', arguments: { template: 'x' } }), generate)

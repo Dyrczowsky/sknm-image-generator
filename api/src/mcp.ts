@@ -24,6 +24,7 @@ const tools = [
       'Zdjęcia podawaj jako "url"; "data" (base64) tylko wtedy, gdy nie ma adresu URL.',
       'Pola są zwykłym tekstem; nową linię zapisuj jako \\n.',
       'Tekst do plakatu napisz sam na podstawie prośby użytkownika.',
+      'Wersje robocze generuj z "save": false (tylko podgląd, bez zapisu w historii); zaakceptowaną wersję wygeneruj ponownie bez "save".',
     ].join(' '),
     inputSchema: {
       type: 'object',
@@ -33,6 +34,7 @@ const tools = [
         shape: { type: 'string', enum: ['square', 'story'], description: 'square 1080x1080 (domyślnie) lub story 1080x1920.' },
         scheme: { type: 'string', description: 'Nazwa schematu kolorów z list_templates (domyślnie pierwszy).' },
         lang: { type: 'string', enum: ['pl', 'en'] },
+        save: { type: 'boolean', description: 'false = tylko podgląd, bez zapisu w historii i Storage (domyślnie true).' },
         fields: {
           type: 'object',
           description: 'Pola tekstowe szablonu (nazwy z list_templates), każde do 2000 znaków.',
@@ -115,13 +117,13 @@ async function callTool(env: Env, id: Id, params: unknown, deps: Deps) {
   if (!success) return ok(id, text(`rate_limited: ${RATE_LIMITED_MESSAGE}`, true))
   const result = await deps.generate(env, params.arguments ?? {})
   if (!result.ok) return ok(id, text(`${result.error.code}: ${result.error.message}`, true))
-  const { url, historyId, png } = result.value
-  return ok(id, {
-    content: [
-      { type: 'text', text: `Grafika: ${url}\nWpis w historii: #${historyId}` },
-      { type: 'image', data: png, mimeType: 'image/png' },
-    ],
-  })
+  const { url, historyId, png, preview } = result.value
+  const info = url === null
+    ? 'Podgląd, nic nie zapisano. Gdy użytkownik zaakceptuje grafikę, wywołaj generate_image ponownie z tymi samymi danymi bez "save".'
+    : `Grafika: ${url}\nWpis w historii: #${historyId}`
+  // Do czatu idzie mały JPEG (pełny PNG to kilka MB); pełny obraz jest pod adresem.
+  const image = preview ? { data: preview, mimeType: 'image/jpeg' } : { data: png, mimeType: 'image/png' }
+  return ok(id, { content: [{ type: 'text', text: info }, { type: 'image', ...image }] })
 }
 
 // Zwraca odpowiedź albo null (notyfikacja).

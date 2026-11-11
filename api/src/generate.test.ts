@@ -76,6 +76,15 @@ describe('generate', () => {
     expect(s.renderInBrowser).not.toHaveBeenCalled()
   })
 
+  it('save: false renderuje, ale nic nie zapisuje i nie przekazuje "save" stronie renderu', async () => {
+    const s = setup({ render: { ...okRender(), preview: 'JPG' } as RenderResult })
+    const r = await generate(env, { ...args, save: false }, s.deps)
+    expect(r).toEqual({ ok: true, value: { url: null, historyId: null, width: 1080, height: 1080, png: PNG_B64, preview: 'JPG' } })
+    expect(s.calls).toEqual([])
+    expect((s.renderInBrowser.mock.calls[0] as unknown[])[1]).not.toHaveProperty('save')
+    expect(await generate(env, { ...args, save: 'nie' }, s.deps)).toMatchObject({ ok: false, error: { code: 'invalid_field' } })
+  })
+
   it('brak szablonu daje bad_request bez renderu', async () => {
     const s = setup()
     const r = await generate(env, { foo: 1 }, s.deps)

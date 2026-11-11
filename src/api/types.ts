@@ -73,6 +73,7 @@ export interface RenderOk {
   height: number
   photoRefs: string[]
   historyRow: NewHistoryEntry
+  preview?: string // JPEG base64 w połowie rozmiaru, dokłada go Worker (podgląd w czacie)
 }
 
 export type RenderResult = RenderOk | { ok: false; error: ApiError }

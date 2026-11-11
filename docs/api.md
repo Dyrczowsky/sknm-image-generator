@@ -32,7 +32,9 @@ Endpointy:
 | `/mcp` | POST | serwer MCP (klucz w nagłówku `Authorization`) |
 | `/mcp/<klucz>` | POST | serwer MCP (klucz w ścieżce, dla claude.ai) |
 
-Narzędzia MCP: `list_templates` i `generate_image`.
+Narzędzia MCP: `list_templates` i `generate_image`. Do czatu `generate_image`
+zwraca mały podgląd (JPEG, połowa rozmiaru), pełny PNG jest pod zwróconym
+adresem. Z `"save": false` zwraca tylko podgląd i niczego nie zapisuje.
 
 ## Konfiguracja jednorazowa
 
@@ -101,7 +103,9 @@ curl -X POST https://<api>/api/render \
   -d '{"template":"wyklad","photos":{"photo":[{"url":"https://example.com/foto.jpg"}]}}'
 ```
 
-Odpowiedź: `{ "url", "width", "height", "historyId" }`. Nazwy szablonów, pól
+Odpowiedź: `{ "url", "width", "height", "historyId" }`. Z `"save": false` grafika
+nie trafia do Storage ani historii, a odpowiedź to `{ "width", "height", "png" }`
+(PNG w base64) - do wersji roboczych. Nazwy szablonów, pól
 i schematów kolorów zwraca `/api/templates`. Zdjęcia: `{"url": ...}` (preferowane)
 albo `{"data": "<base64>"}`, opcjonalnie `x`, `y`, `zoom`.
 
