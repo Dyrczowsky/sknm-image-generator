@@ -4,7 +4,7 @@ import { alreadyInLibraryMessage, importImage, libraryErrorMessage } from '../as
 import type { AssetKind } from '../assets/assets'
 import { importErrorMessage } from '../assets/prepare'
 import { refOf, srcOf } from '../assets/registry'
-import { AI_AUTHOR } from '../assets/remoteLibrary'
+import { isAiAuthor } from '../assets/remoteLibrary'
 import type { AssetLibrary } from '../assets/useAssetLibrary'
 import type { SessionStatus } from '../supabase/useSession'
 import { IMAGE_ACCEPT } from '../utils/readAsDataUrl'
@@ -192,7 +192,7 @@ export function AssetsPage({ sessionStatus, library, onSignInClick, memberEmail 
                       key={asset.ref}
                       asset={asset}
                       thumb={srcOf(asset.ref)}
-                      own={(me !== '' && same(asset.author_email, me)) || asset.author_email === AI_AUTHOR}
+                      own={(me !== '' && same(asset.author_email, me)) || isAiAuthor(asset.author_email)}
                       onRename={(ref, name) => void library.rename(ref, name)}
                       onRemove={(ref) => void library.remove(ref)}
                     />

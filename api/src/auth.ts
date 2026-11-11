@@ -1,23 +1,27 @@
-import { createHash, timingSafeEqual } from 'node:crypto'
+import type { Env } from './env'
+import { supabase } from './supabase'
 
-// Klucz z nagłówka `Authorization: Bearer <klucz>` albo z segmentu ścieżki `/mcp/<klucz>`.
+// Właściciel osobistego klucza API (tabela `sknm_api_keys`).
+export interface Owner { id: string; email: string }
+
+// Format klucza z `sknm_regenerate_api_key()`; inny od razu odrzucamy, bez zapytania do bazy.
+const KEY_RE = /^sknm_[0-9a-f]{64}$/
+
+// Klucz tylko z nagłówka `Authorization: Bearer <klucz>`.
 export function keyFrom(request: Request): string | null {
-  const header = request.headers.get('Authorization')
-  const bearer = header?.match(/^Bearer\s+(.+)$/i)?.[1]?.trim()
-  if (bearer) return bearer
-  const path = /^\/mcp\/([^/]+)\/?$/.exec(new URL(request.url).pathname)?.[1]
-  if (!path) return null
-  try {
-    return decodeURIComponent(path)
-  } catch {
-    return null
-  }
+  const bearer = request.headers.get('Authorization')?.match(/^Bearer\s+(.+)$/i)?.[1]?.trim()
+  return bearer && KEY_RE.test(bearer) ? bearer : null
 }
 
-const sha256 = (value: string) => createHash('sha256').update(value).digest()
+export async function sha256Hex(value: string): Promise<string> {
+  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(value))
+  return Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, '0')).join('')
+}
 
-// Porównanie w stałym czasie na skrótach SHA-256 (równa długość, brak wczesnego wyjścia).
-export function keyMatches(given: string | null, expected: string): boolean {
-  if (!given || !expected) return false
-  return timingSafeEqual(sha256(given), sha256(expected))
+// Baza zna tylko skrót klucza; szukamy po skrócie (nie trzeba porównania w stałym czasie).
+// `null` = brak lub zły klucz, albo osoba nie jest już członkiem. Błąd Supabase rzuca wyjątek.
+export async function authenticate(request: Request, env: Env, sb: typeof supabase = supabase): Promise<Owner | null> {
+  const key = keyFrom(request)
+  if (!key) return null
+  return sb(env).apiKeyOwner(await sha256Hex(key))
 }

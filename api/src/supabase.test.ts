@@ -95,13 +95,24 @@ describe('insertHistory', () => {
   })
 })
 
+describe('apiKeyOwner', () => {
+  it('woła RPC ze skrótem; pusty wynik to null; błąd HTTP rzuca bez klucza service_role', async () => {
+    const f = fake(new Response('[{"user_id":"u1","email":"a@b.pl"}]'))
+    expect(await supabase(env, f.impl).apiKeyOwner('h')).toEqual({ id: 'u1', email: 'a@b.pl' })
+    expect(f.calls[0].url).toBe('https://p.supabase.co/rest/v1/rpc/sknm_api_key_owner')
+    expect(JSON.parse(f.calls[0].init.body as string)).toEqual({ p_hash: 'h' })
+    expect(await supabase(env, fake(new Response('[]')).impl).apiKeyOwner('h')).toBeNull()
+    await expect(supabase(env, fake(new Response(KEY, { status: 500 })).impl).apiKeyOwner('h')).rejects.toThrow("(HTTP 500): ***")
+  })
+})
+
 describe('biblioteka', () => {
-  it('registerAsset: wiersz AI bez autora, duplikat ignorowany', async () => {
+  it('registerAsset: wiersz AI z właścicielem klucza, duplikat ignorowany', async () => {
     const f = fake(new Response(null, { status: 201 }))
-    await supabase(env, f.impl).registerAsset(REF + '.jpg', 'Panorama PK')
+    await supabase(env, f.impl).registerAsset(REF + '.jpg', 'Panorama PK', { id: 'u1', email: 'a@b.pl' })
     expect(f.calls[0].url).toBe('https://p.supabase.co/rest/v1/sknm_assets?on_conflict=ref')
     expect((f.calls[0].init.headers as Record<string, string>).Prefer).toBe('resolution=ignore-duplicates')
-    expect(JSON.parse(f.calls[0].init.body as string)).toEqual({ ref: REF + '.jpg', kind: 'photo', name: 'Panorama PK', source: 'ai', author_email: 'AI' })
+    expect(JSON.parse(f.calls[0].init.body as string)).toEqual({ ref: REF + '.jpg', kind: 'photo', name: 'Panorama PK', source: 'ai', created_by: 'u1', author_email: 'AI · a@b.pl' })
   })
   it('downloadAsset: brak pliku (400 z Storage) to null, zła nazwa bez zapytania', async () => {
     const f = fake(new Response('{"statusCode":"404"}', { status: 400 }))

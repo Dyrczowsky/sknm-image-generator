@@ -1,33 +1,32 @@
-import { describe, expect, it } from 'vitest'
-import { keyFrom, keyMatches } from './auth'
+import { describe, expect, it, vi } from 'vitest'
+import { authenticate, keyFrom, sha256Hex } from './auth'
+import type { Env } from './env'
+
+const KEY = 'sknm_' + 'a'.repeat(64)
+const req = (auth?: string, path = '/api/templates') => new Request(`https://x.test${path}`, auth ? { headers: { Authorization: auth } } : {})
 
 describe('keyFrom', () => {
-  it('czyta klucz z nagłówka Bearer', () => {
-    const r = new Request('https://x.test/render', { headers: { Authorization: 'Bearer abc123' } })
-    expect(keyFrom(r)).toBe('abc123')
+  it('czyta klucz tylko z nagłówka Bearer', () => {
+    expect(keyFrom(req(`Bearer ${KEY}`))).toBe(KEY)
+    expect(keyFrom(req(`bearer  ${KEY} `))).toBe(KEY)
+    expect(keyFrom(req(undefined, `/mcp/${KEY}`))).toBeNull()
   })
-  it('czyta klucz ze ścieżki /mcp/<klucz>', () => {
-    expect(keyFrom(new Request('https://x.test/mcp/abc123'))).toBe('abc123')
-  })
-  it('nagłówek ma pierwszeństwo przed ścieżką', () => {
-    const r = new Request('https://x.test/mcp/zly', { headers: { Authorization: 'Bearer dobry' } })
-    expect(keyFrom(r)).toBe('dobry')
-  })
-  it('brak klucza daje null', () => {
-    expect(keyFrom(new Request('https://x.test/render'))).toBeNull()
-    expect(keyFrom(new Request('https://x.test/mcp'))).toBeNull()
-    expect(keyFrom(new Request('https://x.test/mcp/a/b'))).toBeNull()
-    expect(keyFrom(new Request('https://x.test/render', { headers: { Authorization: 'Bearer ' } }))).toBeNull()
+  it('klucz w złym formacie to null', () => {
+    for (const k of ['', 'abc', KEY.slice(0, -1), KEY.toUpperCase(), KEY + 'a']) expect(keyFrom(req(`Bearer ${k}`))).toBeNull()
   })
 })
 
-describe('keyMatches', () => {
-  it('zgodny klucz', () => expect(keyMatches('sekret', 'sekret')).toBe(true))
-  it('zły, pusty i brakujący klucz', () => {
-    expect(keyMatches('inny', 'sekret')).toBe(false)
-    expect(keyMatches('sekre', 'sekret')).toBe(false)
-    expect(keyMatches('', 'sekret')).toBe(false)
-    expect(keyMatches(null, 'sekret')).toBe(false)
-    expect(keyMatches('', '')).toBe(false)
+describe('authenticate', () => {
+  const env = {} as Env
+  it('szuka właściciela po skrócie SHA-256 klucza', async () => {
+    const apiKeyOwner = vi.fn(async () => ({ id: 'u1', email: 'a@b.pl' }))
+    expect(await authenticate(req(`Bearer ${KEY}`), env, (() => ({ apiKeyOwner })) as never)).toEqual({ id: 'u1', email: 'a@b.pl' })
+    expect(apiKeyOwner).toHaveBeenCalledWith(await sha256Hex(KEY))
+    expect(await sha256Hex('abc')).toBe('ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad')
+  })
+  it('bez klucza nie pyta bazy', async () => {
+    const apiKeyOwner = vi.fn()
+    expect(await authenticate(req(), env, (() => ({ apiKeyOwner })) as never)).toBeNull()
+    expect(apiKeyOwner).not.toHaveBeenCalled()
   })
 })

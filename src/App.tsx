@@ -20,6 +20,7 @@ import { parseSnapshot, snapshotFromLegacyHistory } from './snapshot/snapshot'
 import { useDecks } from './slides/useDecks'
 import { useSession } from './supabase/useSession'
 import { AppShell } from './components/AppShell'
+import { ApiKeyPanel } from './components/ApiKeyPanel'
 import { AuthControl } from './components/AuthControl'
 import { AuthDialog } from './components/AuthDialog'
 import { LangToggle } from './components/LangToggle'
@@ -230,7 +231,11 @@ function App() {
               />
             }
             language={<LangToggle value={lang} onChange={setLang} />}
-            account={<AuthControl session={session} onSignInClick={openSignIn} onSignOut={() => void workspace.signOut(session.signOut)} />}
+            account={
+              <AuthControl session={session} onSignInClick={openSignIn} onSignOut={() => void workspace.signOut(session.signOut)}>
+                {session.userId && <ApiKeyPanel userId={session.userId} />}
+              </AuthControl>
+            }
           />
         }
         editor={

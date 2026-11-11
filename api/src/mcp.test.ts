@@ -5,6 +5,7 @@ import { handleMcp } from './mcp'
 
 const limiter = { limit: vi.fn(async () => ({ success: true })) }
 const env = { RATE_LIMITER: limiter } as unknown as Env
+const owner = { id: 'u1', email: 'a@b.pl' }
 const okResult: GenerateResult = { ok: true, value: { url: 'https://x.test/a.png', width: 1080, height: 1080, historyId: 7, png: 'QUJD' } }
 const post = (body: unknown) =>
   new Request('https://w.test/mcp', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: typeof body === 'string' ? body : JSON.stringify(body) })
@@ -12,7 +13,7 @@ const rpc = (method: string, params?: unknown, id: number | null = 1) => ({ json
 const savePhoto = vi.fn(async () => ({ ok: true as const, value: { ref: 'a'.repeat(64) + '.jpg', name: 'Panorama PK' } }))
 const listPhotos = vi.fn(async () => ({ ok: true as const, value: [{ ref: 'b'.repeat(64) + '.jpg', name: 'Kampus', created_at: '2026-11-11' }] }))
 const run = async (body: unknown, generate = vi.fn(async (): Promise<GenerateResult> => okResult)) => {
-  const res = await handleMcp(post(body), env, { generate, savePhoto, listPhotos })
+  const res = await handleMcp(post(body), env, owner, { generate, savePhoto, listPhotos })
   const text = await res.text()
   return { res, json: text ? JSON.parse(text) : null, generate }
 }
@@ -27,7 +28,7 @@ describe('mcp', () => {
   })
   it('limit: generate_image zużywa limit', async () => {
     await run(rpc('tools/call', { name: 'generate_image', arguments: { template: 'wyklad' } }))
-    expect(limiter.limit).toHaveBeenCalledWith({ key: 'global' })
+    expect(limiter.limit).toHaveBeenCalledWith({ key: 'u1' })
   })
   it('limit przekroczony: wynik narzędzia z isError, bez wywołania generate', async () => {
     limiter.limit.mockResolvedValueOnce({ success: false })
@@ -38,7 +39,7 @@ describe('mcp', () => {
     expect(generate).not.toHaveBeenCalled()
   })
   it('GET daje 405', async () => {
-    expect((await handleMcp(new Request('https://w.test/mcp'), env)).status).toBe(405)
+    expect((await handleMcp(new Request('https://w.test/mcp'), env, owner)).status).toBe(405)
   })
   it('initialize zwraca serverInfo i echo wersji', async () => {
     const { res, json } = await run(rpc('initialize', { protocolVersion: '2025-03-26' }))
@@ -70,7 +71,7 @@ describe('mcp', () => {
   })
   it('generate_image: sukces', async () => {
     const { json, generate } = await run(rpc('tools/call', { name: 'generate_image', arguments: { template: 'wyklad' } }))
-    expect(generate).toHaveBeenCalledWith(env, { template: 'wyklad' })
+    expect(generate).toHaveBeenCalledWith(env, owner, { template: 'wyklad' })
     expect(json.result.content[0].text).toBe('Grafika: https://x.test/a.png\nWpis w historii: #7')
     expect(json.result.content[1]).toEqual({ type: 'image', data: 'QUJD', mimeType: 'image/png' })
     expect(json.result.isError).toBeUndefined()
@@ -86,7 +87,7 @@ describe('mcp', () => {
     expect(JSON.parse(listed.json.result.content[0].text)[0].name).toBe('Kampus')
     expect(limiter.limit).not.toHaveBeenCalled()
     const saved = await run(rpc('tools/call', { name: 'save_photo', arguments: { name: 'Panorama PK', url: 'https://x/p.jpg' } }))
-    expect(savePhoto).toHaveBeenCalledWith(env, { name: 'Panorama PK', url: 'https://x/p.jpg' })
+    expect(savePhoto).toHaveBeenCalledWith(env, owner, { name: 'Panorama PK', url: 'https://x/p.jpg' })
     expect(saved.json.result.content[0].text).toContain(`ref: ${'a'.repeat(64)}.jpg`)
     expect(limiter.limit).toHaveBeenCalledTimes(1)
   })

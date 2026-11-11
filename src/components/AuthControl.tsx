@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import type { Session } from '../supabase/useSession'
 import { Button, Popover } from './ui'
 
@@ -6,13 +7,15 @@ interface AuthControlProps {
   onSignInClick: () => void
   // Wylogowanie idzie przez kopię roboczą: otwarty projekt jest najpierw zapisywany.
   onSignOut: () => void
+  // Dodatkowa sekcja panelu konta nad „Wyloguj" (klucz API).
+  children?: ReactNode
 }
 
 // Konto w górnym pasku: przycisk „Zaloguj" albo przycisk z adresem zalogowanej
 // osoby, pod którym jest „Wyloguj". Adres widać w pasku dopiero od 1200 px -
 // węziej zostaje ikona, a pełny adres jest w wysuwanym panelu. Bez konfiguracji
 // Supabase (i w trakcie odczytu sesji) nic nie rysuje.
-export function AuthControl({ session, onSignInClick, onSignOut }: AuthControlProps) {
+export function AuthControl({ session, onSignInClick, onSignOut, children }: AuthControlProps) {
   if (session.status === 'unconfigured' || session.status === 'loading') return null
   if (session.status === 'signedOut') {
     return (
@@ -26,7 +29,7 @@ export function AuthControl({ session, onSignInClick, onSignOut }: AuthControlPr
     <Popover
       label="Konto"
       align="end"
-      className="w-64"
+      className="w-72"
       trigger={(props) => (
         <Button {...props} variant="ghost" icon="user" iconEnd="chevronDown" aria-label={`Konto: ${email}`} title={email}>
           <span className="hidden max-w-[180px] truncate min-[1200px]:inline">{email}</span>
@@ -39,6 +42,7 @@ export function AuthControl({ session, onSignInClick, onSignOut }: AuthControlPr
             Zalogowano jako
             <strong className="block break-all font-semibold text-fg">{email}</strong>
           </p>
+          {children}
           <Button
             variant="ghost"
             icon="signOut"

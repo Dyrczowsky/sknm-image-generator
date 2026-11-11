@@ -1,4 +1,5 @@
 import type { ApiError } from '../../src/api/types'
+import type { Owner } from './auth'
 import type { Env } from './env'
 import { loadPhotos } from './photos'
 import { supabase } from './supabase'
@@ -21,7 +22,7 @@ async function refFor(bytes: Uint8Array, mime: 'image/jpeg' | 'image/png'): Prom
   return `${hex}.${mime === 'image/png' ? 'png' : 'jpg'}`
 }
 
-export async function savePhoto(env: Env, args: unknown, deps: LibraryDeps = defaultDeps): Promise<Result<{ ref: string; name: string }>> {
+export async function savePhoto(env: Env, owner: Owner, args: unknown, deps: LibraryDeps = defaultDeps): Promise<Result<{ ref: string; name: string }>> {
   if (typeof args !== 'object' || args === null || Array.isArray(args)) return fail('bad_request', 'Oczekiwano obiektu z polami "name" i "url" albo "data".')
   const { name, url, data, ...rest } = args as Record<string, unknown>
   const extra = Object.keys(rest)
@@ -37,7 +38,7 @@ export async function savePhoto(env: Env, args: unknown, deps: LibraryDeps = def
   try {
     const sb = deps.supabase(env)
     await sb.uploadAsset(ref, bytes, mime)
-    await sb.registerAsset(ref, clean)
+    await sb.registerAsset(ref, clean, owner)
   } catch (e) {
     console.error('library: zapis nie powiódł się:', e instanceof Error ? e.message : 'nieznany błąd')
     return fail('storage_failed', 'Nie udało się zapisać zdjęcia w bibliotece. Spróbuj ponownie za chwilę.')

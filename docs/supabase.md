@@ -25,8 +25,10 @@ zapisuje się lokalnie w przeglądarce; jego eksporty nie trafiają do historii.
    `20261008000000_projects_snapshots_assets.sql` (projekty, kolumna
    `snapshot` w historii, kubełek i biblioteka grafik),
    `20261110000000_ai_history.sql` (wpisy AI w historii, publiczny kubełek
-   `sknm-ai-images`) i na końcu `20261111000000_ai_assets.sql` (zdjęcia od AI
-   w bibliotece grafik; zmienić nazwę lub usunąć je może każdy członek).
+   `sknm-ai-images`), `20261111000000_ai_assets.sql` (zdjęcia od AI
+   w bibliotece grafik; zmienić nazwę lub usunąć je może każdy członek) i na
+   końcu `20261112000000_api_keys.sql` (osobiste klucze API, patrz
+   [api.md](./api.md)).
 
    **Najnowszą migrację trzeba wykonać przed wdrożeniem tej wersji kodu.**
    Aplikacja czyta kolumny `snapshot`, `source` i `image_url` w historii oraz tabele `sknm_projects` /

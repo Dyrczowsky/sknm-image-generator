@@ -50,15 +50,32 @@ export function supabase(env: Env, fetchImpl: typeof fetch = fetch) {
       return `${base}/storage/v1/object/public/${IMAGES_BUCKET}/${path}`
     },
 
+    // Właściciel klucza o tym skrócie (i nadal członek); funkcja zapisuje też datę użycia.
+    async apiKeyOwner(hash: string): Promise<{ id: string; email: string } | null> {
+      let res: Response
+      try {
+        res = await fetchImpl(`${base}/rest/v1/rpc/sknm_api_key_owner`, {
+          method: 'POST',
+          headers: { ...auth, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ p_hash: hash }),
+        })
+      } catch {
+        throw new Error('Supabase: błąd sieci przy sprawdzaniu klucza')
+      }
+      if (!res.ok) throw await failure('sprawdzenie klucza', res, env.SUPABASE_SERVICE_ROLE_KEY)
+      const row = ((await res.json()) as { user_id: string; email: string | null }[])[0]
+      return row ? { id: row.user_id, email: row.email ?? '' } : null
+    },
+
     // Wpis w bibliotece grafik (`sknm_assets`); ten sam plik już wpisany = sukces.
-    async registerAsset(ref: string, name: string): Promise<void> {
+    async registerAsset(ref: string, name: string, owner: { id: string; email: string }): Promise<void> {
       if (!REF_RE.test(ref)) throw new Error('Supabase: nieprawidłowa nazwa zdjęcia')
       let res: Response
       try {
         res = await fetchImpl(`${base}/rest/v1/sknm_assets?on_conflict=ref`, {
           method: 'POST',
           headers: { ...auth, 'Content-Type': 'application/json', Prefer: 'resolution=ignore-duplicates' },
-          body: JSON.stringify({ ref, kind: 'photo', name: name.slice(0, 120), source: 'ai', author_email: 'AI' }),
+          body: JSON.stringify({ ref, kind: 'photo', name: name.slice(0, 120), source: 'ai', created_by: owner.id, author_email: `AI · ${owner.email}` }),
         })
       } catch {
         throw new Error('Supabase: błąd sieci przy zapisie do biblioteki')
@@ -91,7 +108,7 @@ export function supabase(env: Env, fetchImpl: typeof fetch = fetch) {
       return new Uint8Array(await res.arrayBuffer())
     },
 
-    async insertHistory(row: NewHistoryEntry & { source: 'ai'; image_url: string }): Promise<number> {
+    async insertHistory(row: NewHistoryEntry & { source: 'ai'; image_url: string; created_by: string }): Promise<number> {
       let res: Response
       try {
         res = await fetchImpl(`${base}/rest/v1/sknm_poster_history`, {
