@@ -8,7 +8,7 @@ import { fontMono, leading } from '../theme'
 import { PosterFrame } from '../blocks/PosterFrame'
 import { Sygnet } from '../blocks/Sygnet'
 import { Triangle } from '../blocks/Triangle'
-import { BannerFooter, MarginChips, NAME_TRACKING, BannerEventLine } from './common'
+import { BannerFooter, MarginChips, NAME_TRACKING, BannerEventLine, TitleSpacer, TITLE_BLOCK_FLEX } from './common'
 
 // OGŁOSZENIE (baner) — wyśrodkowana nazwa koła pod sygnetem.
 export function BannerOgloszenie({ data, scheme, accent, lang = 'pl' }: PosterProps) {
@@ -19,7 +19,8 @@ export function BannerOgloszenie({ data, scheme, accent, lang = 'pl' }: PosterPr
   return (
     <PosterFrame vars={cssVars} style={{ padding: `${padY}px ${padX}px` }}>
       <MarginChips margin={padX - BANNER_PAD} colors={['var(--accent)', 'var(--accent)', 'var(--accent)']} />
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center', gap: 20 }}>
+      <TitleSpacer height={96} />
+      <div style={{ flex: TITLE_BLOCK_FLEX, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: 20 }}>
         <Sygnet name={sygnet} width={92} />
         <PosterText path="bannerTitle" value={raw.bannerTitle} fallback={CLUB_NAME[lang]} multiline label="Tekst banera" style={{ fontSize: 58 * titleScale, fontWeight: 800, lineHeight: leading(1.04, titleScale), letterSpacing: NAME_TRACKING, maxWidth: '30ch', textWrap: 'balance', fontKerning: 'none' }} />
         <BannerEventLine data={data} lang={lang} />

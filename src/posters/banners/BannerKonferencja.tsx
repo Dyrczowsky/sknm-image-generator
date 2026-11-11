@@ -8,7 +8,7 @@ import { fontMono, leading } from '../theme'
 import { Badge } from '../blocks/Badge'
 import { PosterFrame } from '../blocks/PosterFrame'
 import { Sygnet } from '../blocks/Sygnet'
-import { BANNER_SYGNET_W, BannerFooter, NAME_TRACKING, BannerEventLine } from './common'
+import { BANNER_SYGNET_W, BannerFooter, NAME_TRACKING, BannerEventLine, TitleSpacer, TITLE_BLOCK_FLEX } from './common'
 
 // Liczba pustych linii po prawej stronie banera.
 const RULES = 4
@@ -26,7 +26,8 @@ export function BannerKonferencja({ data, scheme, accent, lang = 'pl' }: PosterP
     <PosterFrame vars={cssVars} style={{ flexDirection: 'row' }}>
       <div style={{ flex: '0 0 auto', width: padX + PANEL_W, boxSizing: 'border-box', background: 'var(--panel)', color: 'var(--panel-text)', padding: `${padY}px 40px ${padY}px ${padX}px`, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: 16 }}>
         <Sygnet name={sygnet} width={BANNER_SYGNET_W} />
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <TitleSpacer height={237} gap={16} />
+        <div style={{ flex: TITLE_BLOCK_FLEX, display: 'flex', flexDirection: 'column', gap: 14 }}>
           <Badge color="var(--header-badge)" style={{ fontSize: 18 }}>SKNM</Badge>
           <PosterText path="bannerTitle" value={raw.bannerTitle} fallback={CLUB_NAME[lang]} multiline label="Tekst banera" style={{ fontSize: 44 * titleScale, lineHeight: leading(1.02, titleScale), fontWeight: 800, letterSpacing: NAME_TRACKING, fontKerning: 'none', textWrap: 'balance' }} />
           <BannerEventLine data={data} lang={lang} />

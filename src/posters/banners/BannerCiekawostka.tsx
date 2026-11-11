@@ -8,7 +8,7 @@ import { Badge } from '../blocks/Badge'
 import { PosterFrame } from '../blocks/PosterFrame'
 import { Sygnet } from '../blocks/Sygnet'
 import { PhotoGallery } from '../PhotoGallery'
-import { BANNER_SYGNET_W, BannerFooter, NAME_TRACKING, BannerEventLine } from './common'
+import { BANNER_SYGNET_W, BannerFooter, NAME_TRACKING, BannerEventLine, TitleSpacer, TITLE_BLOCK_FLEX } from './common'
 import { fontMono, leading } from '../theme'
 
 // Szerokość zdjęcia wewnątrz bezpiecznej kolumny; na okładce strony zdjęcie
@@ -50,7 +50,8 @@ export function BannerCiekawostka({ data, scheme, accent, lang = 'pl' }: PosterP
           <Badge color="var(--accent)" style={{ fontSize: 18 }}>{DEFAULT_BADGE.ciekawostka[lang]}</Badge>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <TitleSpacer height={111} gap={16} />
+        <div style={{ flex: TITLE_BLOCK_FLEX, display: 'flex', flexDirection: 'column', gap: 14 }}>
           <PosterText path="bannerTitle" value={raw.bannerTitle} fallback={CLUB_NAME[lang]} multiline label="Tekst banera" style={{ fontSize: 54 * titleScale, lineHeight: leading(1, titleScale), fontWeight: 800, letterSpacing: NAME_TRACKING, fontKerning: 'none', textWrap: 'balance' }} />
           <BannerEventLine data={data} lang={lang} />
         </div>

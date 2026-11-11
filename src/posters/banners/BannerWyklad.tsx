@@ -9,7 +9,7 @@ import { PosterFrame } from '../blocks/PosterFrame'
 import { Sygnet } from '../blocks/Sygnet'
 import { FadingTriangles } from '../blocks/Triangle'
 import { Wedges } from '../blocks/Wedges'
-import { BANNER_SYGNET_W, BannerFooter, NAME_TRACKING, BannerEventLine } from './common'
+import { BANNER_SYGNET_W, BannerFooter, NAME_TRACKING, BannerEventLine, TitleSpacer, TITLE_BLOCK_FLEX } from './common'
 import { leading } from '../theme'
 
 // WYKŁAD (baner) — nazwa koła na tle klinów, stos trójkątów przy lewej krawędzi.
@@ -25,7 +25,8 @@ export function BannerWyklad({ data, scheme, accent, lang = 'pl' }: PosterProps)
         <BrandingText lines={[SITE_URL.toUpperCase()]} opacity={0.85} style={{ fontSize: 18 }} />
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 14, position: 'relative', zIndex: 1 }}>
+      <TitleSpacer height={65} />
+      <div style={{ flex: TITLE_BLOCK_FLEX, display: 'flex', flexDirection: 'column', gap: 14, position: 'relative', zIndex: 1 }}>
         <PosterText path="bannerTitle" value={raw.bannerTitle} fallback={CLUB_NAME[lang]} multiline label="Tekst banera" style={{ fontSize: 76 * titleScale, lineHeight: leading(0.96, titleScale), maxWidth: 960, fontWeight: 800, letterSpacing: NAME_TRACKING, fontKerning: 'none', textWrap: 'balance' }} />
         <BannerEventLine data={data} lang={lang} />
       </div>

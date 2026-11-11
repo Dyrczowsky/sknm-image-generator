@@ -7,7 +7,7 @@ import { useBannerLayout } from '../shape'
 import { PosterFrame } from '../blocks/PosterFrame'
 import { Sygnet } from '../blocks/Sygnet'
 import { PhotoGallery } from '../PhotoGallery'
-import { BANNER_SYGNET_W, BannerFooter, NAME_TRACKING, BannerEventLine } from './common'
+import { BANNER_SYGNET_W, BannerFooter, NAME_TRACKING, BannerEventLine, TitleSpacer, TITLE_BLOCK_FLEX } from './common'
 import { leading } from '../theme'
 
 // Zdjęcie: tyle wchodzi w bezpieczną kolumnę (reszta to prawy margines),
@@ -34,7 +34,8 @@ export function BannerWarsztat({ data, scheme, accent, lang = 'pl' }: PosterProp
       <div style={{ position: 'absolute', inset: `${padY}px ${padX}px`, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: 16 }}>
         <Sygnet name={sygnet} width={BANNER_SYGNET_W} />
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 660 }}>
+        <TitleSpacer height={87} gap={16} />
+        <div style={{ flex: TITLE_BLOCK_FLEX, display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 660 }}>
           <PosterText path="bannerTitle" value={raw.bannerTitle} fallback={CLUB_NAME[lang]} multiline label="Tekst banera" style={{ fontSize: 54 * titleScale, lineHeight: leading(0.98, titleScale), color: 'var(--title)', fontWeight: 800, letterSpacing: NAME_TRACKING, fontKerning: 'none', textWrap: 'balance' }} />
           <BannerEventLine data={data} lang={lang} />
         </div>

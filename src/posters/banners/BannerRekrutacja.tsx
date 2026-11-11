@@ -7,7 +7,7 @@ import { useBannerLayout } from '../shape'
 import { fontMono, leading } from '../theme'
 import { PosterFrame } from '../blocks/PosterFrame'
 import { Sygnet } from '../blocks/Sygnet'
-import { BANNER_SYGNET_W, BannerFooter, NAME_TRACKING, BannerEventLine } from './common'
+import { BANNER_SYGNET_W, BannerFooter, NAME_TRACKING, BannerEventLine, TitleSpacer, TITLE_BLOCK_FLEX } from './common'
 
 // Zygzak pasa: głębokość zęba i jego przybliżona szerokość - liczba zębów
 // wynika z szerokości ramki, żeby wzór był równie gęsty w obu banerach.
@@ -35,7 +35,8 @@ export function BannerRekrutacja({ data, scheme, accent, lang = 'pl' }: PosterPr
         <Sygnet name={sygnet} width={BANNER_SYGNET_W} />
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 14, position: 'relative' }}>
+      <TitleSpacer height={51} />
+      <div style={{ flex: TITLE_BLOCK_FLEX, display: 'flex', flexDirection: 'column', gap: 14, position: 'relative' }}>
         <PosterText path="bannerTitle" value={raw.bannerTitle} fallback={CLUB_NAME[lang]} multiline label="Tekst banera" style={{ fontSize: 72 * titleScale, fontWeight: 800, lineHeight: leading(0.94, titleScale), letterSpacing: NAME_TRACKING, fontKerning: 'none', textWrap: 'balance' }} />
         <BannerEventLine data={data} lang={lang} />
       </div>

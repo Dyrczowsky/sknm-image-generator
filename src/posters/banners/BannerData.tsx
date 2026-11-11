@@ -7,7 +7,7 @@ import { BANNER_PAD, useBannerLayout } from '../shape'
 import { fontMono, leading } from '../theme'
 import { PosterFrame } from '../blocks/PosterFrame'
 import { Sygnet } from '../blocks/Sygnet'
-import { BANNER_SYGNET_W, BannerFooter, MarginChips, NAME_TRACKING, BannerEventLine } from './common'
+import { BANNER_SYGNET_W, BannerFooter, MarginChips, NAME_TRACKING, BannerEventLine, TitleSpacer, TITLE_BLOCK_FLEX } from './common'
 
 // DATA (baner) — wielki skrót „SKNM" w miejscu liczby dnia, pod nim pełna nazwa.
 export function BannerData({ data, scheme, accent, lang = 'pl' }: PosterProps) {
@@ -23,7 +23,8 @@ export function BannerData({ data, scheme, accent, lang = 'pl' }: PosterProps) {
         <Sygnet name={sygnet} width={BANNER_SYGNET_W} />
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 18, marginTop: -64 }}>
+      <TitleSpacer height={107} />
+      <div style={{ flex: TITLE_BLOCK_FLEX, display: 'flex', flexDirection: 'column', gap: 18, marginTop: -64 }}>
         <div style={{ fontSize: 250, fontWeight: 800, lineHeight: 0.78, letterSpacing: '-.03em' }}>SKNM</div>
         <PosterText path="bannerTitle" value={raw.bannerTitle} fallback={CLUB_NAME[lang]} multiline label="Tekst banera" style={{ fontSize: 35 * titleScale, fontWeight: 800, lineHeight: leading(1.05, titleScale), color: 'var(--month-color)', letterSpacing: NAME_TRACKING, fontKerning: 'none' }} />
         <BannerEventLine data={data} lang={lang} />

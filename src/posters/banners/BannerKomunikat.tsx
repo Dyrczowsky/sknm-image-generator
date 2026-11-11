@@ -11,7 +11,7 @@ import { PosterFrame } from '../blocks/PosterFrame'
 import { Sygnet } from '../blocks/Sygnet'
 import { FadingTriangles } from '../blocks/Triangle'
 import { Wedges } from '../blocks/Wedges'
-import { BANNER_SYGNET_W, BannerFooter, NAME_TRACKING, BannerEventLine } from './common'
+import { BANNER_SYGNET_W, BannerFooter, NAME_TRACKING, BannerEventLine, TitleSpacer, TITLE_BLOCK_FLEX } from './common'
 
 // KOMUNIKAT ROZSZERZONY (baner) — nazwa koła na tle klinów w kolorze akcentu.
 export function BannerKomunikat({ data, scheme, accent, lang = 'pl' }: PosterProps) {
@@ -23,7 +23,8 @@ export function BannerKomunikat({ data, scheme, accent, lang = 'pl' }: PosterPro
     <PosterFrame vars={cssVars} style={{ padding: `${padY}px ${padX}px`, flexDirection: 'row', gap: 56 }}>
       <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: 16, position: 'relative', zIndex: 1 }}>
         <Sygnet name={sygnet} width={BANNER_SYGNET_W} />
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <TitleSpacer height={54} gap={16} />
+        <div style={{ flex: TITLE_BLOCK_FLEX, display: 'flex', flexDirection: 'column', gap: 16 }}>
           <Badge background="var(--accent)" color="var(--badge-text)" style={{ fontSize: 18, padding: '8px 14px' }}>SKNM</Badge>
           <PosterText path="bannerTitle" value={raw.bannerTitle} fallback={CLUB_NAME[lang]} multiline label="Tekst banera" style={{ fontSize: 62 * titleScale, lineHeight: leading(1, titleScale), fontWeight: 800, letterSpacing: NAME_TRACKING, fontKerning: 'none', textWrap: 'balance' }} />
           <BannerEventLine data={data} lang={lang} />

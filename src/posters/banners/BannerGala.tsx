@@ -9,7 +9,7 @@ import { Badge } from '../blocks/Badge'
 import { BrandingText } from '../blocks/BrandingText'
 import { PosterFrame } from '../blocks/PosterFrame'
 import { Sygnet } from '../blocks/Sygnet'
-import { BANNER_SYGNET_W, BannerFooter, NAME_TRACKING, BannerEventLine } from './common'
+import { BANNER_SYGNET_W, BannerFooter, NAME_TRACKING, BannerEventLine, TitleSpacer, TITLE_BLOCK_FLEX } from './common'
 
 // GALA (baner) — złota linia pod nagłówkiem, nazwa koła, złote akcenty.
 export function BannerGala({ data, scheme, accent, lang = 'pl' }: PosterProps) {
@@ -28,7 +28,8 @@ export function BannerGala({ data, scheme, accent, lang = 'pl' }: PosterProps) {
         <BrandingText lines={[SITE_URL.toUpperCase()]} color="var(--gold)" style={{ fontSize: 18 }} />
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 16, position: 'relative', zIndex: 1 }}>
+      <TitleSpacer height={102} />
+      <div style={{ flex: TITLE_BLOCK_FLEX, display: 'flex', flexDirection: 'column', gap: 16, position: 'relative', zIndex: 1 }}>
         <Badge color="var(--gold)" style={{ font: `700 ${18 * textScale}px ${fontMono}`, letterSpacing: '.2em' }}>SKNM</Badge>
         <PosterText path="bannerTitle" value={raw.bannerTitle} fallback={CLUB_NAME[lang]} multiline label="Tekst banera" style={{ fontSize: 66 * titleScale, lineHeight: leading(0.98, titleScale), maxWidth: 1000, fontWeight: 800, letterSpacing: NAME_TRACKING, fontKerning: 'none', textWrap: 'balance' }} />
         <BannerEventLine data={data} lang={lang} />
