@@ -7,9 +7,11 @@ import catalog from './templates.json'
 
 export interface GenerateArgs extends Omit<RenderInput, 'photos'> {
   photos?: { photo?: PhotoIn[] }
+  save?: boolean // false = tylko podgląd, nic nie trafia do Storage ani historii
 }
 
-export interface GenerateOk { url: string; width: number; height: number; historyId: number; png: string }
+// `url` i `historyId` są `null`, gdy `save: false`.
+export interface GenerateOk { url: string | null; width: number; height: number; historyId: number | null; png: string; preview?: string }
 
 export type GenerateResult = { ok: true; value: GenerateOk } | { ok: false; error: ApiError }
 
@@ -34,7 +36,9 @@ export async function generate(env: Env, args: unknown, deps: GenerateDeps = def
   if (typeof args !== 'object' || args === null || typeof (args as { template?: unknown }).template !== 'string') {
     return fail('bad_request', 'Pole "template" jest wymagane (tekst).')
   }
-  const input = args as GenerateArgs
+  // `save` zna tylko Worker; strona renderu odrzuca nieznane pola.
+  const { save, ...input } = args as GenerateArgs
+  if (save !== undefined && typeof save !== 'boolean') return fail('invalid_field', 'Pole "save" musi być wartością true albo false.')
   const photos: unknown = input.photos
   if (photos !== undefined && (typeof photos !== 'object' || photos === null || Array.isArray(photos))) {
     return fail('invalid_field', 'Pole "photos" musi być obiektem z kluczem "photo".')
@@ -58,7 +62,7 @@ export async function generate(env: Env, args: unknown, deps: GenerateDeps = def
     return fail('invalid_field', `Szablon "${template.key}" nie obsługuje zdjęć.`)
   }
 
-  const loadedResult = await deps.loadPhotos(photoList ?? [])
+  const loadedResult = await deps.loadPhotos(photoList ?? [], undefined, (ref) => deps.supabase(env).downloadAsset(ref))
   if (!loadedResult.ok) return { ok: false, error: loadedResult.error }
   const loaded = loadedResult.photos
 
@@ -81,6 +85,8 @@ export async function generate(env: Env, args: unknown, deps: GenerateDeps = def
   } catch {
     return fail('render_failed', 'Renderowanie zwróciło nieprawidłowy obraz.')
   }
+  const preview = typeof rendered.preview === 'string' ? rendered.preview : undefined
+  if (save === false) return { ok: true, value: { url: null, width: rendered.width, height: rendered.height, historyId: null, png: rendered.png, preview } }
 
   try {
     const sb = deps.supabase(env)
@@ -89,7 +95,7 @@ export async function generate(env: Env, args: unknown, deps: GenerateDeps = def
     const url = await sb.uploadImage(path, png)
     // Historia na końcu, żeby nigdy nie wskazywała brakującego PNG.
     const historyId = await sb.insertHistory({ ...rendered.historyRow, source: 'ai', image_url: url })
-    return { ok: true, value: { url, width: rendered.width, height: rendered.height, historyId, png: rendered.png } }
+    return { ok: true, value: { url, width: rendered.width, height: rendered.height, historyId, png: rendered.png, preview } }
   } catch (e) {
     console.error('generate: zapis nie powiódł się:', e instanceof Error ? e.message : 'nieznany błąd')
     return fail('storage_failed', 'Nie udało się zapisać obrazu. Spróbuj ponownie za chwilę.')

@@ -23,6 +23,9 @@ function setup(over: { render?: RenderResult; uploadImage?: () => Promise<string
     uploadAsset: vi.fn(async () => { calls.push('asset'); await over.uploadAsset?.() }),
     uploadImage: vi.fn(async (path: string, _png?: Uint8Array) => { calls.push('image'); return over.uploadImage ? over.uploadImage() : `https://pub/${path}` }),
     insertHistory: vi.fn(async () => { calls.push('history'); return 42 }),
+    registerAsset: vi.fn(async () => undefined),
+    listAssets: vi.fn(async () => []),
+    downloadAsset: vi.fn(async () => null),
   }
   const renderInBrowser = vi.fn(async () => over.render ?? okRender())
   const loadPhotos = vi.fn(async () => ({ ok: true as const, photos: [{ bytes: JPEG, mime: 'image/jpeg' as const, x: 1, y: 2, zoom: 3 }] }))
@@ -74,6 +77,15 @@ describe('generate', () => {
       .toMatchObject({ ok: false, error: { code: 'invalid_field' } })
     expect(s.loadPhotos).not.toHaveBeenCalled()
     expect(s.renderInBrowser).not.toHaveBeenCalled()
+  })
+
+  it('save: false renderuje, ale nic nie zapisuje i nie przekazuje "save" stronie renderu', async () => {
+    const s = setup({ render: { ...okRender(), preview: 'JPG' } as RenderResult })
+    const r = await generate(env, { ...args, save: false }, s.deps)
+    expect(r).toEqual({ ok: true, value: { url: null, historyId: null, width: 1080, height: 1080, png: PNG_B64, preview: 'JPG' } })
+    expect(s.calls).toEqual([])
+    expect((s.renderInBrowser.mock.calls[0] as unknown[])[1]).not.toHaveProperty('save')
+    expect(await generate(env, { ...args, save: 'nie' }, s.deps)).toMatchObject({ ok: false, error: { code: 'invalid_field' } })
   })
 
   it('brak szablonu daje bad_request bez renderu', async () => {

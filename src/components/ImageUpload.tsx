@@ -1,8 +1,11 @@
-import { useId, useRef, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import type { ChangeEvent, PointerEvent } from 'react'
+import { useAssetLibraryContext } from '../assets/AssetLibraryContext'
 import { importImage } from '../assets/assets'
 import { importErrorMessage } from '../assets/prepare'
+import { srcOf } from '../assets/registry'
 import { IMAGE_ACCEPT } from '../utils/readAsDataUrl'
+import { LogoPicker } from './LogoPicker'
 import { IMAGE_THUMB, IMAGE_THUMB_IMG, UI_ERROR, UI_HINT, UI_LABEL, buttonClass } from './styles'
 import { Button, Icon } from './ui'
 
@@ -80,6 +83,30 @@ export function ImageUpload({ label, hint, value, onChange, position, onPosition
   const drag = useRef<DragState | null>(null)
   // Dlaczego ostatnio wybranego pliku nie udało się przyjąć.
   const [error, setError] = useState<string | null>(null)
+  // Zdjęcia ze wspólnej biblioteki (jak „Z biblioteki" przy logotypach).
+  const library = useAssetLibraryContext()
+  const [pickerOpen, setPickerOpen] = useState(false)
+  const [, setHydrated] = useState(0)
+  const photos = library?.items.filter((asset) => asset.kind === 'photo') ?? []
+  const photoRefs = photos.map((asset) => asset.ref).join(',')
+  const loadThumbs = library?.loadThumbs
+
+  useEffect(() => {
+    if (!pickerOpen || !loadThumbs || !photoRefs) return
+    let active = true
+    void loadThumbs(photoRefs.split(',')).then(() => active && setHydrated((n) => n + 1))
+    return () => {
+      active = false
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `loadThumbs` zmienia się co render
+  }, [pickerOpen, photoRefs])
+
+  const pickPhoto = (ref: string) => {
+    const src = srcOf(ref)
+    if (!src) return
+    onChange(src)
+    setPickerOpen(false)
+  }
 
   const handleFile = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -147,12 +174,18 @@ export function ImageUpload({ label, hint, value, onChange, position, onPosition
           </div>
         )}
         <FilePickerButton text={value ? 'Zmień plik' : 'Wybierz plik'} accept={IMAGE_ACCEPT} onChange={handleFile} />
+        {library && (
+          <Button icon="library" aria-expanded={pickerOpen} onClick={() => setPickerOpen((open) => !open)}>
+            Z biblioteki
+          </Button>
+        )}
         {value && (
           <Button icon="trash" onClick={() => onChange(null)}>
             Usuń
           </Button>
         )}
       </div>
+      {library && pickerOpen && <LogoPicker logos={photos} thumbOf={srcOf} remaining={1} onPick={pickPhoto} />}
       {error && (
         <p className={UI_ERROR} role="alert">
           <Icon name="alert" className="mt-px" />

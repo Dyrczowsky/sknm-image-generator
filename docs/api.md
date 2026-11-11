@@ -32,7 +32,13 @@ Endpointy:
 | `/mcp` | POST | serwer MCP (klucz w nagłówku `Authorization`) |
 | `/mcp/<klucz>` | POST | serwer MCP (klucz w ścieżce, dla claude.ai) |
 
-Narzędzia MCP: `list_templates` i `generate_image`.
+Narzędzia MCP: `list_templates`, `generate_image`, `list_photos` i `save_photo`.
+`save_photo` zapisuje zdjęcie w oryginale w bibliotece grafik (strona „Grafiki"
+w aplikacji, autor „AI"); `list_photos` zwraca zdjęcia z biblioteki, a
+`generate_image` przyjmuje je jako `{"ref": ...}` (obok `url` i `data`; w REST
+też). Wymaga migracji `20261111000000_ai_assets.sql`. Do czatu `generate_image`
+zwraca mały podgląd (JPEG, połowa rozmiaru), pełny PNG jest pod zwróconym
+adresem. Z `"save": false` zwraca tylko podgląd i niczego nie zapisuje.
 
 ## Konfiguracja jednorazowa
 
@@ -101,7 +107,9 @@ curl -X POST https://<api>/api/render \
   -d '{"template":"wyklad","photos":{"photo":[{"url":"https://example.com/foto.jpg"}]}}'
 ```
 
-Odpowiedź: `{ "url", "width", "height", "historyId" }`. Nazwy szablonów, pól
+Odpowiedź: `{ "url", "width", "height", "historyId" }`. Z `"save": false` grafika
+nie trafia do Storage ani historii, a odpowiedź to `{ "width", "height", "png" }`
+(PNG w base64) - do wersji roboczych. Nazwy szablonów, pól
 i schematów kolorów zwraca `/api/templates`. Zdjęcia: `{"url": ...}` (preferowane)
 albo `{"data": "<base64>"}`, opcjonalnie `x`, `y`, `zoom`.
 
@@ -147,9 +155,9 @@ Zamiast `<api>` wstaw adres Workera, a `<klucz>` swój klucz.
   jsonb, który jest dłuższy od JSON-a, stąd zapas; zbyt duży zwraca błąd
   `too_large`, nic nie jest obcinane).
 - Render: 30 s. Pobranie zdjęcia z URL: 10 s.
-- Limit wywołań: 10 na 60 s, wspólny dla całego klucza. Liczy tylko generowanie
-  obrazów (`POST /api/render` i narzędzie MCP `generate_image`); katalog
-  szablonów i inne wywołania MCP go nie zużywają. Licznik działa osobno
+- Limit wywołań: 10 na 60 s, wspólny dla całego klucza. Liczy tylko zapisy:
+  generowanie obrazów (`POST /api/render`, MCP `generate_image`) i MCP
+  `save_photo`; katalog szablonów, `list_photos` i inne wywołania MCP go nie zużywają. Licznik działa osobno
   w każdej lokalizacji Cloudflare, więc limit jest przybliżony.
 - Usunięcie wpisu AI z historii w aplikacji nie usuwa jego PNG z bucketu
   `sknm-ai-images` (plik zostaje, trzeba go skasować ręcznie w Supabase).

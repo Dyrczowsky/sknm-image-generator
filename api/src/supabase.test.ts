@@ -94,3 +94,19 @@ describe('insertHistory', () => {
     expect((err as Error).message).not.toContain(KEY)
   })
 })
+
+describe('biblioteka', () => {
+  it('registerAsset: wiersz AI bez autora, duplikat ignorowany', async () => {
+    const f = fake(new Response(null, { status: 201 }))
+    await supabase(env, f.impl).registerAsset(REF + '.jpg', 'Panorama PK')
+    expect(f.calls[0].url).toBe('https://p.supabase.co/rest/v1/sknm_assets?on_conflict=ref')
+    expect((f.calls[0].init.headers as Record<string, string>).Prefer).toBe('resolution=ignore-duplicates')
+    expect(JSON.parse(f.calls[0].init.body as string)).toEqual({ ref: REF + '.jpg', kind: 'photo', name: 'Panorama PK', source: 'ai', author_email: 'AI' })
+  })
+  it('downloadAsset: brak pliku (400 z Storage) to null, zła nazwa bez zapytania', async () => {
+    const f = fake(new Response('{"statusCode":"404"}', { status: 400 }))
+    expect(await supabase(env, f.impl).downloadAsset(REF + '.jpg')).toBeNull()
+    expect(await supabase(env, f.impl).downloadAsset('../x.jpg')).toBeNull()
+    expect(f.calls).toHaveLength(1)
+  })
+})

@@ -1,6 +1,7 @@
 import { readBody } from './body'
 import type { Env } from './env'
 import { generate } from './generate'
+import { listPhotos, savePhoto } from './library'
 import templates from './templates.json'
 
 // Bezstanowy MCP (Streamable HTTP) z odpowiedziami JSON, bez SSE.
@@ -21,9 +22,10 @@ const tools = [
       'Tworzy grafikę (PNG) do posta na Facebooku w stylu SKNM i zapisuje ją w historii.',
       'Najpierw wywołaj list_templates i wybierz szablon oraz pola, które do niego pasują.',
       'Kształt "story" wybieraj tylko, gdy użytkownik prosi o Story lub relację; w pozostałych przypadkach użyj "square".',
-      'Zdjęcia podawaj jako "url"; "data" (base64) tylko wtedy, gdy nie ma adresu URL.',
+      'Zdjęcia podawaj jako "url"; "data" (base64) tylko wtedy, gdy nie ma adresu URL; "ref" dla zdjęcia z biblioteki (list_photos).',
       'Pola są zwykłym tekstem; nową linię zapisuj jako \\n.',
       'Tekst do plakatu napisz sam na podstawie prośby użytkownika.',
+      'Wersje robocze generuj z "save": false (tylko podgląd, bez zapisu w historii); zaakceptowaną wersję wygeneruj ponownie bez "save".',
     ].join(' '),
     inputSchema: {
       type: 'object',
@@ -33,6 +35,7 @@ const tools = [
         shape: { type: 'string', enum: ['square', 'story'], description: 'square 1080x1080 (domyślnie) lub story 1080x1920.' },
         scheme: { type: 'string', description: 'Nazwa schematu kolorów z list_templates (domyślnie pierwszy).' },
         lang: { type: 'string', enum: ['pl', 'en'] },
+        save: { type: 'boolean', description: 'false = tylko podgląd, bez zapisu w historii i Storage (domyślnie true).' },
         fields: {
           type: 'object',
           description: 'Pola tekstowe szablonu (nazwy z list_templates), każde do 2000 znaków.',
@@ -47,12 +50,13 @@ const tools = [
             photo: {
               type: 'array',
               maxItems: 6,
-              description: 'Zdjęcia JPEG/PNG do 5 MB każde. Podaj "url" albo "data".',
+              description: 'Zdjęcia JPEG/PNG do 5 MB każde. Podaj "url", "data" albo "ref".',
               items: {
                 type: 'object',
                 properties: {
                   url: { type: 'string', description: 'Adres https zdjęcia (preferowany).' },
                   data: { type: 'string', description: 'Zdjęcie w base64 (tylko bez URL).' },
+                  ref: { type: 'string', description: 'Zdjęcie z biblioteki zespołu: "ref" z list_photos.' },
                   x: { type: 'number', minimum: 0, maximum: 100, description: 'Przesunięcie poziome kadru, 0-100 (domyślnie 50).' },
                   y: { type: 'number', minimum: 0, maximum: 100, description: 'Przesunięcie pionowe kadru, 0-100 (domyślnie 50).' },
                   zoom: { type: 'number', minimum: 1, description: 'Powiększenie kadru, minimum 1 (domyślnie 1).' },
@@ -91,6 +95,24 @@ const tools = [
       },
     },
   },
+  {
+    name: 'list_photos',
+    description: 'Zwraca zdjęcia z biblioteki zespołu (strona „Grafiki" w aplikacji): ref, nazwa, data dodania. Zdjęcie wstawisz do generate_image jako { "ref": ... }.',
+    inputSchema: { type: 'object', properties: {} },
+  },
+  {
+    name: 'save_photo',
+    description: 'Zapisuje zdjęcie w oryginale w bibliotece zespołu (np. panoramę PK), żeby użyć go później w generate_image jako { "ref": ... }. Zwraca ref. Nazwa ma opisywać zdjęcie.',
+    inputSchema: {
+      type: 'object',
+      required: ['name'],
+      properties: {
+        name: { type: 'string', maxLength: 120, description: 'Nazwa w bibliotece, np. "Panorama kampusu PK".' },
+        url: { type: 'string', description: 'Adres https zdjęcia (preferowany).' },
+        data: { type: 'string', description: 'Zdjęcie w base64 (tylko bez URL).' },
+      },
+    },
+  },
 ]
 
 const ok = (id: Id, result: unknown) => ({ jsonrpc: '2.0', id, result })
@@ -104,24 +126,33 @@ const jsonResponse = (body: unknown, status = 200) =>
 
 export const RATE_LIMITED_MESSAGE = 'Za dużo wywołań. Spróbuj ponownie za chwilę.'
 
-interface Deps { generate: typeof generate }
+interface Deps { generate: typeof generate; savePhoto: typeof savePhoto; listPhotos: typeof listPhotos }
 
 async function callTool(env: Env, id: Id, params: unknown, deps: Deps) {
   if (!isObject(params) || typeof params.name !== 'string') return err(id, -32602, 'Brak nazwy narzędzia.')
   if (params.name === 'list_templates') return ok(id, text(JSON.stringify(templates)))
-  if (params.name !== 'generate_image') return err(id, -32602, `Nieznane narzędzie: ${params.name}`)
-  // Limit tylko dla generowania; błąd jako zwykły wynik narzędzia, nie HTTP 429.
+  if (params.name === 'list_photos') {
+    const listed = await deps.listPhotos(env)
+    return ok(id, listed.ok ? text(JSON.stringify(listed.value)) : text(`${listed.error.code}: ${listed.error.message}`, true))
+  }
+  if (params.name !== 'generate_image' && params.name !== 'save_photo') return err(id, -32602, `Nieznane narzędzie: ${params.name}`)
+  // Limit tylko dla zapisu (generowanie, zapis zdjęcia); błąd jako zwykły wynik narzędzia, nie HTTP 429.
   const { success } = await env.RATE_LIMITER.limit({ key: 'global' })
   if (!success) return ok(id, text(`rate_limited: ${RATE_LIMITED_MESSAGE}`, true))
+  if (params.name === 'save_photo') {
+    const saved = await deps.savePhoto(env, params.arguments ?? {})
+    if (!saved.ok) return ok(id, text(`${saved.error.code}: ${saved.error.message}`, true))
+    return ok(id, text(`Zapisano w bibliotece jako "${saved.value.name}". ref: ${saved.value.ref}`))
+  }
   const result = await deps.generate(env, params.arguments ?? {})
   if (!result.ok) return ok(id, text(`${result.error.code}: ${result.error.message}`, true))
-  const { url, historyId, png } = result.value
-  return ok(id, {
-    content: [
-      { type: 'text', text: `Grafika: ${url}\nWpis w historii: #${historyId}` },
-      { type: 'image', data: png, mimeType: 'image/png' },
-    ],
-  })
+  const { url, historyId, png, preview } = result.value
+  const info = url === null
+    ? 'Podgląd, nic nie zapisano. Gdy użytkownik zaakceptuje grafikę, wywołaj generate_image ponownie z tymi samymi danymi bez "save".'
+    : `Grafika: ${url}\nWpis w historii: #${historyId}`
+  // Do czatu idzie mały JPEG (pełny PNG to kilka MB); pełny obraz jest pod adresem.
+  const image = preview ? { data: preview, mimeType: 'image/jpeg' } : { data: png, mimeType: 'image/png' }
+  return ok(id, { content: [{ type: 'text', text: info }, { type: 'image', ...image }] })
 }
 
 // Zwraca odpowiedź albo null (notyfikacja).
@@ -148,7 +179,7 @@ async function handleOne(env: Env, msg: unknown, deps: Deps): Promise<unknown | 
   }
 }
 
-export async function handleMcp(request: Request, env: Env, deps: Deps = { generate }): Promise<Response> {
+export async function handleMcp(request: Request, env: Env, deps: Deps = { generate, savePhoto, listPhotos }): Promise<Response> {
   if (request.method !== 'POST') return new Response('Niedozwolona metoda.', { status: 405, headers: { Allow: 'POST' } })
   const raw = await readBody(request)
   if (raw === null) return jsonResponse(err(null, -32600, 'Treść żądania jest większa niż 25 MB.'), 413)

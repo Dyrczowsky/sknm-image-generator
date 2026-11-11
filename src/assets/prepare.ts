@@ -133,7 +133,8 @@ function render(bitmap: ImageBitmap, type: RasterMime, step: EncodeStep): Promis
 // Tylko przeglądarka: dekodowanie i canvas nie istnieją w środowisku testów
 // (node), dlatego cała logika wymiarów, formatu i rozmiaru siedzi w funkcjach
 // wyżej, a ta zostaje cienka. Poza ścieżką SVG sprawdzana ręcznie.
-export async function prepareImage(file: File): Promise<Blob> {
+// `keepSize`: bez limitu wymiarów - oryginał zostaje, o ile mieści się w limicie bajtów.
+export async function prepareImage(file: File, keepSize = false): Promise<Blob> {
   const type = mimeOfFile(file)
   const original = file.type === type ? file : new Blob([file], { type })
   if (type === 'image/svg+xml') {
@@ -143,7 +144,8 @@ export async function prepareImage(file: File): Promise<Blob> {
 
   const bitmap = await createImageBitmap(file)
   try {
-    const size = fitWithin(bitmap.width, bitmap.height, type === 'image/jpeg' ? JPEG_MAX_LONG_SIDE : PNG_MAX_LONG_SIDE)
+    const maxSide = keepSize ? Infinity : type === 'image/jpeg' ? JPEG_MAX_LONG_SIDE : PNG_MAX_LONG_SIDE
+    const size = fitWithin(bitmap.width, bitmap.height, maxSide)
     const untouched = size.width === bitmap.width && size.height === bitmap.height
     if (untouched && original.size <= MAX_ASSET_BYTES) return original
 

@@ -26,6 +26,13 @@ describe('loadPhotos', () => {
     expect(peak).toBe(2)
     expect(r.ok && r.photos.map((p) => p.mime)).toEqual(['image/jpeg', 'image/png'])
   })
+  it('ref: zdjęcie z biblioteki; brak w bibliotece to photo_fetch_failed; dwa źródła naraz to bad_request', async () => {
+    const lib = async (ref: string) => (ref.startsWith('a') ? jpeg : null)
+    const ok = await loadPhotos([{ ref: 'a'.repeat(64) + '.jpg' }], undefined, lib)
+    expect(ok.ok && ok.photos[0].mime).toBe('image/jpeg')
+    expect(await loadPhotos([{ ref: 'c'.repeat(64) + '.jpg' }], undefined, lib)).toMatchObject({ ok: false, error: { code: 'photo_fetch_failed' } })
+    expect(await loadPhotos([{ ref: 'x', url: 'https://a.test/1' }], undefined, lib)).toMatchObject({ ok: false, error: { code: 'bad_request' } })
+  })
   it('6 MB to photo_too_large', async () => {
     const big = new Uint8Array(6 * 1024 * 1024)
     big.set(jpeg)
