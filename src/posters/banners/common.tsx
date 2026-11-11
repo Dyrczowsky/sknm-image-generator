@@ -101,3 +101,16 @@ export function BannerEventLine({ data, lang, style }: BannerEventLineProps) {
     </div>
   )
 }
+
+// Blok tytułu przypięty od góry (#67): odstęp nad nim trzyma tytuł w miejscu, a
+// blok za nim dostaje TITLE_BLOCK_FLEX, więc Enter dokłada wiersz w dół zamiast
+// przesuwać tytuł w górę jak przy wyśrodkowaniu. Gdy tekstu jest za dużo,
+// odstęp się kurczy (do 0), żeby stopka nie wyjechała poza baner.
+// `height`: o ile niżej niż bez odstępu stał tytuł domyślny przed zmianą.
+// `gap`: odstęp kolumny-rodzica - ujemny margines go znosi, więc skurczony
+// odstęp daje ten sam układ co przed zmianą.
+export function TitleSpacer({ height, gap = 0 }: { height: number; gap?: number }) {
+  return <div aria-hidden style={{ flex: `0 1 ${height}px`, marginBottom: -gap }} />
+}
+
+export const TITLE_BLOCK_FLEX = '1 0 auto'

@@ -8,7 +8,7 @@ import { resolveScheme } from '../schemes'
 import { BANNER_PAD, BANNER_SAFE_W, useBannerLayout } from '../shape'
 import { PosterFrame } from '../blocks/PosterFrame'
 import { Sygnet } from '../blocks/Sygnet'
-import { BANNER_SYGNET_W, BannerFooter, MarginChips, NAME_TRACKING, BannerEventLine } from './common'
+import { BANNER_SYGNET_W, BannerFooter, MarginChips, NAME_TRACKING, BannerEventLine, TitleSpacer, TITLE_BLOCK_FLEX } from './common'
 import { leading } from '../theme'
 
 // WARSZTAT BEZ ZDJĘCIA (baner) — kolorystyka Warsztatu, ale bez zdjęcia:
@@ -26,14 +26,15 @@ export function BannerWarsztatBezZdjecia({ data, scheme, accent, lang = 'pl' }: 
 
       <div style={{ position: 'absolute', inset: `${padY}px ${padX}px`, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'space-between', gap: 16, textAlign: 'center' }}>
         <Sygnet name={sygnet} width={BANNER_SYGNET_W} />
+        <TitleSpacer height={48} gap={16} />
 
         {hasBannerEvent(data, editable) ? (
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
+          <div style={{ flex: TITLE_BLOCK_FLEX, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
             <PosterText path="bannerTitle" value={raw.bannerTitle} fallback={CLUB_NAME[lang]} multiline label="Tekst banera" style={{ fontSize: 76 * titleScale, lineHeight: leading(0.96, titleScale), maxWidth: BANNER_SAFE_W - 2 * BANNER_PAD, color: 'var(--title)', fontWeight: 800, letterSpacing: NAME_TRACKING, fontKerning: 'none', textWrap: 'balance' }} />
             <BannerEventLine data={data} lang={lang} />
           </div>
         ) : (
-          <PosterText path="bannerTitle" value={raw.bannerTitle} fallback={CLUB_NAME[lang]} multiline label="Tekst banera" style={{ fontSize: 76 * titleScale, lineHeight: leading(0.96, titleScale), maxWidth: BANNER_SAFE_W - 2 * BANNER_PAD, color: 'var(--title)', fontWeight: 800, letterSpacing: NAME_TRACKING, fontKerning: 'none', textWrap: 'balance' }} />
+          <PosterText path="bannerTitle" value={raw.bannerTitle} fallback={CLUB_NAME[lang]} multiline label="Tekst banera" style={{ flex: TITLE_BLOCK_FLEX, fontSize: 76 * titleScale, lineHeight: leading(0.96, titleScale), maxWidth: BANNER_SAFE_W - 2 * BANNER_PAD, color: 'var(--title)', fontWeight: 800, letterSpacing: NAME_TRACKING, fontKerning: 'none', textWrap: 'balance' }} />
         )}
 
         {/* Pigułka z adresem i stopka w jednym, wyśrodkowanym rzędzie. */}

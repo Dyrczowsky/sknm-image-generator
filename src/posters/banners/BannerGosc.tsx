@@ -8,7 +8,7 @@ import { Badge } from '../blocks/Badge'
 import { PosterFrame } from '../blocks/PosterFrame'
 import { Sygnet } from '../blocks/Sygnet'
 import { PhotoGallery } from '../PhotoGallery'
-import { BANNER_SYGNET_W, BannerFooter, NAME_TRACKING, BannerEventLine } from './common'
+import { BANNER_SYGNET_W, BannerFooter, NAME_TRACKING, BannerEventLine, TitleSpacer, TITLE_BLOCK_FLEX } from './common'
 import { leading } from '../theme'
 
 // Szerokość zdjęcia wewnątrz bezpiecznej kolumny; na okładce strony zdjęcie
@@ -44,7 +44,8 @@ export function BannerGosc({ data, scheme, accent, lang = 'pl' }: PosterProps) {
       <div style={{ flex: 1, minWidth: 0, padding: `${padY}px ${padX}px ${padY}px ${BANNER_PAD}px`, boxSizing: 'border-box', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: 16 }}>
         <Badge color="var(--accent)" style={{ fontSize: 18, paddingTop: 6 }}>SKNM</Badge>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <TitleSpacer height={104} gap={16} />
+        <div style={{ flex: TITLE_BLOCK_FLEX, display: 'flex', flexDirection: 'column', gap: 14 }}>
           <PosterText path="bannerTitle" value={raw.bannerTitle} fallback={CLUB_NAME[lang]} multiline label="Tekst banera" style={{ fontSize: 58 * titleScale, lineHeight: leading(1, titleScale), fontWeight: 800, letterSpacing: NAME_TRACKING, fontKerning: 'none', textWrap: 'balance' }} />
           <BannerEventLine data={data} lang={lang} />
         </div>
