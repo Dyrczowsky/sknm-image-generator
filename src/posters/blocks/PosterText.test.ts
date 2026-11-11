@@ -25,6 +25,12 @@ describe('PosterText', () => {
     expect(html).toBe('<div>Ala <span style="font-weight:bolder">ma</span></div>')
   })
 
+  it('bez providera pole wielowierszowe pokazuje wiersze (eksport, miniatury), styl szablonu wygrywa', () => {
+    expect(render(h(PosterText, { path: 'bannerTitle', value: 'a\nb', multiline: true, label: 'T' }))).toBe('<div style="white-space:pre-line">a\nb</div>')
+    expect(render(h(PosterText, { path: 'bannerTitle', value: 'a', multiline: true, style: { whiteSpace: 'pre-wrap' }, label: 'T' }))).toBe('<div style="white-space:pre-wrap">a</div>')
+    expect(render(h(PosterText, { path: 'title', value: 'a', label: 'T' }))).toBe('<div>a</div>')
+  })
+
   it('w edytorze: pole contentEditable z podpowiedzią z wartości zastępczej', () => {
     const tag = openingTag(editable({ path: 'title', value: '', fallback: 'X', label: 'Tytuł' }), '<div')
     expect(tag).toContain('contentEditable="true"')
@@ -47,7 +53,7 @@ describe('PosterText', () => {
   it('bez providera wyrównania tylko w polu wielowierszowym (jak w edycji)', () => {
     const value = '\uE000\uE001Ala'
     expect(render(h(PosterText, { path: 'title', value, label: 'Tytuł' }))).toBe('<div>Ala</div>')
-    expect(render(h(PosterText, { path: 'body', value, multiline: true, label: 'Treść' }))).toBe('<div><div style="text-align:center">Ala</div></div>')
+    expect(render(h(PosterText, { path: 'body', value, multiline: true, label: 'Treść' }))).toBe('<div style="white-space:pre-line"><div style="text-align:center">Ala</div></div>')
   })
 
   it('white-space ze stylu szablonu taki sam w edycji i poza nią', () => {
