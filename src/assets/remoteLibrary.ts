@@ -11,10 +11,12 @@ export interface LibraryAsset {
   name: string
 }
 
-// `author_email` zdjęć dodanych przez AI (Worker sknm-api). Członek nie może
-// wpisać tej wartości (polityka wymaga jego e-maila); takie zdjęcie może
-// zmienić lub usunąć każdy (migracja 20261111000000_ai_assets.sql).
+// `author_email` zdjęć dodanych przez AI (Worker sknm-api): „AI" albo
+// „AI · <e-mail właściciela klucza>". Członek nie może wpisać takiej wartości
+// (polityka wymaga jego e-maila); takie zdjęcie może zmienić lub usunąć każdy
+// (migracja 20261111000000_ai_assets.sql).
 export const AI_AUTHOR = 'AI'
+export const isAiAuthor = (author: string) => author === AI_AUTHOR || author.startsWith(`${AI_AUTHOR} · `)
 
 const TABLE = 'sknm_assets'
 const COLUMNS = 'ref, created_at, author_email, kind, name'

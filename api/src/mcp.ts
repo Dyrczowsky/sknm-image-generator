@@ -1,3 +1,4 @@
+import type { Owner } from './auth'
 import { readBody } from './body'
 import type { Env } from './env'
 import { generate } from './generate'
@@ -128,7 +129,7 @@ export const RATE_LIMITED_MESSAGE = 'Za dużo wywołań. Spróbuj ponownie za ch
 
 interface Deps { generate: typeof generate; savePhoto: typeof savePhoto; listPhotos: typeof listPhotos }
 
-async function callTool(env: Env, id: Id, params: unknown, deps: Deps) {
+async function callTool(env: Env, owner: Owner, id: Id, params: unknown, deps: Deps) {
   if (!isObject(params) || typeof params.name !== 'string') return err(id, -32602, 'Brak nazwy narzędzia.')
   if (params.name === 'list_templates') return ok(id, text(JSON.stringify(templates)))
   if (params.name === 'list_photos') {
@@ -137,14 +138,14 @@ async function callTool(env: Env, id: Id, params: unknown, deps: Deps) {
   }
   if (params.name !== 'generate_image' && params.name !== 'save_photo') return err(id, -32602, `Nieznane narzędzie: ${params.name}`)
   // Limit tylko dla zapisu (generowanie, zapis zdjęcia); błąd jako zwykły wynik narzędzia, nie HTTP 429.
-  const { success } = await env.RATE_LIMITER.limit({ key: 'global' })
+  const { success } = await env.RATE_LIMITER.limit({ key: owner.id })
   if (!success) return ok(id, text(`rate_limited: ${RATE_LIMITED_MESSAGE}`, true))
   if (params.name === 'save_photo') {
-    const saved = await deps.savePhoto(env, params.arguments ?? {})
+    const saved = await deps.savePhoto(env, owner, params.arguments ?? {})
     if (!saved.ok) return ok(id, text(`${saved.error.code}: ${saved.error.message}`, true))
     return ok(id, text(`Zapisano w bibliotece jako "${saved.value.name}". ref: ${saved.value.ref}`))
   }
-  const result = await deps.generate(env, params.arguments ?? {})
+  const result = await deps.generate(env, owner, params.arguments ?? {})
   if (!result.ok) return ok(id, text(`${result.error.code}: ${result.error.message}`, true))
   const { url, historyId, png, preview } = result.value
   const info = url === null
@@ -156,7 +157,7 @@ async function callTool(env: Env, id: Id, params: unknown, deps: Deps) {
 }
 
 // Zwraca odpowiedź albo null (notyfikacja).
-async function handleOne(env: Env, msg: unknown, deps: Deps): Promise<unknown | null> {
+async function handleOne(env: Env, owner: Owner, msg: unknown, deps: Deps): Promise<unknown | null> {
   if (!isObject(msg) || msg.jsonrpc !== '2.0' || typeof msg.method !== 'string') return err(null, -32600, 'Nieprawidłowe żądanie.')
   const req = msg as unknown as RpcRequest
   if (req.id === undefined) return null
@@ -173,13 +174,13 @@ async function handleOne(env: Env, msg: unknown, deps: Deps): Promise<unknown | 
     case 'tools/list':
       return ok(id, { tools })
     case 'tools/call':
-      return callTool(env, id, req.params, deps)
+      return callTool(env, owner, id, req.params, deps)
     default:
       return err(id, -32601, `Nieznana metoda: ${req.method}`)
   }
 }
 
-export async function handleMcp(request: Request, env: Env, deps: Deps = { generate, savePhoto, listPhotos }): Promise<Response> {
+export async function handleMcp(request: Request, env: Env, owner: Owner, deps: Deps = { generate, savePhoto, listPhotos }): Promise<Response> {
   if (request.method !== 'POST') return new Response('Niedozwolona metoda.', { status: 405, headers: { Allow: 'POST' } })
   const raw = await readBody(request)
   if (raw === null) return jsonResponse(err(null, -32600, 'Treść żądania jest większa niż 25 MB.'), 413)
@@ -193,7 +194,7 @@ export async function handleMcp(request: Request, env: Env, deps: Deps = { gener
   if (Array.isArray(body)) return jsonResponse(err(null, -32600, 'Paczki żądań nie są obsługiwane.'))
   let out: unknown
   try {
-    out = await handleOne(env, body, deps)
+    out = await handleOne(env, owner, body, deps)
   } catch (e) {
     console.error('MCP: nieoczekiwany błąd', e)
     const id = isObject(body) && (typeof body.id === 'string' || typeof body.id === 'number') ? body.id : null

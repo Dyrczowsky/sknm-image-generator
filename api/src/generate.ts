@@ -1,4 +1,5 @@
 import type { ApiError, RenderInput, RenderOk, RenderPhoto } from '../../src/api/types'
+import type { Owner } from './auth'
 import type { Env } from './env'
 import { loadPhotos, toDataUrl, type PhotoIn } from './photos'
 import { renderInBrowser } from './render'
@@ -32,7 +33,7 @@ function fromBase64(b64: string): Uint8Array {
   return out
 }
 
-export async function generate(env: Env, args: unknown, deps: GenerateDeps = defaultDeps): Promise<GenerateResult> {
+export async function generate(env: Env, owner: Owner, args: unknown, deps: GenerateDeps = defaultDeps): Promise<GenerateResult> {
   if (typeof args !== 'object' || args === null || typeof (args as { template?: unknown }).template !== 'string') {
     return fail('bad_request', 'Pole "template" jest wymagane (tekst).')
   }
@@ -94,7 +95,7 @@ export async function generate(env: Env, args: unknown, deps: GenerateDeps = def
     const path = `${new Date().toISOString().slice(0, 10)}/${crypto.randomUUID()}.png`
     const url = await sb.uploadImage(path, png)
     // Historia na końcu, żeby nigdy nie wskazywała brakującego PNG.
-    const historyId = await sb.insertHistory({ ...rendered.historyRow, source: 'ai', image_url: url })
+    const historyId = await sb.insertHistory({ ...rendered.historyRow, source: 'ai', image_url: url, created_by: owner.id })
     return { ok: true, value: { url, width: rendered.width, height: rendered.height, historyId, png: rendered.png, preview } }
   } catch (e) {
     console.error('generate: zapis nie powiódł się:', e instanceof Error ? e.message : 'nieznany błąd')
