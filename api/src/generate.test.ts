@@ -28,6 +28,8 @@ function setup(over: { render?: RenderResult; uploadImage?: () => Promise<string
     apiKeyOwner: vi.fn(async () => null),
     listAssets: vi.fn(async () => []),
     downloadAsset: vi.fn(async () => null),
+    signIn: vi.fn(async () => null),
+    isMember: vi.fn(async () => true),
   }
   const renderInBrowser = vi.fn(async () => over.render ?? okRender())
   const loadPhotos = vi.fn(async () => ({ ok: true as const, photos: [{ bytes: JPEG, mime: 'image/jpeg' as const, x: 1, y: 2, zoom: 3 }] }))

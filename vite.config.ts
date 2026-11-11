@@ -54,5 +54,8 @@ export default defineConfig({
   test: {
     environment: 'node',
     include: ['src/**/*.test.ts', 'api/**/*.test.ts'],
+    // Biblioteka OAuth Workera importuje `cloudflare:workers` (tylko w workerd); w Node podstawiamy atrapę.
+    alias: { 'cloudflare:workers': new URL('./api/test/cloudflare-workers.ts', import.meta.url).pathname },
+    server: { deps: { inline: ['@cloudflare/workers-oauth-provider'] } },
   },
 })

@@ -2,7 +2,10 @@
   "name": "sknm-api",
   "main": "src/index.ts",
   "compatibility_date": "2026-11-10",
-  "compatibility_flags": ["nodejs_compat"],
+  // global_fetch_strictly_public: ochrona SSRF przy pobieraniu dokumentów CIMD klientów OAuth.
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  // Magazyn OAuth (klienci, granty, tokeny; tylko skróty i zaszyfrowane dane).
+  "kv_namespaces": [{ "binding": "OAUTH_KV", "id": "adfd45edbc7d4422b2e60404a8c9331f" }],
   "browser": { "binding": "BROWSER" },
   "vars": { "RENDER_URL": "https://sknm.dyrczowsky.win/render" },
   // Logi Workera w panelu Cloudflare (Workers Logs): tylko nasze console.error
@@ -17,7 +20,9 @@
   },
   // Limit wywołań: 10 na 60 s dla każdego klucza osobno.
   "ratelimits": [
-    { "name": "RATE_LIMITER", "namespace_id": "1001", "simple": { "limit": 10, "period": 60 } }
+    { "name": "RATE_LIMITER", "namespace_id": "1001", "simple": { "limit": 10, "period": 60 } },
+    // Logowanie na stronie OAuth: 5 prób na 60 s osobno dla e-maila i dla adresu IP.
+    { "name": "LOGIN_LIMITER", "namespace_id": "1002", "simple": { "limit": 5, "period": 60 } }
   ]
   // Sekrety (wrangler secret put): SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY.
   // Klucze API są osobiste, w Supabase (tabela sknm_api_keys).
