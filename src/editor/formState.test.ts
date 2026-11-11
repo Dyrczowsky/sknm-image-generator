@@ -8,6 +8,7 @@ import {
   formFromRow,
   moveGraphic,
   removeGraphic,
+  moveListItem,
   removeListItem,
   removePhoto,
   replacePhoto,
@@ -95,6 +96,13 @@ describe('listy', () => {
     const filled = setListItemField('agenda', 0, 'time', '10:00')(added)
     expect(filled.lists.agenda).toEqual([{ time: '10:00' }])
     expect(removeListItem('agenda', 0)(filled).lists.agenda).toEqual([])
+  })
+  it('moveListItem przenosi punkt; poza zakresem bez zmian', () => {
+    const form = { ...EMPTY_FORM, lists: { agenda: [{ title: 'a' }, { title: 'b' }, { title: 'c' }] } }
+    expect(moveListItem('agenda', 0, 2)(form).lists.agenda.map((i) => i.title)).toEqual(['b', 'c', 'a'])
+    expect(moveListItem('agenda', 2, 0)(form).lists.agenda.map((i) => i.title)).toEqual(['c', 'a', 'b'])
+    expect(moveListItem('agenda', 0, 3)(form)).toBe(form)
+    expect(moveListItem('agenda', -1, 0)(form)).toBe(form)
   })
 })
 

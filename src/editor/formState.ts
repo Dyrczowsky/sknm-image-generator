@@ -143,6 +143,17 @@ export const setListItemField = (fieldKey: string, index: number, name: string, 
 export const removeListItem = (fieldKey: string, index: number): FormUpdate =>
   updateList(fieldKey, (items) => removeAt(items, index))
 
+// Przenosi punkt z `from` na pozycję `to`; poza zakresem listy - bez zmian.
+export const moveListItem = (fieldKey: string, from: number, to: number): FormUpdate => (form) => {
+  const items = form.lists[fieldKey] ?? []
+  if (from === to || from < 0 || to < 0 || from >= items.length || to >= items.length) return form
+  return updateList(fieldKey, () => {
+    const next = removeAt(items, from)
+    next.splice(to, 0, items[from])
+    return next
+  })(form)
+}
+
 // Suwaki rozmiaru. Spięte: przesunięcie jednego ustawia OBA na ten sam
 // procent; zapięcie spinacza od razu równa tekst do tytułu, żeby nie zostawić
 // suwaków w rozjeździe.

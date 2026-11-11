@@ -1,7 +1,10 @@
+import { useRef, useState } from 'react'
+import type { PointerEvent } from 'react'
 import type { FormProps } from '../types'
-import { Button, ConfirmButton, Input, Textarea } from '../components/ui'
+import { Button, ConfirmButton, Icon, Input, Textarea } from '../components/ui'
 import { UI_LABEL } from '../components/styles'
-import { addListItem, removeListItem, setFillAgenda, setListItemField } from '../editor/formState'
+import { addListItem, moveListItem, removeListItem, setFillAgenda, setListItemField } from '../editor/formState'
+import { dropSlot, slotToIndex } from '../slides/useDeckEditor'
 import { applyPlainEdit, toPlain } from '../richText'
 import { DEFAULT_BADGE } from '../posters/copy'
 import { FIELDS, badgeField } from './fields'
@@ -29,17 +32,74 @@ const AGENDA_COLUMNS = [
   { name: 'subtitle', type: 'textarea', label: 'Prelegent / opis', placeholder: 'Prelegent / opis (opcjonalnie)', className: 'col-span-2' },
 ]
 
-// Powtarzalna lista punktów programu (`value.lists.agenda`).
+// Powtarzalna lista punktów programu (`value.lists.agenda`). Kolejność
+// zmienia się uchwytem: przeciąganiem (mysz, dotyk) albo strzałkami ↑/↓.
 function AgendaField({ value, onChange }: FormProps) {
   const agenda = value.lists.agenda ?? []
+  const listRef = useRef<HTMLDivElement>(null)
+  const drag = useRef<{ from: number; pointerId: number } | null>(null)
+  const [slot, setSlot] = useState<number | null>(null)
+
+  const move = (from: number, to: number) => {
+    onChange(moveListItem('agenda', from, to))
+    // Fokus idzie za przeniesionym punktem.
+    requestAnimationFrame(() => listRef.current?.querySelectorAll<HTMLElement>('[data-agenda-grip]')[to]?.focus())
+  }
+  const centers = () =>
+    [...(listRef.current?.querySelectorAll<HTMLElement>('[data-agenda-item]') ?? [])].map((el) => {
+      const rect = el.getBoundingClientRect()
+      return rect.top + rect.height / 2
+    })
+  const startDrag = (event: PointerEvent<HTMLButtonElement>, index: number) => {
+    if (event.button !== 0) return
+    event.currentTarget.setPointerCapture(event.pointerId)
+    drag.current = { from: index, pointerId: event.pointerId }
+  }
+  const endDrag = (commit: boolean) => {
+    const state = drag.current
+    drag.current = null
+    if (state && commit && slot !== null) {
+      const to = slotToIndex(state.from, slot)
+      if (to !== state.from) move(state.from, to)
+    }
+    setSlot(null)
+  }
+  const dropLine = (show: boolean, edge: 'top' | 'bottom') =>
+    show ? <span aria-hidden="true" className={`pointer-events-none absolute right-0 left-0 h-[3px] rounded-full bg-accent ${edge === 'top' ? '-top-[8px]' : '-bottom-[8px]'}`} /> : null
+
   return (
     <FormGroup title="Program">
+      <div ref={listRef} className="flex flex-col gap-3">
       {agenda.map((item, index) => {
         const remove = () => onChange(removeListItem('agenda', index))
         const filled = AGENDA_COLUMNS.some((column) => Boolean(item[column.name]))
         return (
-          <div key={index} role="group" aria-label={`Punkt programu ${index + 1}`} className="flex flex-col gap-2 rounded-xl border border-border p-3">
+          <div key={index} data-agenda-item="" role="group" aria-label={`Punkt programu ${index + 1}`} className="relative flex flex-col gap-2 rounded-xl border border-border p-3">
+            {dropLine(slot === index, 'top')}
+            {dropLine(slot === agenda.length && index === agenda.length - 1, 'bottom')}
             <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+              {agenda.length > 1 && (
+                <button
+                  type="button"
+                  data-agenda-grip=""
+                  aria-label={`Przesuń punkt ${index + 1} (przeciągnij albo strzałki w górę i w dół)`}
+                  title="Przeciągnij, żeby zmienić kolejność"
+                  className={`-ml-1 inline-flex size-7 touch-none items-center justify-center rounded-md text-muted hover:bg-fg/[0.07] hover:text-fg ${slot !== null ? 'cursor-grabbing' : 'cursor-grab'}`}
+                  onPointerDown={(event) => startDrag(event, index)}
+                  onPointerMove={(event) => {
+                    if (drag.current?.pointerId === event.pointerId) setSlot(dropSlot(event.clientY, centers()))
+                  }}
+                  onPointerUp={() => endDrag(true)}
+                  onPointerCancel={() => endDrag(false)}
+                  onKeyDown={(event) => {
+                    if (event.key !== 'ArrowUp' && event.key !== 'ArrowDown') return
+                    event.preventDefault()
+                    move(index, index + (event.key === 'ArrowUp' ? -1 : 1))
+                  }}
+                >
+                  <Icon name="grip" />
+                </button>
+              )}
               <span className={UI_LABEL}>Punkt {index + 1}</span>
               {filled ? (
                 <ConfirmButton variant="ghost" icon="trash" className="ml-auto" question={`Usunąć punkt ${index + 1}?`} onConfirm={remove}>
@@ -68,6 +128,7 @@ function AgendaField({ value, onChange }: FormProps) {
           </div>
         )
       })}
+      </div>
       <Button icon="plus" className="self-start" onClick={() => onChange(addListItem('agenda'))}>
         Dodaj punkt programu
       </Button>

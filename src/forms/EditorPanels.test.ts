@@ -41,6 +41,9 @@ describe('ContentPanel (Treść)', () => {
     expect(html).toContain('aria-label="Godzina, punkt 1"')
     expect(html).toContain('aria-label="Nazwa punktu, punkt 2"')
     expect(html).toContain('Dodaj punkt programu')
+    // Uchwyt przesuwania przy każdym punkcie, gdy są co najmniej dwa.
+    expect(html).toContain('aria-label="Przesuń punkt 2 (przeciągnij albo strzałki w górę i w dół)"')
+    expect(content('konferencja', form({ lists: { agenda: [{}] } }))).not.toContain('Przesuń punkt')
   })
 
   it('Komunikat: pole akapitu jest textarea z etykietą', () => {
