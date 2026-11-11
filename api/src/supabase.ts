@@ -67,6 +67,36 @@ export function supabase(env: Env, fetchImpl: typeof fetch = fetch) {
       return row ? { id: row.user_id, email: row.email ?? '' } : null
     },
 
+    // Logowanie hasłem (strona zgody OAuth); `null` = zły e-mail lub hasło. Hasło idzie tylko do Supabase.
+    async signIn(email: string, password: string): Promise<{ id: string; email: string } | null> {
+      let res: Response
+      try {
+        res = await fetchImpl(`${base}/auth/v1/token?grant_type=password`, {
+          method: 'POST',
+          headers: { apikey: env.SUPABASE_SERVICE_ROLE_KEY, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password }),
+        })
+      } catch {
+        throw new Error('Supabase: błąd sieci przy logowaniu')
+      }
+      if (res.status === 400) return null
+      if (!res.ok) throw await failure('logowanie', res, env.SUPABASE_SERVICE_ROLE_KEY)
+      const user = ((await res.json()) as { user?: { id?: string; email?: string } }).user
+      return user?.id ? { id: user.id, email: user.email ?? '' } : null
+    },
+
+    // Czy osoba jest w `sknm_members` (przy logowaniu OAuth i przy każdym wywołaniu MCP z tokenem).
+    async isMember(userId: string): Promise<boolean> {
+      let res: Response
+      try {
+        res = await fetchImpl(`${base}/rest/v1/sknm_members?select=user_id&user_id=eq.${encodeURIComponent(userId)}`, { headers: auth })
+      } catch {
+        throw new Error('Supabase: błąd sieci przy sprawdzaniu członkostwa')
+      }
+      if (!res.ok) throw await failure('sprawdzenie członkostwa', res, env.SUPABASE_SERVICE_ROLE_KEY)
+      return ((await res.json()) as unknown[]).length > 0
+    },
+
     // Wpis w bibliotece grafik (`sknm_assets`); ten sam plik już wpisany = sukces.
     async registerAsset(ref: string, name: string, owner: { id: string; email: string }): Promise<void> {
       if (!REF_RE.test(ref)) throw new Error('Supabase: nieprawidłowa nazwa zdjęcia')

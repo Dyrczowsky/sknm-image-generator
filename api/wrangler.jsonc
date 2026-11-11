@@ -2,7 +2,10 @@
   "name": "sknm-api",
   "main": "src/index.ts",
   "compatibility_date": "2026-11-10",
-  "compatibility_flags": ["nodejs_compat"],
+  // global_fetch_strictly_public: ochrona SSRF przy pobieraniu dokumentów CIMD klientów OAuth.
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  // Magazyn OAuth (klienci, granty, tokeny; tylko skróty i zaszyfrowane dane).
+  "kv_namespaces": [{ "binding": "OAUTH_KV", "id": "adfd45edbc7d4422b2e60404a8c9331f" }],
   "browser": { "binding": "BROWSER" },
   "vars": { "RENDER_URL": "https://sknm.dyrczowsky.win/render" },
   // Logi Workera w panelu Cloudflare (Workers Logs): tylko nasze console.error

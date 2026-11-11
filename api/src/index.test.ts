@@ -91,12 +91,12 @@ describe('index', () => {
     expect(res.status).toBe(200)
     expect((await call(new Request('https://w.test/mcp'))).status).toBe(401)
   })
-  it('/.well-known/oauth-*: 404 przed uwierzytelnieniem', async () => {
-    for (const p of ['oauth-protected-resource', 'oauth-authorization-server']) {
-      const env = mkEnv()
-      expect((await call(new Request(`https://w.test/.well-known/${p}`), env)).status).toBe(404)
-      expect(env.RATE_LIMITER.limit).not.toHaveBeenCalled()
-    }
+  it('/.well-known/oauth-*: metadane OAuth bez uwierzytelnienia', async () => {
+    const env = mkEnv()
+    const res = await call(new Request('https://sknm-api.dyrczkuba.workers.dev/.well-known/oauth-protected-resource/mcp'), env)
+    expect(res.status).toBe(200)
+    expect((await res.json() as { resource: string }).resource).toBe('https://sknm-api.dyrczkuba.workers.dev/mcp')
+    expect(env.RATE_LIMITER.limit).not.toHaveBeenCalled()
   })
   it('POST /api/render: zły JSON i brak szablonu to 400', async () => {
     const bad = await call(new Request('https://w.test/api/render', { method: 'POST', headers: authed, body: '{nie json' }))

@@ -120,20 +120,29 @@ albo `{"data": "<base64>"}`, opcjonalnie `x`, `y`, `zoom`.
 
 ## Podłączenie AI (MCP)
 
-Adres serwera to `https://<api>/mcp`, a klucz idzie w nagłówku
-`Authorization: Bearer <klucz>` (klucz w adresie nie działa).
+Adres serwera to `https://<api>/mcp`. Są dwa sposoby logowania:
 
-- **Claude Code** (przycisk „Kopiuj polecenie Claude Code" w panelu klucza
-  daje gotowe polecenie):
+- **OAuth (zalecane, bez klucza):** klient MCP sam otwiera stronę `/authorize`,
+  na której logujesz się kontem generatora i zatwierdzasz dostęp. Token dostaje
+  tylko członek zespołu (`sknm_members`). Członkostwo jest sprawdzane przy każdym
+  wywołaniu, więc usunięcie z zespołu od razu odbiera dostęp.
+  - **claude.ai:** Ustawienia → Connectors → Add custom connector, adres
+    `https://<api>/mcp`, potem „Connect”.
+  - **Claude Code:** `claude mcp add --transport http --scope user sknm https://<api>/mcp`,
+    potem `/mcp` → `sknm` → Authenticate.
+- **Klucz API w nagłówku** `Authorization: Bearer <klucz>` (klucz w adresie nie
+  działa), np. dla skryptów i REST. Przycisk „Kopiuj polecenie Claude Code" w
+  panelu klucza daje gotowe polecenie:
 
   ```bash
   claude mcp add --transport http --scope user sknm https://<api>/mcp \
     --header "Authorization: Bearer <klucz>"
   ```
 
-- **Inni klienci MCP** (Streamable HTTP): adres `/mcp` i ten sam nagłówek.
-- **claude.ai:** konektor niestandardowy nie pozwala ustawić nagłówka, więc
-  z tym serwerem nie działa (wymagałby OAuth).
+OAuth trzyma klientów, granty i tokeny w KV `OAUTH_KV` (tylko skróty i
+zaszyfrowane dane). Hasło z formularza trafia wyłącznie do Supabase Auth.
+Adres Workera jest wpisany w `api/src/index.ts` (`ORIGIN`); po zmianie domeny
+trzeba go poprawić.
 
 **Bezpieczeństwo klucza:** klucz to hasło. Nie wklejaj go do czatów, zgłoszeń
 ani repozytorium. Worker nie loguje adresów żądań ani nagłówków
