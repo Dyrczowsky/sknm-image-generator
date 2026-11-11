@@ -7,7 +7,7 @@
   },
   "overrides": [
     {
-      "files": ["src/slides/komponenty/**"],
+      "files": ["src/slides/komponenty/**", "src/forms/Form*.tsx"],
       "rules": { "react/only-export-components": "off" }
     }
   ]

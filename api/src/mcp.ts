@@ -37,8 +37,7 @@ const tools = [
           type: 'object',
           description: 'Pola tekstowe szablonu (nazwy z list_templates), każde do 2000 znaków.',
           properties: Object.fromEntries(
-            ['title', 'subtitle', 'speaker', 'event_date', 'event_time', 'location', 'badge', 'badge2', 'body', 'year']
-              .map((k) => [k, { type: 'string' }]),
+            [...new Set(templates.templates.flatMap((t) => t.fields.map((f) => f.name)))].map((k) => [k, { type: 'string' }]),
           ),
           additionalProperties: false,
         },

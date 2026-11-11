@@ -138,20 +138,20 @@ export async function loadPhotos(photos: PhotoIn[], fetchImpl: typeof fetch = fe
     const bad = checkItem(raw, i + 1)
     if (bad) return { ok: false, error: bad }
   }
+  // Pobieranie równolegle (6 x 10 s po kolei to za długo); błędy zgłaszamy w kolejności zdjęć.
+  const all = await Promise.all((photos as PhotoIn[]).map(async (p, i): Promise<Uint8Array | ApiError> => {
+    const n = i + 1
+    if (p.url !== undefined) return fetchBytes(p.url, n, fetchImpl)
+    if (p.data === undefined) return { code: 'bad_request', message: `Zdjęcie ${n}: podaj url albo data.` }
+    const decoded = decodeBase64(p.data)
+    if (decoded === 'too_large' || (decoded && decoded.length > MAX_PHOTO_BYTES)) return { code: 'photo_too_large', message: `Zdjęcie ${n} jest większe niż 5 MB.` }
+    return decoded ?? { code: 'bad_request', message: `Zdjęcie ${n}: nieprawidłowy base64.` }
+  }))
   const loaded: LoadedPhoto[] = []
   let total = 0
-  for (const [i, raw] of (photos as unknown[]).entries()) {
+  for (const [i, bytes] of all.entries()) {
     const n = i + 1
-    const p = raw as PhotoIn
-    let bytes: Uint8Array | ApiError
-    if (p.url !== undefined) bytes = await fetchBytes(p.url, n, fetchImpl)
-    else if (p.data !== undefined) {
-      const decoded = decodeBase64(p.data)
-      bytes = decoded === 'too_large'
-        ? { code: 'photo_too_large', message: `Zdjęcie ${n} jest większe niż 5 MB.` }
-        : decoded ?? { code: 'bad_request', message: `Zdjęcie ${n}: nieprawidłowy base64.` }
-      if (!isApiError(bytes) && bytes.length > MAX_PHOTO_BYTES) bytes = { code: 'photo_too_large', message: `Zdjęcie ${n} jest większe niż 5 MB.` }
-    } else bytes = { code: 'bad_request', message: `Zdjęcie ${n}: podaj url albo data.` }
+    const p = photos[i]
     if (isApiError(bytes)) return { ok: false, error: bytes }
     const mime = sniffMime(bytes)
     if (!mime) return fail('photo_not_image', `Zdjęcie ${n} nie jest obrazem JPEG ani PNG.`)

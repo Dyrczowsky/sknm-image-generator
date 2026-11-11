@@ -43,9 +43,18 @@ export async function generate(env: Env, args: unknown, deps: GenerateDeps = def
   if (extra.length > 0) return fail('invalid_field', `Pole "photos" ma niedozwolone klucze: ${extra.join(', ')}. Dozwolone jest tylko "photo".`)
   const photoList = input.photos?.photo
   if (photoList !== undefined && !Array.isArray(photoList)) return fail('bad_request', 'Pole "photos.photo" musi być tablicą.')
-  // Nieznany szablon zostawiamy stronie renderu (zwróci unknown_template).
+  // Tanie sprawdzenia przed startem przeglądarki; resztę reguł pilnuje strona renderu.
   const template = catalog.templates.find((t) => t.key === input.template)
-  if (template && template.photo === null && photoList !== undefined && photoList.length > 0) {
+  if (!template) {
+    return fail('unknown_template', `Nieznany szablon ${JSON.stringify(input.template)}. Dostępne: ${catalog.templates.map((t) => t.key).join(', ')}.`)
+  }
+  const fields: unknown = input.fields
+  if (typeof fields === 'object' && fields !== null && !Array.isArray(fields)) {
+    const allowed = template.fields.map((f) => f.name)
+    const wrong = Object.keys(fields).find((k) => !allowed.includes(k))
+    if (wrong !== undefined) return fail('invalid_field', `Pole „${wrong}" nie występuje w szablonie „${template.key}". Dozwolone: ${allowed.join(', ')}.`)
+  }
+  if (template.photo === null && photoList !== undefined && photoList.length > 0) {
     return fail('invalid_field', `Szablon "${template.key}" nie obsługuje zdjęć.`)
   }
 

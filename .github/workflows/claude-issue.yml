@@ -81,7 +81,7 @@ jobs:
           claude_args: |
             --max-turns 40
             --allowedTools "Read,Edit,Write,Glob,Grep,Bash(git status:*),Bash(git diff:*),Bash(git log:*)"
-            --disallowedTools "Edit(.github/**),Write(.github/**),Edit(.git/**),Write(.git/**),Edit(package.json),Write(package.json),Edit(package-lock.json),Write(package-lock.json),Edit(vite.config.ts),Write(vite.config.ts),Edit(tsconfig*.json),Write(tsconfig*.json),Edit(.oxlintrc.json),Write(.oxlintrc.json)"
+            --disallowedTools "Edit(.github/**),Write(.github/**),Edit(api/**),Write(api/**),Edit(.git/**),Write(.git/**),Edit(package.json),Write(package.json),Edit(package-lock.json),Write(package-lock.json),Edit(vite.config.ts),Write(vite.config.ts),Edit(tsconfig*.json),Write(tsconfig*.json),Edit(.oxlintrc.json),Write(.oxlintrc.json)"
       - name: Publish branch and pull request
         id: publish
         env:
@@ -96,7 +96,7 @@ jobs:
             exit 0
           fi
 
-          forbidden=$(git diff --cached --name-only | grep -E '^(\.github/|package(-lock)?\.json$|vite\.config\.ts$|tsconfig[^/]*\.json$|\.oxlintrc\.json$)' || true)
+          forbidden=$(git diff --cached --name-only | grep -E '^(\.github/|api/|package(-lock)?\.json$|vite\.config\.ts$|tsconfig[^/]*\.json$|\.oxlintrc\.json$)' || true)
           if [ -n "$forbidden" ]; then
             printf 'Not publishing: the change touches protected files:\n%s\n' "$forbidden" > "$note"
             gh issue comment "$ISSUE" --body-file "$note"

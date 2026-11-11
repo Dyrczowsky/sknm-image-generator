@@ -13,6 +13,19 @@ describe('loadPhotos', () => {
     expect(r).toMatchObject({ ok: false, error: { code: 'photo_not_image' } })
     if (!r.ok) expect(r.error.message).toContain('Zdjęcie 2')
   })
+  it('pobiera zdjęcia równolegle i zachowuje kolejność', async () => {
+    let open = 0
+    let peak = 0
+    const slow = (async (u: string) => {
+      peak = Math.max(peak, ++open)
+      await new Promise((r) => setTimeout(r, 5))
+      open--
+      return new Response(String(u).endsWith('/1') ? jpeg : png)
+    }) as unknown as typeof fetch
+    const r = await loadPhotos([{ url: 'https://a.test/1' }, { url: 'https://a.test/2' }], slow)
+    expect(peak).toBe(2)
+    expect(r.ok && r.photos.map((p) => p.mime)).toEqual(['image/jpeg', 'image/png'])
+  })
   it('6 MB to photo_too_large', async () => {
     const big = new Uint8Array(6 * 1024 * 1024)
     big.set(jpeg)

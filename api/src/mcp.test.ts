@@ -56,9 +56,11 @@ describe('mcp', () => {
   })
   it('tools/list zwraca oba narzędzia', async () => {
     const { json } = await run(rpc('tools/list'))
-    const tools = json.result.tools as { name: string; inputSchema: { required?: string[] } }[]
+    const tools = json.result.tools as { name: string; inputSchema: { required?: string[]; properties: { fields?: { properties: object } } } }[]
     expect(tools.map((t) => t.name)).toEqual(['list_templates', 'generate_image'])
     expect(tools[1].inputSchema.required).toContain('template')
+    expect(Object.keys(tools[1].inputSchema.properties.fields!.properties).sort())
+      .toEqual(['badge', 'badge2', 'body', 'event_date', 'event_time', 'location', 'speaker', 'subtitle', 'title', 'year'])
   })
   it('list_templates zwraca katalog', async () => {
     const { json } = await run(rpc('tools/call', { name: 'list_templates' }))
