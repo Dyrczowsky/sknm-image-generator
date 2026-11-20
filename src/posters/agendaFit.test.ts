@@ -61,4 +61,15 @@ describe('nextAgendaFit', () => {
     const fit = initialAgendaFit(62)
     expect(nextAgendaFit(fit, { avail: 0, listHeight: 0, items: 3, fitting: 0 }, LIMITS)).toBe(fit)
   })
+  it('jeden krok zmniejsza tekst najwyżej o 0,05 (zawijany program maleje nieliniowo)', () => {
+    const fit = initialAgendaFit(LIMITS.maxPad)
+    const next = nextAgendaFit(fit, measure(fit, 10, 100), LIMITS)
+    expect(next.scale).toBeCloseTo(0.95)
+  })
+
+  it('start od dwóch kolumn: zostają dwie, bez przechodzenia przez jedną', () => {
+    const fit = initialAgendaFit(12, 2)
+    expect(fit.columns).toBe(2)
+    expect(nextAgendaFit(fit, measure(fit, 10, 400), { ...LIMITS, maxPad: 12 }).columns).toBe(2)
+  })
 })

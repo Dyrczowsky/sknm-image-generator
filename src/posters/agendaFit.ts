@@ -40,9 +40,12 @@ export interface AgendaMeasure {
   fitting: number
 }
 
+const MAX_STEP = 0.05
+
 export const AGENDA_LIMITS: Omit<AgendaLimits, 'maxPad'> = { minPad: 8, minScale: 0.7 }
 
-export const initialAgendaFit = (maxPad: number): AgendaFit => ({ pad: maxPad, scale: 1, columns: 1, overflow: 0 })
+// `columns`: szeroki, niski baner zaczyna od dwóch kolumn zamiast zmniejszać jedną.
+export const initialAgendaFit = (maxPad: number, columns: 1 | 2 = 1): AgendaFit => ({ pad: maxPad, scale: 1, columns, overflow: 0 })
 
 // Wierszy w najwyższej kolumnie.
 export const agendaRows = (items: number, columns: 1 | 2): number => Math.ceil(items / columns)
@@ -63,10 +66,12 @@ export function nextAgendaFit(fit: AgendaFit, m: AgendaMeasure, limits: AgendaLi
     next = { ...fit, pad, overflow: 0 }
   } else if (fit.scale > limits.minScale) {
     // Treść skaluje się mniej więcej liniowo z tekstem; zaokrąglenie w dół
-    // i krok co najmniej 0.02, żeby pętla zawsze schodziła.
+    // i krok co najmniej 0.02, żeby pętla zawsze schodziła. Krok najwyżej
+    // MAX_STEP: zawijane wiersze (wąska kolumna) maleją szybciej niż liniowo,
+    // więc duży skok przestrzeliłby w zbyt drobny tekst.
     const target = (m.avail - rows * 2 * limits.minPad) / content
-    const guess = Math.floor(fit.scale * target * 100) / 100
-    const scale = Math.max(limits.minScale, Math.min(guess, Math.round((fit.scale - 0.02) * 100) / 100))
+    const guess = Math.max(Math.floor(fit.scale * target * 100) / 100, fit.scale - MAX_STEP)
+    const scale = Math.max(limits.minScale, Math.min(Math.round(guess * 100) / 100, Math.round((fit.scale - 0.02) * 100) / 100))
     next = { ...fit, pad: limits.minPad, scale, overflow: 0 }
   } else if (fit.columns === 1 && m.items > 1) {
     next = { pad: limits.minPad, scale: 1, columns: 2, overflow: 0 }
