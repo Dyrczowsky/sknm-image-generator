@@ -40,6 +40,7 @@ export const EXPORT_FORMATS: Record<string, ExportFormat> = {
   a2: { label: 'A2 · 420×594 mm', medium: 'social', paper: { widthMm: 420, heightMm: 594 } },
   fbCover: { label: 'Facebook · okładka strony · 1640×624', medium: 'banner', width: 1640, height: 624, shape: 'cover' },
   fbEvent: { label: 'Facebook · wydarzenie · 1920×1005', medium: 'banner', width: 1920, height: 1005, shape: 'event' },
+  wwwCarousel: { label: 'Strona SKNM · karuzela · 1600×500', medium: 'banner', width: 1600, height: 500, shape: 'carousel' },
 }
 
 // Format wybierany po przejściu na daną zakładkę.

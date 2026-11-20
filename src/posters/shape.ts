@@ -13,12 +13,14 @@ export const SHAPE_SIZE: Record<PosterShape, { width: number; height: number }> 
   // 1920×1005 - ten sam układ rasteryzowany ×1,61 (patrz formats.ts).
   cover: { width: 1640, height: 624 },
   event: { width: 1192, height: 624 },
+  // Slajd Smart Slider 3 na sknm.pk.edu.pl (1600×500) - rasteryzacja ×0,8.
+  carousel: { width: 1997, height: 624 },
   // Wysokie Story 1080×1920 - tylko dla layoutów z flagą `storyShape`.
   story: { width: 1080, height: 1920 },
 }
 
 export function isBannerShape(shape: PosterShape): boolean {
-  return shape === 'cover' || shape === 'event'
+  return shape === 'cover' || shape === 'event' || shape === 'carousel'
 }
 
 // Szerokość bezpiecznej kolumny banera. Facebook na telefonie przycina

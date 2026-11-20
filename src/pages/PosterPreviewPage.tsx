@@ -9,7 +9,7 @@ const BACK_LINK = 'mb-4 inline-block font-medium text-accent no-underline hover:
 
 // Szerokość podglądu na ekranie zależnie od kształtu.
 function previewSize(shape: PosterShape): number {
-  if (shape === 'cover') return 1100
+  if (shape === 'cover' || shape === 'carousel') return 1100
   return isBannerShape(shape) ? 800 : 600
 }
 
