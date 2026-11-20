@@ -29,12 +29,12 @@ describe('formaty eksportu', () => {
   })
 
   it('klucze i kolejność: social, papier, potem banery', () => {
-    expect(Object.keys(EXPORT_FORMATS)).toEqual(['square', 'story', 'a4', 'a3', 'a2', 'fbCover', 'fbEvent'])
+    expect(Object.keys(EXPORT_FORMATS)).toEqual(['square', 'story', 'a4', 'a3', 'a2', 'fbCover', 'fbEvent', 'wwwCarousel'])
   })
 
   it('formatsFor: zakładka widzi tylko swoje formaty', () => {
     expect(formatsFor('social').map(([k]) => k)).toEqual(['square', 'story', 'a4', 'a3', 'a2'])
-    expect(formatsFor('banner').map(([k]) => k)).toEqual(['fbCover', 'fbEvent'])
+    expect(formatsFor('banner').map(([k]) => k)).toEqual(['fbCover', 'fbEvent', 'wwwCarousel'])
     expect(EXPORT_FORMATS[DEFAULT_FORMAT.social].medium).toBe('social')
     expect(EXPORT_FORMATS[DEFAULT_FORMAT.banner].medium).toBe('banner')
   })
@@ -46,7 +46,7 @@ describe('formaty eksportu', () => {
   })
 
   it('banery: układ ma proporcję formatu (rasteryzacja bez zniekształceń)', () => {
-    for (const key of ['fbCover', 'fbEvent']) {
+    for (const key of ['fbCover', 'fbEvent', 'wwwCarousel']) {
       const f = EXPORT_FORMATS[key]
       const layout = SHAPE_SIZE[f.shape ?? 'square']
       const scale = (f.height ?? 0) / layout.height

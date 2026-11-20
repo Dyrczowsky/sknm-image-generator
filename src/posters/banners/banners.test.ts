@@ -23,7 +23,7 @@ describe('banery', () => {
   })
 
   for (const [key, entry] of Object.entries(posterRegistry)) {
-    for (const shape of ['cover', 'event'] as const) {
+    for (const shape of ['cover', 'event', 'carousel'] as const) {
       it(`${key}: baner renderuje się w kształcie ${shape} na pustych danych`, () => {
         const { width, height } = SHAPE_SIZE[shape]
         const html = renderToStaticMarkup(h(PosterScaled, { size: width / 2, shape }, h(entry.Banner, { data: {} })))
