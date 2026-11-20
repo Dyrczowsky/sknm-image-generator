@@ -25,7 +25,7 @@ export function ContentPanel({ poster, banner, lang, value, onChange }: EditorPa
   if (!poster) return null
   // Baner ma wspólny, krótki formularz - pola tylko plakatu zostają w stanie
   // i wracają po przejściu na „Social media i druk".
-  if (banner) return <FormBanner value={value} onChange={onChange} photo={poster.bannerPhoto} lang={lang} />
+  if (banner) return <FormBanner value={value} onChange={onChange} photo={poster.bannerPhoto} agenda={poster.bannerAgenda} lang={lang} />
   const LayoutForm = poster.Form
   return <LayoutForm value={value} onChange={onChange} />
 }

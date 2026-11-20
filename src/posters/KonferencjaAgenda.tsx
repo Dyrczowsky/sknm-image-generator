@@ -20,6 +20,8 @@ interface KonferencjaAgendaProps {
   // Kształt, w którym „Dopasuj program" wydłuża kadr (kwadrat) - ostrzeżenie
   // podpowiada wtedy tę opcję.
   canGrow: boolean
+  // Kolor godzin (domyślnie koralowy we wszystkich schematach Konferencji).
+  timeColor?: string
 }
 
 const COLUMN_GAP = 48
@@ -29,7 +31,7 @@ const COLUMN_GAP = 48
 // rozmiar tekstu albo liczbę kolumn, aż wynik się ustabilizuje. Pierwszy
 // render (i render statyczny bez pomiaru) to układ wyjściowy: jedna kolumna,
 // pełny tekst, oddech `startPad`.
-export function KonferencjaAgenda({ agenda, seed, startPad, spread, grow, canGrow }: KonferencjaAgendaProps) {
+export function KonferencjaAgenda({ agenda, seed, startPad, spread, grow, canGrow, timeColor = colors.coral }: KonferencjaAgendaProps) {
   const { onNotice } = usePosterEdit()
   const boxRef = useRef<HTMLDivElement | null>(null)
   const listRef = useRef<HTMLDivElement | null>(null)
@@ -131,8 +133,7 @@ export function KonferencjaAgenda({ agenda, seed, startPad, spread, grow, canGro
                 alignContent: grow ? 'center' : 'start',
               }}
             >
-              {/* Etykiety godzin są koralowe we wszystkich schematach - literał, nie rola. */}
-              <div style={{ font: `700 ${26 * s}px ${fontMono}`, color: colors.coral }}>{item.time}</div>
+                            <div style={{ font: `700 ${26 * s}px ${fontMono}`, color: timeColor }}>{item.time}</div>
               {/* Co najmniej jedna linijka tytułu: pusty punkt też jest wierszem,
                   a nie zlepionymi liniami. */}
               <div style={{ minHeight: Math.ceil(36 * s * 1.15) }}>

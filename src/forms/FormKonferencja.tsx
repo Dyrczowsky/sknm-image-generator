@@ -34,7 +34,8 @@ const AGENDA_COLUMNS = [
 
 // Powtarzalna lista punktów programu (`value.lists.agenda`). Kolejność
 // zmienia się uchwytem: przeciąganiem (mysz, dotyk) albo strzałkami ↑/↓.
-function AgendaField({ value, onChange }: FormProps) {
+// `banner`: bez „Dopasuj program" w wersji z wydłużaniem kwadratu.
+export function AgendaField({ value, onChange, banner }: FormProps & { banner?: boolean }) {
   const agenda = value.lists.agenda ?? []
   const listRef = useRef<HTMLDivElement>(null)
   const drag = useRef<{ from: number; pointerId: number } | null>(null)
@@ -139,7 +140,7 @@ function AgendaField({ value, onChange }: FormProps) {
           checked={value.fillAgenda}
           onChange={(e) => onChange(setFillAgenda(e.target.checked))}
         />
-        Dopasuj program: rozłóż punkty na całą wysokość, a gdy się nie mieszczą, wydłuż kwadrat
+        {banner ? 'Dopasuj program: rozłóż punkty na całą wysokość' : 'Dopasuj program: rozłóż punkty na całą wysokość, a gdy się nie mieszczą, wydłuż kwadrat'}
       </label>
     </FormGroup>
   )

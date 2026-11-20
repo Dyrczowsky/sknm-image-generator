@@ -16,6 +16,7 @@ import { BannerRekrutacja } from './banners/BannerRekrutacja'
 import { BannerData } from './banners/BannerData'
 import { BannerGosc } from './banners/BannerGosc'
 import { BannerGala } from './banners/BannerGala'
+import { BannerGalaHarmonogram } from './banners/BannerGalaHarmonogram'
 import { BannerOgloszenie } from './banners/BannerOgloszenie'
 import { BannerKomunikat } from './banners/BannerKomunikat'
 import { BannerCiekawostka } from './banners/BannerCiekawostka'
@@ -43,6 +44,7 @@ import type { RegistryEntry } from '../types'
 //   `bannerOnly` - layout istnieje tylko jako baner: zakładka „Social media
 //   i druk" go nie pokazuje, a przełączenie na nią wraca do `fallbackKey`
 //   (`Component` zostaje dla miniatur kolorystyki i historii).
+//   `bannerAgenda` - baner ma program (`FormBanner` pokaże listę punktów).
 //   `storyShape` - layout ma własny wysoki układ Story 1080×1920 (kształt
 //   `story`), zamiast kwadratu z dostawką tła.
 // - `Form` - treść layoutu (zakładka „Treść"): lista pól na wspólnym `PosterForm`
@@ -66,6 +68,7 @@ export const posterRegistry: Record<string, RegistryEntry> = {
   data: { name: 'Data', Component: PosterData, Banner: BannerData, Form: FormData },
   gosc: { name: 'Gość', Component: PosterGosc, Banner: BannerGosc, bannerPhoto: true, Form: FormGosc },
   gala: { name: 'Gala', Component: PosterGala, Banner: BannerGala, Form: FormGala },
+  galaHarmonogram: { name: 'Gala – z harmonogramem', Component: PosterGala, Banner: BannerGalaHarmonogram, bannerOnly: { fallbackKey: 'gala' }, bannerAgenda: true, Form: FormGala },
   ogloszenie: { name: 'Ogłoszenie', Component: PosterOgloszenie, Banner: BannerOgloszenie, Form: FormOgloszenie },
   komunikat: { name: 'Komunikat rozszerzony', Component: PosterKomunikat, Banner: BannerKomunikat, Form: FormKomunikat },
   ciekawostka: { name: 'Ciekawostka', Component: PosterCiekawostka, Banner: BannerCiekawostka, bannerPhoto: true, storyShape: true, Form: FormCiekawostka },
