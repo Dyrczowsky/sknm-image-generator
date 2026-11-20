@@ -19,6 +19,8 @@ const MIN_SCALE = 0.3
 const MIN_PAD = 3
 // Od tylu punktów program idzie od razu w dwie kolumny (jedna byłaby za drobna).
 const TWO_COLUMNS_FROM = 4
+// Do tej skali tekst maleje, żeby opisy punktów nie łamały się do nowej linii.
+const NOWRAP_FLOOR = 0.5
 
 const DEFAULT_AGENDA: ListItem[] = [
   { time: '18:00', title: 'Otwarcie gali', subtitle: 'powitanie gości' },
@@ -58,7 +60,7 @@ export function BannerGalaHarmonogram({ data, scheme, accent, lang = 'pl' }: Pos
           <BannerEventLine data={data} lang={lang} />
         </div>
         <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', ...AGENDA_VARS }}>
-          <KonferencjaAgenda agenda={agenda} seed={DEFAULT_AGENDA} startPad={12} spread={fillAgenda} grow={false} canGrow={false} timeColor="var(--gold)" minScale={MIN_SCALE} minPad={MIN_PAD} startColumns={agenda.length > TWO_COLUMNS_FROM ? 2 : 1} compact />
+          <KonferencjaAgenda agenda={agenda} seed={DEFAULT_AGENDA} startPad={12} spread={fillAgenda} grow={false} canGrow={false} timeColor="var(--gold)" minScale={MIN_SCALE} minPad={MIN_PAD} startColumns={agenda.length > TWO_COLUMNS_FROM ? 2 : 1} compact nowrapFloor={NOWRAP_FLOOR} />
         </div>
       </div>
 
