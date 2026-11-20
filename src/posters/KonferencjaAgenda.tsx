@@ -22,6 +22,11 @@ interface KonferencjaAgendaProps {
   canGrow: boolean
   // Kolor godzin (domyślnie koralowy we wszystkich schematach Konferencji).
   timeColor?: string
+  // Dolna granica dopasowania (niski baner potrzebuje mniejszego tekstu niż plakat).
+  minScale?: number
+  minPad?: number
+  // Liczba kolumn na start dopasowania (domyślnie jedna).
+  startColumns?: 1 | 2
 }
 
 const COLUMN_GAP = 48
@@ -31,7 +36,7 @@ const COLUMN_GAP = 48
 // rozmiar tekstu albo liczbę kolumn, aż wynik się ustabilizuje. Pierwszy
 // render (i render statyczny bez pomiaru) to układ wyjściowy: jedna kolumna,
 // pełny tekst, oddech `startPad`.
-export function KonferencjaAgenda({ agenda, seed, startPad, spread, grow, canGrow, timeColor = colors.coral }: KonferencjaAgendaProps) {
+export function KonferencjaAgenda({ agenda, seed, startPad, spread, grow, canGrow, timeColor = colors.coral, minScale = AGENDA_LIMITS.minScale, minPad = AGENDA_LIMITS.minPad, startColumns = 1 }: KonferencjaAgendaProps) {
   const { onNotice } = usePosterEdit()
   const boxRef = useRef<HTMLDivElement | null>(null)
   const listRef = useRef<HTMLDivElement | null>(null)
@@ -55,14 +60,14 @@ export function KonferencjaAgenda({ agenda, seed, startPad, spread, grow, canGro
   )
   // Każda zmiana treści albo miejsca zaczyna dopasowanie od nowa - inaczej
   // skrócenie programu zostawiłoby go w zmniejszonym tekście.
-  const key = JSON.stringify([agenda, startPad, spread, grow, box.width, box.height])
-  const [state, setState] = useState(() => ({ key, fit: initialAgendaFit(startPad), cut: '' }))
+  const key = JSON.stringify([agenda, startPad, spread, grow, minScale, minPad, startColumns, box.width, box.height])
+  const [state, setState] = useState(() => ({ key, fit: initialAgendaFit(startPad, startColumns), cut: '' }))
   const current = state.key === key
-  const fit = current ? state.fit : initialAgendaFit(startPad)
+  const fit = current ? state.fit : initialAgendaFit(startPad, startColumns)
   // Punkty, które nie zmieściły się nawet w najciaśniejszym układzie: ukryte
   // w całości (`visibility`, bez zmiany układu), zamiast uciętych w pół.
   const cut = new Set(current && fit.overflow > 0 ? state.cut.split(',').filter(Boolean).map(Number) : [])
-  const limits = { ...AGENDA_LIMITS, maxPad: spread ? 1000 : startPad }
+  const limits = { minScale, minPad, maxPad: spread ? 1000 : startPad }
 
   useLayoutEffect(() => {
     const boxNode = boxRef.current
