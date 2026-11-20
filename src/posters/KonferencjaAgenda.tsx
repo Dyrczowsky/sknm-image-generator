@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import type { ReactNode } from 'react'
 import { toPlain } from '../richText'
 import type { ListItem } from '../types'
 import { useElementSize } from '../utils/useElementSize'
@@ -29,9 +30,20 @@ interface KonferencjaAgendaProps {
   startColumns?: 1 | 2
   // Węższa kolumna godzin i odstępy (baner: więcej miejsca na nazwy punktów).
   compact?: boolean
+  // Patrz `AgendaLimits.nowrapFloor`.
+  nowrapFloor?: number
 }
 
 // [kolumna godzin, odstęp godzina–nazwa, odstęp między kolumnami] przy skali 1.
+const SUBTITLE_SIZE = 26
+const SUBTITLE_LEADING = 1.25
+// Opis punktu w pudełku z liczbą jego linii z Enterów (`data-agenda-sub`),
+// gdy dopasowanie pilnuje, żeby opisy się nie zawijały.
+function withSubMeasure(nowrapFloor: number | undefined, subtitle: string, node: ReactNode): ReactNode {
+  if (nowrapFloor === undefined) return node
+  return <div data-agenda-sub={toPlain(subtitle).split('\n').length}>{node}</div>
+}
+
 const SPACING = { regular: [140, 24, 48], compact: [96, 16, 28] }
 
 // Program Konferencji zawsze mieszczący się w kadrze (patrz agendaFit.ts):
@@ -39,7 +51,7 @@ const SPACING = { regular: [140, 24, 48], compact: [96, 16, 28] }
 // rozmiar tekstu albo liczbę kolumn, aż wynik się ustabilizuje. Pierwszy
 // render (i render statyczny bez pomiaru) to układ wyjściowy: jedna kolumna,
 // pełny tekst, oddech `startPad`.
-export function KonferencjaAgenda({ agenda, seed, startPad, spread, grow, canGrow, timeColor = colors.coral, minScale = AGENDA_LIMITS.minScale, minPad = AGENDA_LIMITS.minPad, startColumns = 1, compact = false }: KonferencjaAgendaProps) {
+export function KonferencjaAgenda({ agenda, seed, startPad, spread, grow, canGrow, timeColor = colors.coral, minScale = AGENDA_LIMITS.minScale, minPad = AGENDA_LIMITS.minPad, startColumns = 1, compact = false, nowrapFloor }: KonferencjaAgendaProps) {
   const { onNotice } = usePosterEdit()
   const boxRef = useRef<HTMLDivElement | null>(null)
   const listRef = useRef<HTMLDivElement | null>(null)
@@ -63,14 +75,14 @@ export function KonferencjaAgenda({ agenda, seed, startPad, spread, grow, canGro
   )
   // Każda zmiana treści albo miejsca zaczyna dopasowanie od nowa - inaczej
   // skrócenie programu zostawiłoby go w zmniejszonym tekście.
-  const key = JSON.stringify([agenda, startPad, spread, grow, minScale, minPad, startColumns, box.width, box.height])
+  const key = JSON.stringify([agenda, startPad, spread, grow, minScale, minPad, startColumns, nowrapFloor, box.width, box.height])
   const [state, setState] = useState(() => ({ key, fit: initialAgendaFit(startPad, startColumns), cut: '' }))
   const current = state.key === key
   const fit = current ? state.fit : initialAgendaFit(startPad, startColumns)
   // Punkty, które nie zmieściły się nawet w najciaśniejszym układzie: ukryte
   // w całości (`visibility`, bez zmiany układu), zamiast uciętych w pół.
   const cut = new Set(current && fit.overflow > 0 ? state.cut.split(',').filter(Boolean).map(Number) : [])
-  const limits = { minScale, minPad, maxPad: spread ? 1000 : startPad }
+  const limits = { minScale, minPad, nowrapFloor, maxPad: spread ? 1000 : startPad }
 
   useLayoutEffect(() => {
     const boxNode = boxRef.current
@@ -81,7 +93,10 @@ export function KonferencjaAgenda({ agenda, seed, startPad, spread, grow, canGro
     list.querySelectorAll<HTMLElement>('[data-agenda-row]').forEach((row) => {
       if (row.offsetTop + row.offsetHeight > avail) outside.push(Number(row.dataset.agendaRow))
     })
-    const next = nextAgendaFit(fit, { avail, listHeight: list.offsetHeight, items: agenda.length, fitting: agenda.length - outside.length }, limits)
+    // Opis zawinięty = wyższy niż jego linie z Enterów (z zapasem na zaokrąglenia).
+    const subLine = SUBTITLE_SIZE * fit.scale * SUBTITLE_LEADING
+    const wrapped = [...list.querySelectorAll<HTMLElement>('[data-agenda-sub]')].some((el) => el.offsetHeight > Number(el.dataset.agendaSub) * subLine + subLine / 2)
+    const next = nextAgendaFit(fit, { avail, listHeight: list.offsetHeight, items: agenda.length, fitting: agenda.length - outside.length, wrapped }, limits)
     const nextCut = next.overflow > 0 ? outside.join(',') : ''
     if (next !== fit || !current || nextCut !== state.cut) setState({ key, fit: next, cut: nextCut })
     // eslint-disable-next-line react-hooks/exhaustive-deps -- `limits` i `agenda` są w `key`
@@ -142,7 +157,7 @@ export function KonferencjaAgenda({ agenda, seed, startPad, spread, grow, canGro
                 alignContent: grow ? 'center' : 'start',
               }}
             >
-                            <div style={{ font: `700 ${26 * s}px ${fontMono}`, color: timeColor }}>{item.time}</div>
+              <div style={{ font: `700 ${26 * s}px ${fontMono}`, color: timeColor }}>{item.time}</div>
               {/* Co najmniej jedna linijka tytułu: pusty punkt też jest wierszem,
                   a nie zlepionymi liniami. */}
               <div style={{ minHeight: Math.ceil(36 * s * 1.15) }}>
@@ -155,16 +170,20 @@ export function KonferencjaAgenda({ agenda, seed, startPad, spread, grow, canGro
                   multiline
                   style={{ fontSize: 36 * s, fontWeight: 700, lineHeight: 1.15, fontKerning: 'none', whiteSpace: 'pre-line' }}
                 />
-                {toPlain(item.subtitle ?? '') !== '' && (
-                  <PosterText
-                    path={`lists.agenda.${i}.subtitle`}
-                    value={item.subtitle}
-                    listSeed={seed}
-                    label={`Prelegent / opis, punkt ${i + 1}`}
-                    multiline
-                    style={{ fontSize: 26 * s, fontWeight: 500, color: 'var(--muted-text)', whiteSpace: 'pre-line' }}
-                  />
-                )}
+                {toPlain(item.subtitle ?? '') !== '' &&
+                  // Pomiar zawijania tylko z `nowrapFloor` - HTML plakatu bez zmian.
+                  withSubMeasure(
+                    nowrapFloor,
+                    item.subtitle ?? '',
+                    <PosterText
+                      path={`lists.agenda.${i}.subtitle`}
+                      value={item.subtitle}
+                      listSeed={seed}
+                      label={`Prelegent / opis, punkt ${i + 1}`}
+                      multiline
+                      style={{ fontSize: SUBTITLE_SIZE * s, fontWeight: 500, ...(nowrapFloor !== undefined && { lineHeight: SUBTITLE_LEADING }), color: 'var(--muted-text)', whiteSpace: 'pre-line' }}
+                    />,
+                  )}
               </div>
             </div>
           )

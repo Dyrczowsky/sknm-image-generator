@@ -72,4 +72,14 @@ describe('nextAgendaFit', () => {
     expect(fit.columns).toBe(2)
     expect(nextAgendaFit(fit, measure(fit, 10, 400), { ...LIMITS, maxPad: 12 }).columns).toBe(2)
   })
+  it('nowrapFloor: zawinięty opis zmniejsza tekst (krokiem 0,05) tylko do progu', () => {
+    const limits = { ...LIMITS, maxPad: 12, nowrapFloor: 0.5 }
+    const fit = initialAgendaFit(12)
+    const wrapped = { ...measure(fit, 3, 1000), wrapped: true }
+    expect(nextAgendaFit(fit, wrapped, limits).scale).toBeCloseTo(0.95)
+    const atFloor = { ...fit, scale: 0.5 }
+    expect(nextAgendaFit(atFloor, { ...measure(atFloor, 3, 1000), wrapped: true }, limits).scale).toBe(0.5)
+    // Bez progu (plakat) zawijanie nic nie zmienia.
+    expect(nextAgendaFit(fit, wrapped, { ...LIMITS, maxPad: 12 }).scale).toBe(1)
+  })
 })

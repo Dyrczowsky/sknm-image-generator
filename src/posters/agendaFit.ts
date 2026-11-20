@@ -28,6 +28,9 @@ export interface AgendaLimits {
   maxPad: number
   minPad: number
   minScale: number
+  // Baner: tekst maleje (najwyżej do tej skali), dopóki opis punktu się
+  // zawija - krótkie opisy (np. imię i funkcja) mają stać w jednej linii.
+  nowrapFloor?: number
 }
 
 export interface AgendaMeasure {
@@ -38,6 +41,8 @@ export interface AgendaMeasure {
   items: number
   // Ile punktów mieści się w `avail` w bieżącym układzie.
   fitting: number
+  // Czy któryś opis punktu zawija się (więcej linii niż ma Enterów).
+  wrapped?: boolean
 }
 
 const MAX_STEP = 0.05
@@ -60,7 +65,9 @@ export function nextAgendaFit(fit: AgendaFit, m: AgendaMeasure, limits: AgendaLi
   const tightest = content + rows * 2 * limits.minPad
 
   let next: AgendaFit
-  if (tightest <= m.avail) {
+  if (tightest <= m.avail && m.wrapped && limits.nowrapFloor !== undefined && fit.scale - MAX_STEP >= limits.nowrapFloor) {
+    next = { ...fit, scale: Math.round((fit.scale - MAX_STEP) * 100) / 100, overflow: 0 }
+  } else if (tightest <= m.avail) {
     // Mieści się: rozdaj wolne miejsce na oddech wierszy (w granicach).
     const pad = Math.min(limits.maxPad, Math.max(limits.minPad, Math.floor((m.avail - content) / (2 * rows))))
     next = { ...fit, pad, overflow: 0 }
