@@ -4,6 +4,7 @@ import { CLUB_NAME } from '../posters/copy'
 import { FIELDS } from './fields'
 import type { FieldSpec } from './fields'
 import { FormField } from './FormField'
+import { AgendaField } from './FormKonferencja'
 import { FormGroup, PANEL_STACK } from './FormGroup'
 import { PhotoGalleryField } from './PhotoGalleryField'
 import { QrField } from './QrField'
@@ -11,6 +12,8 @@ import { QrField } from './QrField'
 interface FormBannerProps extends FormProps {
   // Czy baner wybranego layoutu ma miejsce na zdjęcie (Gość, Warsztat).
   photo?: boolean
+  // Czy baner wybranego layoutu ma program (Gala – z harmonogramem).
+  agenda?: boolean
   // Język plakatu - nazwa koła w podpowiedzi pola tekstu.
   lang?: PosterLang
 }
@@ -22,7 +25,7 @@ const EVENT_FIELDS = [FIELDS.date, FIELDS.time, FIELDS.location]
 // godziną i miejscem - te wartości są wspólne z plakatem, ale oko plakatu
 // nie działa na baner, więc tu go nie ma. Dalej zdjęcie i kod QR; rozmiar
 // tekstu i logotypy są w zakładce „Wygląd".
-export function FormBanner({ value, onChange, photo, lang = 'pl' }: FormBannerProps) {
+export function FormBanner({ value, onChange, photo, agenda, lang = 'pl' }: FormBannerProps) {
   const titleField: FieldSpec = { name: 'bannerTitle', label: 'Tekst banera', type: 'textarea', rows: 2, placeholder: CLUB_NAME[lang] }
   return (
     <div className={PANEL_STACK}>
@@ -40,6 +43,7 @@ export function FormBanner({ value, onChange, photo, lang = 'pl' }: FormBannerPr
         {value.bannerShowEvent &&
           EVENT_FIELDS.map((field) => <FormField key={field.name} field={field} value={value} onChange={onChange} visibilityToggle={false} />)}
       </FormGroup>
+      {agenda && <AgendaField value={value} onChange={onChange} banner />}
       {photo && (
         <FormGroup title="Zdjęcia">
           <PhotoGalleryField fieldKey="photo" label="Zdjęcie" value={value} onChange={onChange} />

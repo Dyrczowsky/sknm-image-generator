@@ -161,6 +161,8 @@ export interface RegistryEntry {
   Banner: ComponentType<PosterProps>
   // Baner tego layoutu ma miejsce na zdjęcie - zakładka „Treść" banera (`FormBanner`) pokaże galerię.
   bannerPhoto?: boolean
+  // Baner ma program (lista `agenda`, edytowana w FormBanner).
+  bannerAgenda?: boolean
   // Layout ma własny wysoki układ Story (1080×1920) zamiast kwadratu na wysokim płótnie.
   storyShape?: boolean
   // Layout tylko dla banerów (np. „Warsztat – bez zdjęcia"): ukryty w trybie

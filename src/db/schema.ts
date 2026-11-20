@@ -15,6 +15,7 @@ export const DEFAULT_TEMPLATES: ReadonlyArray<{ name: string; poster_key: string
   { name: 'Komunikat rozszerzony', poster_key: 'komunikat' },
   { name: 'Warsztat – bez zdjęcia', poster_key: 'warsztatBezZdjecia' },
   { name: 'Ciekawostka', poster_key: 'ciekawostka' },
+  { name: 'Gala – z harmonogramem', poster_key: 'galaHarmonogram' },
 ]
 
 // Podbijaj przy każdej zmianie kształtu tabel wymagającej świeżego startu.

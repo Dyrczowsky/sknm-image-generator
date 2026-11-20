@@ -56,6 +56,12 @@ describe('banery', () => {
     }
   })
 
+  it('Gala – z harmonogramem: baner rysuje program z formularza (godzina, nazwa, opis)', () => {
+    const data = { lists: { agenda: [{ time: '19:15', title: 'PUNKT_GALI', subtitle: 'OPIS_GALI' }] } }
+    const html = renderToStaticMarkup(h(PosterScaled, { size: 820, shape: 'cover' }, h(posterRegistry.galaHarmonogram.Banner, { data })))
+    for (const text of ['19:15', 'PUNKT_GALI', 'OPIS_GALI', CLUB_NAME.pl]) expect(html).toContain(text)
+  })
+
   it('każdy layout z rejestru ma szablon w DEFAULT_TEMPLATES', () => {
     const keys = DEFAULT_TEMPLATES.map((t) => t.poster_key)
     for (const key of Object.keys(posterRegistry)) expect(keys).toContain(key)
@@ -120,8 +126,10 @@ describe('banery: pola formularza', () => {
   }
 
   for (const [key, entry] of Object.entries(posterRegistry)) {
+    // Baner z programem celowo rysuje listę `agenda` - sprawdza ją osobny test.
+    const FORMATTED_FIELDS: RawPosterData = entry.bannerAgenda ? { ...FORMATTED, lists: {} } : FORMATTED
     it(`${key}: sformatowane pola nie zmieniają banera ani nie wyciekają znaczników`, () => {
-      const out = renderToStaticMarkup(h(entry.Banner, { data: FORMATTED }))
+      const out = renderToStaticMarkup(h(entry.Banner, { data: FORMATTED_FIELDS }))
       expect(out).not.toMatch(CONTROL)
       expect(out).not.toContain('font-weight:bolder')
       expect(out).toBe(renderToStaticMarkup(h(entry.Banner, { data: {} })))
@@ -130,11 +138,13 @@ describe('banery: pola formularza', () => {
     it(`${key}: w edytorze edytowalny jest tylko tekst banera (i miejsce, gdy linia wydarzenia jest włączona)`, () => {
       const editing = (data: RawPosterData) =>
         renderToStaticMarkup(h(PosterEditContext.Provider, { value: { editable: true, onText: () => {} } }, h(entry.Banner, { data })))
-      const out = editing(FORMATTED)
-      expect(out.split('data-poster-edit=""').length - 1).toBe(1)
+      // Punkty programu domyślnego (baner z programem) są edytowalne - nie liczą się tu.
+      const edits = (html: string) => html.split('data-poster-edit=""').length - 1 - (html.split(', punkt ').length - 1)
+      const out = editing(FORMATTED_FIELDS)
+      expect(edits(out)).toBe(1)
       expect(out).toContain('aria-label="Tekst banera"')
-      const withEvent = editing({ ...FORMATTED, bannerShowEvent: true })
-      expect(withEvent.split('data-poster-edit=""').length - 1).toBe(2)
+      const withEvent = editing({ ...FORMATTED_FIELDS, bannerShowEvent: true })
+      expect(edits(withEvent)).toBe(2)
       expect(withEvent).toContain('aria-label="Lokalizacja"')
     })
   }
