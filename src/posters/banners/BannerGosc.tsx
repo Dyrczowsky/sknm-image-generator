@@ -19,7 +19,7 @@ const PHOTO_W = 360
 export function BannerGosc({ data, scheme, accent, lang = 'pl' }: PosterProps) {
   const { raw, logoSlots, qrUrl, qrSide, photos, titleScale } = withPlaceholders(data)
   const { cssVars, sygnet, logoVariant } = resolveScheme('gosc', scheme, accent)
-  const { padX, padY, height } = useBannerLayout()
+  const { padX, padY, height } = useBannerLayout(data.bannerFbMargins !== false)
 
   // Trójkąt z sygnetem rośnie razem z marginesem, żeby sygnet został
   // w bezpiecznej kolumnie, a nie w przycinanym rogu.

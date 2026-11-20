@@ -62,6 +62,9 @@ export interface FormValues extends Record<FormTextField, string> {
   ciekawostkaLayout: CiekawostkaLayout
   // Baner: linia z datą, godziną i miejscem (wartości wspólne z plakatem).
   bannerShowEvent: boolean
+  // Baner: treść w środkowym pasie, który Facebook pokazuje na telefonie
+  // (wyłączone: treść prawie do krawędzi, np. karuzela strony).
+  bannerFbMargins: boolean
 }
 
 // Przekształcenie stanu formularza. Formularze zgłaszają zmiany jako takie

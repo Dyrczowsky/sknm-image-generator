@@ -29,6 +29,8 @@ export function isBannerShape(shape: PosterShape): boolean {
 // i zdjęcia.
 export const BANNER_SAFE_W = 1096
 export const BANNER_PAD = 48
+// Boczny margines treści bez marginesów Facebooka (np. strzałki slidera na stronie zajmują ~60 px).
+export const CAROUSEL_PAD_X = 140
 
 // Domyślnie kwadrat: wszystko, co nie podaje kształtu (miniatury szablonów,
 // swatche, historia), renderuje się jak dotychczas.
@@ -48,8 +50,11 @@ export function usePosterShape() {
 // Układ banera: `padX` to boczny margines treści (bezpieczna kolumna
 // wyśrodkowana w ramce), `padY` - górny/dolny. Poza kształtem banera
 // (np. miniatura bez providera) hook liczy z bieżącej ramki, bez wyjątku.
-export function useBannerLayout() {
+// `fbMargins` (checkbox „Marginesy Facebooka", domyślnie włączony): treść
+// w pasie bezpiecznym. Wyłączony - np. karuzela strony, która skaluje grafikę
+// zamiast przycinać boki - treść idzie prawie do krawędzi.
+export function useBannerLayout(fbMargins = true) {
   const { shape, width, height } = usePosterShape()
-  const padX = Math.max(BANNER_PAD, Math.round((width - BANNER_SAFE_W) / 2))
+  const padX = fbMargins ? Math.max(BANNER_PAD, Math.round((width - BANNER_SAFE_W) / 2)) : CAROUSEL_PAD_X
   return { shape, width, height, padX, padY: BANNER_PAD }
 }

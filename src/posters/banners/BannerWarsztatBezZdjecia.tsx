@@ -17,7 +17,7 @@ import { leading } from '../theme'
 export function BannerWarsztatBezZdjecia({ data, scheme, accent, lang = 'pl' }: PosterProps) {
   const { raw, logoSlots, qrUrl, qrSide, titleScale } = withPlaceholders(data)
   const { cssVars, sygnet, logoVariant } = resolveScheme('warsztat', scheme, accent)
-  const { padX, padY } = useBannerLayout()
+  const { padX, padY } = useBannerLayout(data.bannerFbMargins !== false)
   const { editable } = usePosterEdit()
 
   return (

@@ -27,7 +27,7 @@ function zigzag(width: number): string {
 export function BannerRekrutacja({ data, scheme, accent, lang = 'pl' }: PosterProps) {
   const { raw, logoSlots, qrUrl, qrSide, titleScale } = withPlaceholders(data)
   const { cssVars, sygnet, logoVariant } = resolveScheme('rekrutacja', scheme, accent)
-  const { padX, padY, width } = useBannerLayout()
+  const { padX, padY, width } = useBannerLayout(data.bannerFbMargins !== false)
 
   return (
     <PosterFrame vars={cssVars} style={{ padding: `${padY}px ${padX}px` }}>

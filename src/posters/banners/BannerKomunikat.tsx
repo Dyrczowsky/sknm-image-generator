@@ -17,7 +17,7 @@ import { BANNER_SYGNET_W, BannerFooter, NAME_TRACKING, BannerEventLine, TitleSpa
 export function BannerKomunikat({ data, scheme, accent, lang = 'pl' }: PosterProps) {
   const { raw, logoSlots, qrUrl, qrSide, titleScale } = withPlaceholders(data)
   const { cssVars, sygnet, logoVariant } = resolveScheme('komunikat', scheme, accent)
-  const { padX, padY } = useBannerLayout()
+  const { padX, padY } = useBannerLayout(data.bannerFbMargins !== false)
 
   return (
     <PosterFrame vars={cssVars} style={{ padding: `${padY}px ${padX}px`, flexDirection: 'row', gap: 56 }}>

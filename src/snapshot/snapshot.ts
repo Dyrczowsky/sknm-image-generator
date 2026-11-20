@@ -218,6 +218,7 @@ function parseForm(raw: unknown): SnapshotForm {
     wideSubtitle: flagOr(source.wideSubtitle, EMPTY_FORM.wideSubtitle),
     ciekawostkaLayout: source.ciekawostkaLayout === 'panorama' || source.ciekawostkaLayout === 'archiwum' ? source.ciekawostkaLayout : 'zdjecie',
     bannerShowEvent: flagOr(source.bannerShowEvent, EMPTY_FORM.bannerShowEvent),
+    bannerFbMargins: flagOr(source.bannerFbMargins, EMPTY_FORM.bannerFbMargins),
   }
 }
 

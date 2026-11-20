@@ -37,6 +37,7 @@ export const EMPTY_FORM: FormValues = {
   fillAgenda: false,
   wideSubtitle: false,
   bannerShowEvent: false,
+  bannerFbMargins: true,
 }
 
 // Pola tekstowe wiersza bazy (stary draft / wąskie kolumny historii); kolumny, których wiersz nie
@@ -100,6 +101,8 @@ export const setPkLogo = (pkLogo: PkLogoKind): FormUpdate => (form) => ({ ...for
 export const setFillAgenda = (fillAgenda: boolean): FormUpdate => (form) => ({ ...form, fillAgenda })
 
 export const setBannerShowEvent = (bannerShowEvent: boolean): FormUpdate => (form) => ({ ...form, bannerShowEvent })
+
+export const setBannerFbMargins = (bannerFbMargins: boolean): FormUpdate => (form) => ({ ...form, bannerFbMargins })
 
 export const setWideSubtitle = (wideSubtitle: boolean): FormUpdate => (form) => ({ ...form, wideSubtitle })
 

@@ -14,7 +14,7 @@ import { BannerFooter, MarginChips, NAME_TRACKING, BannerEventLine, TitleSpacer,
 export function BannerOgloszenie({ data, scheme, accent, lang = 'pl' }: PosterProps) {
   const { raw, logoSlots, qrUrl, qrSide, titleScale, textScale } = withPlaceholders(data)
   const { cssVars, sygnet, logoVariant } = resolveScheme('ogloszenie', scheme, accent)
-  const { padX, padY } = useBannerLayout()
+  const { padX, padY } = useBannerLayout(data.bannerFbMargins !== false)
 
   return (
     <PosterFrame vars={cssVars} style={{ padding: `${padY}px ${padX}px` }}>

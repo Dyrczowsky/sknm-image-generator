@@ -14,7 +14,7 @@ const emptyForm: FormValues = {
   title: '', subtitle: '', speaker: '', event_date: '', event_time: '',
   location: '', badge: '', badge2: '', body: '', year: '', bannerTitle: '', visibility: {}, graphics: [],
   showPkLogo: false, pkLogo: 'pk', showSknmLogo: false, qrUrl: '', qrSide: 'left', qrPlacement: 'above', photos: {}, lists: {}, titleScale: 1,
-  textScale: 1, scaleLinked: false, fillAgenda: false, wideSubtitle: false, ciekawostkaLayout: 'zdjecie', bannerShowEvent: false,
+  textScale: 1, scaleLinked: false, fillAgenda: false, wideSubtitle: false, ciekawostkaLayout: 'zdjecie', bannerShowEvent: false, bannerFbMargins: true,
 }
 
 const ctx = (over: Partial<BugContextInput> = {}): BugContextInput => ({
