@@ -27,16 +27,19 @@ interface KonferencjaAgendaProps {
   minPad?: number
   // Liczba kolumn na start dopasowania (domyślnie jedna).
   startColumns?: 1 | 2
+  // Węższa kolumna godzin i odstępy (baner: więcej miejsca na nazwy punktów).
+  compact?: boolean
 }
 
-const COLUMN_GAP = 48
+// [kolumna godzin, odstęp godzina–nazwa, odstęp między kolumnami] przy skali 1.
+const SPACING = { regular: [140, 24, 48], compact: [96, 16, 28] }
 
 // Program Konferencji zawsze mieszczący się w kadrze (patrz agendaFit.ts):
 // po każdym renderze mierzy miejsce i program, i poprawia oddech wierszy,
 // rozmiar tekstu albo liczbę kolumn, aż wynik się ustabilizuje. Pierwszy
 // render (i render statyczny bez pomiaru) to układ wyjściowy: jedna kolumna,
 // pełny tekst, oddech `startPad`.
-export function KonferencjaAgenda({ agenda, seed, startPad, spread, grow, canGrow, timeColor = colors.coral, minScale = AGENDA_LIMITS.minScale, minPad = AGENDA_LIMITS.minPad, startColumns = 1 }: KonferencjaAgendaProps) {
+export function KonferencjaAgenda({ agenda, seed, startPad, spread, grow, canGrow, timeColor = colors.coral, minScale = AGENDA_LIMITS.minScale, minPad = AGENDA_LIMITS.minPad, startColumns = 1, compact = false }: KonferencjaAgendaProps) {
   const { onNotice } = usePosterEdit()
   const boxRef = useRef<HTMLDivElement | null>(null)
   const listRef = useRef<HTMLDivElement | null>(null)
@@ -92,6 +95,7 @@ export function KonferencjaAgenda({ agenda, seed, startPad, spread, grow, canGro
   useEffect(() => () => onNotice?.(null), [onNotice])
 
   const s = fit.scale
+  const [timeW, timeGap, columnGap] = SPACING[compact ? 'compact' : 'regular']
   const perColumn = agendaRows(agenda.length, fit.columns)
   const columnIndexes = Array.from({ length: fit.columns }, (_, c) => c)
   // Jedna siatka na obie kolumny: punkt `i` stoi w kolumnie i / perColumn,
@@ -113,7 +117,7 @@ export function KonferencjaAgenda({ agenda, seed, startPad, spread, grow, canGro
           display: 'grid',
           gridTemplateColumns: `repeat(${fit.columns}, minmax(0, 1fr))`,
           gridTemplateRows: `repeat(${perColumn}, ${track}) auto`,
-          columnGap: COLUMN_GAP,
+          columnGap,
           ...(grow && { flex: 1 }),
         }}
       >
@@ -129,8 +133,8 @@ export function KonferencjaAgenda({ agenda, seed, startPad, spread, grow, canGro
                 gridColumn: column + 1,
                 gridRow: row + 1,
                 display: 'grid',
-                gridTemplateColumns: `${Math.round(140 * s)}px 1fr`,
-                gap: Math.round(24 * s),
+                gridTemplateColumns: `${Math.round(timeW * s)}px 1fr`,
+                gap: Math.round(timeGap * s),
                 padding: `${fit.pad}px 0`,
                 // Pierwsza linia każdej kolumny w kolorze akcentu - kolumny są równorzędne.
                 borderTop: `2px solid ${row === 0 ? 'var(--line-first)' : 'var(--line-rest)'}`,

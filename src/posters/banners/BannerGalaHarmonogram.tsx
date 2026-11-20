@@ -51,14 +51,14 @@ export function BannerGalaHarmonogram({ data, scheme, accent, lang = 'pl' }: Pos
         <BrandingText lines={[SITE_URL.toUpperCase()]} color="var(--gold)" style={{ fontSize: 18 }} />
       </div>
 
-      <div style={{ flex: 1, minHeight: 0, display: 'flex', gap: 40, marginTop: 28, position: 'relative', zIndex: 1 }}>
-        <div style={{ flex: '0 0 340px', display: 'flex', flexDirection: 'column', gap: 14 }}>
+      <div style={{ flex: 1, minHeight: 0, display: 'flex', gap: 32, marginTop: 28, position: 'relative', zIndex: 1 }}>
+        <div style={{ flex: '0 0 290px', display: 'flex', flexDirection: 'column', gap: 14 }}>
           <Badge color="var(--gold)" style={{ font: `700 ${18 * textScale}px ${fontMono}`, letterSpacing: '.2em' }}>SKNM</Badge>
-          <PosterText path="bannerTitle" value={raw.bannerTitle} fallback={CLUB_NAME[lang]} multiline label="Tekst banera" style={{ fontSize: 38 * titleScale, lineHeight: leading(1.02, titleScale), fontWeight: 800, letterSpacing: NAME_TRACKING, fontKerning: 'none', textWrap: 'balance' }} />
+          <PosterText path="bannerTitle" value={raw.bannerTitle} fallback={CLUB_NAME[lang]} multiline label="Tekst banera" style={{ fontSize: 34 * titleScale, lineHeight: leading(1.02, titleScale), fontWeight: 800, letterSpacing: NAME_TRACKING, fontKerning: 'none', textWrap: 'balance' }} />
           <BannerEventLine data={data} lang={lang} />
         </div>
         <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', ...AGENDA_VARS }}>
-          <KonferencjaAgenda agenda={agenda} seed={DEFAULT_AGENDA} startPad={12} spread={fillAgenda} grow={false} canGrow={false} timeColor="var(--gold)" minScale={MIN_SCALE} minPad={MIN_PAD} startColumns={agenda.length > TWO_COLUMNS_FROM ? 2 : 1} />
+          <KonferencjaAgenda agenda={agenda} seed={DEFAULT_AGENDA} startPad={12} spread={fillAgenda} grow={false} canGrow={false} timeColor="var(--gold)" minScale={MIN_SCALE} minPad={MIN_PAD} startColumns={agenda.length > TWO_COLUMNS_FROM ? 2 : 1} compact />
         </div>
       </div>
 
