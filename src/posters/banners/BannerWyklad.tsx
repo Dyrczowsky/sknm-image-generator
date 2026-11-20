@@ -16,7 +16,7 @@ import { leading } from '../theme'
 export function BannerWyklad({ data, scheme, accent, lang = 'pl' }: PosterProps) {
   const { raw, logoSlots, qrUrl, qrSide, titleScale } = withPlaceholders(data)
   const { cssVars, sygnet, logoVariant } = resolveScheme('wyklad', scheme, accent)
-  const { padX, padY } = useBannerLayout()
+  const { padX, padY } = useBannerLayout(data.bannerFbMargins !== false)
 
   return (
     <PosterFrame vars={cssVars} style={{ padding: `${padY}px ${padX}px` }}>

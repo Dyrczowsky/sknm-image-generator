@@ -71,6 +71,7 @@ const FULL_FORM: FormValues = {
   ciekawostkaLayout: 'archiwum',
   bannerTitle: 'Gala 25-lecia',
   bannerShowEvent: true,
+  bannerFbMargins: false,
 }
 
 const FULL_EXPORT: ExportSettings = { medium: 'banner', format: 'fbEvent', orientation: 'landscape', fileType: 'pdf' }

@@ -41,7 +41,7 @@ export function BannerGalaHarmonogram({ data, scheme, accent, lang = 'pl' }: Pos
   const agenda = lists.agenda?.length ? lists.agenda : DEFAULT_AGENDA
   const { cssVars, sygnet, logoVariant } = resolveScheme('gala', scheme, accent)
   const { kx, ky } = usePosterShape()
-  const { padX, padY } = useBannerLayout()
+  const { padX, padY } = useBannerLayout(data.bannerFbMargins !== false)
 
   return (
     <PosterFrame vars={cssVars} style={{ padding: `${padY}px ${padX}px`, gap: 20 }}>

@@ -13,7 +13,7 @@ import { BANNER_SYGNET_W, BannerFooter, MarginChips, NAME_TRACKING, BannerEventL
 export function BannerData({ data, scheme, accent, lang = 'pl' }: PosterProps) {
   const { raw, logoSlots, qrUrl, qrSide, titleScale, textScale } = withPlaceholders(data)
   const { cssVars, sygnet, logoVariant } = resolveScheme('data', scheme, accent)
-  const { padX, padY } = useBannerLayout()
+  const { padX, padY } = useBannerLayout(data.bannerFbMargins !== false)
 
   return (
     <PosterFrame vars={cssVars} style={{ padding: `${padY}px ${padX}px` }}>

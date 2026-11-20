@@ -1,5 +1,5 @@
 import type { FormProps, PosterLang } from '../types'
-import { setBannerShowEvent } from '../editor/formState'
+import { setBannerFbMargins, setBannerShowEvent } from '../editor/formState'
 import { CLUB_NAME } from '../posters/copy'
 import { FIELDS } from './fields'
 import type { FieldSpec } from './fields'
@@ -42,6 +42,15 @@ export function FormBanner({ value, onChange, photo, agenda, lang = 'pl' }: Form
         </label>
         {value.bannerShowEvent &&
           EVENT_FIELDS.map((field) => <FormField key={field.name} field={field} value={value} onChange={onChange} visibilityToggle={false} />)}
+        <label className="flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            className="size-4 cursor-pointer accent-accent"
+            checked={value.bannerFbMargins}
+            onChange={(e) => onChange(setBannerFbMargins(e.target.checked))}
+          />
+          Marginesy Facebooka (treść w środku - telefon przycina boki okładki)
+        </label>
       </FormGroup>
       {agenda && <AgendaField value={value} onChange={onChange} banner />}
       {photo && (
