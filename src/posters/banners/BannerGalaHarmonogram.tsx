@@ -11,7 +11,7 @@ import { BrandingText } from '../blocks/BrandingText'
 import { PosterFrame } from '../blocks/PosterFrame'
 import { Sygnet } from '../blocks/Sygnet'
 import { KonferencjaAgenda } from '../KonferencjaAgenda'
-import { BANNER_SYGNET_W, BannerFooter, NAME_TRACKING, BannerEventLine } from './common'
+import { BannerFooter, NAME_TRACKING, BannerEventLine } from './common'
 
 // Baner ma ~360 px wysokości na program: 10 punktów w dwóch kolumnach
 // mieści się dopiero przy ~1/3 rozmiaru tekstu plakatu.
@@ -21,6 +21,9 @@ const MIN_PAD = 3
 const TWO_COLUMNS_FROM = 4
 // Do tej skali tekst maleje, żeby opisy punktów nie łamały się do nowej linii.
 const NOWRAP_FLOOR = 0.5
+
+// Sygnet mniejszy niż na innych banerach - stoi w kolumnie nad nazwą koła.
+const SYGNET_W = 64
 
 const DEFAULT_AGENDA: ListItem[] = [
   { time: '18:00', title: 'Otwarcie gali', subtitle: 'powitanie gości' },
@@ -46,18 +49,15 @@ export function BannerGalaHarmonogram({ data, scheme, accent, lang = 'pl' }: Pos
   return (
     <PosterFrame vars={cssVars} style={{ padding: `${padY}px ${padX}px`, gap: 20 }}>
       <div style={{ position: 'absolute', bottom: 0, right: 0, width: 880 * kx, height: 700 * ky, background: 'var(--panel-br)', clipPath: 'polygon(100% 0,100% 100%,0 100%)' }} />
-      <div style={{ position: 'absolute', top: padY + 100, left: 0, right: 0, height: 1, background: 'linear-gradient(to right, transparent 0, var(--gold) 18%, var(--gold) 82%, transparent 100%)' }} />
-
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', position: 'relative', zIndex: 1 }}>
-        <Sygnet name={sygnet} width={BANNER_SYGNET_W} />
-        <BrandingText lines={[SITE_URL.toUpperCase()]} color="var(--gold)" style={{ fontSize: 18 }} />
-      </div>
-
-      <div style={{ flex: 1, minHeight: 0, display: 'flex', gap: 32, marginTop: 28, position: 'relative', zIndex: 1 }}>
+      {/* Bez górnego paska Gali (sygnet, adres, złota linia): program dostaje
+          całą wysokość, a sygnet i adres stoją w lewej kolumnie. */}
+      <div style={{ flex: 1, minHeight: 0, display: 'flex', gap: 32, position: 'relative', zIndex: 1 }}>
         <div style={{ flex: '0 0 290px', display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <Sygnet name={sygnet} width={SYGNET_W} />
           <Badge color="var(--gold)" style={{ font: `700 ${18 * textScale}px ${fontMono}`, letterSpacing: '.2em' }}>SKNM</Badge>
           <PosterText path="bannerTitle" value={raw.bannerTitle} fallback={CLUB_NAME[lang]} multiline label="Tekst banera" style={{ fontSize: 34 * titleScale, lineHeight: leading(1.02, titleScale), fontWeight: 800, letterSpacing: NAME_TRACKING, fontKerning: 'none', textWrap: 'balance' }} />
           <BannerEventLine data={data} lang={lang} />
+          <BrandingText lines={[SITE_URL.toUpperCase()]} color="var(--gold)" style={{ fontSize: 16, textAlign: 'left', marginTop: 'auto' }} />
         </div>
         <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', ...AGENDA_VARS }}>
           <KonferencjaAgenda agenda={agenda} seed={DEFAULT_AGENDA} startPad={12} spread={fillAgenda} grow={false} canGrow={false} timeColor="var(--gold)" minScale={MIN_SCALE} minPad={MIN_PAD} startColumns={agenda.length > TWO_COLUMNS_FROM ? 2 : 1} compact nowrapFloor={NOWRAP_FLOOR} />
