@@ -5,7 +5,7 @@ import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import { posterRegistry } from '../registry'
 import { PosterEditContext } from '../edit'
 import { MARK, serializeRich } from '../../richText'
-import { BANNER_PAD, BANNER_SAFE_W, SHAPE_SIZE } from '../shape'
+import { BANNER_PAD, BANNER_SAFE_W, CAROUSEL_PAD_X, SHAPE_SIZE } from '../shape'
 import { PosterScaled } from '../../components/PosterScaled'
 import { CLUB_NAME } from '../copy'
 import { schemesFor } from '../schemes'
@@ -60,6 +60,11 @@ describe('banery', () => {
     const data = { lists: { agenda: [{ time: '19:15', title: 'PUNKT_GALI', subtitle: 'OPIS_GALI' }] } }
     const html = renderToStaticMarkup(h(PosterScaled, { size: 820, shape: 'cover' }, h(posterRegistry.galaHarmonogram.Banner, { data })))
     for (const text of ['19:15', 'PUNKT_GALI', 'OPIS_GALI', CLUB_NAME.pl]) expect(html).toContain(text)
+  })
+
+  it('karuzela strony: treść prawie do krawędzi (bez pasa bezpiecznego Facebooka)', () => {
+    const html = renderToStaticMarkup(h(PosterScaled, { size: 820, shape: 'carousel' }, h(posterRegistry.gala.Banner, { data: {} })))
+    expect(html).toContain(`padding:48px ${CAROUSEL_PAD_X}px`)
   })
 
   it('każdy layout z rejestru ma szablon w DEFAULT_TEMPLATES', () => {

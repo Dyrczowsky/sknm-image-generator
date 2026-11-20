@@ -29,6 +29,8 @@ export function isBannerShape(shape: PosterShape): boolean {
 // i zdjęcia.
 export const BANNER_SAFE_W = 1096
 export const BANNER_PAD = 48
+// Boczny margines treści w karuzeli strony: strzałki slidera zajmują ~60 px.
+export const CAROUSEL_PAD_X = 140
 
 // Domyślnie kwadrat: wszystko, co nie podaje kształtu (miniatury szablonów,
 // swatche, historia), renderuje się jak dotychczas.
@@ -50,6 +52,8 @@ export function usePosterShape() {
 // (np. miniatura bez providera) hook liczy z bieżącej ramki, bez wyjątku.
 export function useBannerLayout() {
   const { shape, width, height } = usePosterShape()
-  const padX = Math.max(BANNER_PAD, Math.round((width - BANNER_SAFE_W) / 2))
+  // Karuzela strony (Smart Slider) nie przycina boków jak Facebook - tylko
+  // skaluje - więc treść idzie prawie do krawędzi, z miejscem na strzałki.
+  const padX = shape === 'carousel' ? CAROUSEL_PAD_X : Math.max(BANNER_PAD, Math.round((width - BANNER_SAFE_W) / 2))
   return { shape, width, height, padX, padY: BANNER_PAD }
 }
