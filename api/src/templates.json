@@ -848,13 +848,19 @@
         },
         {
           "name": "subtitle",
+          "label": "Kim był w SKNM",
+          "type": "textarea",
+          "placeholder": "Prezeska SKNM w latach 2009–2011"
+        },
+        {
+          "name": "speaker",
           "label": "Kim jest dziś",
           "type": "textarea",
-          "placeholder": "W SKNM w latach 2009–2013\nDziś: analityczka ryzyka w banku"
+          "placeholder": "Analityczka ryzyka w banku"
         },
         {
           "name": "body",
-          "label": "Opis",
+          "label": "Opis (opcjonalnie)",
           "type": "textarea",
           "placeholder": "W kole organizowała pierwsze Matematyczne Warsztaty i prowadziła seminarium z teorii grafów. Dziś buduje modele ryzyka kredytowego i wciąż wraca na Politechnikę - jako mentorka młodszych roczników. Mówi, że to w SKNM nauczyła się, że najciekawsze pytania zaczynają się od „a co, jeśli…?”."
         },
