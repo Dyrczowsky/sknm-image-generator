@@ -10,8 +10,10 @@ export const ABSOLWENT_PHOTO_LABEL = 'Zdjęcie absolwenta'
 export const ABSOLWENT_FIELDS: FieldSpec[] = [
   badgeField(DEFAULT_BADGE.absolwent.pl),
   { name: 'title', label: 'Imię i nazwisko', type: 'textarea', rows: 2, placeholder: PLACEHOLDERS.absolwentName },
-  { name: 'subtitle', label: 'Kim jest dziś', type: 'textarea', rows: 2, placeholder: PLACEHOLDERS.absolwentRole },
-  { name: 'body', label: 'Opis', type: 'textarea', rows: 6, placeholder: PLACEHOLDERS.absolwentBody },
+  { name: 'subtitle', label: 'Kim był w SKNM', type: 'textarea', rows: 2, placeholder: PLACEHOLDERS.absolwentThen },
+  { name: 'speaker', label: 'Kim jest dziś', type: 'textarea', rows: 2, placeholder: PLACEHOLDERS.absolwentNow },
+  // Opcjonalny - pusty nie pojawia się na plakacie.
+  { name: 'body', label: 'Opis (opcjonalnie)', type: 'textarea', rows: 4, placeholder: PLACEHOLDERS.absolwentBody },
   { name: 'badge2', label: 'Linia na dole', placeholder: SITE_URL },
 ]
 

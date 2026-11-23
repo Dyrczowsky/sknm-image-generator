@@ -26,7 +26,8 @@ export const PLACEHOLDERS = {
   ciekawostkaBody: 'W związku z nieustannie rosnącym zapotrzebowaniem, w grudniu 2001 roku pojawiła się studencka inicjatywa utworzenia koła naukowego matematyków. Inicjatorami koła byli X, Y, Z przy pomocy prof. XXXX, który został także jej pierwszym opiekunem.',
   // Absolwent (seria jubileuszowa): były członek koła i czym zajmuje się dziś.
   absolwentName: 'Anna Kowalska',
-  absolwentRole: 'W SKNM w latach 2009–2013\nDziś: analityczka ryzyka w banku',
+  absolwentThen: 'Prezeska SKNM w latach 2009–2011',
+  absolwentNow: 'Analityczka ryzyka w banku',
   absolwentBody: 'W kole organizowała pierwsze Matematyczne Warsztaty i prowadziła seminarium z teorii grafów. Dziś buduje modele ryzyka kredytowego i wciąż wraca na Politechnikę - jako mentorka młodszych roczników. Mówi, że to w SKNM nauczyła się, że najciekawsze pytania zaczynają się od „a co, jeśli…?”.',
   get event_date() {
     return todayIso()
