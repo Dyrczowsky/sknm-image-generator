@@ -45,14 +45,14 @@ export function PosterAbsolwent({ data, scheme, accent, lang = 'pl' }: PosterPro
         <BrandingText lines={BRANDING_FULL[lang]} color="var(--gold)" />
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'flex-end', gap: 40, position: 'relative', zIndex: 1, flex: '0 1 auto', minHeight: 0 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 40, position: 'relative', zIndex: 1, flex: '0 1 auto', minHeight: 0 }}>
         {/* Złota ramka odsunięta od zdjęcia - „portret w passe-partout". */}
         <PhotoGallery
           photos={photos.photo}
           label={<>zdjęcie absolwenta<br />{`${photoW} × ${photoH}`}</>}
           style={{ width: photoW, height: photoH, flex: '0 0 auto', outline: '2px solid var(--gold)', outlineOffset: 10, margin: 12 }}
         />
-        <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 28, paddingBottom: 12 }}>
+        <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 28 }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
             <Badge color="var(--gold)" style={{ font: `700 20px ${fontMono}`, letterSpacing: '.2em', ...fx('badge') }}
               field={{ path: 'badge', value: raw.badge, fallback: DEFAULT_BADGE.absolwent[lang], label: 'Etykieta' }}
