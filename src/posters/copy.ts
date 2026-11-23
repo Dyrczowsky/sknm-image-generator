@@ -46,6 +46,12 @@ export const DEFAULT_BADGE = {
   absolwent: { pl: '25 LAT SKNM · ABSOLWENCI', en: '25 YEARS OF SKNM · ALUMNI' },
 } satisfies Record<string, Localized<string>>
 
+// Podpisy bloków „wtedy / dziś” w layoucie Absolwent.
+export const ALUMNI_LABELS: Localized<{ then: string; now: string }> = {
+  pl: { then: 'W SKNM', now: 'DZIŚ' },
+  en: { then: 'AT SKNM', now: 'TODAY' },
+}
+
 export const FREE_ENTRY: Localized<string> = {
   pl: `Wstęp wolny · ${SITE_URL}`,
   en: `Free entry · ${SITE_URL}`,
