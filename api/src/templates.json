@@ -828,6 +828,69 @@
         "textScale",
         "ciekawostkaLayout"
       ]
+    },
+    {
+      "key": "absolwent",
+      "name": "Absolwent – jubileusz",
+      "useFor": "Seria jubileuszowa: portret byłego członka koła, czym zajmuje się dziś i kilka zdań o nim.",
+      "fields": [
+        {
+          "name": "badge",
+          "label": "Etykieta",
+          "type": "text",
+          "placeholder": "25 LAT SKNM · ABSOLWENCI"
+        },
+        {
+          "name": "title",
+          "label": "Imię i nazwisko",
+          "type": "textarea",
+          "placeholder": "Anna Kowalska"
+        },
+        {
+          "name": "subtitle",
+          "label": "Kim jest dziś",
+          "type": "textarea",
+          "placeholder": "W SKNM w latach 2009–2013\nDziś: analityczka ryzyka w banku"
+        },
+        {
+          "name": "body",
+          "label": "Opis",
+          "type": "textarea",
+          "placeholder": "W kole organizowała pierwsze Matematyczne Warsztaty i prowadziła seminarium z teorii grafów. Dziś buduje modele ryzyka kredytowego i wciąż wraca na Politechnikę - jako mentorka młodszych roczników. Mówi, że to w SKNM nauczyła się, że najciekawsze pytania zaczynają się od „a co, jeśli…?”."
+        },
+        {
+          "name": "badge2",
+          "label": "Linia na dole",
+          "type": "text",
+          "placeholder": "sknm.pk.edu.pl"
+        }
+      ],
+      "photo": {
+        "label": "Zdjęcie absolwenta"
+      },
+      "lists": null,
+      "schemes": [
+        {
+          "name": "default",
+          "label": "Granat",
+          "accents": [
+            "zolty",
+            "pomaranczowy",
+            "granatowy",
+            "zloty",
+            "srebrny"
+          ]
+        }
+      ],
+      "storyShape": false,
+      "options": [
+        "qrUrl",
+        "showPkLogo",
+        "pkLogo",
+        "showSknmLogo",
+        "titleScale",
+        "textScale"
+      ]
     }
   ]
 }

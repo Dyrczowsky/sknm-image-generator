@@ -11,6 +11,7 @@ import { GALA_FIELDS } from '../forms/FormGala'
 import { OGLOSZENIE_FIELDS } from '../forms/FormOgloszenie'
 import { KOMUNIKAT_FIELDS } from '../forms/FormKomunikat'
 import { CIEKAWOSTKA_FIELDS, CIEKAWOSTKA_PHOTO_LABEL } from '../forms/FormCiekawostka'
+import { ABSOLWENT_FIELDS, ABSOLWENT_PHOTO_LABEL } from '../forms/FormAbsolwent'
 import type { Catalog, CatalogField, CatalogTemplate } from './types'
 
 // Po dodaniu layoutu dopisz tu jego opis i uruchom `npx vitest run src/api -u`.
@@ -25,6 +26,7 @@ export const USE_FOR: Record<string, string> = {
   ogloszenie: 'Krótkie ogłoszenie, cytat lub podziękowanie: sam tekst i opcjonalny podpis, bez daty i miejsca.',
   komunikat: 'Komunikat z nagłówkiem i akapitem treści (informacja dla członków, zmiana terminu, ważna wiadomość).',
   ciekawostka: 'Ciekawostka lub pytanie z historią w wysokim układzie Story, ze zdjęciem.',
+  absolwent: 'Seria jubileuszowa: portret byłego członka koła, czym zajmuje się dziś i kilka zdań o nim.',
 }
 
 const FIELDS_BY_KEY: Record<string, FieldSpec[]> = {
@@ -38,6 +40,7 @@ const FIELDS_BY_KEY: Record<string, FieldSpec[]> = {
   ogloszenie: OGLOSZENIE_FIELDS,
   komunikat: KOMUNIKAT_FIELDS,
   ciekawostka: CIEKAWOSTKA_FIELDS,
+  absolwent: ABSOLWENT_FIELDS,
 }
 
 const PHOTO_LABELS: Record<string, string> = {
@@ -45,6 +48,7 @@ const PHOTO_LABELS: Record<string, string> = {
   data: DATA_PHOTO_LABEL,
   gosc: GOSC_PHOTO_LABEL,
   ciekawostka: CIEKAWOSTKA_PHOTO_LABEL,
+  absolwent: ABSOLWENT_PHOTO_LABEL,
 }
 
 const COMMON_OPTIONS = ['qrUrl', 'showPkLogo', 'pkLogo', 'showSknmLogo', 'titleScale', 'textScale']

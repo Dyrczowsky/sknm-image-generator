@@ -20,7 +20,7 @@ describe('buildCatalog', () => {
   })
 
   it('zdjęcia, listy i story tylko tam, gdzie trzeba', () => {
-    expect(keys((t) => t.photo !== null).sort()).toEqual(['ciekawostka', 'data', 'gosc', 'warsztat'])
+    expect(keys((t) => t.photo !== null).sort()).toEqual(['absolwent', 'ciekawostka', 'data', 'gosc', 'warsztat'])
     expect(keys((t) => t.lists !== null)).toEqual(['konferencja'])
     expect(keys((t) => t.storyShape)).toEqual(['ciekawostka'])
   })

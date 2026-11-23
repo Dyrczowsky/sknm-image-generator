@@ -64,7 +64,7 @@ describe('plakaty: HTML bez formatowania jak przed zmianą', () => {
 })
 
 // Etykieta pola tytułu, gdy inna niż „Tytuł".
-const TITLE_LABEL: Record<string, string> = { komunikat: 'Nagłówek', ogloszenie: 'Treść ogłoszenia / cytatu' }
+const TITLE_LABEL: Record<string, string> = { absolwent: 'Imię i nazwisko', komunikat: 'Nagłówek', ogloszenie: 'Treść ogłoszenia / cytatu' }
 
 describe('plakaty: formatowanie pól tekstowych', () => {
   // Każde pole tekstowe sformatowane - żadne nie może pokazać surowych znaczników.
