@@ -43,6 +43,7 @@ export const DEFAULT_BADGE = {
   gala: { pl: 'GALA SKNM', en: 'SKNM GALA' },
   komunikat: { pl: 'KOMUNIKAT', en: 'ANNOUNCEMENT' },
   ciekawostka: { pl: 'CZY WIESZ, ŻE…', en: 'DID YOU KNOW…' },
+  absolwent: { pl: '25 LAT SKNM · ABSOLWENCI', en: '25 YEARS OF SKNM · ALUMNI' },
 } satisfies Record<string, Localized<string>>
 
 export const FREE_ENTRY: Localized<string> = {
