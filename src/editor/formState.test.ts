@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest'
 import {
   downloadTitle,
   EMPTY_FORM,
+  loadSampleBlocks,
+  addBlock,
   addGraphics,
   addListItem,
   addPhoto,
@@ -22,6 +24,7 @@ import {
   textFieldsOf,
 } from './formState'
 import { MAX_GRAPHICS } from '../posters/theme'
+import { SAMPLE_BLOCKS } from '../posters/naukowy/sample'
 import { MARK, toggleMark } from '../richText'
 
 const withGraphics = (...graphics: string[]) => ({ ...EMPTY_FORM, graphics })
@@ -90,6 +93,11 @@ describe('galeria zdjęć', () => {
 })
 
 describe('listy', () => {
+  it('addBlock dopisuje blok z domyślnymi polami typu', () => {
+    const form = addBlock('callout')(addBlock('text')(EMPTY_FORM))
+    expect(form.lists.blocks.map((b) => b.type)).toEqual(['text', 'callout'])
+    expect(form.lists.blocks[1].tone).toBe('twierdzenie')
+  })
   it('dodaje pusty wpis, ustawia jego pole i usuwa go', () => {
     const added = addListItem('agenda')(EMPTY_FORM)
     expect(added.lists.agenda).toEqual([{}])
@@ -134,5 +142,14 @@ describe('downloadTitle', () => {
   it('baner bez tekstu i plakat: tytuł plakatu jak dotąd', () => {
     expect(downloadTitle({ ...EMPTY_FORM, title: 'Plakat' }, 'banner')).toBe('Plakat')
     expect(downloadTitle({ ...EMPTY_FORM, title: 'Plakat', bannerTitle: 'Gala' }, 'social')).toBe('Plakat')
+  })
+})
+
+describe('loadSampleBlocks', () => {
+  it('wczytuje przykład z nowymi id', () => {
+    const blocks = loadSampleBlocks(EMPTY_FORM).lists.blocks
+    expect(blocks.length).toBe(SAMPLE_BLOCKS.length)
+    expect(blocks.map((b) => b.type)).toEqual(SAMPLE_BLOCKS.map((b) => b.type))
+    expect(blocks[0].id).not.toBe(SAMPLE_BLOCKS[0].id)
   })
 })

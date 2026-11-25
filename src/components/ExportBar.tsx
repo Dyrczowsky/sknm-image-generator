@@ -16,12 +16,14 @@ const FILE_TYPE_OPTIONS = [
 interface ExportBarProps {
   exporter: PosterExport
   className?: string
+  // Węzeł plakatu do druku wektorowego (tylko formaty papierowe).
+  getNode?: () => HTMLElement | null
 }
 
 // Pasek nad podglądem: format i - dla papieru - orientacja oraz typ pliku,
 // czyli wszystko, co zmienia kształt podglądu pod spodem. Przycisk pobierania
 // jest osobno (`DownloadButton`), w pasku projektu.
-export function ExportBar({ exporter, className }: ExportBarProps) {
+export function ExportBar({ exporter, className, getNode }: ExportBarProps) {
   return (
     <div role="group" aria-label="Ustawienia eksportu" className={`flex flex-wrap items-center gap-2${className ? ` ${className}` : ''}`}>
       <Select
@@ -41,6 +43,14 @@ export function ExportBar({ exporter, className }: ExportBarProps) {
         <>
           <SegmentedToggle value={exporter.orientation} onChange={exporter.setOrientation} options={ORIENTATION_OPTIONS} ariaLabel="Orientacja" />
           <SegmentedToggle value={exporter.fileType} onChange={exporter.setFileType} options={FILE_TYPE_OPTIONS} ariaLabel="Typ pliku" />
+          {getNode && (
+            <>
+              <Button size="sm" icon="download" busy={exporter.exporting} busyLabel="Przygotowanie…" onClick={() => { const node = getNode(); if (node) void exporter.printPdf(node) }}>
+                PDF do druku (wektor)
+              </Button>
+              <span className="text-xs text-muted">W oknie druku wybierz „Zapisz jako PDF”</span>
+            </>
+          )}
         </>
       )}
     </div>

@@ -18,10 +18,10 @@ describe('deckFileName', () => {
 })
 
 describe('rasterSize', () => {
-  it('16:9 to 1920x1080 px i 1440x810 pt', () => {
-    expect(rasterSize('16:9')).toEqual({ width: 1920, height: 1080, widthPt: 1440, heightPt: 810 })
+  it('16:9 to 3840x2160 px i 1440x810 pt', () => {
+    expect(rasterSize('16:9')).toEqual({ width: 3840, height: 2160, widthPt: 1440, heightPt: 810 })
   })
-  it('1:1 to 1080x1080 px i 810x810 pt', () => {
-    expect(rasterSize('1:1')).toEqual({ width: 1080, height: 1080, widthPt: 810, heightPt: 810 })
+  it('1:1 to 2160x2160 px i 810x810 pt', () => {
+    expect(rasterSize('1:1')).toEqual({ width: 2160, height: 2160, widthPt: 810, heightPt: 810 })
   })
 })

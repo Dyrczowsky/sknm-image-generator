@@ -76,7 +76,7 @@ describe('ExportBar', () => {
     const html = exportPart('bar')
     expect(openingTag(html, '<div')).toContain('aria-label="Ustawienia eksportu"')
     expect(openingTag(html, '<select')).toContain('aria-label="Format eksportu"')
-    expect(html.match(/<option/g)).toHaveLength(5)
+    expect(html.match(/<option/g)).toHaveLength(6)
     expect(html).not.toContain('aria-label="Orientacja"')
     expect(html).not.toContain('Pobierz')
   })

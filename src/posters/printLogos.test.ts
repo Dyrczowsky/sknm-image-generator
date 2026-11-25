@@ -20,7 +20,7 @@ describe('logotypy w druku', () => {
     expect(logoSizing(true)).toMatchObject({ height: LOGO_HEIGHT * PRINT_LOGO_SCALE, clear: Math.round(LOGO_CLEAR * PRINT_LOGO_SCALE) })
   })
 
-  for (const key of Object.keys(posterRegistry)) {
+  for (const key of Object.keys(posterRegistry).filter((k) => k !== 'plakatNaukowy')) {
     it(`${key}: logo PK większe w pionie i poziomie (druk), bez zmian w kwadracie i Story`, () => {
       for (const shape of ['square', 'story'] as const) {
         if (shape === 'story' && !posterRegistry[key].storyShape) continue

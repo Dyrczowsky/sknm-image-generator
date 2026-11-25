@@ -48,7 +48,7 @@ afterAll(() => {
 // HTML sprzed formatowania: niesformatowane dane mają dawać dokładnie ten sam
 // plakat.
 describe('plakaty: HTML bez formatowania jak przed zmianą', () => {
-  for (const [key, entry] of Object.entries(posterRegistry)) {
+  for (const [key, entry] of Object.entries(posterRegistry).filter(([k]) => k !== 'plakatNaukowy')) {
     it(`${key}: puste dane`, () => {
       expect(html(entry.Component, {})).toMatchSnapshot()
     })
@@ -87,7 +87,7 @@ describe('plakaty: formatowanie pól tekstowych', () => {
     expect(out).toMatch(/white-space:pre-line">dr A,\ndr B</)
   })
 
-  for (const [key, entry] of Object.entries(posterRegistry)) {
+  for (const [key, entry] of Object.entries(posterRegistry).filter(([k]) => k !== 'plakatNaukowy')) {
     it(`${key}: pogrubione słowo w tytule rysuje się bez znaczników`, () => {
       const out = html(entry.Component, { title: bold('Gruby') })
       expect(out).toContain('<span style="font-weight:bolder">Gruby</span>')

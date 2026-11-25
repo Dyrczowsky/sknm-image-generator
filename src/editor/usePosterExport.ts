@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { flushSync } from 'react-dom'
 import type { FileType, Medium, Orientation } from '../types'
 import { downloadPoster } from '../posters/export'
+import { printPosterPdf } from '../posters/printPdf'
 import { DEFAULT_EXPORT_SETTINGS, DEFAULT_FORMAT, formatsFor, isPrintFormat, normalizeExportSettings, shapeFor } from '../posters/formats'
 import type { ExportSettings } from '../posters/formats'
 
@@ -82,6 +83,22 @@ export function usePosterExport(tallStory = false) {
     }
   }
 
+  // Wektorowy PDF przez druk przeglądarki; plakat statyczny jak przy `download`.
+  const printPdf = async (node: HTMLElement) => {
+    if (exporting) return
+    flushSync(() => {
+      setExporting(true)
+      setNote(null)
+    })
+    try {
+      await printPosterPdf(node, format, orientation)
+    } catch {
+      setNote('Nie udało się otworzyć okna druku.')
+    } finally {
+      setExporting(false)
+    }
+  }
+
   return {
     settings,
     applySettings,
@@ -100,6 +117,7 @@ export function usePosterExport(tallStory = false) {
     note,
     dismissNote: () => setNote(null),
     download,
+    printPdf,
   }
 }
 

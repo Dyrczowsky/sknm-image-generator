@@ -38,6 +38,7 @@ export const EXPORT_FORMATS: Record<string, ExportFormat> = {
   a4: { label: 'A4 · 210×297 mm', medium: 'social', paper: { widthMm: 210, heightMm: 297 } },
   a3: { label: 'A3 · 297×420 mm', medium: 'social', paper: { widthMm: 297, heightMm: 420 } },
   a2: { label: 'A2 · 420×594 mm', medium: 'social', paper: { widthMm: 420, heightMm: 594 } },
+  b2: { label: 'B2 · 500×707 mm', medium: 'social', paper: { widthMm: 500, heightMm: 707 } },
   fbCover: { label: 'Facebook · okładka strony · 1640×624', medium: 'banner', width: 1640, height: 624, shape: 'cover' },
   fbEvent: { label: 'Facebook · wydarzenie · 1920×1005', medium: 'banner', width: 1920, height: 1005, shape: 'event' },
   wwwCarousel: { label: 'Strona SKNM · karuzela · 1600×500', medium: 'banner', width: 1600, height: 500, shape: 'carousel' },
@@ -61,7 +62,7 @@ export function shapeFor(formatKey: string, orientation: Orientation, tallStory 
   return EXPORT_FORMATS[formatKey]?.shape ?? (isPrintFormat(formatKey) ? orientation : 'square')
 }
 
-function oriented(paper: PaperSize, orientation: Orientation): { w: number; h: number } {
+export function oriented(paper: PaperSize, orientation: Orientation): { w: number; h: number } {
   return orientation === 'landscape'
     ? { w: paper.heightMm, h: paper.widthMm }
     : { w: paper.widthMm, h: paper.heightMm }

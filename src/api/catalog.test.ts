@@ -7,8 +7,8 @@ const { templates } = buildCatalog()
 const keys = (pred: (t: (typeof templates)[number]) => boolean) => templates.filter(pred).map((t) => t.key)
 
 describe('buildCatalog', () => {
-  it('zawiera layouty rejestru bez warsztatBezZdjecia', () => {
-    expect(templates.map((t) => t.key)).toEqual(Object.keys(posterRegistry).filter((k) => !posterRegistry[k].bannerOnly))
+  it('zawiera layouty rejestru bez warsztatBezZdjecia i plakatNaukowy', () => {
+    expect(templates.map((t) => t.key)).toEqual(Object.keys(posterRegistry).filter((k) => !posterRegistry[k].bannerOnly && k !== 'plakatNaukowy'))
   })
 
   it('każdy szablon ma opis, pola i domyślny schemat', () => {

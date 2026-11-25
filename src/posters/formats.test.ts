@@ -29,11 +29,11 @@ describe('formaty eksportu', () => {
   })
 
   it('klucze i kolejność: social, papier, potem banery', () => {
-    expect(Object.keys(EXPORT_FORMATS)).toEqual(['square', 'story', 'a4', 'a3', 'a2', 'fbCover', 'fbEvent', 'wwwCarousel'])
+    expect(Object.keys(EXPORT_FORMATS)).toEqual(['square', 'story', 'a4', 'a3', 'a2', 'b2', 'fbCover', 'fbEvent', 'wwwCarousel'])
   })
 
   it('formatsFor: zakładka widzi tylko swoje formaty', () => {
-    expect(formatsFor('social').map(([k]) => k)).toEqual(['square', 'story', 'a4', 'a3', 'a2'])
+    expect(formatsFor('social').map(([k]) => k)).toEqual(['square', 'story', 'a4', 'a3', 'a2', 'b2'])
     expect(formatsFor('banner').map(([k]) => k)).toEqual(['fbCover', 'fbEvent', 'wwwCarousel'])
     expect(EXPORT_FORMATS[DEFAULT_FORMAT.social].medium).toBe('social')
     expect(EXPORT_FORMATS[DEFAULT_FORMAT.banner].medium).toBe('banner')
