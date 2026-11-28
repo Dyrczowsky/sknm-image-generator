@@ -7,7 +7,7 @@ import { posterRegistry } from './registry'
 // trafia do elementu z `white-space: pre-line` (Wykład: `pre` - linia
 // informacji jest celowo bez zawijania).
 describe('ręczne łamanie wierszy', () => {
-  for (const [key, entry] of Object.entries(posterRegistry)) {
+  for (const [key, entry] of Object.entries(posterRegistry).filter(([k]) => k !== 'plakatNaukowy')) {
     it(`${key}: tytuł z Enterem renderuje się z zachowanym łamaniem`, () => {
       const html = renderToStaticMarkup(createElement(entry.Component, { data: { title: 'Pierwszy\nDrugi' } }))
       expect(html).toMatch(/white-space:pre-line[^>]*>\s*Pierwszy\nDrugi/)

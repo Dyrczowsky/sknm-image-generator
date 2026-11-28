@@ -16,7 +16,7 @@ const qrAt = (markup: string) => markup.indexOf('role="img"')
 // Pierwsza grafika w slocie logotypów (logo PK).
 const logoAt = (markup: string) => markup.indexOf('alt="Logo"')
 
-const posters = Object.entries(posterRegistry).filter(([, e]) => !e.bannerOnly)
+const posters = Object.entries(posterRegistry).filter(([k, e]) => !e.bannerOnly && k !== 'plakatNaukowy')
 // Layouty za ciasne na wiersz nad stopką - kod zawsze w rzędzie stopki.
 const INLINE_ONLY = ['konferencja', 'rekrutacja']
 const roomy = posters.filter(([k]) => !INLINE_ONLY.includes(k))

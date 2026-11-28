@@ -5,7 +5,7 @@ import { UI_ERROR, UI_HINT, UI_LABEL } from '../styles'
 import { Button, Icon, Popover } from '../ui'
 import type { IconName } from '../ui'
 
-type Format = 'pdf' | 'png' | 'html'
+type Format = 'pdfVector' | 'pdf' | 'png' | 'html'
 
 interface ExportMenuProps {
   deck: Deck
@@ -17,7 +17,8 @@ const ASPECT_OPTIONS = [
 ] as const satisfies readonly { value: SlideAspect; label: string }[]
 
 const FORMATS: readonly { format: Format; icon: IconName; label: string; hint: string }[] = [
-  { format: 'pdf', icon: 'download', label: 'PDF', hint: 'Jeden plik, slajd na stronę.' },
+  { format: 'pdfVector', icon: 'download', label: 'PDF wektorowy (najlepsza jakość)', hint: 'Okno druku → „Zapisz jako PDF”. Ostry tekst przy każdym powiększeniu.' },
+  { format: 'pdf', icon: 'download', label: 'PDF (obraz)', hint: 'Jeden plik, slajd na stronę, bez okna druku.' },
   { format: 'png', icon: 'image', label: 'PNG', hint: 'Jeden plik na slajd.' },
   { format: 'html', icon: 'presentations', label: 'HTML', hint: 'Pokaz w przeglądarce, w obu formatach.' },
 ]
@@ -30,6 +31,7 @@ async function runExport(format: Format, deck: Deck, aspect: SlideAspect, onProg
     return exportDeckHtml(deck, onProgress)
   }
   const raster = await import('../../slides/export/raster')
+  if (format === 'pdfVector') return raster.printDeckPdf(deck, aspect)
   return format === 'pdf' ? raster.exportDeckPdf(deck, aspect, onProgress) : raster.exportDeckPng(deck, aspect, onProgress)
 }
 

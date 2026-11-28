@@ -68,7 +68,8 @@ const toField = (f: FieldSpec): CatalogField => ({
 
 export function buildCatalog(): Catalog {
   const templates: CatalogTemplate[] = Object.entries(posterRegistry)
-    .filter(([, entry]) => !entry.bannerOnly)
+    // Plakat naukowy to bloki edytowane tylko w aplikacji - API nie ma ich czym wypełnić.
+    .filter(([key, entry]) => !entry.bannerOnly && key !== 'plakatNaukowy')
     .map(([key, entry]) => {
       const fields = FIELDS_BY_KEY[key]
       if (!fields) throw new Error(`Brak listy pól dla layoutu „${key}"`)

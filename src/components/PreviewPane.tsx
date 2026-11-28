@@ -59,7 +59,7 @@ export function PreviewPane({ posterRef, Component, data, scheme, accent, lang, 
 
   return (
     <section aria-label="Podgląd i eksport" inert={inert} className={`flex min-w-0 flex-col bg-sunken${className ? ` ${className}` : ''}`}>
-      <ExportBar exporter={exporter} className="flex-none border-b border-border bg-bg px-4 py-2 min-[900px]:min-h-13" />
+      <ExportBar exporter={exporter} getNode={() => posterRef.current} className="flex-none border-b border-border bg-bg px-4 py-2 min-[900px]:min-h-13" />
       <div
         ref={stageRef}
         style={ratio}

@@ -1,6 +1,7 @@
 import { toCanvas } from 'html-to-image'
 import { canvasToPngBlob, context2d, deflate, saveBlob } from '../../posters/export'
 import { buildPdfPages } from '../../posters/pdf'
+import { printPages } from '../../posters/printPdf'
 import type { PdfImage } from '../../posters/pdf'
 import { rgbaToRgb } from '../../posters/rgb'
 import { SLIDE_SIZE } from '../shape'
@@ -12,9 +13,10 @@ export type ExportProgress = (done: number, total: number) => void
 // Przeglądarki potrafią zablokować serię pobrań naraz - dajemy im chwilę.
 const DOWNLOAD_GAP_MS = 250
 
+// 4K (16:9) / 2160² - ostry tekst przy powiększeniu i na dużym ekranie.
 const RASTER: Record<SlideAspect, { width: number; height: number; widthPt: number; heightPt: number }> = {
-  '16:9': { width: 1920, height: 1080, widthPt: 1440, heightPt: 810 },
-  '1:1': { width: 1080, height: 1080, widthPt: 810, heightPt: 810 },
+  '16:9': { width: 3840, height: 2160, widthPt: 1440, heightPt: 810 },
+  '1:1': { width: 2160, height: 2160, widthPt: 810, heightPt: 810 },
 }
 
 // Rozmiar obrazu eksportu (px) i strony PDF (pt) dla proporcji slajdu.
@@ -84,4 +86,15 @@ export async function exportDeckPdf(deck: Deck, aspect: SlideAspect, onProgress?
     pages.push({ widthPx: canvas.width, heightPx: canvas.height, widthPt, heightPt, imageData })
   })
   saveBlob(new Blob([buildPdfPages(pages)], { type: 'application/pdf' }), `${deckFileName(deck.name)}.pdf`)
+}
+
+// Wektorowy PDF przez okno druku: slajd na stronę w rozmiarze stron rastrowego PDF.
+export async function printDeckPdf(deck: Deck, aspect: SlideAspect): Promise<void> {
+  const { widthPt, heightPt } = RASTER[aspect]
+  const { nodes, dispose } = await renderOffscreen(deck, aspect)
+  try {
+    await printPages(nodes, { w: (widthPt / 72) * 25.4, h: (heightPt / 72) * 25.4 })
+  } finally {
+    dispose()
+  }
 }

@@ -19,6 +19,10 @@ const DEFAULT_AGENDA: ListItem[] = [
 ]
 
 // KONFERENCJA — nagłówek + lista programu
+// Krótkie opisy punktów (imię i afiliacja) stoją w jednej linii: tekst programu
+// maleje najwyżej do 60% (jak na wzorcowym plakacie Sympozjum), zanim opis się zawinie.
+const NOWRAP_FLOOR = 0.6
+
 export function PosterKonferencja({ data, scheme, accent, lang = 'pl' }: PosterProps) {
   const { raw, event_date, logoSlots, qrUrl, qrSide, lists, hidden, fx, titleScale, fillAgenda } = withPlaceholders(data)
   const agenda = lists.agenda?.length ? lists.agenda : DEFAULT_AGENDA
@@ -55,7 +59,7 @@ export function PosterKonferencja({ data, scheme, accent, lang = 'pl' }: PosterP
           format): oddech, rozmiar tekstu i kolumny dobiera KonferencjaAgenda.
           Wyjątek: kwadrat z „Dopasuj program" rośnie w dół. */}
       <div style={{ flex: 1, minHeight: 0, padding: '48px 72px 72px', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', gap: 32 }}>
-        <KonferencjaAgenda agenda={agenda} seed={DEFAULT_AGENDA} startPad={rowPad} spread={fillAgenda} grow={fillAgenda && shape === 'square'} canGrow={shape === 'square'} />
+        <KonferencjaAgenda agenda={agenda} seed={DEFAULT_AGENDA} startPad={rowPad} spread={fillAgenda} grow={fillAgenda && shape === 'square'} canGrow={shape === 'square'} nowrapFloor={NOWRAP_FLOOR} />
 
         {/* Layout wypełniony po brzegi - wiersz z kodem nad stopką wypchnąłby
             ją poza kadr, więc kod zawsze stoi w rzędzie stopki. */}

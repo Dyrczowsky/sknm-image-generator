@@ -459,6 +459,8 @@ accentRecipes.warsztatBezZdjecia = accentRecipes.warsztat
 accentRecipes.galaHarmonogram = accentRecipes.gala
 // Absolwent (seria jubileuszowa) ma kolory Gali.
 accentRecipes.absolwent = accentRecipes.gala
+// Plakat konferencyjny (B2): granat + jasny tekst + żółty akcent jak Ogłoszenie.
+accentRecipes.plakatNaukowy = accentRecipes.ogloszenie
 
 export const ACCENT_NAMES: AccentName[] = ['zolty', 'pomaranczowy', 'granatowy', 'zloty', 'srebrny']
 
@@ -518,7 +520,7 @@ export const ACCENT_DOT: Record<AccentName, string> = {
 }
 
 // `warsztatBezZdjecia` to wariant banera Warsztatu - dzieli z nim schematy.
-export const schemes: Record<string, LayoutSchemes> = { ogloszenie, gala, gosc, data, wyklad, konferencja, rekrutacja, warsztat, warsztatBezZdjecia: warsztat, galaHarmonogram: gala, absolwent: gala, komunikat, ciekawostka }
+export const schemes: Record<string, LayoutSchemes> = { ogloszenie, gala, gosc, data, wyklad, konferencja, rekrutacja, warsztat, warsztatBezZdjecia: warsztat, galaHarmonogram: gala, absolwent: gala, plakatNaukowy: ogloszenie, komunikat, ciekawostka }
 
 // camelCase → --kebab; layout może dodać dowolną rolę bez zmiany resolvera.
 const roleToVar = (role: string): `--${string}` => `--${role.replace(/[A-Z]/g, (upper) => `-${upper.toLowerCase()}`)}`

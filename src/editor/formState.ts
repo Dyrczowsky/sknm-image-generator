@@ -1,6 +1,9 @@
 import { FORM_TEXT_FIELDS } from '../types'
 import type { FormTextField, FormUpdate, FormValues, CiekawostkaLayout, Medium, PkLogoKind, QrPlacement, QrSide } from '../types'
 import { toPlain } from '../richText'
+import { BLOCKS_LIST, newBlock } from '../posters/naukowy/blocks'
+import { SAMPLE_BLOCKS } from '../posters/naukowy/sample'
+import type { BlockType } from '../posters/naukowy/blocks'
 import { MAX_GRAPHICS } from '../posters/theme'
 
 // Stan pustego formularza: wartości domyślne, a także tło, na którym parser
@@ -139,6 +142,12 @@ const updateList = (fieldKey: string, change: (items: FormValues['lists'][string
 })
 
 export const addListItem = (fieldKey: string): FormUpdate => updateList(fieldKey, (items) => [...items, {}])
+
+// Plakat naukowy: dopisuje na koniec strumienia blok danego typu.
+export const addBlock = (type: BlockType): FormUpdate => updateList(BLOCKS_LIST, (items) => [...items, newBlock(type)])
+
+// Przykładowa treść plakatu naukowego do edycji (świeże id - bloki są niezależne od wzorca).
+export const loadSampleBlocks: FormUpdate = updateList(BLOCKS_LIST, () => SAMPLE_BLOCKS.map((b) => ({ ...b, id: crypto.randomUUID() })))
 
 export const setListItemField = (fieldKey: string, index: number, name: string, value: string): FormUpdate =>
   updateList(fieldKey, (items) => replaceAt(items, index, (item) => ({ ...item, [name]: value })))

@@ -17,6 +17,8 @@ export const SHAPE_SIZE: Record<PosterShape, { width: number; height: number }> 
   carousel: { width: 1997, height: 624 },
   // Wysokie Story 1080×1920 - tylko dla layoutów z flagą `storyShape`.
   story: { width: 1080, height: 1920 },
+  // Post na Facebooka 4:5 (1080×1350) - najwyższy pion, którego Facebook nie przycina w feedzie.
+  post: { width: 1080, height: 1350 },
 }
 
 export function isBannerShape(shape: PosterShape): boolean {

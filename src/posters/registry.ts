@@ -9,6 +9,7 @@ import { PosterKonferencja } from './PosterKonferencja'
 import { PosterKomunikat } from './PosterKomunikat'
 import { PosterCiekawostka } from './PosterCiekawostka'
 import { PosterAbsolwent } from './PosterAbsolwent'
+import { PosterPlakatNaukowy } from './PosterPlakatNaukowy'
 import { BannerWyklad } from './banners/BannerWyklad'
 import { BannerWarsztat } from './banners/BannerWarsztat'
 import { BannerWarsztatBezZdjecia } from './banners/BannerWarsztatBezZdjecia'
@@ -32,6 +33,7 @@ import { FormKonferencja } from '../forms/FormKonferencja'
 import { FormKomunikat } from '../forms/FormKomunikat'
 import { FormCiekawostka } from '../forms/FormCiekawostka'
 import { FormAbsolwent } from '../forms/FormAbsolwent'
+import { FormPlakatNaukowy } from '../forms/FormPlakatNaukowy'
 import type { RegistryEntry } from '../types'
 
 // Każdy wpis to `{ name, Component, Banner, Form }`:
@@ -76,4 +78,6 @@ export const posterRegistry: Record<string, RegistryEntry> = {
   ciekawostka: { name: 'Ciekawostka', Component: PosterCiekawostka, Banner: BannerCiekawostka, bannerPhoto: true, storyShape: true, Form: FormCiekawostka },
   // Baner Gali - baner niesie nazwę koła, nie dane osoby.
   absolwent: { name: 'Absolwent – jubileusz', Component: PosterAbsolwent, Banner: BannerGala, Form: FormAbsolwent },
+  // Plakat B2 nie ma własnego banera (to druk) - baner niesie nazwę koła jak Konferencja.
+  plakatNaukowy: { name: 'Plakat konferencyjny (B2)', Component: PosterPlakatNaukowy, Banner: BannerKonferencja, Form: FormPlakatNaukowy },
 }
