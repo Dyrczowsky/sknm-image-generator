@@ -16,7 +16,7 @@ interface Props {
 
 export function BlockView({ block, index, scale, seed }: Props) {
   const fs = 20 * scale
-  const base: CSSProperties = { fontSize: fs, lineHeight: 1.45, whiteSpace: 'pre-line' }
+  const base: CSSProperties = { fontSize: fs, lineHeight: 1.38, whiteSpace: 'pre-line' }
   const field = (key: 'title' | 'text', style: CSSProperties, label: string) => (
     <PosterText path={`lists.${BLOCKS_LIST}.${index}.${key}`} value={block[key]} multiline label={label} listSeed={seed} style={style} />
   )
@@ -24,19 +24,22 @@ export function BlockView({ block, index, scale, seed }: Props) {
 
   switch (block.type) {
     case 'heading':
-      return field('title', { fontSize: 38 * scale, fontWeight: 800, lineHeight: 1.1, color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '.03em' }, 'Nagłówek')
+      return field('title', { fontSize: 32 * scale, fontWeight: 800, lineHeight: 1.1, color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '.03em' }, 'Nagłówek')
     case 'text':
       return text()
     case 'bullets':
       return (
+        <>
+        {block.title && <div style={{ fontSize: fs * 0.85, fontWeight: 800, letterSpacing: '.08em', textTransform: 'uppercase', marginBottom: 10 * scale }}>{block.title}</div>}
         <ul style={{ ...base, margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 8 * scale }}>
           {bulletLines(block.text).map((line, i) => (
-            <li key={i} style={{ display: 'flex', gap: 12 * scale }}>
+            <li key={i} style={{ display: 'flex', gap: 12 * scale, breakInside: 'avoid' }}>
               <span style={{ color: 'var(--accent)', fontWeight: 800 }}>▸</span>
               <span>{line}</span>
             </li>
           ))}
         </ul>
+        </>
       )
     case 'photo':
       return (

@@ -29,7 +29,7 @@ export const CALLOUT_LABELS: Record<CalloutTone, string> = {
 }
 
 // Pola bloku (wszystkie opcjonalne poza id/type):
-// - title: nagłówek / podpis zdjęcia / tytuł ramki / podpis QR
+// - title: nagłówek / podpis zdjęcia / tytuł ramki / podpis QR / podtytuł listy
 // - text: treść; dla `bullets` jedna linia = jeden punkt; dla `latex` źródło TeX
 // - photo: ref zasobu (isAssetRef) albo data URL
 // - side: 'left' | 'right' - strona zdjęcia w `photoText`
@@ -57,4 +57,24 @@ export function newBlock(type: BlockType): Block {
 // Linie listy punktowanej (puste pomijamy).
 export function bulletLines(text: string | undefined): string[] {
   return (text ?? '').split('\n').map((line) => line.trim()).filter(Boolean)
+}
+
+// Grupy łamane razem: kolejne nagłówki + pierwszy blok po nich; reszta pojedynczo.
+export function groupBlocks(blocks: readonly Block[]): { block: Block; index: number }[][] {
+  const groups: { block: Block; index: number }[][] = []
+  let pending: { block: Block; index: number }[] = []
+  blocks.forEach((block, index) => {
+    pending.push({ block, index })
+    if (block.type !== 'heading') {
+      groups.push(pending)
+      pending = []
+    }
+  })
+  if (pending.length) groups.push(pending)
+  return groups
+}
+
+// Bloki, które wolno przełamać między kolumnami (tekst ciągły i listy).
+export function isSplittable(type: BlockType): boolean {
+  return type === 'text' || type === 'bullets' || type === 'callout'
 }

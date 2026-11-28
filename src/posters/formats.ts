@@ -35,6 +35,7 @@ export type ExportFormat = PixelFormat | PaperFormat
 export const EXPORT_FORMATS: Record<string, ExportFormat> = {
   square: { label: 'Kwadrat · 1080×1080', medium: 'social', width: 1080, height: 1080 },
   story: { label: 'Story · 1080×1920', medium: 'social', width: 1080, height: 1920 },
+  fbPost: { label: 'Facebook post · 1080×1350 (4:5)', medium: 'social', width: 1080, height: 1350, shape: 'post' },
   a4: { label: 'A4 · 210×297 mm', medium: 'social', paper: { widthMm: 210, heightMm: 297 } },
   a3: { label: 'A3 · 297×420 mm', medium: 'social', paper: { widthMm: 297, heightMm: 420 } },
   a2: { label: 'A2 · 420×594 mm', medium: 'social', paper: { widthMm: 420, heightMm: 594 } },

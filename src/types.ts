@@ -144,7 +144,7 @@ export type RawPosterData = { [K in keyof FormValues]?: FormValues[K] | null }
 // miniatury; `portrait`/`landscape` to proporcja papieru A (1:√2);
 // `cover`/`event` to banery Facebooka (okładka strony / wydarzenia),
 // `carousel` - slajd Smart Slider 3 na sknm.pk.edu.pl.
-export type PosterShape = 'square' | 'portrait' | 'landscape' | 'cover' | 'event' | 'carousel' | 'story'
+export type PosterShape = 'square' | 'portrait' | 'landscape' | 'cover' | 'event' | 'carousel' | 'story' | 'post'
 // Zakładka wyboru szablonu: grafika social (i druk) albo szeroki baner.
 export type Medium = 'social' | 'banner'
 export type Orientation = 'portrait' | 'landscape'

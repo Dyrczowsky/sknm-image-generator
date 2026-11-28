@@ -133,8 +133,8 @@ function BlocksField({ value, onChange }: FormProps) {
                 <SegmentedToggle ariaLabel={label('Strona zdjęcia')} options={SIDES} value={item.side === 'right' ? 'right' : 'left'} onChange={(side) => set('side', side)} />
               )}
               {type === 'qr' && <Input size="sm" aria-label={label('Adres w kodzie QR')} placeholder="https://…" value={item.url ?? ''} onChange={(e) => set('url', e.target.value)} />}
-              {(type === 'heading' || type === 'callout') && (
-                <Input size="sm" aria-label={label(type === 'heading' ? 'Nagłówek' : 'Tytuł ramki')} placeholder={type === 'heading' ? 'Nagłówek' : 'Tytuł (opcjonalnie)'} value={item.title ?? ''} onChange={(e) => set('title', e.target.value)} />
+              {(type === 'heading' || type === 'callout' || type === 'bullets') && (
+                <Input size="sm" aria-label={label(type === 'heading' ? 'Nagłówek' : type === 'bullets' ? 'Podtytuł listy' : 'Tytuł ramki')} placeholder={type === 'heading' ? 'Nagłówek' : type === 'bullets' ? 'Podtytuł (opcjonalnie)' : 'Tytuł (opcjonalnie)'} value={item.title ?? ''} onChange={(e) => set('title', e.target.value)} />
               )}
               {(type === 'photo' || type === 'qr') && (
                 <Input size="sm" aria-label={label('Podpis')} placeholder="Podpis (opcjonalnie)" value={item.title ?? ''} onChange={(e) => set('title', e.target.value)} />
